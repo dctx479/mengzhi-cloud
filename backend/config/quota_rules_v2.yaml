@@ -1,0 +1,197 @@
+# 配额和计费规则配置（优化版）
+# 版本: 2.0
+# 日期: 2026-01-22
+# 说明: 针对即梦视频/图片生成的严谨计费系统
+
+# ==================== 配额层级 ====================
+quota_tiers:
+  free_tier:
+    name: "免费版"
+    price: 0
+    limits:
+      # Token配额
+      monthly_tokens: 10000
+      daily_tokens: 500
+
+      # 图片生成配额
+      monthly_images: 10
+      daily_images: 2
+
+      # 视频生成配额（秒）
+      monthly_video_seconds: 0  # 免费版不支持视频
+      daily_video_seconds: 0
+
+      # 并发限制
+      max_concurrent_requests: 1
+      max_requests_per_minute: 10
+
+    features:
+      - basic_chat
+      - image_generation_512  # 仅支持512x512
+
+  basic_tier:
+    name: "基础版"
+    price: 99
+    limits:
+      monthly_tokens: 100000
+      daily_tokens: 5000
+      monthly_images: 100
+      daily_images: 20
+      monthly_video_seconds: 60  # 1分钟视频
+      daily_video_seconds: 10
+      max_concurrent_requests: 3
+      max_requests_per_minute: 30
+
+    features:
+      - basic_chat
+      - advanced_chat
+      - image_generation_1024  # 支持1024x1024
+      - video_generation_720p
+
+  professional_tier:
+    name: "专业版"
+    price: 999
+    limits:
+      monthly_tokens: 1000000
+      daily_tokens: 50000
+      monthly_images: 1000
+      daily_images: 200
+      monthly_video_seconds: 600  # 10分钟视频
+      daily_video_seconds: 100
+      max_concurrent_requests: 10
+      max_requests_per_minute: 100
+
+    features:
+      - basic_chat
+      - advanced_chat
+      - image_generation_2048  # 支持2048x2048
+      - video_generation_1080p
+      - priority_support
+
+  enterprise_tier:
+    name: "企业版"
+    price: 9999
+    limits:
+      monthly_tokens: -1  # 无限制
+      daily_tokens: -1
+      monthly_images: -1
+      daily_images: -1
+      monthly_video_seconds: -1
+      daily_video_seconds: -1
+      max_concurrent_requests: 50
+      max_requests_per_minute: 500
+
+    features:
+      - all
+
+# ==================== 计费规则 ====================
+billing_rules:
+  # AI对话计费（按Token）
+  chat_pricing:
+    deepseek:
+      input_token: 0.0001   # ¥0.0001/token
+      output_token: 0.0002
+    openai_gpt4:
+      input_token: 0.001
+      output_token: 0.002
+    openai_gpt35:
+      input_token: 0.0001
+      output_token: 0.0002
+
+  # 即梦图片生成计费（按张数和分辨率）
+  jimeng_image_pricing:
+    "512x512":
+      price: 0.1          # ¥0.1/张
+      quota_cost: 1       # 消耗1个图片配额
+    "1024x1024":
+      price: 0.3          # ¥0.3/张
+      quota_cost: 3       # 消耗3个图片配额
+    "2048x2048":
+      price: 0.8          # ¥0.8/张
+      quota_cost: 8       # 消耗8个图片配额
+    "custom":
+      base_price: 0.1
+      price_per_megapixel: 0.05  # 每百万像素¥0.05
+
+  # 即梦视频生成计费（按秒数和分辨率）
+  jimeng_video_pricing:
+    "720p":
+      price_per_second: 0.5    # ¥0.5/秒
+      quota_cost_per_second: 1  # 每秒消耗1秒配额
+    "1080p":
+      price_per_second: 1.0    # ¥1.0/秒
+      quota_cost_per_second: 2  # 每秒消耗2秒配额
+    "4k":
+      price_per_second: 3.0    # ¥3.0/秒
+      quota_cost_per_second: 5  # 每秒消耗5秒配额
+
+  # 失败处理计费
+  failure_handling:
+    image_generation_failed:
+      refund_percentage: 100  # 失败全额退款
+    video_generation_failed:
+      refund_percentage: 100  # 失败全额退款
+    video_generation_partial:
+      refund_percentage: 0    # 部分生成不退款（已消耗资源）
+
+  # 超额计费（超出配额后的价格，上浮50%）
+  overage_pricing:
+    token_overage_multiplier: 1.5
+    image_overage_multiplier: 1.5
+    video_overage_multiplier: 1.5
+
+# ==================== 成本控制 ====================
+cost_control:
+  # 单次生成限制
+  single_request_limits:
+    max_image_cost: 10.0      # 单次图片生成最高¥10
+    max_video_cost: 100.0     # 单次视频生成最高¥100
+    max_video_duration: 300   # 单次视频最长300秒（5分钟）
+
+  # 每日消费限制
+  daily_spending_limits:
+    free_tier: 0              # 免费版不允许超额消费
+    basic_tier: 50            # 基础版每日最多超额消费¥50
+    professional_tier: 500    # 专业版每日最多超额消费¥500
+    enterprise_tier: -1       # 企业版无限制
+
+  # 异常消费告警阈值
+  alert_thresholds:
+    daily_spending_warning: 0.8    # 达到每日限额80%告警
+    daily_spending_critical: 0.95  # 达到每日限额95%告警
+    unusual_spike: 5.0             # 单小时消费超过¥5告警
+
+# ==================== 计费严谨性保障 ====================
+billing_integrity:
+  # 预扣费机制
+  pre_deduction:
+    enabled: true
+    timeout_seconds: 300      # 5分钟内未完成自动退款
+
+  # 幂等性保障
+  idempotency:
+    enabled: true
+    key_ttl_seconds: 3600     # 幂等性key保留1小时
+
+  # 计费审计
+  audit:
+    enabled: true
+    log_all_transactions: true
+    retention_days: 365       # 审计日志保留1年
+
+  # 计费验证
+  validation:
+    check_quota_before_request: true
+    check_balance_before_request: true
+    double_check_after_deduction: true
+
+# ==================== 配额重置规则 ====================
+reset_rules:
+  monthly: "0 0 1 * *"  # 每月1号0点
+  daily: "0 0 * * *"    # 每天0点
+
+# ==================== 预警阈值 ====================
+alert_thresholds:
+  quota_warning: 0.8    # 配额使用80%预警
+  quota_critical: 0.95  # 配额使用95%预警
+  balance_low: 10.0     # 余额低于¥10预警

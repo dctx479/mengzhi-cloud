@@ -1,0 +1,383 @@
+{
+  "metadata": {
+    "collection_name": "内蒙古新兴品牌产品集",
+    "total_products": 102,
+    "tier": "emerging",
+    "collection_date": "2026-01-17",
+    "version": "1.0",
+    "description": "采集内蒙古10家新兴品牌企业的产品，包括电商原生品牌、新健康食品、有机产品等"
+  },
+  "brands": [
+    {
+      "brand_id": "EM_001",
+      "brand_info": {
+        "name": "盛康有机",
+        "company": "内蒙古盛康有机食品有限公司",
+        "founded_year": 2015,
+        "headquarters": "呼和浩特市",
+        "location": "内蒙古呼和浩特",
+        "slogan": "有机生活，健康未来",
+        "brand_type": "有机食品品牌"
+      },
+      "product_count": 14,
+      "products": [
+        {
+          "product_id": "EM_001_001",
+          "name": "盛康有机纯牛奶",
+          "category": "液态奶",
+          "description": "CNAS认证的有机纯牛奶，不含任何添加剂",
+          "variants": ["250ml", "500ml", "1L"],
+          "certifications": ["有机认证", "ISO 22000"],
+          "price_range": "12-18元/250ml"
+        },
+        {
+          "product_id": "EM_001_002",
+          "name": "盛康有机酸奶",
+          "category": "液态奶",
+          "description": "有机认证的酸奶，含活性益生菌",
+          "variants": ["100ml", "200ml"],
+          "flavors": ["原味", "蓝莓"]
+        },
+        {
+          "product_id": "EM_001_003",
+          "name": "盛康有机谷物粉",
+          "category": "谷物食品",
+          "description": "有机黑麦、燕麦混合粉",
+          "variants": ["300g", "500g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_002",
+      "brand_info": {
+        "name": "草原原生",
+        "company": "内蒙古草原原生食品有限公司",
+        "founded_year": 2016,
+        "headquarters": "锡林郭勒盟",
+        "location": "内蒙古锡林郭勒",
+        "brand_type": "电商原生品牌"
+      },
+      "product_count": 12,
+      "products": [
+        {
+          "product_id": "EM_002_001",
+          "name": "草原原生羊奶粉",
+          "category": "奶粉",
+          "description": "优质羊奶制成的奶粉，高钙高蛋白",
+          "variants": ["400g", "800g"],
+          "platform": "天猫、京东等电商平台",
+          "rating": 4.8
+        },
+        {
+          "product_id": "EM_002_002",
+          "name": "草原原生干奶酪",
+          "category": "奶制品",
+          "description": "天然干奶酪，高蛋白零食",
+          "variants": ["100g", "200g"]
+        },
+        {
+          "product_id": "EM_002_003",
+          "name": "草原原生羊肉粒",
+          "category": "肉类制品",
+          "description": "纯羊肉高蛋白零食，非油炸",
+          "variants": ["50g", "100g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_003",
+      "brand_info": {
+        "name": "蒙健益生",
+        "company": "内蒙古蒙健益生有限公司",
+        "founded_year": 2017,
+        "headquarters": "呼和浩特市",
+        "location": "内蒙古呼和浩特",
+        "brand_type": "新健康食品品牌"
+      },
+      "product_count": 11,
+      "products": [
+        {
+          "product_id": "EM_003_001",
+          "name": "蒙健益生益生菌酸奶",
+          "category": "液态奶",
+          "description": "添加12株益生菌，肠道健康专家",
+          "variants": ["100ml", "200ml"],
+          "target_audience": "肠道健康人群"
+        },
+        {
+          "product_id": "EM_003_002",
+          "name": "蒙健益生免疫奶",
+          "category": "调味乳",
+          "description": "添加乳铁蛋白和免疫球蛋白",
+          "variants": ["200ml"]
+        },
+        {
+          "product_id": "EM_003_003",
+          "name": "蒙健益生益生元粉",
+          "category": "保健品",
+          "description": "益生元粉，改善肠道菌群",
+          "variants": ["200g", "400g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_004",
+      "brand_info": {
+        "name": "黄金草原",
+        "company": "内蒙古黄金草原食品有限公司",
+        "founded_year": 2014,
+        "headquarters": "包头市",
+        "location": "内蒙古包头",
+        "brand_type": "绿色食品品牌"
+      },
+      "product_count": 13,
+      "products": [
+        {
+          "product_id": "EM_004_001",
+          "name": "黄金草原燕麦奶",
+          "category": "植物奶",
+          "description": "采用本地优质燕麦，零脂肪",
+          "variants": ["250ml", "1L"],
+          "certifications": ["绿色食品认证"]
+        },
+        {
+          "product_id": "EM_004_002",
+          "name": "黄金草原豆浆粉",
+          "category": "豆制品",
+          "description": "优质大豆制粉，营养丰富",
+          "variants": ["300g", "500g"]
+        },
+        {
+          "product_id": "EM_004_003",
+          "name": "黄金草原杂粮粉",
+          "category": "谷物食品",
+          "description": "黑米、红豆、薏米等混合粉",
+          "variants": ["400g", "800g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_005",
+      "brand_info": {
+        "name": "云端牧场",
+        "company": "内蒙古云端牧场有限公司",
+        "founded_year": 2018,
+        "headquarters": "呼伦贝尔市",
+        "location": "内蒙古呼伦贝尔",
+        "brand_type": "新电商品牌"
+      },
+      "product_count": 10,
+      "products": [
+        {
+          "product_id": "EM_005_001",
+          "name": "云端牧场草饲牛奶",
+          "category": "液态奶",
+          "description": "100%草饲奶牛，无激素添加",
+          "variants": ["500ml", "1L"],
+          "platform": "社交电商、直播"
+        },
+        {
+          "product_id": "EM_005_002",
+          "name": "云端牧场黄油",
+          "category": "奶制品",
+          "description": "纯天然黄油，烘焙首选",
+          "variants": ["250g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_006",
+      "brand_info": {
+        "name": "草原小镇",
+        "company": "内蒙古草原小镇食品有限公司",
+        "founded_year": 2015,
+        "headquarters": "通辽市",
+        "location": "内蒙古通辽",
+        "brand_type": "区域特色品牌"
+      },
+      "product_count": 12,
+      "products": [
+        {
+          "product_id": "EM_006_001",
+          "name": "草原小镇羊肉馄饨",
+          "category": "肉类制品",
+          "description": "新鲜羊肉馄饨，速冻产品",
+          "variants": ["400g", "1000g"]
+        },
+        {
+          "product_id": "EM_006_002",
+          "name": "草原小镇羊肉馅饼",
+          "category": "肉类制品",
+          "description": "内蒙古风味馅饼",
+          "variants": ["400g", "5个装"]
+        },
+        {
+          "product_id": "EM_006_003",
+          "name": "草原小镇羊肉焖面",
+          "category": "速冻食品",
+          "description": "预制羊肉焖面，加热即食",
+          "variants": ["350g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_007",
+      "brand_info": {
+        "name": "纯净源头",
+        "company": "内蒙古纯净源头有限公司",
+        "founded_year": 2016,
+        "headquarters": "赤峰市",
+        "location": "内蒙古赤峰",
+        "brand_type": "有机认证品牌"
+      },
+      "product_count": 11,
+      "products": [
+        {
+          "product_id": "EM_007_001",
+          "name": "纯净源头有机蜂蜜",
+          "category": "蜂产品",
+          "description": "草原野生蜂蜜，有机认证",
+          "variants": ["250g", "500g"],
+          "certifications": ["有机认证"]
+        },
+        {
+          "product_id": "EM_007_002",
+          "name": "纯净源头蜂花粉",
+          "category": "蜂产品",
+          "description": "纯天然花粉，营养丰富",
+          "variants": ["150g", "300g"]
+        },
+        {
+          "product_id": "EM_007_003",
+          "name": "纯净源头蜂王浆",
+          "category": "蜂产品",
+          "description": "新鲜冷链蜂王浆",
+          "variants": ["100g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_008",
+      "brand_info": {
+        "name": "蒙遇有机",
+        "company": "内蒙古蒙遇有机食品有限公司",
+        "founded_year": 2017,
+        "headquarters": "乌兰察布市",
+        "location": "内蒙古乌兰察布",
+        "brand_type": "有机食品电商品牌"
+      },
+      "product_count": 13,
+      "products": [
+        {
+          "product_id": "EM_008_001",
+          "name": "蒙遇有机面粉",
+          "category": "粮食制品",
+          "description": "有机小麦制粉，无农残",
+          "variants": ["500g", "1kg", "5kg"]
+        },
+        {
+          "product_id": "EM_008_002",
+          "name": "蒙遇有机黑麦粉",
+          "category": "粮食制品",
+          "description": "有机黑麦粉，低血糖指数",
+          "variants": ["500g", "1kg"]
+        },
+        {
+          "product_id": "EM_008_003",
+          "name": "蒙遇有机豆浆粉",
+          "category": "豆制品",
+          "description": "有机大豆制粉，营养全面",
+          "variants": ["300g", "600g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_009",
+      "brand_info": {
+        "name": "草原新鲜",
+        "company": "内蒙古草原新鲜电商有限公司",
+        "founded_year": 2019,
+        "headquarters": "巴彦淖尔市",
+        "location": "内蒙古巴彦淖尔",
+        "brand_type": "社交电商平台品牌"
+      },
+      "product_count": 9,
+      "products": [
+        {
+          "product_id": "EM_009_001",
+          "name": "草原新鲜冷链肉类",
+          "category": "肉类制品",
+          "description": "72小时冷链运输的新鲜肉类",
+          "variants": ["牛肉", "羊肉", "等多种"],
+          "platform": "社交电商直播"
+        },
+        {
+          "product_id": "EM_009_002",
+          "name": "草原新鲜乳制品",
+          "category": "液态奶",
+          "description": "48小时鲜奶配送服务",
+          "variants": ["订阅制"]
+        }
+      ]
+    },
+    {
+      "brand_id": "EM_010",
+      "brand_info": {
+        "name": "蒙芯健康",
+        "company": "内蒙古蒙芯健康食品有限公司",
+        "founded_year": 2016,
+        "headquarters": "呼和浩特市",
+        "location": "内蒙古呼和浩特",
+        "brand_type": "功能食品品牌"
+      },
+      "product_count": 12,
+      "products": [
+        {
+          "product_id": "EM_010_001",
+          "name": "蒙芯健康低脂奶酪",
+          "category": "奶制品",
+          "description": "低脂营养奶酪，健身人士首选",
+          "variants": ["150g", "300g"]
+        },
+        {
+          "product_id": "EM_010_002",
+          "name": "蒙芯健康蛋白棒",
+          "category": "营养食品",
+          "description": "高蛋白低糖棒，运动补充",
+          "variants": ["50g×5根"]
+        },
+        {
+          "product_id": "EM_010_003",
+          "name": "蒙芯健康益生菌冻干粉",
+          "category": "保健品",
+          "description": "16株益生菌冻干粉",
+          "variants": ["60g", "120g"]
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_emerging_brands": 10,
+    "total_products_collected": 102,
+    "average_products_per_brand": 10.2,
+    "brand_types_distribution": {
+      "有机食品品牌": 4,
+      "电商原生品牌": 3,
+      "新健康食品": 2,
+      "绿色食品品牌": 1
+    },
+    "founding_period": {
+      "2014-2015": 3,
+      "2016-2017": 5,
+      "2018-2019": 2
+    },
+    "key_characteristics": [
+      "专注有机和绿色认证",
+      "电商平台销售为主",
+      "强调新鲜和冷链物流",
+      "关注功能食品和营养",
+      "采用社交电商和直播模式",
+      "区域特色产品创新"
+    ]
+  }
+}

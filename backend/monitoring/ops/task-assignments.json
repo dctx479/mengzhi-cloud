@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created_at": "2026-01-24",
+    "phase": "Phase 3 - 智能运维整合",
+    "strategy": "HIERARCHICAL"
+  },
+  "tasks": [
+    {
+      "id": "task-1",
+      "worker": "Worker-1",
+      "title": "实现故障检测和自动修复脚本",
+      "description": "根据 AUTO_HEALING.md 文档实现自动修复脚本",
+      "priority": "high",
+      "estimated_time": "40min",
+      "dependencies": [],
+      "output_path": "backend/monitoring/ops/scripts/"
+    },
+    {
+      "id": "task-2",
+      "worker": "Worker-2",
+      "title": "构建运维知识库",
+      "description": "根据 FAULT_DIAGNOSIS.md 创建完整的运维知识库",
+      "priority": "medium",
+      "estimated_time": "35min",
+      "dependencies": [],
+      "output_path": "backend/ops-knowledge-base/"
+    },
+    {
+      "id": "task-3",
+      "worker": "Worker-3",
+      "title": "配置告警聚合和优化Alertmanager",
+      "description": "优化 Alertmanager 配置，实现智能告警",
+      "priority": "high",
+      "estimated_time": "35min",
+      "dependencies": [],
+      "output_path": "backend/monitoring/alertmanager/"
+    }
+  ]
+}

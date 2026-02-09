@@ -1,0 +1,193 @@
+version: '3.8'
+
+services:
+  # ==================== 日志收集 (ELK Stack) ====================
+
+  # Elasticsearch - 日志存储
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: ai-platform-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - monitoring-network
+
+  # Logstash - 日志处理
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: ai-platform-logstash
+    restart: unless-stopped
+    volumes:
+      - ./logging/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logging/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./logs:/logs:ro
+    ports:
+      - "${LOGSTASH_PORT:-5044}:5044"
+      - "9600:9600"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - monitoring-network
+
+  # Kibana - 日志可视化
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: ai-platform-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "${KIBANA_PORT:-5601}:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - monitoring-network
+
+  # Filebeat - 日志采集
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.0
+    container_name: ai-platform-filebeat
+    restart: unless-stopped
+    user: root
+    volumes:
+      - ./logging/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/logs:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - filebeat_data:/usr/share/filebeat/data
+    command: filebeat -e -strict.perms=false
+    depends_on:
+      - logstash
+    networks:
+      - monitoring-network
+
+  # ==================== 监控告警 (Prometheus + Grafana) ====================
+
+  # Prometheus - 监控数据收集
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ai-platform-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      - monitoring-network
+
+  # Grafana - 监控可视化
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ai-platform-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_SERVER_ROOT_URL=http://localhost:${GRAFANA_PORT:-3000}
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring-network
+
+  # Node Exporter - 系统指标
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: ai-platform-node-exporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring-network
+
+  # cAdvisor - 容器指标
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: ai-platform-cadvisor
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    ports:
+      - "${CADVISOR_PORT:-8083}:8080"
+    networks:
+      - monitoring-network
+
+  # Alertmanager - 告警管理
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: ai-platform-alertmanager
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ./monitoring/alertmanager/config.yml:/etc/alertmanager/config.yml:ro
+      - alertmanager_data:/alertmanager
+    ports:
+      - "${ALERTMANAGER_PORT:-9093}:9093"
+    networks:
+      - monitoring-network
+
+volumes:
+  elasticsearch_data:
+    driver: local
+  filebeat_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+
+networks:
+  monitoring-network:
+    driver: bridge

@@ -1,0 +1,48 @@
+# 后端测试依赖
+# 用途: pytest单元测试
+
+# 核心依赖
+pytest==7.4.0
+pytest-cov==4.1.0
+pytest-asyncio==0.21.1
+pytest-timeout==2.1.0
+pytest-mock==3.11.1
+pytest-xdist==3.5.0
+
+# 框架依赖 (与requirements.txt保持一致)
+fastapi==0.109.0
+starlette==0.35.1
+uvicorn==0.27.0
+httpx==0.26.0
+
+# 数据库依赖
+sqlalchemy==2.0.25
+sqlalchemy-utils==0.41.1
+pymysql==1.1.0
+
+# 数据验证依赖
+pydantic==2.5.3
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# 认证依赖
+python-jose==3.3.0
+python-multipart==0.0.6
+passlib==1.7.4
+bcrypt==4.1.0
+PyJWT==2.10.1
+
+# Redis依赖
+redis==5.0.0
+fakeredis==2.19.0
+
+# 其他依赖
+loguru==0.7.2
+python-dotenv==1.0.0
+requests==2.31.0
+
+# 开发依赖
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.0
+isort==5.13.1

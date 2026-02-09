@@ -1,0 +1,1954 @@
+{
+  "batch": "extended_batch2",
+  "title": "内蒙古农产品扩展 - 粮食、油料、蔬菜与豆类",
+  "province": "内蒙古自治区",
+  "total_count": 18,
+  "created_at": "2026-01-17",
+  "products": [
+    {
+      "id": 49,
+      "name": "河套小麦",
+      "category": "农产品",
+      "subcategory": "粮食作物",
+      "region": "巴彦淖尔市（河套地区）",
+      "description": "河套小麦产自内蒙古巴彦淖尔市的河套平原，是中国最优质的小麦之一。河套平原位于黄河灌溉流域，土壤肥沃，灌溉条件优越。这里生产的小麦因其高筋力、蛋白质含量高、面包烘焙性能优异而享誉国内外。",
+      "characteristics": [
+        "高筋小麦，筋力好",
+        "蛋白质含量14-15%",
+        "面粉白度高",
+        "烘焙性能优异",
+        "产量稳定"
+      ],
+      "cultural_background": "河套平原是中国古代农业文明的重要发源地之一。河套小麦种植历史悠久，古代就是北方主要粮食产地。民国时期因品质优异，被列为'面粉出口商品'。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "国家级非遗农产品"
+      ],
+      "main_uses": [
+        "面粉生产",
+        "面包烘焙",
+        "面条制作",
+        "食品工业原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（14-15%）",
+          "淀粉（65-70%）",
+          "B族维生素",
+          "矿物质（硒、锌）"
+        ],
+        "health_benefits": "高筋小麦蛋白质含量高，营养丰富。含有丰富的矿物质和维生素，特别是硒。"
+      },
+      "production_process": "采用黄河灌溉和传统农业技术相结合。严格按照绿色食品标准进行种植管理。不使用化学农药，采用生物防治。收获后进行严格分级和贮存管理。",
+      "seasonal_availability": {
+        "harvest_season": "6月中旬开始收获",
+        "best_consumption_period": "新麦上市后（7月-次年5月）",
+        "storage_duration": "常温干燥环境可保存2-3年"
+      },
+      "production_info": {
+        "annual_output": "约150-200万吨",
+        "main_producers": ["河套粮食集团", "农民合作社"],
+        "production_area": "河套平原（约800万亩）",
+        "yield_per_unit": "约600kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "3.5-5元/斤（小麦粒）",
+        "wholesale_price_range": "2.5-3.5元/斤",
+        "main_sales_channels": ["面粉厂", "食品企业", "农贸市场", "电商"],
+        "target_markets": ["华北", "华东", "国际市场"],
+        "market_share": "约占高端小麦市场的20%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 1020 小麦国家标准"],
+        "industry_standards": ["NY/T 288 绿色食品小麦"],
+        "inspection_items": ["容重", "蛋白质", "湿度", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["河套金麦", "黄河之滨"],
+        "brand_stories": ["几千年农业文明的传承"],
+        "awards": ["中国驰名商标", "2023年百强农产品"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["磨粉制面", "煮粥", "烤面包"],
+        "recipe_suggestions": ["河套面条", "馒头", "面包"],
+        "pairing_suggestions": ["配蔬菜", "配肉类", "配汤"],
+        "health_benefits": ["补气健脾", "强健身体"]
+      },
+      "cultural_depth": {
+        "historical_records": "河套平原新石器时代即有农业活动，小麦种植历史悠久",
+        "folklore_stories": "黄河灌溉文明的古老故事",
+        "festival_connection": "春节年面的传统原料",
+        "traditional_customs": "北方面食文化的基础"
+      },
+      "sustainability": {
+        "production_method": "灌溉农业 + 绿色种植",
+        "environmental_impact": "黄河水资源合理利用",
+        "carbon_footprint": "低碳粮食生产"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国", "中东", "欧盟"],
+        "export_standards": ["国际食品安全标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "黄河灌溉",
+        "古农业文明",
+        "面粉原料",
+        "地理标志",
+        "北方主粮"
+      ],
+      "market_price_range": "3.5-5元/斤",
+      "best_season": "夏秋季（新麦）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "磨粉做面条最佳",
+        "适合烤面包",
+        "做馒头口感佳",
+        "煮粥需浸泡"
+      ],
+      "image_links": [
+        "https://example.com/hetao-wheat-1.jpg",
+        "https://example.com/hetao-wheat-2.jpg",
+        "https://example.com/hetao-wheat-3.jpg"
+      ]
+    },
+    {
+      "id": 50,
+      "name": "河套面粉",
+      "category": "农产品",
+      "subcategory": "粮食制品",
+      "region": "巴彦淖尔市",
+      "description": "河套面粉是以河套小麦为原料，采用传统制粉工艺生产的高品质面粉。河套面粉因其出粉率高、颜色洁白、烘焙性能优异而被誉为'中国面粉皇后'。在国际市场上享有盛誉，是日本、韩国等国家的进口面粉品牌。",
+      "characteristics": [
+        "颜色洁白如雪",
+        "筋度强，延展性好",
+        "吸水率高",
+        "烘焙出品率高",
+        "口感细腻"
+      ],
+      "cultural_background": "河套面粉的制作工艺源自中国古代的磨粉技术，经过现代改进，形成了独特的品质。民国时期就远销日本、欧美，是中国面粉出口的代表产品。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "国家级非遗手工技艺"
+      ],
+      "main_uses": [
+        "家庭烘焙",
+        "面条制作",
+        "馒头馄饨",
+        "餐饮行业"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（12-14%）",
+          "淀粉（65-70%）",
+          "B族维生素",
+          "矿物质"
+        ],
+        "health_benefits": "营养均衡，蛋白质和碳水化合物比例合理。特别适合面包、面条制作。"
+      },
+      "production_process": "选用优质河套小麦，采用传统石磨和现代制粉技术相结合。全程不添加任何化学添加剂。保留部分麸皮，营养更全面。",
+      "seasonal_availability": {
+        "harvest_season": "全年供应（新麦粉最佳）",
+        "best_consumption_period": "4个月内为最佳期",
+        "storage_duration": "常温可保存12个月"
+      },
+      "production_info": {
+        "annual_output": "约50-80万吨",
+        "main_producers": ["河套面粉集团", "制粉企业"],
+        "production_area": "巴彦淖尔市",
+        "yield_per_unit": "出粉率约75%"
+      },
+      "market_info": {
+        "retail_price_range": "5-8元/斤（高端产品10-15元）",
+        "wholesale_price_range": "3-5元/斤",
+        "main_sales_channels": ["超市", "电商", "餐饮", "烘焙房"],
+        "target_markets": ["全国", "日本", "韩国", "东南亚"],
+        "market_share": "约占高端面粉市场的25%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 8608 面粉国家标准"],
+        "industry_standards": ["NY/T 421 绿色食品面粉"],
+        "inspection_items": ["蛋白质", "湿度", "白度", "微生物", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["河套面粉", "河套王牌"],
+        "brand_stories": ["中国面粉皇后的百年传承"],
+        "awards": ["中国驰名商标", "国际金奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["烤面包", "做面条", "蒸馒头", "烤饼"],
+        "recipe_suggestions": ["土司面包", "手工面条", "馒头", "烤饼"],
+        "pairing_suggestions": ["配黄油", "配酵母", "配盐"],
+        "health_benefits": ["补气健脾", "增强体质"]
+      },
+      "cultural_depth": {
+        "historical_records": "河套面粉民国时期就远销日本、欧美，有百年出口历史",
+        "folklore_stories": "磨粉工人的手工技艺传承故事",
+        "festival_connection": "春节年饼、馄饨的传统原料",
+        "traditional_customs": "北方家庭烘焙的首选"
+      },
+      "sustainability": {
+        "production_method": "绿色制粉 + 传统工艺",
+        "environmental_impact": "零添加，环保生产",
+        "carbon_footprint": "低碳制粉过程"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国", "东南亚", "中东", "欧洲"],
+        "export_standards": ["国际食品安全标准", "日本JAS标准"],
+        "international_certifications": ["有机认证", "GAP认证"]
+      },
+      "cultural_tags": [
+        "面粉皇后",
+        "地理标志",
+        "出口明星",
+        "烘焙原料",
+        "民国经典"
+      ],
+      "market_price_range": "5-15元/斤（按等级）",
+      "best_season": "夏秋新麦粉（品质最佳）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "烤面包最佳",
+        "做面条口感好",
+        "蒸馒头蓬松",
+        "烤饼酥脆"
+      ],
+      "image_links": [
+        "https://example.com/hetao-flour-1.jpg",
+        "https://example.com/hetao-flour-2.jpg",
+        "https://example.com/hetao-flour-3.jpg"
+      ]
+    },
+    {
+      "id": 51,
+      "name": "兴安盟大米",
+      "category": "农产品",
+      "subcategory": "粮食作物",
+      "region": "兴安盟（大兴安岭边缘）",
+      "description": "兴安盟大米产自内蒙古兴安盟，是中国四大米乡之一。兴安盟位于黑龙江省西侧，气候冷凉，日照充足，积温条件适宜，非常适合优质粳米生长。兴安盟大米以米粒细长、口感软糯、营养丰富而著称。",
+      "characteristics": [
+        "米粒细长圆润",
+        "口感软糯香甜",
+        "蛋白质含量8-10%",
+        "淀粉含量合理",
+        "易熟易消化"
+      ],
+      "cultural_background": "兴安盟大米种植历史悠久，是满族、蒙古族传统的主食。当地农民对水稻种植有丰富的经验，形成了独特的种植技术。",
+      "certifications": [
+        "地理标志产品保护",
+        "有机认证",
+        "绿色食品"
+      ],
+      "main_uses": [
+        "日常米饭",
+        "高档寿司米",
+        "粥品制作",
+        "米饼生产"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "碳水化合物（65-70%）",
+          "蛋白质（8-10%）",
+          "B族维生素",
+          "矿物质（钾、铁）"
+        ],
+        "health_benefits": "软糯易消化，特别适合儿童和老人。蛋白质含量适中，营养均衡。"
+      },
+      "production_process": "采用有机种植模式，不使用化学农药和化肥。采用冷水灌溉，充分利用冷凉气候的优势。采用传统稻谷烘干和碾米工艺，保留更多营养。",
+      "seasonal_availability": {
+        "harvest_season": "9月中旬开始收获",
+        "best_consumption_period": "新米上市后（10月-次年8月）",
+        "storage_duration": "真空密封可保存12个月"
+      },
+      "production_info": {
+        "annual_output": "约50-80万吨",
+        "main_producers": ["兴安盟农民合作社", "粮食企业"],
+        "production_area": "兴安盟各地（约200万亩）",
+        "yield_per_unit": "约400kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "6-12元/斤（高端品种）",
+        "wholesale_price_range": "3.5-6元/斤",
+        "main_sales_channels": ["超市", "电商", "农贸市场", "餐饮"],
+        "target_markets": ["全国", "日本", "韩国"],
+        "market_share": "约占东北大米市场的15%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 1354 大米国家标准"],
+        "industry_standards": ["NY/T 423 绿色食品水稻"],
+        "inspection_items": ["整精米率", "蛋白质", "垩白粒率", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["兴安极品米", "塞北珍珠"],
+        "brand_stories": ["冷凉气候培育的优质大米"],
+        "awards": ["国家级优质农产品", "2023年中国十大大米品牌"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煮饭", "煮粥", "寿司", "米饼"],
+        "recipe_suggestions": ["白米饭", "粥品", "寿司", "米糊"],
+        "pairing_suggestions": ["配咸菜", "配汤", "配菜肴"],
+        "health_benefits": ["健脾益气", "补气养血"]
+      },
+      "cultural_depth": {
+        "historical_records": "满族传统主食，清代就有大规模种植",
+        "folklore_stories": "兴安盟水稻种植的民间故事",
+        "festival_connection": "春节年饭的主要原料",
+        "traditional_customs": "东北地区的传统主食文化"
+      },
+      "sustainability": {
+        "production_method": "有机种植 + 冷水灌溉",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "碳中和种植"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国", "新加坡"],
+        "export_standards": ["日本JAS标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "四大米乡",
+        "有机大米",
+        "地理标志",
+        "软糯口感",
+        "满族文化"
+      ],
+      "market_price_range": "6-12元/斤（按品质）",
+      "best_season": "秋冬季新米（品质最佳）",
+      "storage_method": "真空密封保存，防潮防虫",
+      "cooking_suggestions": [
+        "煮饭口感最佳",
+        "适合做粥",
+        "高端品种可做寿司",
+        "易熟易消化"
+      ],
+      "image_links": [
+        "https://example.com/xing-an-rice-1.jpg",
+        "https://example.com/xing-an-rice-2.jpg",
+        "https://example.com/xing-an-rice-3.jpg"
+      ]
+    },
+    {
+      "id": 52,
+      "name": "敖汉小米",
+      "category": "农产品",
+      "subcategory": "粮食作物",
+      "region": "赤峰市敖汉旗",
+      "description": "敖汉小米产自内蒙古赤峰市敖汉旗，是中国古代小米的原产地。敖汉旗因其独特的地理环境和悠久的小米种植历史，生产的小米品质优异，享誉全国。敖汉小米以粒小色金、香气浓郁、营养丰富而著称，是传统养生食品。",
+      "characteristics": [
+        "粒小色黄金",
+        "香气浓郁",
+        "蛋白质含量高（10-12%）",
+        "纤维含量丰富",
+        "易消化"
+      ],
+      "cultural_background": "敖汉旗是中国古代小米的发源地，新石器时代就开始种植小米。古代敖汉小米是皇帝祭祀的重要供品。敖汉旗有'小米之乡'的美誉。",
+      "certifications": [
+        "地理标志产品保护",
+        "有机认证",
+        "国家级非遗农产品"
+      ],
+      "main_uses": [
+        "粥品制作",
+        "养生食品",
+        "传统小食",
+        "民间食疗"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "碳水化合物（65-70%）",
+          "蛋白质（10-12%）",
+          "纤维素",
+          "矿物质（镁、锌、铁）"
+        ],
+        "health_benefits": "营养全面，蛋白质含量较高。特别富含矿物质，有益健康。易消化吸收，特别适合老人和儿童。"
+      },
+      "production_process": "采用有机种植模式，不使用化学农药和化肥。充分利用敖汉独特的气候条件，采用传统脱粒和加工工艺。全程采用手工选粒和质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "8月底开始收获",
+        "best_consumption_period": "秋冬季（9月-次年6月）",
+        "storage_duration": "常温干燥可保存1-2年"
+      },
+      "production_info": {
+        "annual_output": "约5-10万吨",
+        "main_producers": ["敖汉农民合作社", "粮食企业"],
+        "production_area": "敖汉旗（约100万亩）",
+        "yield_per_unit": "约150-200kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "8-15元/斤（高端品种）",
+        "wholesale_price_range": "4-8元/斤",
+        "main_sales_channels": ["杂粮店", "电商", "超市", "食疗馆"],
+        "target_markets": ["全国", "日本"],
+        "market_share": "约占高端小米市场的18%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 265 绿色食品小米"],
+        "inspection_items": ["粒形", "黄度", "蛋白质", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["敖汉小米王", "塞北黄金"],
+        "brand_stories": ["中国小米发源地的传承"],
+        "awards": ["中国原产地产品", "国家级非遗保护"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["熬粥", "蒸饭", "炖汤", "食疗"],
+        "recipe_suggestions": ["小米粥", "小米饭", "小米汤", "红枣小米粥"],
+        "pairing_suggestions": ["配红枣", "配南瓜", "配山药"],
+        "health_benefits": ["健脾益胃", "补气血", "安神助眠"]
+      },
+      "cultural_depth": {
+        "historical_records": "新石器时代敖汉旗就有小米种植，是中国小米文化的发源地",
+        "folklore_stories": "敖汉小米的古老种植传说",
+        "festival_connection": "古代皇帝祭祀的重要供品",
+        "traditional_customs": "民间养生食疗的传统"
+      },
+      "sustainability": {
+        "production_method": "有机种植 + 传统工艺",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "零化肥、零农药"
+      },
+      "export_info": {
+        "export_countries": ["日本"],
+        "export_standards": ["日本食品安全标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "小米发源地",
+        "古农业文明",
+        "有机认证",
+        "养生食品",
+        "地理标志"
+      ],
+      "market_price_range": "8-15元/斤",
+      "best_season": "秋冬季（新米最佳）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "熬粥最佳（1:3米水比）",
+        "配红枣更养生",
+        "山药小米粥益脾",
+        "早晨喝小米粥健脾"
+      ],
+      "image_links": [
+        "https://example.com/aohan-millet-1.jpg",
+        "https://example.com/aohan-millet-2.jpg",
+        "https://example.com/aohan-millet-3.jpg"
+      ]
+    },
+    {
+      "id": 53,
+      "name": "赤峰绿豆",
+      "category": "农产品",
+      "subcategory": "豆类作物",
+      "region": "赤峰市",
+      "description": "赤峰绿豆产自内蒙古赤峰市，是中国重要的绿豆生产基地。赤峰的地理位置和气候条件特别适合绿豆生长，生产的绿豆粒大、饱满、绿色鲜艳，是制作绿豆粉、绿豆面的首选原料。",
+      "characteristics": [
+        "粒大饱满",
+        "颜色青绿鲜艳",
+        "蛋白质含量高（25-28%）",
+        "淀粉含量适中",
+        "易煮烂"
+      ],
+      "cultural_background": "赤峰是蒙古族传统食文化的重要地区。绿豆在蒙古族饮食中有重要地位，特别是在夏季清凉食品中应用广泛。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "无公害产品"
+      ],
+      "main_uses": [
+        "绿豆粉制作",
+        "绿豆汤饮品",
+        "豆制品加工",
+        "食品工业原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（25-28%）",
+          "淀粉（55-60%）",
+          "纤维素",
+          "矿物质（铁、锌）"
+        ],
+        "health_benefits": "高蛋白食物，营养价值高。夏季饮用绿豆汤可清热解毒，是传统食疗食品。"
+      },
+      "production_process": "采用绿色种植模式，不使用化学农药。充分利用赤峰高原气候，采用传统晾晒和脱粒工艺。经过严格分级和质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "8月中旬开始收获",
+        "best_consumption_period": "夏季（5月-9月）",
+        "storage_duration": "常温干燥可保存1-2年"
+      },
+      "production_info": {
+        "annual_output": "约10-15万吨",
+        "main_producers": ["赤峰豆类企业", "农民合作社"],
+        "production_area": "赤峰市（约50万亩）",
+        "yield_per_unit": "约150kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "10-18元/斤",
+        "wholesale_price_range": "6-10元/斤",
+        "main_sales_channels": ["超市", "电商", "食品厂", "杂粮店"],
+        "target_markets": ["全国", "日本", "东南亚"],
+        "market_share": "约占高端绿豆市场的15%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 270 绿色食品绿豆"],
+        "inspection_items": ["粒形", "颜色", "蛋白质", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["赤峰绿豆王", "高原珍品"],
+        "brand_stories": ["中国绿豆生产基地的优质产品"],
+        "awards": ["地理标志产品认证", "绿豆质量奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煮汤", "磨粉", "发芽", "煮粥"],
+        "recipe_suggestions": ["绿豆汤", "绿豆粉", "绿豆面条", "绿豆粥"],
+        "pairing_suggestions": ["配冰糖", "配红糖", "配薏米"],
+        "health_benefits": ["清热解毒", "消暑降温"]
+      },
+      "cultural_depth": {
+        "historical_records": "中医古籍记载绿豆的清热功效，传统夏季必备食品",
+        "folklore_stories": "绿豆在蒙古族饮食中的重要地位",
+        "festival_connection": "夏季避暑的传统饮品",
+        "traditional_customs": "民间食疗的传统食材"
+      },
+      "sustainability": {
+        "production_method": "绿色种植 + 传统工艺",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "低碳农业"
+      },
+      "export_info": {
+        "export_countries": ["日本", "东南亚"],
+        "export_standards": ["国际食品安全标准"],
+        "international_certifications": ["绿色认证"]
+      },
+      "cultural_tags": [
+        "高蛋白豆类",
+        "清热解毒",
+        "地理标志",
+        "食疗食品",
+        "中医传统"
+      ],
+      "market_price_range": "10-18元/斤",
+      "best_season": "夏季（5月-9月）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "绿豆汤：冷水浸泡后煮",
+        "清热解毒效果好",
+        "配冰糖更清凉",
+        "夏季饮用最佳"
+      ],
+      "image_links": [
+        "https://example.com/chifeng-mungbean-1.jpg",
+        "https://example.com/chifeng-mungbean-2.jpg",
+        "https://example.com/chifeng-mungbean-3.jpg"
+      ]
+    },
+    {
+      "id": 54,
+      "name": "科尔沁红小豆",
+      "category": "农产品",
+      "subcategory": "豆类作物",
+      "region": "通辽市（科尔沁草原）",
+      "description": "科尔沁红小豆产自内蒙古通辽市科尔沁草原地区，是中国重要的小豆生产基地。科尔沁草原的独特气候和土壤条件特别适合红小豆生长，生产的红小豆颗粒饱满、营养丰富，是制作红豆粥、红豆馅的首选原料。",
+      "characteristics": [
+        "颗粒饱满圆润",
+        "颜色深红鲜艳",
+        "蛋白质含量高（22-24%）",
+        "易煮烂",
+        "口感软糯"
+      ],
+      "cultural_background": "红小豆在蒙古族传统食文化中有重要地位，特别是在冬季和重要节庆中应用广泛。科尔沁红小豆种植历史悠久。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "有机认证"
+      ],
+      "main_uses": [
+        "红豆粥",
+        "红豆馅制作",
+        "豆制品原料",
+        "传统食疗"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（22-24%）",
+          "淀粉（50-55%）",
+          "纤维素",
+          "矿物质（铁、锌、钙）",
+          "多酚类物质"
+        ],
+        "health_benefits": "高蛋白豆类，营养价值高。含丰富的铁和多酚类物质，有益补血和抗氧化。"
+      },
+      "production_process": "采用有机种植模式，充分利用科尔沁草原的自然条件。采用传统晾晒和脱粒工艺，不使用化学添加剂。经过严格选粒和质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "8月底开始收获",
+        "best_consumption_period": "全年可食（冬季最佳）",
+        "storage_duration": "常温干燥可保存2-3年"
+      },
+      "production_info": {
+        "annual_output": "约8-12万吨",
+        "main_producers": ["通辽豆类企业", "合作社"],
+        "production_area": "科尔沁地区（约30万亩）",
+        "yield_per_unit": "约150-200kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "9-16元/斤",
+        "wholesale_price_range": "5-9元/斤",
+        "main_sales_channels": ["超市", "电商", "食品厂", "杂粮店"],
+        "target_markets": ["全国", "日本", "韩国"],
+        "market_share": "约占高端红小豆市场的12%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 271 绿色食品小豆"],
+        "inspection_items": ["粒形", "颜色", "蛋白质", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["科尔沁红小豆", "草原珍品"],
+        "brand_stories": ["科尔沁草原的红豆文化传承"],
+        "awards": ["地理标志产品认证", "高端豆类奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煮粥", "磨粉做馅", "炖汤", "甜品"],
+        "recipe_suggestions": ["红豆粥", "红豆馅面包", "红豆汤", "红豆甜品"],
+        "pairing_suggestions": ["配薏米", "配大米", "配糖"],
+        "health_benefits": ["补气血", "利水消肿"]
+      },
+      "cultural_depth": {
+        "historical_records": "红小豆在中医食疗中有重要地位，科尔沁草原特产",
+        "folklore_stories": "蒙古族关于红豆的民间故事",
+        "festival_connection": "重要节庆的传统食品",
+        "traditional_customs": "冬季进补的传统食材"
+      },
+      "sustainability": {
+        "production_method": "有机种植 + 传统工艺",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "零化肥生产"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国"],
+        "export_standards": ["国际食品安全标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "高蛋白豆类",
+        "补气血",
+        "地理标志",
+        "传统食疗",
+        "科尔沁特产"
+      ],
+      "market_price_range": "9-16元/斤",
+      "best_season": "冬季（食用最佳）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "煮粥：浸泡2小时",
+        "做馅：煮至完全软烂",
+        "配薏米效果更好",
+        "冬季进补首选"
+      ],
+      "image_links": [
+        "https://example.com/kersqin-redbean-1.jpg",
+        "https://example.com/kersqin-redbean-2.jpg",
+        "https://example.com/kersqin-redbean-3.jpg"
+      ]
+    },
+    {
+      "id": 55,
+      "name": "河套葵花籽",
+      "category": "农产品",
+      "subcategory": "油料作物",
+      "region": "巴彦淖尔市",
+      "description": "河套葵花籽产自巴彦淖尔市河套平原，是中国最重要的葵花籽生产基地。河套平原的日照充足、昼夜温差大，特别适合葵花生长。河套葵花籽粒大、含油量高、品质优异，是制作葵花油的最佳原料。",
+      "characteristics": [
+        "粒大饱满",
+        "含油量高（40-50%）",
+        "颜色黑白相间",
+        "易剥壳",
+        "香气浓郁"
+      ],
+      "cultural_background": "河套平原是传统农业区，葵花种植历史悠久。葵花向日特性在蒙古族民俗中有重要象征意义。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "无公害产品"
+      ],
+      "main_uses": [
+        "葵花油生产",
+        "坚果零食",
+        "动物饲料",
+        "食品工业原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "脂肪（40-50%）",
+          "蛋白质（15-18%）",
+          "维生素E（天然抗氧化）",
+          "矿物质（锌、硒）"
+        ],
+        "health_benefits": "含丰富的维生素E，具有抗氧化作用。不饱和脂肪酸含量高，有益心血管健康。"
+      },
+      "production_process": "采用绿色种植模式，不使用化学农药。充分利用河套平原的日照优势。采用自然晾晒和清选工艺。产品经过严格质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "8月中旬开始收获",
+        "best_consumption_period": "秋冬季（9月-2月）",
+        "storage_duration": "常温干燥可保存1-2年"
+      },
+      "production_info": {
+        "annual_output": "约50-80万吨",
+        "main_producers": ["河套油料企业", "合作社"],
+        "production_area": "河套平原（约300万亩）",
+        "yield_per_unit": "约200-300kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "12-20元/斤（带壳）、25-40元/斤（仁）",
+        "wholesale_price_range": "7-12元/斤",
+        "main_sales_channels": ["超市", "坚果店", "电商", "食品厂"],
+        "target_markets": ["全国", "日本", "欧洲"],
+        "market_share": "约占高端葵花籽市场的20%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 241 绿色食品油料"],
+        "inspection_items": ["含油量", "蛋白质", "农药残留", "黄曲霉毒素"]
+      },
+      "brand_info": {
+        "leading_brands": ["河套葵花", "河套金籽"],
+        "brand_stories": ["向日葵的故乡的金色果实"],
+        "awards": ["地理标志产品认证", "国家级绿色产品"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["直接食用", "榨油", "烘烤", "炒食"],
+        "recipe_suggestions": ["葵花油炒菜", "烘烤葵花籽", "葵花籽沙拉"],
+        "pairing_suggestions": ["配坚果混合", "配零食", "配烘焙"],
+        "health_benefits": ["抗氧化", "保护心血管"]
+      },
+      "cultural_depth": {
+        "historical_records": "葵花在河套平原的栽培已有百年历史",
+        "folklore_stories": "向日葵的民间故事",
+        "festival_connection": "向日葵的文化象征",
+        "traditional_customs": "河套平原的农业特产"
+      },
+      "sustainability": {
+        "production_method": "绿色种植 + 传统工艺",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "低碳农业"
+      },
+      "export_info": {
+        "export_countries": ["日本", "欧洲"],
+        "export_standards": ["国际食品安全标准"],
+        "international_certifications": ["绿色认证"]
+      },
+      "cultural_tags": [
+        "高油脂",
+        "天然抗氧化",
+        "地理标志",
+        "向日葵文化",
+        "油料作物"
+      ],
+      "market_price_range": "12-40元/斤（按处理方式）",
+      "best_season": "秋冬季（新籽最佳）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "直接食用或烤食最佳",
+        "榨油高品质",
+        "适合烘焙使用",
+        "坚果混合食用"
+      ],
+      "image_links": [
+        "https://example.com/hetao-sunflower-1.jpg",
+        "https://example.com/hetao-sunflower-2.jpg",
+        "https://example.com/hetao-sunflower-3.jpg"
+      ]
+    },
+    {
+      "id": 56,
+      "name": "河套葵花油",
+      "category": "农产品",
+      "subcategory": "油料制品",
+      "region": "巴彦淖尔市",
+      "description": "河套葵花油是以河套葵花籽为原料，采用先进的冷压技术制成的高品质食用油。河套葵花油因其金黄的色泽、浓郁的香气、优异的营养价值而享誉国内外。它含有丰富的维生素E和亚油酸，是现代健康饮食的首选油品。",
+      "characteristics": [
+        "色泽金黄透亮",
+        "香气浓郁自然",
+        "烟点高，适合炒烤",
+        "含维生素E丰富",
+        "亚油酸含量高（50-60%）"
+      ],
+      "cultural_background": "河套平原是中国古代油料生产的重要地区。葵花油作为现代健康油品，在河套地区得到了推广和发展。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "冷压初榨认证"
+      ],
+      "main_uses": [
+        "日常烹饪用油",
+        "健康食用油",
+        "化妆品原料",
+        "食品工业原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "不饱和脂肪酸（80%+）",
+          "维生素E（天然）",
+          "亚油酸（50-60%）",
+          "多酚类物质"
+        ],
+        "health_benefits": "含丰富的维生素E，具有抗氧化和延缓衰老的作用。亚油酸含量高，有益心血管健康。"
+      },
+      "production_process": "采用低温冷压工艺，完全保留营养成分。不使用任何化学溶剂或添加剂。产品经过多层过滤，确保品质纯净。采用玻璃或深色瓶装，防止光氧化。",
+      "seasonal_availability": {
+        "harvest_season": "全年供应",
+        "best_consumption_period": "随时可食",
+        "storage_duration": "常温干燥暗处可保存18个月"
+      },
+      "production_info": {
+        "annual_output": "约20-30万吨",
+        "main_producers": ["河套油脂企业", "现代榨油厂"],
+        "production_area": "巴彦淖尔市",
+        "yield_per_unit": "5kg葵花籽出油2.5kg"
+      },
+      "market_info": {
+        "retail_price_range": "30-60元/升（高端冷压产品）",
+        "wholesale_price_range": "18-35元/升",
+        "main_sales_channels": ["超市", "电商", "健康食品店", "餐饮"],
+        "target_markets": ["全国", "日本", "欧盟"],
+        "market_share": "约占高端食用油市场的15%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2716 食用油卫生标准"],
+        "industry_standards": ["GB/T 8232 葵花油质量标准"],
+        "inspection_items": ["酸价", "过氧化值", "维生素E含量", "黄曲霉毒素"]
+      },
+      "brand_info": {
+        "leading_brands": ["河套葵花油", "河套黄金油"],
+        "brand_stories": ["冷压工艺保留的天然营养"],
+        "awards": ["地理标志产品认证", "健康食品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["炒菜", "烘焙", "凉拌", "美容护肤"],
+        "recipe_suggestions": ["炒菜用油", "烘焙原料", "凉拌沙拉", "护肤用油"],
+        "pairing_suggestions": ["配蔬菜", "配肉类", "配面包"],
+        "health_benefits": ["抗氧化", "护心血管", "延缓衰老"]
+      },
+      "cultural_depth": {
+        "historical_records": "河套油料生产历史悠久，现代油品工业的发展地",
+        "folklore_stories": "葵花油的营养故事",
+        "festival_connection": "现代健康生活的象征",
+        "traditional_customs": "河套地区的特产油品"
+      },
+      "sustainability": {
+        "production_method": "冷压初榨 + 生态农业",
+        "environmental_impact": "完全生态友好，零污染",
+        "carbon_footprint": "低碳榨油过程"
+      },
+      "export_info": {
+        "export_countries": ["日本", "欧盟", "新加坡"],
+        "export_standards": ["欧盟食品安全标准", "日本JAS标准"],
+        "international_certifications": ["有机认证", "绿色认证"]
+      },
+      "cultural_tags": [
+        "高营养价值",
+        "抗氧化",
+        "冷压工艺",
+        "地理标志",
+        "健康食用油"
+      ],
+      "market_price_range": "30-60元/升",
+      "best_season": "全年使用",
+      "storage_method": "常温干燥暗处，防光氧化",
+      "cooking_suggestions": [
+        "炒菜口感好",
+        "烘焙效果佳",
+        "凉拌最健康",
+        "直接食用更营养"
+      ],
+      "image_links": [
+        "https://example.com/hetao-sunflower-oil-1.jpg",
+        "https://example.com/hetao-sunflower-oil-2.jpg",
+        "https://example.com/hetao-sunflower-oil-3.jpg"
+      ]
+    },
+    {
+      "id": 57,
+      "name": "胡麻油",
+      "category": "农产品",
+      "subcategory": "油料制品",
+      "region": "内蒙古各地（主要在河西走廊边界地区）",
+      "description": "胡麻油是用胡麻籽冷压而成的传统健康食用油。胡麻在中国古代就有种植，是重要的油料作物。胡麻油含有丰富的α-亚麻酸，是天然的Omega-3脂肪酸来源，具有多种健康功效。",
+      "characteristics": [
+        "色泽金黄透亮",
+        "香气独特",
+        "α-亚麻酸含量高（40-60%）",
+        "烟点适中",
+        "口感香浓"
+      ],
+      "cultural_background": "胡麻是古代丝绸之路的重要商品，在中医食疗中有重要地位。胡麻油在传统饮食中被视为健康食品。",
+      "certifications": [
+        "绿色食品认证",
+        "有机产品认证",
+        "传统工艺认证"
+      ],
+      "main_uses": [
+        "健康食用油",
+        "中医食疗",
+        "营养补充品",
+        "化妆品原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "α-亚麻酸（Omega-3）（40-60%）",
+          "维生素E",
+          "多酚类物质",
+          "植物甾醇"
+        ],
+        "health_benefits": "含丰富的α-亚麻酸，是天然Omega-3脂肪酸来源。有益于脑部健康、心血管保护。具有抗炎和抗氧化作用。"
+      },
+      "production_process": "采用冷压初榨工艺，完全保留营养成分。采用传统的石磨或现代低温榨油机。不使用任何化学溶剂。产品经过自然沉淀和过滤。",
+      "seasonal_availability": {
+        "harvest_season": "全年供应",
+        "best_consumption_period": "随时可食",
+        "storage_duration": "冷藏可保存12个月"
+      },
+      "production_info": {
+        "annual_output": "约5-10万吨",
+        "main_producers": ["胡麻油企业", "传统作坊"],
+        "production_area": "内蒙古各地",
+        "yield_per_unit": "4kg胡麻籽出油1.5kg"
+      },
+      "market_info": {
+        "retail_price_range": "40-80元/升（高端冷压）",
+        "wholesale_price_range": "25-50元/升",
+        "main_sales_channels": ["健康食品店", "电商", "中医馆", "超市"],
+        "target_markets": ["全国", "欧洲", "日本"],
+        "market_share": "约占高端Omega-3油品市场的10%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2716 食用油卫生标准"],
+        "industry_standards": ["传统工艺食用油标准"],
+        "inspection_items": ["α-亚麻酸含量", "过氧化值", "维生素E含量"]
+      },
+      "brand_info": {
+        "leading_brands": ["胡麻油精品", "草原黄金油"],
+        "brand_stories": ["古代丝绸之路的健康食品"],
+        "awards": ["有机产品认证", "健康食品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["凉拌", "汤料", "护肤", "营养补充"],
+        "recipe_suggestions": ["凉拌蔬菜", "芝麻酱替代", "汤料调味"],
+        "pairing_suggestions": ["配蔬菜沙拉", "配中医食疗", "配坚果"],
+        "health_benefits": ["脑部保健", "心血管保护", "抗衰老"]
+      },
+      "cultural_depth": {
+        "historical_records": "胡麻是丝绸之路的重要商品，古代已广泛种植",
+        "folklore_stories": "胡麻油的健康故事",
+        "festival_connection": "现代健康养生的代表",
+        "traditional_customs": "中医食疗的传统食材"
+      },
+      "sustainability": {
+        "production_method": "有机冷压 + 传统工艺",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "极低碳足迹"
+      },
+      "export_info": {
+        "export_countries": ["欧洲", "日本", "新加坡"],
+        "export_standards": ["欧盟有机食品标准"],
+        "international_certifications": ["欧盟有机认证"]
+      },
+      "cultural_tags": [
+        "Omega-3脂肪酸",
+        "健康食疗",
+        "有机认证",
+        "丝路商品",
+        "脑部保健"
+      ],
+      "market_price_range": "40-80元/升",
+      "best_season": "全年使用",
+      "storage_method": "冷藏保存（2-8℃），防光氧化",
+      "cooking_suggestions": [
+        "凉拌最健康",
+        "不适合高温炒",
+        "汤料调味最佳",
+        "营养补充食用"
+      ],
+      "image_links": [
+        "https://example.com/flax-oil-1.jpg",
+        "https://example.com/flax-oil-2.jpg",
+        "https://example.com/flax-oil-3.jpg"
+      ]
+    },
+    {
+      "id": 58,
+      "name": "武川莜麦",
+      "category": "农产品",
+      "subcategory": "粮食作物",
+      "region": "呼和浩特市武川县",
+      "description": "武川莜麦产自呼和浩特市武川县，是中国重要的莜麦生产基地。武川县位于阴山北麓，海拔较高，气候冷凉，特别适合莜麦生长。武川莜麦因其高蛋白、低脂肪、营养丰富而被誉为'北方黑珍珠'。",
+      "characteristics": [
+        "粒粗大",
+        "蛋白质含量高（15-17%）",
+        "脂肪含量低",
+        "β-葡聚糖含量高",
+        "口感香浓"
+      ],
+      "cultural_background": "莜麦是蒙古族的重要传统食物，在蒙古族饮食文化中占重要地位。武川莜麦的烹饪方法多样，莜面窝窝、莜面鱼鱼等是著名的传统美食。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "有机认证"
+      ],
+      "main_uses": [
+        "莜面制品",
+        "传统美食原料",
+        "保健食品",
+        "食品工业原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（15-17%）",
+          "β-葡聚糖（3-5%）",
+          "纤维素",
+          "矿物质（锌、镁、铜）"
+        ],
+        "health_benefits": "高蛋白低脂肪，β-葡聚糖有降血糖、降血脂作用。富含矿物质，有益健康。"
+      },
+      "production_process": "采用有机种植模式，充分利用武川县的高寒气候优势。采用传统的脱壳和磨粉工艺。不使用任何化学添加剂。经过严格的质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "9月中旬开始收获",
+        "best_consumption_period": "秋冬季（10月-2月）",
+        "storage_duration": "常温干燥可保存1-2年"
+      },
+      "production_info": {
+        "annual_output": "约2-3万吨",
+        "main_producers": ["武川莜麦企业", "合作社"],
+        "production_area": "武川县（约30万亩）",
+        "yield_per_unit": "约150-200kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "10-20元/斤（莜麦粒），20-40元/斤（莜面粉）",
+        "wholesale_price_range": "6-12元/斤",
+        "main_sales_channels": ["超市", "电商", "传统食品店", "餐饮"],
+        "target_markets": ["华北", "华东", "日本"],
+        "market_share": "约占高端莜麦市场的20%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 289 绿色食品莜麦"],
+        "inspection_items": ["蛋白质", "脂肪", "纤维", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["武川莜麦", "北方黑珍珠"],
+        "brand_stories": ["蒙古族传统美食的现代传承"],
+        "awards": ["地理标志产品认证", "健康食品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["磨粉制面", "煮粥", "烘焙", "传统烹饪"],
+        "recipe_suggestions": ["莜面窝窝", "莜面鱼鱼", "莜面粥", "莜面面条"],
+        "pairing_suggestions": ["配西红柿", "配肉类", "配汤"],
+        "health_benefits": ["降血糖", "降血脂", "健身强体"]
+      },
+      "cultural_depth": {
+        "historical_records": "莜麦是蒙古族传统食物，武川莜麦有千年种植历史",
+        "folklore_stories": "蒙古族关于莜麦的民间故事",
+        "festival_connection": "蒙古族传统节日的美食",
+        "traditional_customs": "蒙古族的传统主食文化"
+      },
+      "sustainability": {
+        "production_method": "有机种植 + 传统工艺",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "低碳农业"
+      },
+      "export_info": {
+        "export_countries": ["日本"],
+        "export_standards": ["日本食品安全标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "蒙古传统食物",
+        "高蛋白",
+        "有机认证",
+        "地理标志",
+        "传统美食"
+      ],
+      "market_price_range": "10-40元/斤（按处理方式）",
+      "best_season": "秋冬季（新麦最佳）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "磨粉做莜面窝窝最佳",
+        "煮粥营养丰富",
+        "传统烹饪方式最好",
+        "降血糖效果好"
+      ],
+      "image_links": [
+        "https://example.com/wuchuan-oat-1.jpg",
+        "https://example.com/wuchuan-oat-2.jpg",
+        "https://example.com/wuchuan-oat-3.jpg"
+      ]
+    },
+    {
+      "id": 59,
+      "name": "清水河海红果",
+      "category": "农产品",
+      "subcategory": "蔬菜水果",
+      "region": "呼和浩特市清水河县",
+      "description": "清水河海红果产自呼和浩特市清水河县，是中国北方特色水果。海红果是山楂的一个变种，因其果实呈圆球状、颜色鲜红而得名。清水河海红果因其果大、汁多、糖度高而享誉全国。",
+      "characteristics": [
+        "果大圆润",
+        "颜色鲜艳红色",
+        "甜度高（糖度12-14 Brix）",
+        "果肉细腻",
+        "酸甜适中"
+      ],
+      "cultural_background": "海红果是北方传统果实，在清水河县有悠久的栽培历史。古代作为进贡皇帝的贡品。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "有机认证"
+      ],
+      "main_uses": [
+        "鲜食水果",
+        "果酱制作",
+        "饮料原料",
+        "传统中医食疗"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "维生素C（150-200mg/100g）",
+          "有机酸",
+          "矿物质（钾、铁、钙）",
+          "多酚类物质"
+        ],
+        "health_benefits": "维生素C含量丰富，有益增强免疫力。含有丰富的有机酸，有助消化。"
+      },
+      "production_process": "采用有机种植模式，充分利用清水河的气候条件。采用传统的果树管理技术。不使用化学农药和化肥。采用手工采摘和轻度加工。",
+      "seasonal_availability": {
+        "harvest_season": "8月下旬至9月初",
+        "best_consumption_period": "秋季（8月-10月）",
+        "storage_duration": "冷藏可保存2-3个月"
+      },
+      "production_info": {
+        "annual_output": "约1-2万吨",
+        "main_producers": ["清水河果农", "龙头企业"],
+        "production_area": "清水河县（约5万亩）",
+        "yield_per_unit": "约2000-3000kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "12-25元/斤（鲜果）",
+        "wholesale_price_range": "6-12元/斤",
+        "main_sales_channels": ["超市", "电商", "水果店", "农贸市场"],
+        "target_markets": ["华北", "华东"],
+        "market_share": "约占传统水果市场的8%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2440 水果卫生标准"],
+        "industry_standards": ["NY/T 284 绿色食品水果"],
+        "inspection_items": ["可溶性固形物", "维生素C", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["清水河海红果", "北方珍果"],
+        "brand_stories": ["古代皇家贡品的现代传承"],
+        "awards": ["地理标志产品认证", "优质水果奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["鲜食", "制果酱", "制饮料", "食疗"],
+        "recipe_suggestions": ["鲜食", "海红果酱", "海红果汁", "海红果蜜"],
+        "pairing_suggestions": ["配蜂蜜", "配冰糖", "配茶"],
+        "health_benefits": ["增强免疫力", "促进消化", "美容养颜"]
+      },
+      "cultural_depth": {
+        "historical_records": "清水河海红果古代作为皇帝贡品，有千年栽培历史",
+        "folklore_stories": "海红果的民间故事",
+        "festival_connection": "秋季收获节的传统果实",
+        "traditional_customs": "清水河地区的传统特产"
+      },
+      "sustainability": {
+        "production_method": "有机果园 + 传统技术",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "绿色种植"
+      },
+      "export_info": {
+        "export_countries": [],
+        "export_standards": ["GB 2440"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "传统水果",
+        "皇家贡品",
+        "有机认证",
+        "地理标志",
+        "食疗食品"
+      ],
+      "market_price_range": "12-25元/斤",
+      "best_season": "秋季（8月-9月）",
+      "storage_method": "冷藏保存（2-5℃），塑料袋密封",
+      "cooking_suggestions": [
+        "鲜食最佳",
+        "做果酱营养高",
+        "配蜂蜜更健康",
+        "早晨食用补维生素"
+      ],
+      "image_links": [
+        "https://example.com/haihong-fruit-1.jpg",
+        "https://example.com/haihong-fruit-2.jpg",
+        "https://example.com/haihong-fruit-3.jpg"
+      ]
+    },
+    {
+      "id": 60,
+      "name": "和林格尔芍药",
+      "category": "农产品",
+      "subcategory": "特色产品",
+      "region": "呼和浩特市和林格尔县",
+      "description": "和林格尔芍药产自呼和浩特市和林格尔县，是中国重要的芍药切花和中药材产地。和林格尔县因其独特的地理和气候条件，种植的芍药品质优异，花形大、花色艳丽、花期长。芍药既是高档切花，也是重要的中医药材。",
+      "characteristics": [
+        "花形大，花瓣厚重",
+        "花色艳丽丰富",
+        "香气浓郁",
+        "花期长（15-30天）",
+        "根部入药价值高"
+      ],
+      "cultural_background": "芍药在中国古代就被视为高贵的花卉，有'花仙'之称。和林格尔芍药的种植继承了中国传统的芍药文化。",
+      "certifications": [
+        "绿色食品认证（根部）",
+        "花卉生产基地认证",
+        "中药材质量认证"
+      ],
+      "main_uses": [
+        "高档切花",
+        "中医药材（赤芍）",
+        "观赏花卉",
+        "精油提取"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "芍药苷（主要成分）",
+          "丹皮酚",
+          "多酚类物质",
+          "挥发油"
+        ],
+        "health_benefits": "根部入药，具有补血活血、缓急止痛的功效。在中医食疗和美容中应用广泛。"
+      },
+      "production_process": "采用专业的花卉种植技术，精细管理芍药的生长。采用无农药栽培模式（观赏用）。根部采用规范的中医药采收标准。",
+      "seasonal_availability": {
+        "harvest_season": "5月至6月（花期）、10月至11月（根部）",
+        "best_consumption_period": "春季（观赏）、全年（药用）",
+        "storage_duration": "鲜花3-7天，干根2-3年"
+      },
+      "production_info": {
+        "annual_output": "约100-150万株（花卉），约500-800吨（根部）",
+        "main_producers": ["芍药种植基地", "花卉企业"],
+        "production_area": "和林格尔县（约8万亩）",
+        "yield_per_unit": "每亩3000-5000株"
+      },
+      "market_info": {
+        "retail_price_range": "5-15元/支（鲜花）、50-200元/kg（干根）",
+        "wholesale_price_range": "2-8元/支（批发）",
+        "main_sales_channels": ["花卉市场", "网络花店", "中药店", "电商"],
+        "target_markets": ["全国", "日本", "韩国"],
+        "market_share": "约占高档切花市场的10%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 16721 花卉质量标准"],
+        "industry_standards": ["NY/T 1440 绿色食品"],
+        "inspection_items": ["花朵质量", "根部农药残留", "微生物"]
+      },
+      "brand_info": {
+        "leading_brands": ["和林格尔芍药", "草原之花"],
+        "brand_stories": ["高原上的芍药花园"],
+        "awards": ["花卉生产基地认证", "美化城市绿化奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["观赏", "插花", "干花", "中药药用"],
+        "recipe_suggestions": ["花卉插花", "芍药根煲汤", "赤芍中医配方"],
+        "pairing_suggestions": ["配其他春花", "配中医草本"],
+        "health_benefits": ["补血活血", "缓急止痛", "美容养颜"]
+      },
+      "cultural_depth": {
+        "historical_records": "芍药是中国古代四大名花之一，有千年栽培历史",
+        "folklore_stories": "芍药的文化故事和传说",
+        "festival_connection": "春季赏花节的传统花卉",
+        "traditional_customs": "中医药文化的重要植物"
+      },
+      "sustainability": {
+        "production_method": "生态花卉种植 + 中医规范采收",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "绿色花卉生产"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国"],
+        "export_standards": ["国际花卉贸易标准"],
+        "international_certifications": ["绿色认证"]
+      },
+      "cultural_tags": [
+        "传统名花",
+        "中医药材",
+        "高档切花",
+        "赤芍来源",
+        "花卉文化"
+      ],
+      "market_price_range": "5-15元/支（花）、50-200元/kg（根）",
+      "best_season": "春季（5-6月赏花），秋季（采根）",
+      "storage_method": "鲜花冷藏（2-5℃），干根常温干燥",
+      "cooking_suggestions": [
+        "鲜花用于插花观赏",
+        "根部用于中医配方",
+        "做芍药根煲汤补血",
+        "美容护肤应用"
+      ],
+      "image_links": [
+        "https://example.com/helingeeer-peony-1.jpg",
+        "https://example.com/helingeeer-peony-2.jpg",
+        "https://example.com/helingeeer-peony-3.jpg"
+      ]
+    },
+    {
+      "id": 61,
+      "name": "太仆寺旗甘蓝",
+      "category": "农产品",
+      "subcategory": "蔬菜水果",
+      "region": "锡林郭勒盟太仆寺旗",
+      "description": "太仆寺旗甘蓝产自锡林郭勒盟太仆寺旗，是内蒙古重要的蔬菜生产基地。太仆寺旗位于草原地带，日照充足，昼夜温差大，特别适合甘蓝生长。这里生产的甘蓝球形圆整、质地紧实、口感脆爽。",
+      "characteristics": [
+        "球形圆整规则",
+        "质地紧实",
+        "叶片厚实",
+        "口感脆爽",
+        "颜色鲜绿"
+      ],
+      "cultural_background": "甘蓝是现代蔬菜，在太仆寺旗发展成为重要蔬菜产业。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "无公害产品"
+      ],
+      "main_uses": [
+        "鲜食蔬菜",
+        "沙拉原料",
+        "罐头加工",
+        "食品加工"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "维生素C（30-50mg/100g）",
+          "维生素K",
+          "纤维素",
+          "矿物质（钙、铁）"
+        ],
+        "health_benefits": "富含维生素C和K，有益骨骼健康。纤维素丰富，促进消化。"
+      },
+      "production_process": "采用绿色蔬菜种植模式，不使用化学农药。采用滴灌技术，节约水资源。采用有机肥和生物防治。精心管理甘蓝的生长，确保品质。",
+      "seasonal_availability": {
+        "harvest_season": "9月至11月（秋季主产）",
+        "best_consumption_period": "秋冬季（9月-2月）",
+        "storage_duration": "冷藏可保存3-5个月"
+      },
+      "production_info": {
+        "annual_output": "约20-30万吨",
+        "main_producers": ["蔬菜生产企业", "农民合作社"],
+        "production_area": "太仆寺旗（约10万亩）",
+        "yield_per_unit": "约5000-8000kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "2-4元/斤",
+        "wholesale_price_range": "0.8-2元/斤",
+        "main_sales_channels": ["蔬菜批发市场", "超市", "农贸市场", "食品加工厂"],
+        "target_markets": ["华北", "华东"],
+        "market_share": "约占北方甘蓝市场的12%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2440 蔬菜卫生标准"],
+        "industry_standards": ["NY/T 285 绿色食品蔬菜"],
+        "inspection_items": ["农药残留", "硝酸盐", "微生物"]
+      },
+      "brand_info": {
+        "leading_brands": ["太仆寺旗甘蓝", "高原蔬菜"],
+        "brand_stories": ["草原上的绿色蔬菜"],
+        "awards": ["绿色蔬菜生产基地认证"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["炒食", "生食沙拉", "腌制", "汤料"],
+        "recipe_suggestions": ["炒甘蓝", "生菜沙拉", "腌菜", "蔬菜汤"],
+        "pairing_suggestions": ["配肉类", "配豆制品", "配油"],
+        "health_benefits": ["增强免疫力", "促进消化"]
+      },
+      "cultural_depth": {
+        "historical_records": "现代蔬菜产业，太仆寺旗近年发展成为重要蔬菜基地",
+        "folklore_stories": "草原蔬菜种植的故事",
+        "festival_connection": "现代农业发展的象征",
+        "traditional_customs": "现代绿色饮食的代表"
+      },
+      "sustainability": {
+        "production_method": "绿色种植 + 水肥一体化",
+        "environmental_impact": "生态保护型蔬菜",
+        "carbon_footprint": "低碳蔬菜生产"
+      },
+      "export_info": {
+        "export_countries": [],
+        "export_standards": ["GB 2440"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "绿色蔬菜",
+        "脆爽口感",
+        "现代农业",
+        "草原蔬菜",
+        "健康食品"
+      ],
+      "market_price_range": "2-4元/斤",
+      "best_season": "秋冬季（品质最佳）",
+      "storage_method": "冷藏保存（2-5℃），塑料袋密封",
+      "cooking_suggestions": [
+        "炒食口感脆爽",
+        "生食沙拉最健康",
+        "腌制可长期保存",
+        "汤料营养丰富"
+      ],
+      "image_links": [
+        "https://example.com/taipuji-cabbage-1.jpg",
+        "https://example.com/taipuji-cabbage-2.jpg",
+        "https://example.com/taipuji-cabbage-3.jpg"
+      ]
+    },
+    {
+      "id": 62,
+      "name": "喀喇沁番茄",
+      "category": "农产品",
+      "subcategory": "蔬菜水果",
+      "region": "赤峰市喀喇沁旗",
+      "description": "喀喇沁番茄产自赤峰市喀喇沁旗，是内蒙古东部重要的蔬菜生产基地。喀喇沁旗的气候条件特别适合番茄生长，生产的番茄品质优异，色泽鲜艳，甜度高，营养丰富。",
+      "characteristics": [
+        "果型圆整",
+        "颜色鲜艳红色",
+        "甜度高（糖度7-9 Brix）",
+        "果肉厚实",
+        "风味独特"
+      ],
+      "cultural_background": "番茄是现代蔬菜，在喀喇沁旗发展成为支柱产业。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "无公害产品"
+      ],
+      "main_uses": [
+        "鲜食蔬菜",
+        "番茄酱生产",
+        "加工食品原料",
+        "营养补充"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "维生素C（15-30mg/100g）",
+          "番茄红素（2-5mg/100g）",
+          "钾、磷、铁",
+          "纤维素"
+        ],
+        "health_benefits": "番茄红素含量高，具有抗氧化和抗癌作用。维生素C丰富，增强免疫力。"
+      },
+      "production_process": "采用绿色蔬菜种植模式，采用日光温室和大棚种植。不使用化学农药。采用滴灌灌溉。精细管理番茄的生长，确保品质。",
+      "seasonal_availability": {
+        "harvest_season": "6月至11月",
+        "best_consumption_period": "夏秋季（6月-10月）",
+        "storage_duration": "冷藏可保存2-3周"
+      },
+      "production_info": {
+        "annual_output": "约15-20万吨",
+        "main_producers": ["蔬菜生产企业", "温室种植基地"],
+        "production_area": "喀喇沁旗（约5万亩）",
+        "yield_per_unit": "约8000-12000kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "3-6元/斤（普通品种），6-12元/斤（高端樱桃番茄）",
+        "wholesale_price_range": "1.5-3元/斤",
+        "main_sales_channels": ["蔬菜批发市场", "超市", "农贸市场", "食品加工"],
+        "target_markets": ["华北", "华东"],
+        "market_share": "约占东北番茄市场的10%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2440 蔬菜卫生标准"],
+        "industry_standards": ["NY/T 286 绿色食品番茄"],
+        "inspection_items": ["农药残留", "硝酸盐", "番茄红素含量"]
+      },
+      "brand_info": {
+        "leading_brands": ["喀喇沁番茄", "红城蔬菜"],
+        "brand_stories": ["高原上的红色宝石"],
+        "awards": ["绿色蔬菜生产基地认证"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["生食", "炒食", "煮汤", "做酱"],
+        "recipe_suggestions": ["番茄炒鸡蛋", "番茄汤", "番茄酱", "鲜食"],
+        "pairing_suggestions": ["配鸡蛋", "配豆类", "配肉类"],
+        "health_benefits": ["抗氧化", "降低血压", "预防癌症"]
+      },
+      "cultural_depth": {
+        "historical_records": "现代蔬菜产业，喀喇沁旗近年发展成为重要蔬菜基地",
+        "folklore_stories": "东北蔬菜产业的发展故事",
+        "festival_connection": "夏季丰收的象征",
+        "traditional_customs": "现代健康饮食的代表"
+      },
+      "sustainability": {
+        "production_method": "绿色温室种植 + 生物防治",
+        "environmental_impact": "生态保护型蔬菜",
+        "carbon_footprint": "低碳蔬菜生产"
+      },
+      "export_info": {
+        "export_countries": [],
+        "export_standards": ["GB 2440"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "红色蔬菜",
+        "番茄红素",
+        "现代农业",
+        "健康蔬菜",
+        "抗氧化"
+      ],
+      "market_price_range": "3-12元/斤（按品种）",
+      "best_season": "夏秋季（品质最佳）",
+      "storage_method": "常温保存或冷藏（10-15℃）",
+      "cooking_suggestions": [
+        "番茄炒鸡蛋经典搭配",
+        "煮汤营养流失少",
+        "生食最健康",
+        "做番茄酱保留营养"
+      ],
+      "image_links": [
+        "https://example.com/kalakin-tomato-1.jpg",
+        "https://example.com/kalakin-tomato-2.jpg",
+        "https://example.com/kalakin-tomato-3.jpg"
+      ]
+    },
+    {
+      "id": 63,
+      "name": "扎赉特水稻",
+      "category": "农产品",
+      "subcategory": "粮食作物",
+      "region": "兴安盟扎赉特旗",
+      "description": "扎赉特水稻产自兴安盟扎赉特旗，是内蒙古北部重要的水稻生产基地。扎赉特旗位于大兴安岭边缘，气候冷凉，水资源丰富，特别适合优质粳米生长。扎赉特水稻以米粒圆润、口感软糯、营养丰富而著称。",
+      "characteristics": [
+        "米粒圆润",
+        "色泽白亮",
+        "口感软糯",
+        "易蒸易煮",
+        "香气清香"
+      ],
+      "cultural_background": "水稻是北方少见的重要水稻产地，扎赉特水稻种植有百年以上历史。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "有机认证"
+      ],
+      "main_uses": [
+        "日常米饭",
+        "粥品制作",
+        "米制品",
+        "出口产品"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "碳水化合物（65-70%）",
+          "蛋白质（8-9%）",
+          "B族维生素",
+          "矿物质（钾、锌）"
+        ],
+        "health_benefits": "营养均衡，易消化吸收。特别适合儿童和老人。"
+      },
+      "production_process": "采用有机种植模式，充分利用冷凉气候和水资源优势。采用传统稻谷烘干和碾米工艺。不使用化学添加剂。经过严格质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "9月至10月",
+        "best_consumption_period": "秋冬季（10月-次年8月）",
+        "storage_duration": "真空密封可保存12-18个月"
+      },
+      "production_info": {
+        "annual_output": "约20-30万吨",
+        "main_producers": ["扎赉特水稻企业", "合作社"],
+        "production_area": "扎赉特旗（约100万亩）",
+        "yield_per_unit": "约400-500kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "5-10元/斤（普通品种），10-18元/斤（高端品种）",
+        "wholesale_price_range": "3-6元/斤",
+        "main_sales_channels": ["超市", "电商", "农贸市场", "粮食企业"],
+        "target_markets": ["全国", "日本", "韩国"],
+        "market_share": "约占北方水稻市场的8%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 1354 大米国家标准"],
+        "industry_standards": ["NY/T 423 绿色食品水稻"],
+        "inspection_items": ["整精米率", "蛋白质", "垩白粒率"]
+      },
+      "brand_info": {
+        "leading_brands": ["扎赉特水稻", "北疆珍米"],
+        "brand_stories": ["冷凉气候培育的优质大米"],
+        "awards": ["地理标志产品认证", "优质大米奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煮饭", "煮粥", "米饼", "米粉"],
+        "recipe_suggestions": ["白米饭", "清粥", "米粉汤"],
+        "pairing_suggestions": ["配蔬菜", "配肉类", "配汤"],
+        "health_benefits": ["健脾益气", "补气养血"]
+      },
+      "cultural_depth": {
+        "historical_records": "扎赉特水稻种植有百年历史，是北方水稻的代表",
+        "folklore_stories": "北方水稻种植的故事",
+        "festival_connection": "丰收节的传统粮食",
+        "traditional_customs": "北方米饭文化"
+      },
+      "sustainability": {
+        "production_method": "有机种植 + 水资源利用",
+        "environmental_impact": "生态水稻生产",
+        "carbon_footprint": "低碳农业"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国"],
+        "export_standards": ["日本JAS标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "北方水稻",
+        "有机认证",
+        "地理标志",
+        "软糯口感",
+        "冷凉气候"
+      ],
+      "market_price_range": "5-18元/斤（按品质）",
+      "best_season": "秋冬季新米（品质最佳）",
+      "storage_method": "真空密封，常温干燥",
+      "cooking_suggestions": [
+        "煮饭口感最佳",
+        "适合做粥",
+        "易熟易消化",
+        "北方米的代表"
+      ],
+      "image_links": [
+        "https://example.com/zalaitej-rice-1.jpg",
+        "https://example.com/zalaitej-rice-2.jpg",
+        "https://example.com/zalaitej-rice-3.jpg"
+      ]
+    },
+    {
+      "id": 64,
+      "name": "乌兰察布黑豆",
+      "category": "农产品",
+      "subcategory": "豆类作物",
+      "region": "乌兰察布市",
+      "description": "乌兰察布黑豆产自乌兰察布市，是内蒙古重要的黑豆生产基地。乌兰察布地处高原，日照充足，气候冷凉，特别适合黑豆生长。黑豆营养丰富，含有丰富的花青素和蛋白质，是传统食疗食品。",
+      "characteristics": [
+        "粒大圆润",
+        "颜色深黑有光泽",
+        "蛋白质含量高（36-40%）",
+        "易煮烂",
+        "口感软糯"
+      ],
+      "cultural_background": "黑豆在中医食疗中有重要地位，乌兰察布黑豆种植历史悠久。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "有机认证"
+      ],
+      "main_uses": [
+        "黑豆粥",
+        "豆制品原料",
+        "食疗食品",
+        "食品工业原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（36-40%）",
+          "花青素（高含量）",
+          "纤维素",
+          "矿物质（铁、锌、钙）"
+        ],
+        "health_benefits": "含丰富的花青素，具有抗氧化和降血糖作用。高蛋白低脂肪，特别适合糖尿病患者。"
+      },
+      "production_process": "采用有机种植模式，充分利用乌兰察布高原气候。采用传统晾晒和脱粒工艺。不使用化学肥料和农药。经过严格选粒和质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "8月底至9月初",
+        "best_consumption_period": "秋冬季（9月-2月）",
+        "storage_duration": "常温干燥可保存2-3年"
+      },
+      "production_info": {
+        "annual_output": "约5-8万吨",
+        "main_producers": ["乌兰察布豆类企业", "合作社"],
+        "production_area": "乌兰察布市（约20万亩）",
+        "yield_per_unit": "约200-250kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "12-22元/斤",
+        "wholesale_price_range": "8-14元/斤",
+        "main_sales_channels": ["超市", "电商", "食品厂", "杂粮店"],
+        "target_markets": ["全国", "日本"],
+        "market_share": "约占高端黑豆市场的15%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 272 绿色食品黑豆"],
+        "inspection_items": ["蛋白质", "花青素含量", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["乌兰察布黑豆", "高原黑珍珠"],
+        "brand_stories": ["高原上的黑色宝藏"],
+        "awards": ["地理标志产品认证", "健康食品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煮粥", "炖汤", "磨粉", "发芽"],
+        "recipe_suggestions": ["黑豆粥", "黑豆汤", "黑豆磨粉", "黑豆芽"],
+        "pairing_suggestions": ["配红枣", "配黑米", "配薏米"],
+        "health_benefits": ["降血糖", "抗氧化", "补气血"]
+      },
+      "cultural_depth": {
+        "historical_records": "黑豆在中医古籍中多有记载，乌兰察布黑豆质量优异",
+        "folklore_stories": "黑豆的传统食疗故事",
+        "festival_connection": "秋季丰收的黑色豆类",
+        "traditional_customs": "冬季进补的传统食材"
+      },
+      "sustainability": {
+        "production_method": "有机种植 + 传统工艺",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "零化肥生产"
+      },
+      "export_info": {
+        "export_countries": ["日本"],
+        "export_standards": ["日本食品安全标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "超高蛋白",
+        "花青素丰富",
+        "地理标志",
+        "食疗食品",
+        "降血糖"
+      ],
+      "market_price_range": "12-22元/斤",
+      "best_season": "秋冬季（新豆最佳）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "煮粥最营养",
+        "配红枣效果更好",
+        "降血糖效果显著",
+        "冬季进补首选"
+      ],
+      "image_links": [
+        "https://example.com/wulanchabu-blackbean-1.jpg",
+        "https://example.com/wulanchabu-blackbean-2.jpg",
+        "https://example.com/wulanchabu-blackbean-3.jpg"
+      ]
+    },
+    {
+      "id": 65,
+      "name": "察右前旗红豆",
+      "category": "农产品",
+      "subcategory": "豆类作物",
+      "region": "乌兰察布市察右前旗",
+      "description": "察右前旗红豆产自乌兰察布市察右前旗，是内蒙古重要的红豆生产基地。察右前旗的气候和土壤条件特别适合红豆生长，生产的红豆粒大、营养丰富、品质优异。",
+      "characteristics": [
+        "粒大饱满",
+        "颜色深红鲜艳",
+        "蛋白质含量高（23-26%）",
+        "易煮烂",
+        "口感软糯"
+      ],
+      "cultural_background": "红豆是中国传统食材，察右前旗红豆种植有悠久历史。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "地理标志（申报中）"
+      ],
+      "main_uses": [
+        "红豆粥",
+        "豆制品原料",
+        "传统美食",
+        "食品加工"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（23-26%）",
+          "淀粉（50-55%）",
+          "纤维素",
+          "矿物质（铁、锌）"
+        ],
+        "health_benefits": "高蛋白食物，营养价值高。具有补气血、利水消肿的功效。"
+      },
+      "production_process": "采用绿色种植模式，不使用化学农药。充分利用察右前旗的气候条件。采用传统晾晒和脱粒工艺。经过严格选粒和质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "8月底至9月初",
+        "best_consumption_period": "秋冬季（9月-2月）",
+        "storage_duration": "常温干燥可保存2年"
+      },
+      "production_info": {
+        "annual_output": "约3-5万吨",
+        "main_producers": ["察右前旗豆类企业", "合作社"],
+        "production_area": "察右前旗（约15万亩）",
+        "yield_per_unit": "约180-220kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "10-18元/斤",
+        "wholesale_price_range": "6-10元/斤",
+        "main_sales_channels": ["超市", "电商", "杂粮店", "食品厂"],
+        "target_markets": ["华北", "华东"],
+        "market_share": "约占中档红豆市场的8%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 271 绿色食品小豆"],
+        "inspection_items": ["蛋白质", "粒形", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["察右前旗红豆", "红豆精选"],
+        "brand_stories": ["高原上的红豆佳品"],
+        "awards": ["绿色食品认证"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煮粥", "做馅", "炖汤", "甜品"],
+        "recipe_suggestions": ["红豆粥", "红豆馅面包", "红豆汤"],
+        "pairing_suggestions": ["配薏米", "配大米", "配冰糖"],
+        "health_benefits": ["补气血", "利水消肿"]
+      },
+      "cultural_depth": {
+        "historical_records": "察右前旗红豆种植有悠久历史，是重要农产品",
+        "folklore_stories": "红豆的传统故事",
+        "festival_connection": "传统节日的豆类食品",
+        "traditional_customs": "冬季进补的传统"
+      },
+      "sustainability": {
+        "production_method": "绿色种植 + 传统工艺",
+        "environmental_impact": "生态友好",
+        "carbon_footprint": "低碳农业"
+      },
+      "export_info": {
+        "export_countries": [],
+        "export_standards": ["GB 2715"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "高蛋白豆类",
+        "补气血",
+        "绿色认证",
+        "传统食品",
+        "利水消肿"
+      ],
+      "market_price_range": "10-18元/斤",
+      "best_season": "秋冬季（品质最佳）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "煮粥最营养",
+        "做馅口感好",
+        "配薏米效果更好",
+        "冬季进补"
+      ],
+      "image_links": [
+        "https://example.com/chayouqian-redbean-1.jpg",
+        "https://example.com/chayouqian-redbean-2.jpg",
+        "https://example.com/chayouqian-redbean-3.jpg"
+      ]
+    },
+    {
+      "id": 66,
+      "name": "科尔沁黄豆",
+      "category": "农产品",
+      "subcategory": "豆类作物",
+      "region": "通辽市（科尔沁草原）",
+      "description": "科尔沁黄豆产自内蒙古通辽市科尔沁草原地区，是中国重要的大豆生产基地。科尔沁草原的独特气候和土壤条件特别适合大豆生长，生产的黄豆颗粒饱满、蛋白质含量高，是制作豆制品的最佳原料。",
+      "characteristics": [
+        "颗粒饱满圆润",
+        "颜色金黄鲜艳",
+        "蛋白质含量高（36-40%）",
+        "脂肪含量适中（18-20%）",
+        "易出豆浆"
+      ],
+      "cultural_background": "大豆是中国古代的重要食材，科尔沁黄豆种植有悠久历史。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "有机认证"
+      ],
+      "main_uses": [
+        "豆浆制作",
+        "豆制品原料",
+        "豆酱生产",
+        "食品工业原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（36-40%）",
+          "脂肪（18-20%）",
+          "异黄酮类物质",
+          "矿物质（钙、铁、锌）"
+        ],
+        "health_benefits": "高蛋白低脂肪，含丰富的异黄酮类物质，有益女性健康。钙含量丰富，有益骨骼健康。"
+      },
+      "production_process": "采用有机种植模式，充分利用科尔沁草原的自然条件。采用传统晾晒和脱粒工艺。不使用化学肥料和农药。经过严格选粒和质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "9月中旬至10月初",
+        "best_consumption_period": "秋冬季（10月-次年2月）",
+        "storage_duration": "常温干燥可保存2-3年"
+      },
+      "production_info": {
+        "annual_output": "约20-30万吨",
+        "main_producers": ["通辽大豆企业", "合作社"],
+        "production_area": "科尔沁地区（约150万亩）",
+        "yield_per_unit": "约300-400kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "8-15元/斤",
+        "wholesale_price_range": "5-8元/斤",
+        "main_sales_channels": ["超市", "电商", "豆制品厂", "杂粮店"],
+        "target_markets": ["全国", "日本", "韩国"],
+        "market_share": "约占东北大豆市场的18%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 288 绿色食品大豆"],
+        "inspection_items": ["蛋白质", "脂肪", "农药残留", "转基因标记"]
+      },
+      "brand_info": {
+        "leading_brands": ["科尔沁黄豆", "草原豆王"],
+        "brand_stories": ["豆制品的优质原料"],
+        "awards": ["地理标志产品认证", "优质大豆奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["榨豆浆", "做豆制品", "炖汤", "磨粉"],
+        "recipe_suggestions": ["豆浆", "豆腐", "豆酱", "豆芽"],
+        "pairing_suggestions": ["配谷物", "配蔬菜", "配肉类"],
+        "health_benefits": ["补钙", "调理激素", "补蛋白质"]
+      },
+      "cultural_depth": {
+        "historical_records": "大豆是中国古代的重要食材，科尔沁黄豆有悠久种植历史",
+        "folklore_stories": "大豆种植的民间故事",
+        "festival_connection": "传统节日的豆制品",
+        "traditional_customs": "北方家庭的传统食材"
+      },
+      "sustainability": {
+        "production_method": "有机种植 + 传统工艺",
+        "environmental_impact": "完全生态友好",
+        "carbon_footprint": "低碳豆类生产"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国"],
+        "export_standards": ["国际大豆标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "超高蛋白",
+        "有机认证",
+        "地理标志",
+        "豆制品原料",
+        "女性保健"
+      ],
+      "market_price_range": "8-15元/斤",
+      "best_season": "秋冬季（新豆最佳）",
+      "storage_method": "常温干燥，防潮防虫，避免阳光照射",
+      "cooking_suggestions": [
+        "榨豆浆最常见",
+        "做豆制品优质",
+        "炖汤营养丰富",
+        "北方家庭常用"
+      ],
+      "image_links": [
+        "https://example.com/kersqin-soybean-1.jpg",
+        "https://example.com/kersqin-soybean-2.jpg",
+        "https://example.com/kersqin-soybean-3.jpg"
+      ]
+    }
+  ]
+}

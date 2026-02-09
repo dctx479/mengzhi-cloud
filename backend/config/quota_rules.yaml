@@ -1,0 +1,79 @@
+# 配额和计费规则配置
+# 版本: 1.0
+# 日期: 2026-01-22
+
+# 默认配额规则
+default_quotas:
+  free_tier:
+    name: "免费版"
+    monthly_tokens: 10000
+    daily_tokens: 500
+    max_requests_per_minute: 10
+    features:
+      - basic_chat
+    price: 0
+
+  basic_tier:
+    name: "基础版"
+    monthly_tokens: 100000
+    daily_tokens: 5000
+    max_requests_per_minute: 30
+    features:
+      - basic_chat
+      - advanced_chat
+      - image_generation
+    price: 99
+
+  professional_tier:
+    name: "专业版"
+    monthly_tokens: 1000000
+    daily_tokens: 50000
+    max_requests_per_minute: 100
+    features:
+      - basic_chat
+      - advanced_chat
+      - image_generation
+      - custom_model
+      - priority_support
+    price: 999
+
+  enterprise_tier:
+    name: "企业版"
+    monthly_tokens: -1  # 无限制
+    daily_tokens: -1
+    max_requests_per_minute: 500
+    features:
+      - all
+    price: 9999
+
+# 计费规则
+billing_rules:
+  token_pricing:
+    deepseek:
+      input: 0.0001  # ¥0.0001/token
+      output: 0.0002
+    openai_gpt4:
+      input: 0.001
+      output: 0.002
+    openai_gpt35:
+      input: 0.0001
+      output: 0.0002
+
+  request_pricing:
+    basic_chat: 0.01  # ¥0.01/次
+    advanced_chat: 0.05
+    image_generation: 0.5
+
+  overage_pricing:
+    token_overage: 0.0003  # 超出配额后的价格
+    request_overage: 0.02
+
+# 预警阈值
+alert_thresholds:
+  warning: 0.8   # 80%
+  critical: 0.95  # 95%
+
+# 配额重置规则
+reset_rules:
+  monthly: "0 0 1 * *"  # 每月1号0点
+  daily: "0 0 * * *"    # 每天0点

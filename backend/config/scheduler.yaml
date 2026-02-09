@@ -1,0 +1,75 @@
+# 定时任务配置
+# 版本: 1.0
+
+scheduler:
+  enabled: true
+  timezone: Asia/Shanghai
+
+# 定时任务列表
+jobs:
+  # 配额重置
+  - name: reset_daily_quota
+    schedule: "0 0 * * *"  # 每天0点
+    function: app.tasks.quota.reset_daily_quota
+    enabled: true
+    description: "重置每日配额"
+
+  - name: reset_monthly_quota
+    schedule: "0 0 1 * *"  # 每月1号0点
+    function: app.tasks.quota.reset_monthly_quota
+    enabled: true
+    description: "重置每月配额"
+
+  # 数据库备份
+  - name: backup_database
+    schedule: "0 2 * * *"  # 每天2点
+    function: app.tasks.backup.backup_database
+    enabled: true
+    description: "数据库全量备份"
+
+  - name: incremental_backup
+    schedule: "0 */6 * * *"  # 每6小时
+    function: app.tasks.backup.incremental_backup
+    enabled: true
+    description: "数据库增量备份"
+
+  # 日志清理
+  - name: cleanup_old_logs
+    schedule: "0 3 * * 0"  # 每周日3点
+    function: app.tasks.cleanup.cleanup_old_logs
+    enabled: true
+    description: "清理30天前的日志"
+
+  # 审计日志归档
+  - name: archive_audit_logs
+    schedule: "0 4 1 * *"  # 每月1号4点
+    function: app.tasks.audit.archive_old_logs
+    enabled: true
+    description: "归档90天前的审计日志"
+
+  # SLA报告生成
+  - name: generate_daily_sla_report
+    schedule: "0 1 * * *"  # 每天1点
+    function: app.tasks.sla.generate_daily_report
+    enabled: true
+    description: "生成每日SLA报告"
+
+  - name: generate_weekly_sla_report
+    schedule: "0 5 * * 1"  # 每周一5点
+    function: app.tasks.sla.generate_weekly_report
+    enabled: true
+    description: "生成每周SLA报告"
+
+  # 配额预警
+  - name: check_quota_alerts
+    schedule: "*/30 * * * *"  # 每30分钟
+    function: app.tasks.quota.check_quota_alerts
+    enabled: true
+    description: "检查配额使用预警"
+
+  # 健康检查
+  - name: health_check
+    schedule: "*/5 * * * *"  # 每5分钟
+    function: app.tasks.health.check_services
+    enabled: true
+    description: "检查服务健康状态"

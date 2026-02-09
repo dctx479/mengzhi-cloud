@@ -1,0 +1,202 @@
+# 配额和计费规则配置（最终版）
+# 版本: 3.0
+# 日期: 2026-01-22
+# 说明: 客户端按次计费，后台完整统计，支持多模型
+
+# ==================== 配额层级 ====================
+quota_tiers:
+  free_tier:
+    name: "免费版"
+    price: 0
+    limits:
+      # 对话配额（客户端按次）
+      monthly_chat_requests: 100
+      daily_chat_requests: 10
+
+      # 图片生成配额
+      monthly_images: 10
+      daily_images: 2
+
+      # 视频生成配额
+      monthly_video_requests: 0
+      daily_video_requests: 0
+
+      # 并发限制
+      max_concurrent_requests: 1
+      max_requests_per_minute: 10
+
+    features:
+      - basic_chat
+      - image_generation_512
+
+  basic_tier:
+    name: "基础版"
+    price: 99
+    limits:
+      monthly_chat_requests: 1000
+      daily_chat_requests: 100
+      monthly_images: 100
+      daily_images: 20
+      monthly_video_requests: 20
+      daily_video_requests: 5
+      max_concurrent_requests: 3
+      max_requests_per_minute: 30
+
+    features:
+      - basic_chat
+      - advanced_chat
+      - image_generation_1024
+      - video_generation_720p
+
+  professional_tier:
+    name: "专业版"
+    price: 999
+    limits:
+      monthly_chat_requests: 10000
+      daily_chat_requests: 1000
+      monthly_images: 1000
+      daily_images: 200
+      monthly_video_requests: 200
+      daily_video_requests: 50
+      max_concurrent_requests: 10
+      max_requests_per_minute: 100
+
+    features:
+      - basic_chat
+      - advanced_chat
+      - image_generation_2048
+      - video_generation_1080p
+      - priority_support
+
+  enterprise_tier:
+    name: "企业版"
+    price: 9999
+    limits:
+      monthly_chat_requests: -1
+      daily_chat_requests: -1
+      monthly_images: -1
+      daily_images: -1
+      monthly_video_requests: -1
+      daily_video_requests: -1
+      max_concurrent_requests: 50
+      max_requests_per_minute: 500
+
+    features:
+      - all
+      - custom_model  # 企业版支持自定义模型
+
+# ==================== 计费规则 ====================
+billing_rules:
+  # 客户端计费（按次）
+  client_pricing:
+    chat_request: 0.1        # ¥0.1/次（对话）
+    image_request: 0.5       # ¥0.5/次（图片）
+    video_request: 2.0       # ¥2.0/次（视频）
+
+  # 后台成本统计（按实际消耗）
+  backend_cost:
+    # AI对话成本
+    deepseek:
+      input_token: 0.0001
+      output_token: 0.0002
+    qwen:  # 千问
+      input_token: 0.00008
+      output_token: 0.00012
+    zhipu:  # 智谱
+      input_token: 0.0001
+      output_token: 0.0002
+    openai_gpt4:
+      input_token: 0.001
+      output_token: 0.002
+    custom:  # 自定义模型（企业版）
+      input_token: 0.0001
+      output_token: 0.0002
+
+    # 图片生成成本
+    jimeng_image:
+      "512x512": 0.08
+      "1024x1024": 0.25
+      "2048x2048": 0.7
+
+    # 视频生成成本
+    jimeng_video:
+      "720p_per_second": 0.4
+      "1080p_per_second": 0.8
+      "4k_per_second": 2.5
+
+  # 利润率保障
+  profit_margin:
+    target: 0.3              # 目标利润率30%
+    minimum: 0.2             # 最低利润率20%
+    alert_threshold: 0.15    # 低于15%告警
+
+# ==================== 支持的模型 ====================
+supported_models:
+  deepseek:
+    name: "DeepSeek"
+    default_base_url: "https://api.deepseek.com/v1"
+    models:
+      - deepseek-chat
+      - deepseek-coder
+    configurable: true  # 企业可配置
+
+  qwen:
+    name: "千问"
+    default_base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    models:
+      - qwen-turbo
+      - qwen-plus
+      - qwen-max
+    configurable: true
+
+  zhipu:
+    name: "智谱AI"
+    default_base_url: "https://open.bigmodel.cn/api/paas/v4"
+    models:
+      - glm-4
+      - glm-4-flash
+    configurable: true
+
+  custom:
+    name: "自定义模型"
+    default_base_url: ""
+    models: []
+    configurable: true
+    enterprise_only: true  # 仅企业版
+
+# ==================== 成本控制 ====================
+cost_control:
+  # 单次请求限制
+  single_request_limits:
+    max_chat_cost: 1.0       # 单次对话最高成本¥1
+    max_image_cost: 10.0
+    max_video_cost: 100.0
+
+  # 成本告警
+  cost_alerts:
+    daily_cost_warning: 100.0      # 每日成本超¥100告警
+    profit_margin_low: 0.15        # 利润率低于15%告警
+    loss_alert: true               # 亏损立即告警
+
+# ==================== 统计维度 ====================
+statistics:
+  # 客户端统计（计费依据）
+  client_stats:
+    - chat_requests_count
+    - image_requests_count
+    - video_requests_count
+    - total_revenue
+
+  # 后台统计（成本分析）
+  backend_stats:
+    - total_input_tokens
+    - total_output_tokens
+    - total_cost
+    - profit_margin
+    - model_usage_distribution
+
+  # 报表生成
+  reports:
+    - daily_revenue_cost_report
+    - monthly_profit_analysis
+    - model_cost_comparison

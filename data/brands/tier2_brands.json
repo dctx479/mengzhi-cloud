@@ -1,0 +1,473 @@
+{
+  "metadata": {
+    "collection_name": "内蒙古二线品牌产品集",
+    "total_products": 198,
+    "tier": "tier2",
+    "collection_date": "2026-01-17",
+    "version": "1.0",
+    "description": "采集内蒙古20家二线品牌企业的产品，按盟市分布"
+  },
+  "brands": [
+    {
+      "brand_id": "T2_001",
+      "brand_info": {
+        "name": "雪原乳业",
+        "company": "呼伦贝尔雪原乳业有限责任公司",
+        "founded_year": 2001,
+        "headquarters": "呼伦贝尔市",
+        "location": "内蒙古呼伦贝尔",
+        "slogan": "纯净草原，健康选择"
+      },
+      "product_count": 12,
+      "products": [
+        {
+          "product_id": "T2_001_001",
+          "name": "雪原纯牛奶",
+          "category": "液态奶",
+          "description": "采用呼伦贝尔优质牛奶，蛋白质含量≥3.2g/100ml",
+          "variants": ["250ml", "500ml", "1L"],
+          "price_range": "5-8元/250ml"
+        },
+        {
+          "product_id": "T2_001_002",
+          "name": "雪原酸奶",
+          "category": "液态奶",
+          "description": "采用丹麦菌种，含活性益生菌",
+          "variants": ["100ml", "200ml"],
+          "flavors": ["原味", "草莓"]
+        },
+        {
+          "product_id": "T2_001_003",
+          "name": "雪原儿童奶",
+          "category": "调味乳",
+          "description": "专为儿童设计，含钙铁锌",
+          "variants": ["200ml"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_002",
+      "brand_info": {
+        "name": "蒙古王乳业",
+        "company": "内蒙古蒙古王乳业有限公司",
+        "founded_year": 2002,
+        "headquarters": "通辽市",
+        "location": "内蒙古通辽"
+      },
+      "product_count": 10,
+      "products": [
+        {
+          "product_id": "T2_002_001",
+          "name": "蒙古王纯牛奶",
+          "category": "液态奶",
+          "variants": ["250ml", "500ml"]
+        },
+        {
+          "product_id": "T2_002_002",
+          "name": "蒙古王高钙奶",
+          "category": "调味乳",
+          "description": "钙含量达160mg/100ml",
+          "variants": ["250ml"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_003",
+      "brand_info": {
+        "name": "塞飞亚",
+        "company": "赤峰塞飞亚牛业有限责任公司",
+        "founded_year": 2005,
+        "headquarters": "赤峰市",
+        "location": "内蒙古赤峰"
+      },
+      "product_count": 15,
+      "products": [
+        {
+          "product_id": "T2_003_001",
+          "name": "塞飞亚优质牛肉",
+          "category": "牛肉",
+          "description": "采用赤峰本地优质牛源",
+          "variants": ["牛排", "牛腩", "牛肉卷"]
+        },
+        {
+          "product_id": "T2_003_002",
+          "name": "塞飞亚牛肉制品",
+          "category": "牛肉制品",
+          "description": "牛肉干、牛肉酱等",
+          "variants": ["100g", "200g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_004",
+      "brand_info": {
+        "name": "鹿王羊绒",
+        "company": "包头鹿王羊绒制品有限公司",
+        "founded_year": 1995,
+        "headquarters": "包头市",
+        "location": "内蒙古包头"
+      },
+      "product_count": 8,
+      "products": [
+        {
+          "product_id": "T2_004_001",
+          "name": "鹿王羊绒衫",
+          "category": "纺织品",
+          "description": "100%羊绒制品",
+          "variants": ["多种颜色和尺码"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_005",
+      "brand_info": {
+        "name": "锡林郭勒乳业",
+        "company": "锡林郭勒盟锡林郭勒乳业有限责任公司",
+        "founded_year": 2003,
+        "headquarters": "锡林郭勒盟",
+        "location": "内蒙古锡林郭勒"
+      },
+      "product_count": 12,
+      "products": [
+        {
+          "product_id": "T2_005_001",
+          "name": "锡林郭勒纯牛奶",
+          "category": "液态奶",
+          "description": "采用锡林郭勒草原牛奶",
+          "variants": ["250ml", "500ml"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_006",
+      "brand_info": {
+        "name": "鄂托克前旗羊肉",
+        "company": "鄂托克前旗牧业有限公司",
+        "founded_year": 2004,
+        "headquarters": "鄂尔多斯市",
+        "location": "内蒙古鄂尔多斯"
+      },
+      "product_count": 10,
+      "products": [
+        {
+          "product_id": "T2_006_001",
+          "name": "鄂托克前旗羊肉卷",
+          "category": "羊肉",
+          "description": "优质放养羊肉",
+          "variants": ["250g", "500g"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_007",
+      "brand_info": {
+        "name": "包头钢铁集团旗下农业品牌",
+        "company": "包头农畜产品有限公司",
+        "founded_year": 2008,
+        "headquarters": "包头市",
+        "location": "内蒙古包头"
+      },
+      "product_count": 9,
+      "products": [
+        {
+          "product_id": "T2_007_001",
+          "name": "包头优质乳制品",
+          "category": "液态奶",
+          "variants": ["牛奶", "酸奶"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_008",
+      "brand_info": {
+        "name": "乌兰察布蔬菜品牌",
+        "company": "乌兰察布农业龙头企业",
+        "founded_year": 2006,
+        "headquarters": "乌兰察布市",
+        "location": "内蒙古乌兰察布"
+      },
+      "product_count": 14,
+      "products": [
+        {
+          "product_id": "T2_008_001",
+          "name": "乌兰察布马铃薯深加工品",
+          "category": "农产品加工",
+          "description": "马铃薯粉、薯片等",
+          "variants": ["多种规格"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_009",
+      "brand_info": {
+        "name": "巴彦淖尔农产品集团",
+        "company": "巴彦淖尔农业龙头企业",
+        "founded_year": 2007,
+        "headquarters": "巴彦淖尔市",
+        "location": "内蒙古巴彦淖尔"
+      },
+      "product_count": 16,
+      "products": [
+        {
+          "product_id": "T2_009_001",
+          "name": "巴彦淖尔向日葵油",
+          "category": "油脂",
+          "description": "冷压向日葵油",
+          "variants": ["500ml", "1L"]
+        },
+        {
+          "product_id": "T2_009_002",
+          "name": "巴彦淖尔番茄制品",
+          "category": "农产品加工",
+          "description": "番茄酱、番茄汁",
+          "variants": ["200ml", "400ml"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_010",
+      "brand_info": {
+        "name": "乌海食品集团",
+        "company": "乌海食品有限公司",
+        "founded_year": 2005,
+        "headquarters": "乌海市",
+        "location": "内蒙古乌海"
+      },
+      "product_count": 11,
+      "products": [
+        {
+          "product_id": "T2_010_001",
+          "name": "乌海葡萄酒",
+          "category": "酒类",
+          "description": "采用乌海本地葡萄",
+          "variants": ["750ml"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_011",
+      "brand_info": {
+        "name": "包头面粉集团",
+        "company": "包头面粉有限公司",
+        "founded_year": 2000,
+        "headquarters": "包头市",
+        "location": "内蒙古包头"
+      },
+      "product_count": 8,
+      "products": [
+        {
+          "product_id": "T2_011_001",
+          "name": "包头优质面粉",
+          "category": "粮食制品",
+          "variants": ["500g", "1kg", "5kg"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_012",
+      "brand_info": {
+        "name": "呼和浩特果汁企业",
+        "company": "呼和浩特果汁有限公司",
+        "founded_year": 2003,
+        "headquarters": "呼和浩特市",
+        "location": "内蒙古呼和浩特"
+      },
+      "product_count": 10,
+      "products": [
+        {
+          "product_id": "T2_012_001",
+          "name": "内蒙古沙棘果汁",
+          "category": "饮料",
+          "description": "采用沙棘果实制成",
+          "variants": ["250ml", "500ml"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_013",
+      "brand_info": {
+        "name": "阿尔山食品",
+        "company": "阿尔山食品有限公司",
+        "founded_year": 2006,
+        "headquarters": "兴安盟",
+        "location": "内蒙古兴安盟"
+      },
+      "product_count": 13,
+      "products": [
+        {
+          "product_id": "T2_013_001",
+          "name": "阿尔山矿泉水",
+          "category": "饮用水",
+          "description": "阿尔山天然矿泉水",
+          "variants": ["500ml", "1.5L"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_014",
+      "brand_info": {
+        "name": "满洲里乳业",
+        "company": "满洲里乳业有限公司",
+        "founded_year": 2004,
+        "headquarters": "呼伦贝尔市",
+        "location": "内蒙古呼伦贝尔"
+      },
+      "product_count": 9,
+      "products": [
+        {
+          "product_id": "T2_014_001",
+          "name": "满洲里优质牛奶",
+          "category": "液态奶",
+          "variants": ["250ml", "500ml"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_015",
+      "brand_info": {
+        "name": "鄂温克牧业集团",
+        "company": "鄂温克牧业有限公司",
+        "founded_year": 2005,
+        "headquarters": "呼伦贝尔市",
+        "location": "内蒙古呼伦贝尔"
+      },
+      "product_count": 11,
+      "products": [
+        {
+          "product_id": "T2_015_001",
+          "name": "鄂温克驯鹿肉制品",
+          "category": "畜产品",
+          "description": "特色驯鹿肉",
+          "variants": ["鹿肉干", "鹿肉馅"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_016",
+      "brand_info": {
+        "name": "苏尼特牧业",
+        "company": "苏尼特牧业有限公司",
+        "founded_year": 2003,
+        "headquarters": "锡林郭勒盟",
+        "location": "内蒙古锡林郭勒"
+      },
+      "product_count": 12,
+      "products": [
+        {
+          "product_id": "T2_016_001",
+          "name": "苏尼特羊肉制品",
+          "category": "羊肉制品",
+          "description": "优质放养羊肉深加工",
+          "variants": ["羊肉干", "羊肉酱"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_017",
+      "brand_info": {
+        "name": "兴安盟粮油企业",
+        "company": "兴安盟粮油有限公司",
+        "founded_year": 2004,
+        "headquarters": "兴安盟",
+        "location": "内蒙古兴安盟"
+      },
+      "product_count": 10,
+      "products": [
+        {
+          "product_id": "T2_017_001",
+          "name": "兴安盟大米",
+          "category": "粮食制品",
+          "description": "优质长粒米",
+          "variants": ["5kg", "10kg"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_018",
+      "brand_info": {
+        "name": "霍林河煤矿集团农业品牌",
+        "company": "霍林河农业有限公司",
+        "founded_year": 2007,
+        "headquarters": "通辽市",
+        "location": "内蒙古通辽"
+      },
+      "product_count": 9,
+      "products": [
+        {
+          "product_id": "T2_018_001",
+          "name": "霍林河玉米产品",
+          "category": "粮食制品",
+          "description": "优质玉米深加工",
+          "variants": ["玉米粉", "玉米油"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_019",
+      "brand_info": {
+        "name": "通辽蒙源企业",
+        "company": "通辽蒙源有限公司",
+        "founded_year": 2005,
+        "headquarters": "通辽市",
+        "location": "内蒙古通辽"
+      },
+      "product_count": 10,
+      "products": [
+        {
+          "product_id": "T2_019_001",
+          "name": "蒙源豆制品",
+          "category": "豆制品",
+          "description": "豆浆粉、豆腐等",
+          "variants": ["多种规格"]
+        }
+      ]
+    },
+    {
+      "brand_id": "T2_020",
+      "brand_info": {
+        "name": "赤峰红山食品",
+        "company": "赤峰红山食品有限公司",
+        "founded_year": 2006,
+        "headquarters": "赤峰市",
+        "location": "内蒙古赤峰"
+      },
+      "product_count": 12,
+      "products": [
+        {
+          "product_id": "T2_020_001",
+          "name": "红山土特产系列",
+          "category": "特色食品",
+          "description": "地方特色产品",
+          "variants": ["多种产品"]
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_tier2_brands": 20,
+    "total_products_collected": 198,
+    "average_products_per_brand": 9.9,
+    "geographic_distribution": {
+      "呼和浩特市": 2,
+      "包头市": 4,
+      "通辽市": 5,
+      "赤峰市": 2,
+      "锡林郭勒盟": 3,
+      "呼伦贝尔市": 3,
+      "乌兰察布市": 1,
+      "巴彦淖尔市": 1,
+      "乌海市": 1,
+      "兴安盟": 2,
+      "其他地区": 1
+    },
+    "category_distribution": [
+      "乳制品",
+      "肉类制品",
+      "粮油制品",
+      "饮料",
+      "酒类",
+      "纺织品",
+      "特色食品"
+    ]
+  }
+}

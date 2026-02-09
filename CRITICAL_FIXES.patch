@@ -1,0 +1,55 @@
+# 严重问题修复补丁
+# 日期: 2026-01-21
+
+## 修复1: backend/app/api/auth.py - 行584和687
+### 问题: raise APIResponse (错误用法)
+### 修复: 改为 return
+
+行584:
+- raise APIResponse(code=ErrorCode.SYSTEM_ERROR, ...)
++ return error_response(code=ErrorCode.SYSTEM_ERROR, message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR])
+
+行687:
+- raise APIResponse(code=ErrorCode.SYSTEM_ERROR, ...)
++ return error_response(code=ErrorCode.SYSTEM_ERROR, message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR])
+
+行798:
+- raise APIResponse(code=ErrorCode.SYSTEM_ERROR, ...)
++ return error_response(code=ErrorCode.SYSTEM_ERROR, message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR])
+
+行917:
+- raise APIResponse(code=ErrorCode.SYSTEM_ERROR, ...)
++ return error_response(code=ErrorCode.SYSTEM_ERROR, message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR])
+
+## 修复2: backend/app/api/exports.py - 行101
+### 问题: 裸except语句
+### 修复: 指定异常类型
+
+行98-102:
+- try:
+-     if len(str(cell.value)) > max_length:
+-         max_length = len(str(cell.value))
+- except:
+-     pass
++ try:
++     if len(str(cell.value)) > max_length:
++         max_length = len(str(cell.value))
++ except (TypeError, AttributeError) as e:
++     logger.debug(f"计算列宽失败: {e}")
++     continue
+
+## 修复3: backend/app/services/captcha_service.py - 行58
+### 问题: 裸except语句
+### 修复: 指定异常类型
+
+行55-60:
+- try:
+-     font = ImageFont.truetype("arial.ttf", 28)
+- except:
+-     font = ImageFont.load_default()
++ try:
++     font = ImageFont.truetype("arial.ttf", 28)
++ except (OSError, IOError) as e:
++     logger.debug(f"加载系统字体失败，使用默认字体: {e}")
++     font = ImageFont.load_default()
+

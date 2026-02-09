@@ -1,0 +1,47 @@
+# Filebeat配置 - 日志采集
+
+filebeat.inputs:
+  # FastAPI应用日志
+  - type: log
+    enabled: true
+    paths:
+      - /logs/*.log
+      - /logs/**/*.log
+    fields:
+      app: ai-platform
+      type: application
+    multiline:
+      pattern: '^\d{4}-\d{2}-\d{2}'
+      negate: true
+      match: after
+
+  # Docker容器日志
+  - type: container
+    enabled: true
+    paths:
+      - '/var/lib/docker/containers/*/*.log'
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+
+# Processors
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+# Output to Logstash
+output.logstash:
+  hosts: ["logstash:5044"]
+  compression_level: 3
+  bulk_max_size: 2048
+
+# Logging
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /usr/share/filebeat/logs
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644

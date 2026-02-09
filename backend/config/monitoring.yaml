@@ -1,0 +1,66 @@
+# 监控告警配置
+# 版本: 1.0
+
+monitoring:
+  # Prometheus配置
+  prometheus:
+    enabled: true
+    port: 9090
+    scrape_interval: 15s
+
+  # 应用指标
+  metrics:
+    - name: http_requests_total
+      type: counter
+      help: Total HTTP requests
+    - name: http_request_duration_seconds
+      type: histogram
+      help: HTTP request duration
+    - name: database_query_duration_seconds
+      type: histogram
+      help: Database query duration
+    - name: ai_api_calls_total
+      type: counter
+      help: Total AI API calls
+    - name: quota_usage_percentage
+      type: gauge
+      help: Quota usage percentage
+
+alerting:
+  # 告警规则
+  rules:
+    - name: HighErrorRate
+      condition: error_rate > 0.05
+      duration: 5m
+      severity: critical
+      message: "错误率超过5%"
+
+    - name: SlowResponse
+      condition: p95_latency > 2s
+      duration: 5m
+      severity: warning
+      message: "P95响应时间超过2秒"
+
+    - name: HighQuotaUsage
+      condition: quota_usage > 0.9
+      duration: 1m
+      severity: warning
+      message: "配额使用率超过90%"
+
+    - name: DatabaseConnectionPoolExhausted
+      condition: db_pool_usage > 0.9
+      duration: 1m
+      severity: critical
+      message: "数据库连接池即将耗尽"
+
+  # 告警通道
+  channels:
+    email:
+      enabled: true
+      recipients: [admin@example.com]
+    dingtalk:
+      enabled: false
+      webhook: https://oapi.dingtalk.com/robot/send
+    sms:
+      enabled: false
+      provider: aliyun

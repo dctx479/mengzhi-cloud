@@ -1,0 +1,93 @@
+{
+  "dashboard": {
+    "title": "AI赋能云平台监控仪表盘",
+    "tags": ["ai-platform", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "请求QPS",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[1m])",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "请求响应时间(P95)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "P95"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "错误率",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])",
+            "legendFormat": "Error Rate"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "CPU使用率",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "system_cpu_usage_percent"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "内存使用率",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "system_memory_usage_percent"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "磁盘使用率",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "system_disk_usage_percent"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "数据库查询时间(P95)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{query_type}}"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "数据库连接数",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "db_active_connections"
+          }
+        ]
+      }
+    ]
+  }
+}

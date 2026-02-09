@@ -1,0 +1,135 @@
+{
+  "batch": "marketing_materials",
+  "province": "内蒙古自治区",
+  "created_at": "2026-01-17",
+  "materials": [
+    {
+      "id": 1,
+      "type": "slogan",
+      "category": "brand_slogan",
+      "content": "草原精华，品质之选——内蒙古农畜产品",
+      "description": "通用品牌广告语，强调内蒙古产品的草原特色和品质保证",
+      "usage_scenarios": ["电视广告", "品牌宣传", "包装设计"],
+      "effectiveness_score": 85,
+      "target_audience": "中高端消费者、注重品质的家庭"
+    },
+    {
+      "id": 2,
+      "type": "slogan",
+      "category": "product_slogan",
+      "product": "锡林郭勒羊肉",
+      "content": "一口锡林郭勒，品味千年草原文化",
+      "description": "突出产品的历史深度和文化内涵",
+      "usage_scenarios": ["产品包装", "电商平台", "短视频"],
+      "effectiveness_score": 88,
+      "target_audience": "中高端消费者、美食爱好者"
+    },
+    {
+      "id": 3,
+      "type": "slogan",
+      "category": "product_slogan",
+      "product": "蒙古牛肉",
+      "content": "天然放牧，零添加——蒙古牛肉，健康之选",
+      "description": "强调产品的天然特性和健康价值",
+      "usage_scenarios": ["超市宣传", "电商平台", "广告宣传"],
+      "effectiveness_score": 86,
+      "target_audience": "健康饮食倡导者、家庭用户"
+    },
+    {
+      "id": 4,
+      "type": "copy",
+      "category": "product_description",
+      "product": "呼伦贝尔羊肉",
+      "content": "呼伦贝尔羊肉源自中国最大最优质的草原。在这片水草丰美的草原上，羊只采食多种野生草本植物，形成独特的草原羊肉风味。肉质细嫩、膻味低、营养价值高，是高端餐饮的必选之品。享受呼伦贝尔羊肉，感受草原的博大与纯净。",
+      "description": "产品推介文案，用于电商平台和广告宣传",
+      "usage_scenarios": ["电商产品详情页", "微信公众号", "广告文案"],
+      "effectiveness_score": 87,
+      "target_audience": "高端消费群体、美食爱好者"
+    },
+    {
+      "id": 5,
+      "type": "copy",
+      "category": "health_benefits",
+      "product": "内蒙古沙棘",
+      "content": "沙棘——大自然的维生素库。内蒙古沙棘维生素C含量是柑橘的10倍，黄酮类物质丰富，具有强大的抗氧化和抗衰老功效。每天一杯沙棘汁，健康美丽伴随您。传统蒙医推荐的健康食品，现代养生的最佳选择。",
+      "description": "产品健康价值宣传文案",
+      "usage_scenarios": ["保健品广告", "健康专栏", "产品包装"],
+      "effectiveness_score": 89,
+      "target_audience": "关注健康的中年人、女性消费者"
+    },
+    {
+      "id": 6,
+      "type": "script",
+      "category": "video_script",
+      "title": "30秒羊肉产品宣传片脚本",
+      "content": "【场景1】广阔的内蒙古草原，羊群在草原上悠闲地采食\n【旁白】这是锡林郭勒草原，这里有中国最优质的羊肉\n【场景2】特写羊肉的纹理和色泽，令人食欲大开\n【旁白】天然放牧，零添加，营养价值高\n【场景3】美味羊肉的烹制过程——烤制、涮火锅、炖汤\n【旁白】无论怎样烹制，都能品尝到纯正的草原味道\n【场景4】家庭享受美食的快乐时光\n【旁白】选择草原羊肉，选择健康生活\n【结尾】品牌logo出现，配音结束",
+      "duration": "30秒",
+      "platform": "电视、抖音、快手",
+      "effectiveness_score": 84,
+      "production_tips": "注重视觉冲击，展现草原的广阔和羊肉的诱人色泽"
+    },
+    {
+      "id": 7,
+      "type": "script",
+      "category": "short_video_script",
+      "title": "15秒快手/抖音短视频脚本",
+      "content": "【文案】内蒙古马铃薯凭什么被称为'中国薯都'？\n【展示】高质量的马铃薯特写——淀粉含量高、颗粒饱满\n【演示】马铃薯的烹制——烤、炸、煮、炖\n【品尝】咬下去，粉糯香甜的口感\n【结尾】一句话：淀粉含量>17%，营养价值高，品质有保证\n【互动】评论区互动：你家乡的马铃薯怎么吃？",
+      "duration": "15秒",
+      "platform": "抖音、快手、小红书",
+      "effectiveness_score": 85,
+      "production_tips": "突出产品的视觉效果和品尝体验，激发观众的购买欲望"
+    },
+    {
+      "id": 8,
+      "type": "case",
+      "category": "success_story",
+      "title": "蒙牛集团——从草原到世界",
+      "content": "蒙牛集团成立于1999年，以内蒙古优质牛奶为原料。通过科学的加工工艺和质量管理，蒙牛产品迅速赢得市场认可。如今，蒙牛已成为中国乳业的龙头企业，产品出口50多个国家。蒙牛的成功证明了内蒙古农畜产品的国际竞争力。",
+      "company": "蒙牛集团",
+      "key_metrics": {
+        "founding_year": 1999,
+        "market_position": "中国乳业龙头",
+        "export_countries": 50,
+        "annual_revenue": "数百亿元"
+      },
+      "success_factors": [
+        "选择优质的原料——内蒙古牛奶",
+        "建立完整的产业链",
+        "重视产品质量和食品安全",
+        "积极开拓国际市场"
+      ]
+    },
+    {
+      "id": 9,
+      "type": "case",
+      "category": "success_story",
+      "title": "鄂尔多斯——羊绒产业的全球领导者",
+      "content": "鄂尔多斯是全球最大的羊绒衣着品牌。从20世纪80年代开始，鄂尔多斯利用蒙古优质羊绒资源，建立了完整的产业链。通过设计创新和质量管理，鄂尔多斯羊绒衫成为国际时尚品牌的象征。鄂尔多斯品牌价值超过100亿元，产品销售到100多个国家。",
+      "company": "鄂尔多斯集团",
+      "key_metrics": {
+        "founding_year": 1985,
+        "market_position": "全球羊绒衣着领导者",
+        "brand_value": "100亿元以上",
+        "export_countries": 100,
+        "product_types": "羊绒衫、羊绒大衣、羊绒配饰等"
+      },
+      "success_factors": [
+        "充分利用蒙古羊绒资源",
+        "建立完整的产业链",
+        "注重产品设计和品质",
+        "开拓国际高端市场"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "copy",
+      "category": "seasonal_promotion",
+      "season": "winter",
+      "content": "冬季进补，选择内蒙古草原产品。蒙古羊肉温阳补气，蒙古马奶滋补身体，内蒙古黑木耳活血化瘀。这个冬天，让草原的温暖陪伴您。",
+      "description": "冬季营销文案，强调内蒙古产品的进补功效",
+      "usage_scenarios": ["冬季促销", "微信营销", "电商平台"],
+      "effectiveness_score": 82,
+      "target_audience": "注重养生的中年人、老年人"
+    }
+  ]
+}

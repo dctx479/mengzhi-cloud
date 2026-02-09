@@ -1,0 +1,67 @@
+# 备份策略配置
+# 版本: 1.0
+
+backup_policy:
+  # 数据库备份
+  database:
+    enabled: true
+    schedule:
+      full_backup: "0 2 * * *"      # 每天凌晨2点全量备份
+      incremental: "0 */6 * * *"    # 每6小时增量备份
+    retention:
+      daily: 7                       # 保留7天
+      weekly: 4                      # 保留4周
+      monthly: 12                    # 保留12个月
+    storage:
+      local: ./backups
+      remote: s3://backup-bucket/agri-platform
+    compression: gzip
+    encryption: true
+
+  # 文件备份
+  files:
+    enabled: true
+    paths:
+      - ./uploads                    # 用户上传文件
+      - ./logs                       # 日志文件
+      - ./config                     # 配置文件
+    schedule: "0 3 * * *"            # 每天凌晨3点
+    retention: 30                    # 保留30天
+    exclude:
+      - "*.tmp"
+      - "*.cache"
+
+  # 配置备份
+  config:
+    enabled: true
+    paths:
+      - ./backend/config
+      - ./frontend/.env
+      - ./docker-compose.yml
+    schedule: "0 4 * * 0"            # 每周日凌晨4点
+    retention: 90                    # 保留90天
+    version_control: true            # 使用Git版本控制
+
+# 恢复策略
+restore_policy:
+  # 自动恢复
+  auto_restore:
+    enabled: false
+    conditions:
+      - data_corruption
+      - disaster_recovery
+
+  # 恢复测试
+  restore_test:
+    enabled: true
+    schedule: "0 5 * * 0"            # 每周日凌晨5点测试恢复
+    test_database: agri_platform_test
+
+# 监控和告警
+monitoring:
+  backup_success_alert: true
+  backup_failure_alert: true
+  storage_usage_alert:
+    threshold: 80                    # 存储使用率超过80%告警
+  backup_age_alert:
+    max_age_hours: 48                # 最新备份超过48小时告警

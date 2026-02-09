@@ -1,0 +1,63 @@
+# 日志聚合配置
+# 版本: 1.0
+
+logging:
+  # 日志级别
+  level: INFO
+
+  # 日志格式
+  format: json
+
+  # 日志输出
+  handlers:
+    console:
+      enabled: true
+      level: INFO
+    file:
+      enabled: true
+      level: DEBUG
+      path: ./logs/app.log
+      max_size: 100MB
+      backup_count: 10
+    syslog:
+      enabled: false
+      host: localhost
+      port: 514
+
+# 日志聚合
+aggregation:
+  # Loki配置（轻量级）
+  loki:
+    enabled: true
+    url: http://localhost:3100
+    labels:
+      app: agri-platform
+      env: production
+
+  # ELK配置（完整方案）
+  elk:
+    enabled: false
+    elasticsearch:
+      host: localhost
+      port: 9200
+    logstash:
+      host: localhost
+      port: 5044
+    kibana:
+      host: localhost
+      port: 5601
+
+# 日志分类
+categories:
+  access:
+    enabled: true
+    path: ./logs/access.log
+  error:
+    enabled: true
+    path: ./logs/error.log
+  audit:
+    enabled: true
+    path: ./logs/audit.log
+  performance:
+    enabled: true
+    path: ./logs/performance.log

@@ -1,0 +1,100 @@
+# Prometheus 配置文件
+# 用于监控支付系统和应用程序指标
+
+global:
+  scrape_interval: 15s  # 默认抓取间隔
+  evaluation_interval: 15s  # 告警规则评估间隔
+  external_labels:
+    cluster: 'ai-platform'
+    environment: 'production'
+
+# 告警管理器配置
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# 告警规则文件
+rule_files:
+  - '/etc/prometheus/alerts/*.yml'
+
+# 抓取配置
+scrape_configs:
+  # Prometheus 自身监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # 应用程序监控
+  - job_name: 'ai-platform-backend'
+    metrics_path: '/metrics'
+    scrape_interval: 10s  # 支付系统需要更频繁的监控
+    static_configs:
+      - targets: ['backend:8000']
+        labels:
+          service: 'backend'
+          component: 'api'
+    # 健康检查
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: backend:8000
+
+  # 数据库监控 (MySQL Exporter)
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+        labels:
+          service: 'mysql'
+          component: 'database'
+
+  # Redis 监控
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          component: 'cache'
+
+  # Node Exporter (系统指标)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node'
+          component: 'system'
+
+  # 支付系统专用监控
+  - job_name: 'payment-system'
+    metrics_path: '/metrics'
+    scrape_interval: 5s  # 支付系统需要更高频率监控
+    static_configs:
+      - targets: ['backend:8000']
+        labels:
+          service: 'payment'
+          component: 'payment-service'
+    metric_relabel_configs:
+      # 只保留支付相关指标
+      - source_labels: [__name__]
+        regex: 'payment_.*|order_.*|quota_grant_.*'
+        action: keep
+
+# 远程写入配置 (可选，用于长期存储)
+# remote_write:
+#   - url: "http://remote-storage:9009/api/v1/write"
+#     queue_config:
+#       capacity: 10000
+#       max_shards: 5
+#       min_shards: 1
+#       max_samples_per_send: 5000
+#       batch_send_deadline: 5s
+
+# 远程读取配置 (可选)
+# remote_read:
+#   - url: "http://remote-storage:9009/api/v1/read"

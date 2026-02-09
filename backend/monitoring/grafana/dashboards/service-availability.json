@@ -1,0 +1,955 @@
+{
+  "id": null,
+  "uid": "service-availability",
+  "title": "服务可用性监控",
+  "tags": [
+    "availability",
+    "health",
+    "backend"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "服务健康状态",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"backend\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "MySQL连接状态",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "mysql_up{job=\"backend\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "断开",
+                  "color": "red"
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "已连接",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Redis连接状态",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "redis_up{job=\"backend\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "断开",
+                  "color": "red"
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "已连接",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "服务正常运行时间",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "time() - process_start_time_seconds{job=\"backend\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3600
+              },
+              {
+                "color": "green",
+                "value": 86400
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "服务可用性趋势",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "avg_over_time(up{job=\"backend\"}[5m]) * 100",
+          "legendFormat": "Backend",
+          "refId": "A"
+        },
+        {
+          "expr": "avg_over_time(mysql_up{job=\"backend\"}[5m]) * 100",
+          "legendFormat": "MySQL",
+          "refId": "B"
+        },
+        {
+          "expr": "avg_over_time(redis_up{job=\"backend\"}[5m]) * 100",
+          "legendFormat": "Redis",
+          "refId": "C"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": "可用性 (%)",
+          "logBase": 1,
+          "show": true,
+          "min": 0,
+          "max": 100
+        }
+      ],
+      "xaxis": {
+        "show": true,
+        "mode": "time"
+      },
+      "lines": true,
+      "fill": 2,
+      "linewidth": 2,
+      "thresholds": [
+        {
+          "value": 99,
+          "colorMode": "critical",
+          "op": "lt",
+          "fill": true,
+          "line": true
+        }
+      ],
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "min": true
+      }
+    },
+    {
+      "id": 6,
+      "title": "容器重启次数 (24小时)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{pod=~\".*backend.*\"}[24h]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "健康检查响应时间",
+      "type": "graph",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "http_request_duration_seconds{endpoint=\"/health\"}",
+          "legendFormat": "响应时间",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "s",
+          "label": "响应时间",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "xaxis": {
+        "show": true,
+        "mode": "time"
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "thresholds": [
+        {
+          "value": 1,
+          "colorMode": "warning",
+          "op": "gt",
+          "fill": false,
+          "line": true
+        }
+      ],
+      "legend": {
+        "show": false
+      }
+    },
+    {
+      "id": 8,
+      "title": "MySQL连接池状态",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "mysql_pool_connections_active{job=\"backend\"}",
+          "legendFormat": "活跃连接",
+          "refId": "A"
+        },
+        {
+          "expr": "mysql_pool_connections_idle{job=\"backend\"}",
+          "legendFormat": "空闲连接",
+          "refId": "B"
+        },
+        {
+          "expr": "mysql_pool_connections_max{job=\"backend\"}",
+          "legendFormat": "最大连接数",
+          "refId": "C"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "连接数",
+          "logBase": 1,
+          "show": true,
+          "min": 0
+        }
+      ],
+      "xaxis": {
+        "show": true,
+        "mode": "time"
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "max": true
+      }
+    },
+    {
+      "id": 9,
+      "title": "Redis内存使用率",
+      "type": "gauge",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "redis_memory_used_bytes{job=\"backend\"} / redis_memory_max_bytes{job=\"backend\"} * 100",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "orange",
+                "value": 85
+              },
+              {
+                "color": "red",
+                "value": 95
+              }
+            ]
+          },
+          "min": 0,
+          "max": 100
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Redis连接数",
+      "type": "stat",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "redis_connected_clients{job=\"backend\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "数据库查询错误率",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(db_query_errors_total{job=\"backend\"}[5m])) by (error_type) / sum(rate(db_queries_total{job=\"backend\"}[5m])) * 100",
+          "legendFormat": "{{error_type}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": "错误率 (%)",
+          "logBase": 1,
+          "show": true,
+          "min": 0
+        }
+      ],
+      "xaxis": {
+        "show": true,
+        "mode": "time"
+      },
+      "lines": true,
+      "fill": 2,
+      "linewidth": 2,
+      "thresholds": [
+        {
+          "value": 1,
+          "colorMode": "warning",
+          "op": "gt",
+          "fill": true,
+          "line": true
+        },
+        {
+          "value": 5,
+          "colorMode": "critical",
+          "op": "gt",
+          "fill": true,
+          "line": true
+        }
+      ],
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "max": true
+      },
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                5
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "A",
+                "5m",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "frequency": "1m",
+        "handler": 1,
+        "name": "数据库查询错误率高于5%",
+        "noDataState": "no_data",
+        "notifications": []
+      }
+    },
+    {
+      "id": 12,
+      "title": "慢查询 (>1s)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(db_query_duration_seconds_bucket{le=\"+Inf\",job=\"backend\"}[5m])) - sum(increase(db_query_duration_seconds_bucket{le=\"1\",job=\"backend\"}[5m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "title": "连接池等待时间",
+      "type": "graph",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(mysql_pool_wait_duration_seconds_bucket{job=\"backend\"}[5m])) by (le))",
+          "legendFormat": "P95",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "s",
+          "label": "等待时间",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "xaxis": {
+        "show": true,
+        "mode": "time"
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "thresholds": [
+        {
+          "value": 0.1,
+          "colorMode": "warning",
+          "op": "gt",
+          "fill": false,
+          "line": true
+        }
+      ],
+      "legend": {
+        "show": false
+      }
+    },
+    {
+      "id": 14,
+      "title": "外部API调用成功率",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(external_api_requests_total{status=\"success\",job=\"backend\"}[5m])) by (api) / sum(rate(external_api_requests_total{job=\"backend\"}[5m])) by (api) * 100",
+          "legendFormat": "{{api}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": "成功率 (%)",
+          "logBase": 1,
+          "show": true,
+          "min": 0,
+          "max": 100
+        }
+      ],
+      "xaxis": {
+        "show": true,
+        "mode": "time"
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "thresholds": [
+        {
+          "value": 95,
+          "colorMode": "critical",
+          "op": "lt",
+          "fill": true,
+          "line": true
+        }
+      ],
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "min": true
+      }
+    },
+    {
+      "id": 15,
+      "title": "近期错误日志",
+      "type": "logs",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "targets": [
+        {
+          "expr": "{job=\"backend\",level=\"error\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 16,
+      "title": "SLA达标率 (可用性 >= 99.9%)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "targets": [
+        {
+          "expr": "avg_over_time(up{job=\"backend\"}[24h]) * 100",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 99
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 17,
+      "title": "月度可用性 (SLO目标: 99.9%)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "targets": [
+        {
+          "expr": "avg_over_time(up{job=\"backend\"}[30d]) * 100",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 99
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

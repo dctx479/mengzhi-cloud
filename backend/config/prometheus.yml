@@ -1,0 +1,43 @@
+# Prometheus配置文件
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'ai-platform'
+    environment: 'production'
+
+# 告警规则文件
+rule_files:
+  - 'alert_rules.yml'
+
+# 抓取配置
+scrape_configs:
+  # 后端应用监控
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: '/api/monitoring/metrics'
+    scrape_interval: 10s
+
+  # 数据库监控
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['localhost:9104']
+    scrape_interval: 30s
+
+  # Redis监控
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['localhost:9121']
+    scrape_interval: 30s
+
+  # Node Exporter (系统监控)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+    scrape_interval: 15s
+
+  # Prometheus自监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

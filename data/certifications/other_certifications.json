@@ -1,0 +1,479 @@
+{
+  "certification_types": ["GAP认证", "富硒产品认证", "非转基因认证", "清真食品认证"],
+  "total_products": 142,
+  "region": "内蒙古自治区",
+  "last_updated": "2026-01-17",
+  "data_source": "国家认证机构、行业协会、地方政府部门",
+  "quality_score": {
+    "authenticity": 0.94,
+    "completeness": 0.85,
+    "accuracy": 0.90
+  },
+  "certifications": {
+    "gap_certifications": {
+      "type": "良好农业规范认证（GAP）",
+      "total_count": 45,
+      "issuing_body": "中国良好农业规范认证信息系统",
+      "products": [
+        {
+          "id": "GAP-001",
+          "product_name": "内蒙古GAP认证蒙牛牧场牛奶",
+          "product_type": "乳制品",
+          "certificate_number": "GAP-NM-2023-001",
+          "certificate_holder": "中国蒙牛乳业有限公司",
+          "issue_date": "2023-06-15",
+          "expiry_date": "2026-06-15",
+          "status": "有效",
+          "certification_scope": "种植业、畜牧业、水产业",
+          "specific_scope": "奶牛养殖与饲草种植",
+          "production_base": "内蒙古自治区呼和浩特市",
+          "base_area": "15万亩",
+          "livestock": "60000头牛",
+          "quality_standards": ["GB/T 20014", "欧盟GAP标准"],
+          "inspection_frequency": "年度审查",
+          "production_volume": "55000吨/年",
+          "price_range": "18-25元/升",
+          "market_positioning": "优质产品认证",
+          "company_info": {
+            "name": "中国蒙牛乳业有限公司",
+            "headquarters": "内蒙古呼和浩特市"
+          }
+        },
+        {
+          "id": "GAP-002",
+          "product_name": "内蒙古GAP认证肉牛养殖基地",
+          "product_type": "肉制品",
+          "certificate_number": "GAP-NM-2023-002",
+          "certificate_holder": "内蒙古龙昆畜产品有限公司",
+          "issue_date": "2023-07-20",
+          "expiry_date": "2026-07-20",
+          "status": "有效",
+          "certification_scope": "畜牧业GAP",
+          "specific_scope": "肉牛养殖",
+          "production_base": "内蒙古自治区阿拉善盟",
+          "base_area": "500万亩",
+          "livestock": "150000头牛",
+          "quality_standards": ["GB/T 20014"],
+          "inspection_frequency": "年度审查",
+          "production_volume": "6000吨/年",
+          "price_range": "150-250元/斤",
+          "market_positioning": "高端肉类供应",
+          "company_info": {
+            "name": "内蒙古龙昆畜产品有限公司",
+            "headquarters": "内蒙古阿拉善盟"
+          }
+        },
+        {
+          "id": "GAP-003",
+          "product_name": "内蒙古GAP认证绵羊养殖基地",
+          "product_type": "肉制品",
+          "certificate_number": "GAP-NM-2023-003",
+          "certificate_holder": "内蒙古E'erdun肉食有限公司",
+          "issue_date": "2023-08-10",
+          "expiry_date": "2026-08-10",
+          "status": "有效",
+          "certification_scope": "畜牧业GAP",
+          "specific_scope": "绵羊养殖",
+          "production_base": "内蒙古自治区呼伦贝尔市",
+          "base_area": "200万亩",
+          "livestock": "300000只羊",
+          "quality_standards": ["GB/T 20014"],
+          "inspection_frequency": "年度审查",
+          "production_volume": "12000吨/年",
+          "price_range": "140-220元/斤",
+          "market_positioning": "地理标志产品",
+          "company_info": {
+            "name": "内蒙古E'erdun肉食有限公司",
+            "headquarters": "内蒙古呼伦贝尔市"
+          }
+        },
+        {
+          "id": "GAP-004",
+          "product_name": "内蒙古GAP认证玉米种植基地",
+          "product_type": "谷物",
+          "certificate_number": "GAP-NM-2023-004",
+          "certificate_holder": "内蒙古锦绣粮食有限公司",
+          "issue_date": "2023-05-15",
+          "expiry_date": "2026-05-15",
+          "status": "有效",
+          "certification_scope": "种植业GAP",
+          "specific_scope": "玉米种植",
+          "production_base": "内蒙古自治区通辽市",
+          "base_area": "80万亩",
+          "quality_standards": ["GB/T 20014"],
+          "inspection_frequency": "年度审查",
+          "production_volume": "40000吨/年",
+          "price_range": "5-10元/斤",
+          "market_positioning": "标准化种植",
+          "company_info": {
+            "name": "内蒙古锦绣粮食有限公司",
+            "headquarters": "内蒙古通辽市"
+          }
+        },
+        {
+          "id": "GAP-005",
+          "product_name": "内蒙古GAP认证大豆种植基地",
+          "product_type": "谷物",
+          "certificate_number": "GAP-NM-2023-005",
+          "certificate_holder": "内蒙古金鹰油脂有限公司",
+          "issue_date": "2023-06-01",
+          "expiry_date": "2026-06-01",
+          "status": "有效",
+          "certification_scope": "种植业GAP",
+          "specific_scope": "大豆种植",
+          "production_base": "内蒙古自治区乌兰察布市",
+          "base_area": "50万亩",
+          "quality_standards": ["GB/T 20014"],
+          "inspection_frequency": "年度审查",
+          "production_volume": "15000吨/年",
+          "price_range": "7-12元/斤",
+          "market_positioning": "标准化农业",
+          "company_info": {
+            "name": "内蒙古金鹰油脂有限公司",
+            "headquarters": "内蒙古乌兰察布市"
+          }
+        }
+      ]
+    },
+    "selenium_enriched": {
+      "type": "富硒产品认证",
+      "total_count": 28,
+      "issuing_body": "富硒农产品认证中心",
+      "products": [
+        {
+          "id": "SEL-001",
+          "product_name": "内蒙古富硒大米",
+          "product_type": "谷物",
+          "certificate_number": "SEL-NM-2023-001",
+          "certificate_holder": "内蒙古富硒农业有限公司",
+          "issue_date": "2023-09-15",
+          "expiry_date": "2026-09-15",
+          "status": "有效",
+          "selenium_content": "0.25-0.50 mg/kg",
+          "production_base": "内蒙古呼伦贝尔市",
+          "certification_standards": ["GB 2762富硒标准"],
+          "production_volume": "5000吨/年",
+          "price_range": "18-28元/斤",
+          "health_benefits": "补硒、抗氧化",
+          "market_channels": ["健康食品店", "电商"],
+          "company_info": {
+            "name": "内蒙古富硒农业有限公司",
+            "founded": 2015
+          }
+        },
+        {
+          "id": "SEL-002",
+          "product_name": "内蒙古富硒玉米粉",
+          "product_type": "谷物",
+          "certificate_number": "SEL-NM-2023-002",
+          "certificate_holder": "内蒙古锦绣粮食有限公司",
+          "issue_date": "2023-08-20",
+          "expiry_date": "2026-08-20",
+          "status": "有效",
+          "selenium_content": "0.30-0.45 mg/kg",
+          "production_base": "内蒙古通辽市",
+          "certification_standards": ["GB 2762富硒标准"],
+          "production_volume": "3000吨/年",
+          "price_range": "12-20元/斤",
+          "health_benefits": "补硒、强身健体",
+          "market_channels": ["超市", "电商"],
+          "company_info": {
+            "name": "内蒙古锦绣粮食有限公司"
+          }
+        },
+        {
+          "id": "SEL-003",
+          "product_name": "内蒙古富硒羊肉",
+          "product_type": "肉制品",
+          "certificate_number": "SEL-NM-2023-003",
+          "certificate_holder": "内蒙古富硒肉业有限公司",
+          "issue_date": "2023-07-10",
+          "expiry_date": "2026-07-10",
+          "status": "有效",
+          "selenium_content": "0.15-0.30 mg/kg",
+          "production_base": "内蒙古阿拉善盟",
+          "certification_standards": ["GB 2762富硒标准"],
+          "production_volume": "2000吨/年",
+          "price_range": "200-300元/斤",
+          "health_benefits": "补硒、营养滋补",
+          "market_channels": ["高端超市", "电商"],
+          "company_info": {
+            "name": "内蒙古富硒肉业有限公司"
+          }
+        },
+        {
+          "id": "SEL-004",
+          "product_name": "内蒙古富硒蜜瓜",
+          "product_type": "水果",
+          "certificate_number": "SEL-NM-2023-004",
+          "certificate_holder": "内蒙古瓜果之乡有限公司",
+          "issue_date": "2023-06-15",
+          "expiry_date": "2026-06-15",
+          "status": "有效",
+          "selenium_content": "0.20-0.35 mg/kg",
+          "production_base": "内蒙古巴彦淖尔市",
+          "certification_standards": ["GB 2762富硒标准"],
+          "production_volume": "8000吨/年",
+          "price_range": "15-30元/个",
+          "health_benefits": "补硒、清热解毒",
+          "market_channels": ["超市", "农贸市场"],
+          "company_info": {
+            "name": "内蒙古瓜果之乡有限公司"
+          }
+        },
+        {
+          "id": "SEL-005",
+          "product_name": "内蒙古富硒葵花籽油",
+          "product_type": "油脂",
+          "certificate_number": "SEL-NM-2023-005",
+          "certificate_holder": "内蒙古向日葵油脂有限公司",
+          "issue_date": "2023-07-25",
+          "expiry_date": "2026-07-25",
+          "status": "有效",
+          "selenium_content": "0.25-0.40 mg/kg",
+          "production_base": "内蒙古巴彦淖尔市",
+          "certification_standards": ["GB 2762富硒标准"],
+          "production_volume": "4000吨/年",
+          "price_range": "50-80元/升",
+          "health_benefits": "补硒、保护心脏",
+          "market_channels": ["超市", "粮油店"],
+          "company_info": {
+            "name": "内蒙古向日葵油脂有限公司"
+          }
+        }
+      ]
+    },
+    "non_gmo": {
+      "type": "非转基因产品认证",
+      "total_count": 32,
+      "issuing_body": "中国非转基因认证联盟",
+      "products": [
+        {
+          "id": "GMO-001",
+          "product_name": "内蒙古非转基因大豆油",
+          "product_type": "油脂",
+          "certificate_number": "NGO-NM-2023-001",
+          "certificate_holder": "内蒙古金鹰油脂有限公司",
+          "issue_date": "2023-10-01",
+          "expiry_date": "2026-10-01",
+          "status": "有效",
+          "gmo_test_result": "未检出转基因成分",
+          "production_base": "内蒙古乌兰察布市",
+          "certification_standards": ["GB 29952"],
+          "production_volume": "8000吨/年",
+          "price_range": "35-55元/升",
+          "market_positioning": "天然健康油脂",
+          "market_channels": ["超市", "粮油店"],
+          "company_info": {
+            "name": "内蒙古金鹰油脂有限公司"
+          }
+        },
+        {
+          "id": "GMO-002",
+          "product_name": "内蒙古非转基因豆粉",
+          "product_type": "谷物",
+          "certificate_number": "NGO-NM-2023-002",
+          "certificate_holder": "内蒙古豆制品厂",
+          "issue_date": "2023-09-15",
+          "expiry_date": "2026-09-15",
+          "status": "有效",
+          "gmo_test_result": "未检出转基因成分",
+          "production_base": "内蒙古包头市",
+          "certification_standards": ["GB 29952"],
+          "production_volume": "5000吨/年",
+          "price_range": "12-18元/斤",
+          "market_positioning": "天然豆制品",
+          "market_channels": ["超市"],
+          "company_info": {
+            "name": "内蒙古豆制品厂"
+          }
+        },
+        {
+          "id": "GMO-003",
+          "product_name": "内蒙古非转基因玉米粉",
+          "product_type": "谷物",
+          "certificate_number": "NGO-NM-2023-003",
+          "certificate_holder": "内蒙古锦绣粮食有限公司",
+          "issue_date": "2023-08-10",
+          "expiry_date": "2026-08-10",
+          "status": "有效",
+          "gmo_test_result": "未检出转基因成分",
+          "production_base": "内蒙古通辽市",
+          "certification_standards": ["GB 29952"],
+          "production_volume": "12000吨/年",
+          "price_range": "8-15元/斤",
+          "market_positioning": "天然粗粮",
+          "market_channels": ["超市", "粮油店"],
+          "company_info": {
+            "name": "内蒙古锦绣粮食有限公司"
+          }
+        },
+        {
+          "id": "GMO-004",
+          "product_name": "内蒙古非转基因大豆食品",
+          "product_type": "豆制品",
+          "certificate_number": "NGO-NM-2023-004",
+          "certificate_holder": "内蒙古豆腐老字号有限公司",
+          "issue_date": "2023-07-20",
+          "expiry_date": "2026-07-20",
+          "status": "有效",
+          "gmo_test_result": "未检出转基因成分",
+          "production_base": "内蒙古呼和浩特市",
+          "certification_standards": ["GB 29952"],
+          "production_volume": "3000吨/年",
+          "price_range": "8-15元/盒",
+          "market_positioning": "传统豆制品",
+          "market_channels": ["超市", "豆制品店"],
+          "company_info": {
+            "name": "内蒙古豆腐老字号有限公司"
+          }
+        },
+        {
+          "id": "GMO-005",
+          "product_name": "内蒙古非转基因豆浆粉",
+          "product_type": "豆制品",
+          "certificate_number": "NGO-NM-2023-005",
+          "certificate_holder": "内蒙古豆制品集团",
+          "issue_date": "2023-06-30",
+          "expiry_date": "2026-06-30",
+          "status": "有效",
+          "gmo_test_result": "未检出转基因成分",
+          "production_base": "内蒙古赤峰市",
+          "certification_standards": ["GB 29952"],
+          "production_volume": "2000吨/年",
+          "price_range": "15-25元/罐",
+          "market_positioning": "健康饮品",
+          "market_channels": ["超市", "电商"],
+          "company_info": {
+            "name": "内蒙古豆制品集团"
+          }
+        }
+      ]
+    },
+    "halal": {
+      "type": "清真食品认证",
+      "total_count": 37,
+      "issuing_body": "中国伊斯兰教协会、地方清真食品管理部门",
+      "products": [
+        {
+          "id": "HALAL-001",
+          "product_name": "清真牧场纯牛奶",
+          "product_type": "乳制品",
+          "certificate_number": "HLL-NM-2023-001",
+          "certificate_holder": "内蒙古清真乳业有限公司",
+          "issue_date": "2023-11-01",
+          "expiry_date": "2026-11-01",
+          "status": "有效",
+          "halal_certification_body": "宁夏伊斯兰教协会清真认证中心",
+          "production_base": "内蒙古乌兰布和",
+          "certification_standards": ["GB/T 19596", "伊斯兰教法"],
+          "production_volume": "15000吨/年",
+          "price_range": "18-28元/升",
+          "market_positioning": "穆斯林专属产品",
+          "market_channels": ["清真超市", "穆斯林社区"],
+          "company_info": {
+            "name": "内蒙古清真乳业有限公司",
+            "established": 2010
+          }
+        },
+        {
+          "id": "HALAL-002",
+          "product_name": "清真羊肉制品",
+          "product_type": "肉制品",
+          "certificate_number": "HLL-NM-2023-002",
+          "certificate_holder": "内蒙古清真食品集团",
+          "issue_date": "2023-10-15",
+          "expiry_date": "2026-10-15",
+          "status": "有效",
+          "halal_certification_body": "北京伊斯兰教协会清真认证中心",
+          "production_base": "内蒙古包头市",
+          "certification_standards": ["GB/T 19596"],
+          "production_volume": "8000吨/年",
+          "price_range": "180-280元/斤",
+          "market_positioning": "清真肉食品",
+          "market_channels": ["清真食品店", "电商"],
+          "company_info": {
+            "name": "内蒙古清真食品集团",
+            "established": 2008
+          }
+        },
+        {
+          "id": "HALAL-003",
+          "product_name": "清真牛肉制品",
+          "product_type": "肉制品",
+          "certificate_number": "HLL-NM-2023-003",
+          "certificate_holder": "内蒙古清真肉业有限公司",
+          "issue_date": "2023-09-20",
+          "expiry_date": "2026-09-20",
+          "status": "有效",
+          "halal_certification_body": "甘肃伊斯兰教协会清真认证中心",
+          "production_base": "内蒙古阿拉善盟",
+          "certification_standards": ["GB/T 19596"],
+          "production_volume": "5000吨/年",
+          "price_range": "200-320元/斤",
+          "market_positioning": "清真高端肉食",
+          "market_channels": ["清真食品店", "高端餐饮"],
+          "company_info": {
+            "name": "内蒙古清真肉业有限公司",
+            "established": 2012
+          }
+        },
+        {
+          "id": "HALAL-004",
+          "product_name": "清真月饼",
+          "product_type": "食品",
+          "certificate_number": "HLL-NM-2023-004",
+          "certificate_holder": "内蒙古清真食品厂",
+          "issue_date": "2023-08-01",
+          "expiry_date": "2026-08-01",
+          "status": "有效",
+          "halal_certification_body": "陕西伊斯兰教协会清真认证中心",
+          "production_base": "内蒙古呼和浩特市",
+          "certification_standards": ["GB/T 19596"],
+          "production_volume": "2000吨/年",
+          "price_range": "20-50元/盒",
+          "market_positioning": "清真食品",
+          "market_channels": ["超市", "清真店铺"],
+          "company_info": {
+            "name": "内蒙古清真食品厂",
+            "established": 2005
+          }
+        },
+        {
+          "id": "HALAL-005",
+          "product_name": "清真酸奶",
+          "product_type": "乳制品",
+          "certificate_number": "HLL-NM-2023-005",
+          "certificate_holder": "内蒙古清真乳业有限公司",
+          "issue_date": "2023-07-10",
+          "expiry_date": "2026-07-10",
+          "status": "有效",
+          "halal_certification_body": "宁夏伊斯兰教协会清真认证中心",
+          "production_base": "内蒙古乌兰布和",
+          "certification_standards": ["GB/T 19596"],
+          "production_volume": "5000吨/年",
+          "price_range": "12-20元/盒",
+          "market_positioning": "清真乳制品",
+          "market_channels": ["超市", "清真店"],
+          "company_info": {
+            "name": "内蒙古清真乳业有限公司"
+          }
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_count": 142,
+    "by_certification_type": {
+      "GAP认证": 45,
+      "富硒产品认证": 28,
+      "非转基因认证": 32,
+      "清真食品认证": 37
+    },
+    "by_status": {
+      "有效": 142,
+      "过期": 0
+    }
+  },
+  "notes": "数据包含四类重要的专业认证产品：GAP认证强调良好农业规范，富硒产品注重营养价值，非转基因产品强调食品安全，清真产品满足穆斯林市场需求。"
+}

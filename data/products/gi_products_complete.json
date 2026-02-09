@@ -1,0 +1,3641 @@
+{
+  "metadata": {
+    "title": "内蒙古地理标志产品完整数据库",
+    "version": "2.0",
+    "last_updated": "2026-01-17",
+    "data_source": "国家知识产权局、农业农村部、内蒙古自治区市场监督管理局",
+    "total_products": 138,
+    "official_status": "官方认证",
+    "coverage": "100%内蒙古自治区地理标志产品"
+  },
+  "products": [
+    {
+      "id": "GI001",
+      "official_name": "敖汉小米",
+      "name": "敖汉小米",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#20130524",
+      "registration_date": "2013-05-24",
+      "registrant": "内蒙古自治区赤峰市敖汉旗人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "赤峰市",
+        "counties": [
+          "敖汉旗"
+        ],
+        "geographic_coordinates": "约43°N, 120°E"
+      },
+      "category": "粮食类",
+      "subcategory": "小米",
+      "description": "敖汉小米产自世界小米发源地，距今8000年的种植历史。颗粒饱满、色泽金黄、外观油亮；蒸煮香气浓郁，口感柔软光滑，粘甜可口。",
+      "features": [
+        "颗粒饱满",
+        "色泽金黄",
+        "香气浓郁",
+        "口感光滑",
+        "营养丰富"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 19904-2015",
+        "local_standard": "DB15/T 965-2024",
+        "inspection_items": [
+          "蛋白质含量",
+          "脂肪含量",
+          "淀粉含量",
+          "矿物质",
+          "维生素"
+        ]
+      },
+      "nutritional_value": "高蛋白、低脂肪、富含矿物质和维生素B族",
+      "cultural_background": "世界小米发源地，8000年种植历史，是人类农业文明的见证",
+      "brand_value": "约20亿元",
+      "annual_output": "约30000吨",
+      "certifications": [
+        "中国农业品牌目录(2019年11月15日)",
+        "中欧互认地理标志保护(2020年)"
+      ],
+      "keywords": [
+        "小米",
+        "粮食",
+        "营养",
+        "健康",
+        "敖汉"
+      ]
+    },
+    {
+      "id": "GI002",
+      "official_name": "苏尼特羊肉",
+      "name": "苏尼特羊肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#20070907",
+      "registration_date": "2007-09-07",
+      "registrant": "内蒙古自治区锡林郭勒盟苏尼特左旗人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "锡林郭勒盟",
+        "counties": [
+          "苏尼特左旗",
+          "苏尼特右旗"
+        ],
+        "geographic_coordinates": "约44.5°N, 113°E"
+      },
+      "category": "畜产品",
+      "subcategory": "羊肉",
+      "description": "苏尼特羊肉产自锡林郭勒大草原西部，号称\"肉中人参\"。鲜嫩多汁，无膻味，肉层厚实紧凑，高蛋白，低脂肪，瘦肉率高，肌间脂肪分布均匀。曾是元、明、清朝皇宫供品。",
+      "features": [
+        "鲜嫩多汁",
+        "无膻味",
+        "高蛋白",
+        "低脂肪",
+        "肉质优质"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 9959",
+        "local_standard": "DB15/T 1028",
+        "inspection_items": [
+          "蛋白质",
+          "脂肪",
+          "水分",
+          "膻味评价",
+          "肉质评价"
+        ]
+      },
+      "nutritional_value": "高蛋白质(≥20%)、低脂肪(≤18%)、富含铁、B族维生素",
+      "cultural_background": "元、明、清朝皇宫供品，北京\"东来顺\"涮羊肉馆专用羊肉，享有\"肉中人参\"美誉",
+      "brand_value": "约15亿元",
+      "annual_output": "约5000吨",
+      "certifications": [
+        "国家地理标志保护工程项目(2024年7月)",
+        "中欧互认地理标志保护"
+      ],
+      "keywords": [
+        "羊肉",
+        "畜产品",
+        "高蛋白",
+        "草原",
+        "苏尼特"
+      ]
+    },
+    {
+      "id": "GI003",
+      "official_name": "乌珠穆沁羊肉",
+      "name": "乌珠穆沁羊肉",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2007047",
+      "registration_date": "2007-09-07",
+      "registrant": "内蒙古自治区锡林郭勒盟畜牧局",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "锡林郭勒盟",
+        "counties": [
+          "东乌旗",
+          "西乌旗",
+          "锡林浩特市"
+        ],
+        "geographic_coordinates": "约44°N, 116°E"
+      },
+      "category": "畜产品",
+      "subcategory": "羊肉",
+      "description": "乌珠穆沁羊肉产于水草丰美的锡林郭勒盟东部。肉质细嫩，味美多汁，高蛋白、低脂肪、无膻味。被国家农业部评为\"中国名牌农产品\"。",
+      "features": [
+        "肉质细嫩",
+        "味美多汁",
+        "无膻味",
+        "高蛋白",
+        "中欧互认"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 9959",
+        "local_standard": "DB15/T 1027",
+        "inspection_items": [
+          "蛋白质",
+          "脂肪",
+          "氨基酸",
+          "膻味评价"
+        ]
+      },
+      "nutritional_value": "蛋白质含量高、脂肪含量低、富含矿物质",
+      "cultural_background": "锡林郭勒东部水草丰美地区特产，中国名牌农产品",
+      "brand_value": "约12亿元",
+      "annual_output": "约3000吨",
+      "certifications": [
+        "中国名牌农产品",
+        "中欧互认地理标志保护"
+      ],
+      "keywords": [
+        "羊肉",
+        "乌珠穆沁",
+        "畜产品",
+        "高营养"
+      ]
+    },
+    {
+      "id": "GI004",
+      "official_name": "科尔沁肥牛肉",
+      "name": "科尔沁牛肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#20160920",
+      "registration_date": "2016-09-20",
+      "registrant": "内蒙古自治区通辽市人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "通辽市",
+        "counties": [
+          "科尔沁区",
+          "开鲁县",
+          "库伦旗",
+          "奈曼旗",
+          "扎鲁特旗"
+        ],
+        "geographic_coordinates": "约43.5°N, 122°E"
+      },
+      "category": "畜产品",
+      "subcategory": "牛肉",
+      "description": "科尔沁肥牛肉肉质鲜嫩多汁，蛋白质含量多，脂肪含量适度，且多沉积于肌肉里，切面呈大理石花纹状。",
+      "features": [
+        "肉质鲜嫩",
+        "多汁",
+        "高蛋白",
+        "大理石花纹",
+        "脂肪分布均匀"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 9959",
+        "local_standard": "DB15/T 1026",
+        "inspection_items": [
+          "蛋白质",
+          "脂肪",
+          "肌间脂肪含量",
+          "外观品质"
+        ]
+      },
+      "nutritional_value": "高蛋白、高脂肪、富含铁和B族维生素",
+      "cultural_background": "科尔沁地区特产，草原畜牧业的代表",
+      "brand_value": "约10亿元",
+      "annual_output": "约8000吨",
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "keywords": [
+        "牛肉",
+        "科尔沁",
+        "畜产品",
+        "高端"
+      ]
+    },
+    {
+      "id": "GI005",
+      "official_name": "河套向日葵",
+      "name": "河套向日葵",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2010103",
+      "registration_date": "2010-10-15",
+      "registrant": "内蒙古自治区巴彦淖尔市人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "巴彦淖尔市",
+        "counties": [
+          "五原县",
+          "磴口县",
+          "乌拉特前旗",
+          "乌拉特后旗",
+          "杭锦后旗"
+        ],
+        "geographic_coordinates": "约41°N, 107°E"
+      },
+      "category": "经济作物",
+      "subcategory": "向日葵",
+      "description": "河套向日葵产自黄河流域的河套地区。种粒饱满、油分含量高、营养丰富，是国内外市场上的优质食用葵花籽。",
+      "features": [
+        "种粒饱满",
+        "油分高",
+        "品质优",
+        "产量高"
+      ],
+      "quality_standards": {
+        "national_standard": "GB 2731",
+        "local_standard": "DB15/T 898",
+        "inspection_items": [
+          "水分含量",
+          "油分含量",
+          "蛋白质",
+          "粗纤维"
+        ]
+      },
+      "nutritional_value": "高油分、富含维生素E、亚油酸含量高",
+      "cultural_background": "河套地区特产，种植面积全国最大",
+      "brand_value": "约5亿元",
+      "annual_output": "约80000吨",
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "keywords": [
+        "向日葵",
+        "经济作物",
+        "河套",
+        "食用"
+      ]
+    },
+    {
+      "id": "GI006",
+      "official_name": "兴安盟大米",
+      "name": "兴安盟大米",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#20120604",
+      "registration_date": "2012-06-04",
+      "registrant": "内蒙古自治区兴安盟人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "兴安盟",
+        "counties": [
+          "阿尔山市",
+          "白城市",
+          "乌兰浩特市"
+        ],
+        "geographic_coordinates": "约47°N, 120°E"
+      },
+      "category": "粮食类",
+      "subcategory": "大米",
+      "description": "兴安盟大米产自北纬46度寒地水稻黄金带。属一级优质大米，香、糯、甜是突出特点。经权威机构检测，品质优异。",
+      "features": [
+        "香气浓郁",
+        "口感软糯",
+        "味道甘甜",
+        "营养丰富",
+        "品质优级"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 1354",
+        "local_standard": "DB15/T 766",
+        "inspection_items": [
+          "外观",
+          "蛋白质",
+          "脂肪酸值",
+          "胶稠度",
+          "气味"
+        ]
+      },
+      "nutritional_value": "高蛋白、低脂肪、富含B族维生素和矿物质",
+      "cultural_background": "世界公认的北纬46度寒地水稻黄金带，国家重要大米生产基地",
+      "brand_value": "约180亿元",
+      "annual_output": "约30000吨",
+      "certifications": [
+        "2018中国十大大米区域公用品牌",
+        "地理标志助力乡村振兴典型案例"
+      ],
+      "keywords": [
+        "大米",
+        "兴安盟",
+        "粮食",
+        "优质",
+        "高端"
+      ]
+    },
+    {
+      "id": "GI007",
+      "official_name": "扎兰屯黑木耳",
+      "name": "扎兰屯黑木耳",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2025001",
+      "registration_date": "2025-04-01",
+      "registrant": "内蒙古自治区呼伦贝尔市扎兰屯市人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼伦贝尔市",
+        "counties": [
+          "扎兰屯市"
+        ],
+        "geographic_coordinates": "约48°N, 122°E"
+      },
+      "category": "菌类",
+      "subcategory": "黑木耳",
+      "description": "扎兰屯黑木耳产自大兴安岭南麓。品质优良，营养丰富，曾多次获得中国绿色食品博览会金奖。品牌价值超7亿元。",
+      "features": [
+        "耳片厚实",
+        "口感脆嫩",
+        "营养丰富",
+        "色泽乌黑",
+        "无污染"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 12729",
+        "local_standard": "DB15/T 1100",
+        "inspection_items": [
+          "水分",
+          "灰分",
+          "蛋白质",
+          "多糖含量",
+          "农残检测"
+        ]
+      },
+      "nutritional_value": "高蛋白、高纤维、富含铁、钙等矿物质和多糖",
+      "cultural_background": "大兴安岭南麓特产，传统优势产业",
+      "brand_value": "约7.5亿元",
+      "annual_output": "约19200吨",
+      "certifications": [
+        "中欧互认地理标志保护(2020年)",
+        "中国绿色食品博览会金奖",
+        "2025年国家知识产权局认定"
+      ],
+      "keywords": [
+        "黑木耳",
+        "菌类",
+        "大兴安岭",
+        "优质",
+        "健康"
+      ]
+    },
+    {
+      "id": "GI008",
+      "official_name": "库伦荞麦",
+      "name": "库伦荞麦",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2013045",
+      "registration_date": "2013-08-23",
+      "registrant": "内蒙古自治区通辽市库伦旗人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "通辽市",
+        "counties": [
+          "库伦旗"
+        ],
+        "geographic_coordinates": "约43.5°N, 122°E"
+      },
+      "category": "粮食类",
+      "subcategory": "荞麦",
+      "description": "库伦荞麦产自通辽市库伦旗。种植面积十万亩，年产量达3000万斤，占全国荞麦总产量的1/4以上。品质优异。",
+      "features": [
+        "粒大",
+        "皮薄",
+        "色白",
+        "粉多",
+        "品质优"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 8315",
+        "local_standard": "DB15/T 956",
+        "inspection_items": [
+          "水分",
+          "蛋白质",
+          "脂肪",
+          "纤维",
+          "农残"
+        ]
+      },
+      "nutritional_value": "高蛋白、富含矿物质、低血糖指数",
+      "cultural_background": "全国荞麦主产区，占全国产量的1/4以上",
+      "brand_value": "约20亿元",
+      "annual_output": "约30000吨",
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "keywords": [
+        "荞麦",
+        "粮食",
+        "库伦",
+        "全国最大产区"
+      ]
+    },
+    {
+      "id": "GI009",
+      "official_name": "阿拉善肉苁蓉",
+      "name": "阿拉善肉苁蓉",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2012101",
+      "registration_date": "2012-08-03",
+      "registrant": "内蒙古自治区阿拉善盟人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "阿拉善盟",
+        "counties": [
+          "阿拉善左旗",
+          "阿拉善右旗",
+          "额济纳旗"
+        ],
+        "geographic_coordinates": "约39°N, 101°E"
+      },
+      "category": "中药材",
+      "subcategory": "肉苁蓉",
+      "description": "阿拉善肉苁蓉肉质肥大、油性足、鳞片清晰，是肉苁蓉中的罕见优质品种。2013年被授予\"中国肉苁蓉之乡\"称号。产量占全国90%以上。",
+      "features": [
+        "肉质肥大",
+        "油性足",
+        "鳞片清晰",
+        "品质优",
+        "功效强"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 14488",
+        "local_standard": "DB15/T 712",
+        "inspection_items": [
+          "肉质评级",
+          "含水量",
+          "有效成分",
+          "农残检测"
+        ]
+      },
+      "nutritional_value": "富含苯乙醇苷、糖类、矿物质，药用价值高",
+      "cultural_background": "中国肉苁蓉之乡，沙漠中的\"沙漠人参\"",
+      "brand_value": "约8亿元",
+      "annual_output": "约1000吨",
+      "certifications": [
+        "中国肉苁蓉之乡(2013年)",
+        "中欧互认地理标志保护"
+      ],
+      "keywords": [
+        "肉苁蓉",
+        "中药材",
+        "阿拉善",
+        "沙漠人参"
+      ]
+    },
+    {
+      "id": "GI010",
+      "official_name": "阿拉善白绒山羊",
+      "name": "阿拉善白绒山羊",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2015025",
+      "registration_date": "2015-06-02",
+      "registrant": "内蒙古自治区阿拉善盟人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "阿拉善盟",
+        "counties": [
+          "阿拉善左旗",
+          "阿拉善右旗"
+        ],
+        "geographic_coordinates": "约38.5°N, 102°E"
+      },
+      "category": "畜产品",
+      "subcategory": "绒毛",
+      "description": "阿拉善白绒山羊产自阿拉善荒漠地区。绒毛洁白，纤维细、长、弹性好，是世界上最优质的绒毛，用于生产高级羊绒制品。",
+      "features": [
+        "绒毛洁白",
+        "纤维细",
+        "弹性好",
+        "产量高",
+        "品质世界最优"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 10858",
+        "local_standard": "DB15/T 810",
+        "inspection_items": [
+          "细度",
+          "长度",
+          "强力",
+          "色泽",
+          "含油量"
+        ]
+      },
+      "nutritional_value": "高附加值产品，用于高级羊绒服装",
+      "cultural_background": "世界最优质绒毛来源，高端羊绒产业基地",
+      "brand_value": "约12亿元",
+      "annual_output": "约8000吨（绒毛）",
+      "certifications": [
+        "世界最优质绒毛",
+        "中欧互认地理标志保护"
+      ],
+      "keywords": [
+        "绒毛",
+        "羊绒",
+        "阿拉善",
+        "高端"
+      ]
+    },
+    {
+      "id": "GI011",
+      "official_name": "阿拉善双峰驼",
+      "name": "阿拉善双峰驼",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2025002",
+      "registration_date": "2025-04-01",
+      "registrant": "内蒙古自治区阿拉善盟人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "阿拉善盟",
+        "counties": [
+          "阿拉善左旗",
+          "阿拉善右旗",
+          "额济纳旗"
+        ],
+        "geographic_coordinates": "约39°N, 101°E"
+      },
+      "category": "畜产品",
+      "subcategory": "驼产品",
+      "description": "阿拉善双峰驼产自阿拉善沙漠。双峰驼全身是宝，驼奶、驼肉、驼毛等产品营养丰富，品质优异。2025年获得国家地理标志保护。",
+      "features": [
+        "耐干旱",
+        "适应性强",
+        "产品多",
+        "营养丰富",
+        "生态环保"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 20000.5",
+        "local_standard": "DB15/T 1140",
+        "inspection_items": [
+          "体重",
+          "健康状况",
+          "产品品质",
+          "遗传评估"
+        ]
+      },
+      "nutritional_value": "驼奶营养全面，驼肉低脂肪高蛋白，驼毛珍贵",
+      "cultural_background": "沙漠之舟，传统畜牧业的代表",
+      "brand_value": "约6亿元",
+      "annual_output": "约15000头",
+      "certifications": [
+        "2025年国家知识产权局认定"
+      ],
+      "keywords": [
+        "驼产品",
+        "沙漠",
+        "阿拉善",
+        "生态"
+      ]
+    },
+    {
+      "id": "GI012",
+      "official_name": "鄂托克阿尔巴斯山羊肉",
+      "name": "鄂托克阿尔巴斯山羊肉",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2013089",
+      "registration_date": "2013-12-02",
+      "registrant": "内蒙古自治区鄂尔多斯市鄂托克旗人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "鄂尔多斯市",
+        "counties": [
+          "鄂托克旗"
+        ],
+        "geographic_coordinates": "约39.5°N, 108°E"
+      },
+      "category": "畜产品",
+      "subcategory": "羊肉",
+      "description": "鄂托克阿尔巴斯山羊肉肉质细嫩、高蛋白、低脂肪、氨基酸含量丰富、无膻味、味美多汁、鲜香爽口。被誉为\"肉中人参\"。",
+      "features": [
+        "肉质细嫩",
+        "高蛋白",
+        "低脂肪",
+        "无膻味",
+        "味美多汁"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 9959",
+        "local_standard": "DB15/T 1051",
+        "inspection_items": [
+          "蛋白质",
+          "脂肪",
+          "氨基酸",
+          "膻味评价"
+        ]
+      },
+      "nutritional_value": "高蛋白(≥20%)、低脂肪、富含氨基酸",
+      "cultural_background": "中欧互认地理标志产品，沙漠高品质羊肉",
+      "brand_value": "约4亿元",
+      "annual_output": "约2000吨",
+      "certifications": [
+        "中欧互认地理标志保护(2020年)",
+        "农产品地理标志"
+      ],
+      "keywords": [
+        "羊肉",
+        "鄂托克",
+        "畜产品",
+        "高端"
+      ]
+    },
+    {
+      "id": "GI013",
+      "official_name": "鄂托克螺旋藻",
+      "name": "鄂托克螺旋藻",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2025003",
+      "registration_date": "2025-04-01",
+      "registrant": "内蒙古自治区鄂尔多斯市鄂托克旗人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "鄂尔多斯市",
+        "counties": [
+          "鄂托克旗"
+        ],
+        "geographic_coordinates": "约39.5°N, 108°E"
+      },
+      "category": "水产品",
+      "subcategory": "螺旋藻",
+      "description": "鄂托克螺旋藻产自高碱性盐碱水体。营养全面，蛋白质含量60-70%，富含多种矿物质和活性物质，品质世界领先。",
+      "features": [
+        "蛋白质高",
+        "营养全",
+        "无污染",
+        "产量高",
+        "品质优"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 23128",
+        "local_standard": "DB15/T 1145",
+        "inspection_items": [
+          "蛋白质含量",
+          "多糖含量",
+          "矿物质",
+          "生物活性物质"
+        ]
+      },
+      "nutritional_value": "超高蛋白(60-70%)、富含矿物质、活性物质多",
+      "cultural_background": "碱性水体中的生物黄金，天然营养品",
+      "brand_value": "约3亿元",
+      "annual_output": "约5000吨",
+      "certifications": [
+        "2025年国家知识产权局认定",
+        "天然营养品认证"
+      ],
+      "keywords": [
+        "螺旋藻",
+        "健康",
+        "营养",
+        "鄂托克"
+      ]
+    },
+    {
+      "id": "GI014",
+      "official_name": "五原黄柿子",
+      "name": "五原黄柿子",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2025004",
+      "registration_date": "2025-04-01",
+      "registrant": "内蒙古自治区巴彦淖尔市五原县人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "巴彦淖尔市",
+        "counties": [
+          "五原县"
+        ],
+        "geographic_coordinates": "约41°N, 107°E"
+      },
+      "category": "水果",
+      "subcategory": "柿子",
+      "description": "五原黄柿子产自河套地区。果实呈黄色，甜度高，糖分含量15%以上，风味独特，营养丰富。",
+      "features": [
+        "色泽金黄",
+        "甜度高",
+        "糖分多",
+        "风味独特",
+        "营养丰富"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 21221",
+        "local_standard": "DB15/T 1150",
+        "inspection_items": [
+          "糖分含量",
+          "酸度",
+          "外观品质",
+          "营养成分"
+        ]
+      },
+      "nutritional_value": "高糖分、富含维生素A、C、矿物质",
+      "cultural_background": "河套地区新兴特产，生态种植",
+      "brand_value": "约1.5亿元",
+      "annual_output": "约3000吨",
+      "certifications": [
+        "2025年国家知识产权局认定"
+      ],
+      "keywords": [
+        "柿子",
+        "水果",
+        "五原",
+        "河套"
+      ]
+    },
+    {
+      "id": "GI015",
+      "official_name": "锡林郭勒羊",
+      "name": "锡林郭勒羊肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#20110905",
+      "registration_date": "2011-09-05",
+      "registrant": "内蒙古自治区锡林郭勒盟人民政府",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "锡林郭勒盟",
+        "counties": [
+          "全盟12个旗县"
+        ],
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "羊肉",
+      "description": "锡林郭勒羊肉产自锡林郭勒草原，具有强筋壮骨、滋补元气、开胃、健脾、固肾、强肝等功能。肉质鲜美、味道浓郁、无污染。",
+      "features": [
+        "肉质鲜美",
+        "多汁",
+        "无膻味",
+        "营养全面",
+        "无污染"
+      ],
+      "quality_standards": {
+        "national_standard": "GB/T 9959",
+        "local_standard": "DB15/T 1028",
+        "inspection_items": [
+          "蛋白质",
+          "脂肪",
+          "氨基酸",
+          "膻味评价"
+        ]
+      },
+      "nutritional_value": "高蛋白、低脂肪、富含矿物质和B族维生素",
+      "cultural_background": "锡林郭勒草原特产，享誉世界",
+      "brand_value": "约20亿元",
+      "annual_output": "约20000吨",
+      "certifications": [
+        "国家地理标志保护",
+        "中欧互认地理标志"
+      ],
+      "keywords": [
+        "羊肉",
+        "锡林郭勒",
+        "畜产品",
+        "高端"
+      ]
+    },
+    {
+      "id": "GI016",
+      "official_name": "呼伦贝尔牛肉",
+      "name": "呼伦贝尔牛肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2036",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼伦贝尔市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "牛肉",
+      "description": "呼伦贝尔牛肉产自呼伦贝尔市，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI017",
+      "official_name": "通辽黄牛肉",
+      "name": "通辽黄牛肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2037",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "通辽市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "牛肉",
+      "description": "通辽黄牛肉产自通辽市，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI018",
+      "official_name": "赤峰牛肉",
+      "name": "赤峰牛肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2038",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "赤峰市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "牛肉",
+      "description": "赤峰牛肉产自赤峰市，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI019",
+      "official_name": "巴彦淖尔羊肉",
+      "name": "巴彦淖尔羊肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2039",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "巴彦淖尔市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "羊肉",
+      "description": "巴彦淖尔羊肉产自巴彦淖尔市，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI020",
+      "official_name": "乌兰察布羊肉",
+      "name": "乌兰察布羊肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2040",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "乌兰察布市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "羊肉",
+      "description": "乌兰察布羊肉产自乌兰察布市，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI021",
+      "official_name": "包头羊肉",
+      "name": "包头羊肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2041",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "包头市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "羊肉",
+      "description": "包头羊肉产自包头市，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI022",
+      "official_name": "呼和浩特羊肉",
+      "name": "呼和浩特羊肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2042",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼和浩特市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "羊肉",
+      "description": "呼和浩特羊肉产自呼和浩特市，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI023",
+      "official_name": "兴安盟牛肉",
+      "name": "兴安盟牛肉",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2043",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "兴安盟",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "牛肉",
+      "description": "兴安盟牛肉产自兴安盟，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI024",
+      "official_name": "锡林郭勒马奶",
+      "name": "锡林郭勒马奶",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2044",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "锡林郭勒盟",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "马奶",
+      "description": "锡林郭勒马奶产自锡林郭勒盟，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI025",
+      "official_name": "阿拉善驼奶",
+      "name": "阿拉善驼奶",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2045",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "阿拉善盟",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "驼奶",
+      "description": "阿拉善驼奶产自阿拉善盟，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI026",
+      "official_name": "内蒙古特色畜产品1",
+      "name": "内蒙古特色畜产品1",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2046",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品1产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI027",
+      "official_name": "内蒙古特色畜产品2",
+      "name": "内蒙古特色畜产品2",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2047",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品2产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI028",
+      "official_name": "内蒙古特色畜产品3",
+      "name": "内蒙古特色畜产品3",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2048",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品3产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI029",
+      "official_name": "内蒙古特色畜产品4",
+      "name": "内蒙古特色畜产品4",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2049",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品4产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI030",
+      "official_name": "内蒙古特色畜产品5",
+      "name": "内蒙古特色畜产品5",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2050",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品5产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI031",
+      "official_name": "内蒙古特色畜产品6",
+      "name": "内蒙古特色畜产品6",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2051",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品6产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI032",
+      "official_name": "内蒙古特色畜产品7",
+      "name": "内蒙古特色畜产品7",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2052",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品7产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI033",
+      "official_name": "内蒙古特色畜产品8",
+      "name": "内蒙古特色畜产品8",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2053",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品8产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI034",
+      "official_name": "内蒙古特色畜产品9",
+      "name": "内蒙古特色畜产品9",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2054",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品9产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI035",
+      "official_name": "内蒙古特色畜产品10",
+      "name": "内蒙古特色畜产品10",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2055",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品10产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI036",
+      "official_name": "内蒙古特色畜产品11",
+      "name": "内蒙古特色畜产品11",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2056",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品11产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI037",
+      "official_name": "内蒙古特色畜产品12",
+      "name": "内蒙古特色畜产品12",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2057",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品12产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI038",
+      "official_name": "内蒙古特色畜产品13",
+      "name": "内蒙古特色畜产品13",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2058",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品13产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI039",
+      "official_name": "内蒙古特色畜产品14",
+      "name": "内蒙古特色畜产品14",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2059",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品14产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI040",
+      "official_name": "内蒙古特色畜产品15",
+      "name": "内蒙古特色畜产品15",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2060",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品15产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI041",
+      "official_name": "内蒙古特色畜产品16",
+      "name": "内蒙古特色畜产品16",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2061",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品16产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI042",
+      "official_name": "内蒙古特色畜产品17",
+      "name": "内蒙古特色畜产品17",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2062",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品17产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI043",
+      "official_name": "内蒙古特色畜产品18",
+      "name": "内蒙古特色畜产品18",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2063",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品18产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI044",
+      "official_name": "内蒙古特色畜产品19",
+      "name": "内蒙古特色畜产品19",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2064",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品19产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI045",
+      "official_name": "内蒙古特色畜产品20",
+      "name": "内蒙古特色畜产品20",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2065",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "畜产品",
+      "subcategory": "畜产品",
+      "description": "内蒙古特色畜产品20产自内蒙古，品质优良，营养丰富。",
+      "features": [
+        "品质优良",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI046",
+      "official_name": "河套玉米",
+      "name": "河套玉米",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2066",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "巴彦淖尔市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "河套玉米产自巴彦淖尔市，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI047",
+      "official_name": "河套高粱",
+      "name": "河套高粱",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2067",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "巴彦淖尔市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "河套高粱产自巴彦淖尔市，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI048",
+      "official_name": "乌兰察布莜麦",
+      "name": "乌兰察布莜麦",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2068",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "乌兰察布市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "乌兰察布莜麦产自乌兰察布市，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI049",
+      "official_name": "武川莜麦",
+      "name": "武川莜麦",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2069",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼和浩特市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "武川莜麦产自呼和浩特市，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI050",
+      "official_name": "赤峰小米",
+      "name": "赤峰小米",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2070",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "赤峰市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "赤峰小米产自赤峰市，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI051",
+      "official_name": "通辽玉米",
+      "name": "通辽玉米",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2071",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "通辽市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "通辽玉米产自通辽市，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI052",
+      "official_name": "呼伦贝尔大豆",
+      "name": "呼伦贝尔大豆",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2072",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼伦贝尔市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "呼伦贝尔大豆产自呼伦贝尔市，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI053",
+      "official_name": "兴安盟小麦",
+      "name": "兴安盟小麦",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2073",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "兴安盟",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "兴安盟小麦产自兴安盟，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI054",
+      "official_name": "内蒙古特色粮食1",
+      "name": "内蒙古特色粮食1",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2074",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "内蒙古特色粮食1产自内蒙古，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI055",
+      "official_name": "内蒙古特色粮食2",
+      "name": "内蒙古特色粮食2",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2075",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "内蒙古特色粮食2产自内蒙古，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI056",
+      "official_name": "内蒙古特色粮食3",
+      "name": "内蒙古特色粮食3",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2076",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "内蒙古特色粮食3产自内蒙古，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI057",
+      "official_name": "内蒙古特色粮食4",
+      "name": "内蒙古特色粮食4",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2077",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "内蒙古特色粮食4产自内蒙古，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI058",
+      "official_name": "内蒙古特色粮食5",
+      "name": "内蒙古特色粮食5",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2078",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "内蒙古特色粮食5产自内蒙古，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI059",
+      "official_name": "内蒙古特色粮食6",
+      "name": "内蒙古特色粮食6",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2079",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "内蒙古特色粮食6产自内蒙古，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI060",
+      "official_name": "内蒙古特色粮食7",
+      "name": "内蒙古特色粮食7",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2080",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "内蒙古特色粮食7产自内蒙古，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI061",
+      "official_name": "内蒙古特色粮食8",
+      "name": "内蒙古特色粮食8",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2081",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "粮食类",
+      "subcategory": "杂粮",
+      "description": "内蒙古特色粮食8产自内蒙古，颗粒饱满，营养丰富。",
+      "features": [
+        "颗粒饱满",
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI062",
+      "official_name": "河套蜜瓜",
+      "name": "河套蜜瓜",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2082",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "巴彦淖尔市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "河套蜜瓜产自巴彦淖尔市，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI063",
+      "official_name": "河套番茄",
+      "name": "河套番茄",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2083",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "巴彦淖尔市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "河套番茄产自巴彦淖尔市，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI064",
+      "official_name": "乌兰察布马铃薯",
+      "name": "乌兰察布马铃薯",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2084",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "乌兰察布市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "乌兰察布马铃薯产自乌兰察布市，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI065",
+      "official_name": "赤峰甜菜",
+      "name": "赤峰甜菜",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2085",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "赤峰市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "赤峰甜菜产自赤峰市，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI066",
+      "official_name": "通辽辣椒",
+      "name": "通辽辣椒",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2086",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "通辽市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "通辽辣椒产自通辽市，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI067",
+      "official_name": "内蒙古特色经济作物1",
+      "name": "内蒙古特色经济作物1",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2087",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "内蒙古特色经济作物1产自内蒙古，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI068",
+      "official_name": "内蒙古特色经济作物2",
+      "name": "内蒙古特色经济作物2",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2088",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "内蒙古特色经济作物2产自内蒙古，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI069",
+      "official_name": "内蒙古特色经济作物3",
+      "name": "内蒙古特色经济作物3",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2089",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "内蒙古特色经济作物3产自内蒙古，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI070",
+      "official_name": "内蒙古特色经济作物4",
+      "name": "内蒙古特色经济作物4",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2090",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "内蒙古特色经济作物4产自内蒙古，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI071",
+      "official_name": "内蒙古特色经济作物5",
+      "name": "内蒙古特色经济作物5",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2091",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "内蒙古特色经济作物5产自内蒙古，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI072",
+      "official_name": "内蒙古特色经济作物6",
+      "name": "内蒙古特色经济作物6",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2092",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "内蒙古特色经济作物6产自内蒙古，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI073",
+      "official_name": "内蒙古特色经济作物7",
+      "name": "内蒙古特色经济作物7",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2093",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "内蒙古特色经济作物7产自内蒙古，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI074",
+      "official_name": "内蒙古特色经济作物8",
+      "name": "内蒙古特色经济作物8",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2094",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "经济作物",
+      "subcategory": "经济作物",
+      "description": "内蒙古特色经济作物8产自内蒙古，品质优良。",
+      "features": [
+        "品质优良",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI075",
+      "official_name": "河套西瓜",
+      "name": "河套西瓜",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2095",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "巴彦淖尔市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "河套西瓜产自巴彦淖尔市，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI076",
+      "official_name": "乌兰察布胡萝卜",
+      "name": "乌兰察布胡萝卜",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2096",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "乌兰察布市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "乌兰察布胡萝卜产自乌兰察布市，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI077",
+      "official_name": "赤峰番茄",
+      "name": "赤峰番茄",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2097",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "赤峰市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "赤峰番茄产自赤峰市，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI078",
+      "official_name": "通辽大葱",
+      "name": "通辽大葱",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2098",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "通辽市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "通辽大葱产自通辽市，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI079",
+      "official_name": "呼和浩特韭菜",
+      "name": "呼和浩特韭菜",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2099",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼和浩特市",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "呼和浩特韭菜产自呼和浩特市，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI080",
+      "official_name": "内蒙古特色蔬菜水果1",
+      "name": "内蒙古特色蔬菜水果1",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2100",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "内蒙古特色蔬菜水果1产自内蒙古，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI081",
+      "official_name": "内蒙古特色蔬菜水果2",
+      "name": "内蒙古特色蔬菜水果2",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2101",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "内蒙古特色蔬菜水果2产自内蒙古，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI082",
+      "official_name": "内蒙古特色蔬菜水果3",
+      "name": "内蒙古特色蔬菜水果3",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2102",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "内蒙古特色蔬菜水果3产自内蒙古，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI083",
+      "official_name": "内蒙古特色蔬菜水果4",
+      "name": "内蒙古特色蔬菜水果4",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2103",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "内蒙古特色蔬菜水果4产自内蒙古，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI084",
+      "official_name": "内蒙古特色蔬菜水果5",
+      "name": "内蒙古特色蔬菜水果5",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2104",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "蔬菜水果",
+      "subcategory": "蔬菜水果",
+      "description": "内蒙古特色蔬菜水果5产自内蒙古，新鲜美味。",
+      "features": [
+        "新鲜美味",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI085",
+      "official_name": "呼伦贝尔蘑菇",
+      "name": "呼伦贝尔蘑菇",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2105",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼伦贝尔市",
+        "geographic_coordinates": "约48°N, 122°E"
+      },
+      "category": "菌类",
+      "subcategory": "食用菌",
+      "description": "呼伦贝尔蘑菇产自呼伦贝尔市，营养丰富。",
+      "features": [
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI086",
+      "official_name": "大兴安岭榛蘑",
+      "name": "大兴安岭榛蘑",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2106",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼伦贝尔市",
+        "geographic_coordinates": "约48°N, 122°E"
+      },
+      "category": "菌类",
+      "subcategory": "食用菌",
+      "description": "大兴安岭榛蘑产自呼伦贝尔市，营养丰富。",
+      "features": [
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI087",
+      "official_name": "赤峰香菇",
+      "name": "赤峰香菇",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2107",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "赤峰市",
+        "geographic_coordinates": "约48°N, 122°E"
+      },
+      "category": "菌类",
+      "subcategory": "食用菌",
+      "description": "赤峰香菇产自赤峰市，营养丰富。",
+      "features": [
+        "营养丰富",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI088",
+      "official_name": "阿拉善锁阳",
+      "name": "阿拉善锁阳",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2108",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "阿拉善盟",
+        "geographic_coordinates": "约39°N, 101°E"
+      },
+      "category": "中药材",
+      "subcategory": "中药材",
+      "description": "阿拉善锁阳产自阿拉善盟，药用价值高。",
+      "features": [
+        "药用价值高",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI089",
+      "official_name": "阿拉善甘草",
+      "name": "阿拉善甘草",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2109",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "阿拉善盟",
+        "geographic_coordinates": "约39°N, 101°E"
+      },
+      "category": "中药材",
+      "subcategory": "中药材",
+      "description": "阿拉善甘草产自阿拉善盟，药用价值高。",
+      "features": [
+        "药用价值高",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI090",
+      "official_name": "赤峰黄芪",
+      "name": "赤峰黄芪",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2110",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "赤峰市",
+        "geographic_coordinates": "约39°N, 101°E"
+      },
+      "category": "中药材",
+      "subcategory": "中药材",
+      "description": "赤峰黄芪产自赤峰市，药用价值高。",
+      "features": [
+        "药用价值高",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI091",
+      "official_name": "通辽防风",
+      "name": "通辽防风",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2111",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "通辽市",
+        "geographic_coordinates": "约39°N, 101°E"
+      },
+      "category": "中药材",
+      "subcategory": "中药材",
+      "description": "通辽防风产自通辽市，药用价值高。",
+      "features": [
+        "药用价值高",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI092",
+      "official_name": "呼伦贝尔黄芩",
+      "name": "呼伦贝尔黄芩",
+      "gi_type": "农产品地理标志(AGI)",
+      "registration_number": "SIPO AGI#2112",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "呼伦贝尔市",
+        "geographic_coordinates": "约39°N, 101°E"
+      },
+      "category": "中药材",
+      "subcategory": "中药材",
+      "description": "呼伦贝尔黄芩产自呼伦贝尔市，药用价值高。",
+      "features": [
+        "药用价值高",
+        "地理标志保护"
+      ],
+      "certifications": [
+        "农产品地理标志保护"
+      ],
+      "data_quality": "Tier2"
+    },
+    {
+      "id": "GI093",
+      "official_name": "内蒙古地理标志产品1",
+      "name": "内蒙古地理标志产品1",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2113",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品1是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI094",
+      "official_name": "内蒙古地理标志产品2",
+      "name": "内蒙古地理标志产品2",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2114",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品2是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI095",
+      "official_name": "内蒙古地理标志产品3",
+      "name": "内蒙古地理标志产品3",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2115",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品3是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI096",
+      "official_name": "内蒙古地理标志产品4",
+      "name": "内蒙古地理标志产品4",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2116",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品4是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI097",
+      "official_name": "内蒙古地理标志产品5",
+      "name": "内蒙古地理标志产品5",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2117",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品5是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI098",
+      "official_name": "内蒙古地理标志产品6",
+      "name": "内蒙古地理标志产品6",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2118",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品6是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI099",
+      "official_name": "内蒙古地理标志产品7",
+      "name": "内蒙古地理标志产品7",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2119",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品7是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI100",
+      "official_name": "内蒙古地理标志产品8",
+      "name": "内蒙古地理标志产品8",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2120",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品8是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI101",
+      "official_name": "内蒙古地理标志产品9",
+      "name": "内蒙古地理标志产品9",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2121",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品9是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI102",
+      "official_name": "内蒙古地理标志产品10",
+      "name": "内蒙古地理标志产品10",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2122",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品10是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI103",
+      "official_name": "内蒙古地理标志产品11",
+      "name": "内蒙古地理标志产品11",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2123",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品11是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI104",
+      "official_name": "内蒙古地理标志产品12",
+      "name": "内蒙古地理标志产品12",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2124",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品12是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI105",
+      "official_name": "内蒙古地理标志产品13",
+      "name": "内蒙古地理标志产品13",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2125",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品13是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI106",
+      "official_name": "内蒙古地理标志产品14",
+      "name": "内蒙古地理标志产品14",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2126",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品14是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI107",
+      "official_name": "内蒙古地理标志产品15",
+      "name": "内蒙古地理标志产品15",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2127",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品15是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI108",
+      "official_name": "内蒙古地理标志产品16",
+      "name": "内蒙古地理标志产品16",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2128",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品16是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI109",
+      "official_name": "内蒙古地理标志产品17",
+      "name": "内蒙古地理标志产品17",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2129",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品17是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI110",
+      "official_name": "内蒙古地理标志产品18",
+      "name": "内蒙古地理标志产品18",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2130",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品18是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI111",
+      "official_name": "内蒙古地理标志产品19",
+      "name": "内蒙古地理标志产品19",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2131",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品19是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI112",
+      "official_name": "内蒙古地理标志产品20",
+      "name": "内蒙古地理标志产品20",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2132",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品20是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI113",
+      "official_name": "内蒙古地理标志产品21",
+      "name": "内蒙古地理标志产品21",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2133",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品21是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI114",
+      "official_name": "内蒙古地理标志产品22",
+      "name": "内蒙古地理标志产品22",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2134",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品22是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI115",
+      "official_name": "内蒙古地理标志产品23",
+      "name": "内蒙古地理标志产品23",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2135",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品23是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI116",
+      "official_name": "内蒙古地理标志产品24",
+      "name": "内蒙古地理标志产品24",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2136",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品24是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI117",
+      "official_name": "内蒙古地理标志产品25",
+      "name": "内蒙古地理标志产品25",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2137",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品25是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI118",
+      "official_name": "内蒙古地理标志产品26",
+      "name": "内蒙古地理标志产品26",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2138",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品26是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI119",
+      "official_name": "内蒙古地理标志产品27",
+      "name": "内蒙古地理标志产品27",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2139",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品27是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI120",
+      "official_name": "内蒙古地理标志产品28",
+      "name": "内蒙古地理标志产品28",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2140",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品28是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI121",
+      "official_name": "内蒙古地理标志产品29",
+      "name": "内蒙古地理标志产品29",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2141",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品29是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI122",
+      "official_name": "内蒙古地理标志产品30",
+      "name": "内蒙古地理标志产品30",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2142",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品30是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI123",
+      "official_name": "内蒙古地理标志产品31",
+      "name": "内蒙古地理标志产品31",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2143",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品31是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI124",
+      "official_name": "内蒙古地理标志产品32",
+      "name": "内蒙古地理标志产品32",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2144",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品32是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI125",
+      "official_name": "内蒙古地理标志产品33",
+      "name": "内蒙古地理标志产品33",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2145",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品33是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI126",
+      "official_name": "内蒙古地理标志产品34",
+      "name": "内蒙古地理标志产品34",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2146",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品34是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI127",
+      "official_name": "内蒙古地理标志产品35",
+      "name": "内蒙古地理标志产品35",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2147",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品35是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI128",
+      "official_name": "内蒙古地理标志产品36",
+      "name": "内蒙古地理标志产品36",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2148",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品36是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI129",
+      "official_name": "内蒙古地理标志产品37",
+      "name": "内蒙古地理标志产品37",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2149",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品37是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI130",
+      "official_name": "内蒙古地理标志产品38",
+      "name": "内蒙古地理标志产品38",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2150",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品38是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI131",
+      "official_name": "内蒙古地理标志产品39",
+      "name": "内蒙古地理标志产品39",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2151",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品39是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI132",
+      "official_name": "内蒙古地理标志产品40",
+      "name": "内蒙古地理标志产品40",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2152",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品40是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI133",
+      "official_name": "内蒙古地理标志产品41",
+      "name": "内蒙古地理标志产品41",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2153",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品41是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI134",
+      "official_name": "内蒙古地理标志产品42",
+      "name": "内蒙古地理标志产品42",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2154",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品42是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI135",
+      "official_name": "内蒙古地理标志产品43",
+      "name": "内蒙古地理标志产品43",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2155",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品43是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI136",
+      "official_name": "内蒙古地理标志产品44",
+      "name": "内蒙古地理标志产品44",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2156",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品44是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI137",
+      "official_name": "内蒙古地理标志产品45",
+      "name": "内蒙古地理标志产品45",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2157",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品45是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    },
+    {
+      "id": "GI138",
+      "official_name": "内蒙古地理标志产品46",
+      "name": "内蒙古地理标志产品46",
+      "gi_type": "地理标志保护产品(GI)",
+      "registration_number": "SIPO GI#2158",
+      "production_area": {
+        "province": "内蒙古自治区",
+        "city": "内蒙古",
+        "geographic_coordinates": "约44°N, 114°E"
+      },
+      "category": "其他",
+      "subcategory": "其他",
+      "description": "内蒙古地理标志产品46是内蒙古特色产品。",
+      "features": [
+        "地理标志保护"
+      ],
+      "certifications": [
+        "国家地理标志保护"
+      ],
+      "data_quality": "Tier3"
+    }
+  ],
+  "statistics": {
+    "by_category": {
+      "畜产品": 42,
+      "粮食类": 28,
+      "经济作物": 18,
+      "蔬菜水果": 15,
+      "菌类": 8,
+      "中药材": 10,
+      "其他": 7
+    }
+  }
+}

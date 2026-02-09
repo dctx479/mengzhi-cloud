@@ -1,0 +1,543 @@
+"""
+Prompt模板配置文件 (YAML格式)
+
+定义：
+- 模板分类和元数据
+- 文化元素库
+- 目标受众模型
+- 风格配置
+
+版本: 2.0
+更新日期: 2026-01-17
+"""
+
+# ==================== 模板配置 ====================
+
+templates:
+  # 产品文案生成
+  product_copy:
+    description: "产品文案生成模板"
+    category: "content_generation"
+    variants:
+      professional:
+        name: "专业权威风格"
+        description: "适合高端市场、官方渠道、权威背书"
+        target_audience: "企业采购、高端消费者、专业人士"
+        use_cases:
+          - 官方网站产品介绍
+          - B2B营销文案
+          - 产品手册和白皮书
+          - 媒体宣传稿
+        characteristics:
+          - 学术严谨
+          - 数据支撑
+          - 权威背书
+          - 专业术语
+        tone: "权威、专业、可信"
+        recommended_length: "300-500"
+
+      casual:
+        name: "亲切友好风格"
+        description: "强调真实感和代入感，适合社交媒体"
+        target_audience: "普通消费者、社交媒体粉丝"
+        use_cases:
+          - 小红书笔记
+          - 微博推文
+          - 公众号文章
+          - 社区分享
+        characteristics:
+          - 口语化
+          - 生活场景
+          - 真实感强
+          - 代入感足
+        tone: "亲切、友好、真诚"
+        recommended_length: "200-300"
+
+      emotional:
+        name: "情感共鸣风格"
+        description: "通过故事化叙述建立品牌连接"
+        target_audience: "消费者、品牌粉丝、内容消费者"
+        use_cases:
+          - 品牌故事传播
+          - 内容营销文案
+          - 品牌推文和文章
+          - 纪录片脚本
+        characteristics:
+          - 故事化
+          - 细节刻画
+          - 情感丰富
+          - 触发共鸣
+        tone: "温暖、感人、有温度"
+        recommended_length: "400-600"
+
+      creative:
+        name: "创意新颖风格"
+        description: "打破常规表达，突出独特性"
+        target_audience: "年轻消费者、创意爱好者、社交媒体用户"
+        use_cases:
+          - 抖音文案
+          - 创意广告
+          - 品牌事件文案
+          - 社交媒体话题
+        characteristics:
+          - 创意十足
+          - 反常规
+          - 比喻拟人
+          - 记忆点强
+        tone: "新颖、独特、吸睛"
+        recommended_length: "150-300"
+
+  # 广告语生成
+  slogan:
+    description: "广告语生成模板"
+    category: "content_generation"
+    output_format:
+      type: "list"
+      item_length: "8-15 characters"
+      count: "typically 5-10"
+    styles:
+      classic:
+        name: "古典风格"
+        characteristics: ["四字对仗", "文化底蕴", "气势恢宏"]
+        examples: ["地理标志，品质保证", "草原承诺，品质如一"]
+
+      modern:
+        name: "现代风格"
+        characteristics: ["简洁有力", "时尚感", "生活方式"]
+        examples: ["无添加，更放心", "品质生活，从这里开始"]
+
+      cultural:
+        name: "文化融合风格"
+        characteristics: ["内蒙古元素", "民族特色", "故事性强"]
+        examples: ["草原故事，品质讲述", "游牧传统，现代品质"]
+
+      emotional:
+        name: "情感风格"
+        characteristics: ["触发情感", "人文关怀", "价值观共鸣"]
+        examples: ["品质信任，代代传承", "健康陪伴，品质相伴"]
+
+  # 社交媒体文案
+  social_media:
+    xiaohongshu:
+      name: "小红书种草笔记"
+      description: "强调真实体验、社区气氛、种草效应"
+      characteristics:
+        - 真实感强
+        - 细节丰富
+        - 表情符号
+        - 社区互动
+      recommended_length: "600-800 characters"
+      format: "【标题】正文【标签】"
+
+    douyin:
+      name: "抖音短视频文案"
+      description: "快速吸引、节奏感强、高传播力"
+      characteristics:
+        - 钩子强
+        - 节奏快
+        - 冲击力
+        - 易转发
+      recommended_length: "短视频配文"
+
+    weibo:
+      name: "微博话题文案"
+      description: "话题驱动、互动性强、传播效应快"
+      characteristics:
+        - 话题性
+        - 讨论性
+        - 传播力
+        - 实时性
+
+    wechat:
+      name: "微信公众号文案"
+      description: "深度内容、用户价值、粉丝运营"
+      characteristics:
+        - 深度思考
+        - 提供价值
+        - 专业度
+        - 粉丝粘性
+
+  # 短视频脚本
+  short_video_script:
+    name: "短视频脚本"
+    description: "完整的视频脚本，包括画面、文案、音效等"
+    lengths:
+      15: "15秒 - 快速种草"
+      30: "30秒 - 标准宣传"
+      60: "60秒 - 完整故事"
+      120: "120秒 - 深度讲述"
+
+  # 营销方案
+  marketing_strategy:
+    name: "完整营销方案"
+    description: "从战略到执行的完整营销方案"
+    sections:
+      - 营销目标 (3-5个SMART目标)
+      - 目标受众画像
+      - 核心营销策略 (3-5个)
+      - 营销活动计划 (3-5个活动)
+      - 内容规划 (发布日历)
+      - 执行时间表
+      - 效果评估体系
+      - 预算分配
+      - 风险管理
+      - 成功案例参考
+
+
+# ==================== 文化元素库 ====================
+
+cultural_elements:
+  grassland:
+    keywords:
+      - "草原"
+      - "蓝天"
+      - "白云"
+      - "星空"
+      - "骏马"
+      - "奔驰"
+      - "自由"
+      - "辽阔"
+      - "风吹草低见牛羊"
+      - "一望无垠"
+    imagery:
+      - "辽阔、宽广的自然意象"
+      - "纯净、原始的生态"
+      - "自由、奔放的精神"
+    usage:
+      - 产品来源地强调
+      - 品质纯正的象征
+      - 自由、健康的生活方式
+
+  nomadic_tradition:
+    keywords:
+      - "游牧"
+      - "马背"
+      - "毡房"
+      - "奶茶"
+      - "篝火"
+      - "骑射"
+      - "套马杆"
+      - "呼麦"
+      - "长调民歌"
+      - "额吉"
+    imagery:
+      - "传统、原始的生产方式"
+      - "手工、工艺的精妙"
+      - "民族文化的厚重"
+    usage:
+      - 产品工艺讲述
+      - 文化传承强调
+      - 传统技艺背书
+
+  quality_indicators:
+    keywords:
+      - "地理标志"
+      - "原产地"
+      - "天然"
+      - "有机"
+      - "无污染"
+      - "生态"
+      - "正宗"
+      - "珍稀"
+      - "认证"
+      - "标准化"
+    imagery:
+      - "品质保证的权威象征"
+      - "自然和人为的完美结合"
+      - "严格标准的坚守"
+    usage:
+      - 品质认证强调
+      - 消费者信任建立
+      - 差异化优势展现
+
+  emotion_words:
+    freedom:
+      - "自由"
+      - "奔放"
+      - "豪迈"
+      - "开阔"
+      - "无拘束"
+      - "释放"
+      - "畅快"
+    health:
+      - "健康"
+      - "活力"
+      - "生机"
+      - "纯净"
+      - "养生"
+      - "活力"
+      - "向上"
+    authenticity:
+      - "原生态"
+      - "传统"
+      - "手工"
+      - "工艺"
+      - "非遗"
+      - "正宗"
+      - "地道"
+    quality:
+      - "精良"
+      - "可靠"
+      - "信任"
+      - "卓越"
+      - "顶级"
+      - "珍贵"
+      - "值得"
+    heritage:
+      - "文化"
+      - "传承"
+      - "历史"
+      - "底蕴"
+      - "民族"
+      - "文明"
+      - "生活智慧"
+
+
+# ==================== 目标受众模型 ====================
+
+audience_segments:
+  high_end_consumer:
+    name: "高端消费者"
+    age_range: "30-55岁"
+    income: "年收入50万+"
+    education: "本科及以上"
+    characteristics:
+      - 注重品质和品牌
+      - 关注产品来源和工艺
+      - 愿意为品质付费
+      - 追求生活品味
+    pain_points:
+      - 无法有效鉴别产品品质
+      - 信息获取渠道有限
+      - 担心购买到假冒伪劣
+    desires:
+      - 获得认可和满足感
+      - 展示品味和地位
+      - 健康和长寿
+    recommended_styles:
+      - professional
+      - emotional
+    recommended_platforms:
+      - 官方网站
+      - 微信公众号
+      - 微博
+
+  young_professionals:
+    name: "年轻职业人"
+    age_range: "25-40岁"
+    income: "年收入30-100万"
+    education: "本科及以上"
+    characteristics:
+      - 快节奏生活
+      - 重视效率和品质
+      - 活跃于社交媒体
+      - 容易接受新事物
+    pain_points:
+      - 时间有限，信息过载
+      - 难以判断产品真伪
+      - 寻求生活品质提升
+    desires:
+      - 便利和品质的平衡
+      - 社交分享和赞誉
+      - 健康和效率
+    recommended_styles:
+      - casual
+      - creative
+    recommended_platforms:
+      - 小红书
+      - 抖音
+      - 微博
+
+  family_consumers:
+    name: "家庭消费者"
+    age_range: "35-60岁"
+    income: "年收入20-80万"
+    education: "中专及以上"
+    characteristics:
+      - 重视家庭健康
+      - 价格敏感度中等
+      - 信任口碑和背书
+      - 追求实用性
+    pain_points:
+      - 担心食品安全
+      - 怕被欺骗
+      - 追求性价比
+    desires:
+      - 家人健康
+      - 生活品质
+      - 物有所值
+    recommended_styles:
+      - professional
+      - casual
+    recommended_platforms:
+      - 微信
+      - 微博
+      - 电商平台
+
+  food_lovers:
+    name: "美食爱好者"
+    age_range: "20-45岁"
+    income: "年收入15-80万"
+    education: "各种"
+    characteristics:
+      - 对美食有深度了解
+      - 愿意尝试新产品
+      - 乐于分享美食体验
+      - 对工艺有认知
+    pain_points:
+      - 难以找到真正优质产品
+      - 信息真伪难辨
+      - 价格可能较高
+    desires:
+      - 发现独特美食
+      - 分享和获得认可
+      - 品尝不同风味
+    recommended_styles:
+      - casual
+      - emotional
+      - creative
+    recommended_platforms:
+      - 小红书
+      - 抖音
+      - 微博
+
+
+# ==================== 风格配置 ====================
+
+style_guidelines:
+  professional:
+    tone: "权威、专业、可信"
+    language_level: "书面语，学术严谨"
+    sentence_structure: "复杂句式，逻辑清晰"
+    vocabulary: "专业术语，学科词汇"
+    do:
+      - 使用数据和统计
+      - 强调认证和背书
+      - 详细说明技术参数
+      - 引用权威来源
+    dont:
+      - 过度感情化
+      - 使用流行语
+      - 不实承诺
+      - 夸大其词
+
+  casual:
+    tone: "亲切、友好、真诚"
+    language_level: "口语，易读"
+    sentence_structure: "短句为主，节奏轻快"
+    vocabulary: "日常用词"
+    do:
+      - 使用第一人称
+      - 分享真实经历
+      - 细节描写
+      - 表达真实感受
+    dont:
+      - 过度正式
+      - 使用生僻词
+      - 虚假宣传
+      - 过度营销
+
+  emotional:
+    tone: "温暖、感人、有温度"
+    language_level: "文学性、有意境"
+    sentence_structure: "灵活多变，富有韵律"
+    vocabulary: "精选词汇，有意象"
+    do:
+      - 讲述故事
+      - 细节刻画
+      - 触发共鸣
+      - 表现人文关怀
+    dont:
+      - 过度夸张
+      - 虚假故事
+      - 廉价煽情
+      - 不符合品牌
+
+  creative:
+    tone: "新颖、独特、吸睛"
+    language_level: "非传统、有创意"
+    sentence_structure: "打破常规"
+    vocabulary: "创意搭配，意外组合"
+    do:
+      - 使用比喻拟人
+      - 反常规思维
+      - 制造悬念
+      - 创意意象
+    dont:
+      - 过度晦涩
+      - 无法理解
+      - 偏离主题
+      - 忽视产品特性
+
+
+# ==================== 质量标准 ====================
+
+quality_standards:
+  product_copy:
+    content_quality:
+      - 文案自然流畅，无生硬拼接
+      - 卖点表述清晰有力
+      - 文化融合自然适当
+      - 目标受众明确体现
+    language_quality:
+      - 无语法错误
+      - 无表意不清
+      - 措辞准确
+      - 适合目标受众
+    completeness:
+      - 包含所有关键信息
+      - 逻辑完整
+      - 有清晰的结构
+      - 有清晰的结论
+
+  slogan:
+    memorability: "朗朗上口，易于记忆"
+    differentiation: "区别于竞品，有独特性"
+    cultural_integration: "自然融入文化元素"
+    emotional_resonance: "能触发目标情感"
+    technical_excellence: "字数控制、节奏感"
+
+  social_media:
+    authenticity: "真实感强，非虚假宣传"
+    engagement: "高互动潜力"
+    platform_fit: "符合平台特性"
+    value_delivery: "为用户提供价值"
+    shareability: "易于分享和传播"
+
+
+# ==================== 优化建议 ====================
+
+optimization_tips:
+  cultural_integration:
+    dos:
+      - "自然融入，不生硬堆砌"
+      - "根据语境选择合适的文化元素"
+      - "把文化元素作为比喻和背景"
+      - "强调文化与产品的内在联系"
+    donts:
+      - "不要过度强调文化标签"
+      - "不要使用不准确的文化表述"
+      - "不要让文化喧宾夺主"
+      - "不要刻板地套用文化元素"
+
+  target_audience_positioning:
+    dos:
+      - "深入理解受众的真实需求"
+      - "用受众熟悉的语言和场景"
+      - "触及受众的痛点和渴望"
+      - "体现受众能获得的真实价值"
+    donts:
+      - "不要假设所有人需求一样"
+      - "不要用受众不理解的表述"
+      - "不要忽视受众的实际需求"
+
+  quality_control:
+    dos:
+      - "多个角度检查内容"
+      - "测试内容的吸引力和说服力"
+      - "收集反馈并持续优化"
+      - "建立内容评审机制"
+    donts:
+      - "不要跳过审核流程"
+      - "不要忽视小的表达问题"
+      - "不要一成不变地使用模板"

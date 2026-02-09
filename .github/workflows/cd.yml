@@ -1,0 +1,459 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_run:
+    workflows: ["Continuous Integration"]
+    types:
+      - completed
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # 构建和推送 Docker 镜像
+  build-and-push:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      backend-image: ${{ steps.meta-backend.outputs.tags }}
+      frontend-image: ${{ steps.meta-frontend.outputs.tags }}
+      backend-digest: ${{ steps.build-backend.outputs.digest }}
+      frontend-digest: ${{ steps.build-frontend.outputs.digest }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # 后端镜像构建
+    - name: Extract backend metadata
+      id: meta-backend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push backend image
+      id: build-backend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile
+        push: true
+        tags: ${{ steps.meta-backend.outputs.tags }}
+        labels: ${{ steps.meta-backend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+
+    # 前端镜像构建
+    - name: Extract frontend metadata
+      id: meta-frontend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push frontend image
+      id: build-frontend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile
+        push: true
+        tags: ${{ steps.meta-frontend.outputs.tags }}
+        labels: ${{ steps.meta-frontend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+
+  # 部署到开发环境
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to development server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.DEV_HOST }}
+        username: ${{ secrets.DEV_USERNAME }}
+        key: ${{ secrets.DEV_SSH_KEY }}
+        port: ${{ secrets.DEV_PORT }}
+        script: |
+          # 设置环境变量
+          export BACKEND_IMAGE="${{ needs.build-and-push.outputs.backend-image }}"
+          export FRONTEND_IMAGE="${{ needs.build-and-push.outputs.frontend-image }}"
+
+          # 进入项目目录
+          cd /opt/agri-platform
+
+          # 拉取最新代码
+          git pull origin develop
+
+          # 更新 docker-compose 文件中的镜像版本
+          sed -i "s|image: .*backend.*|image: ${BACKEND_IMAGE}|g" docker-compose.dev.yml
+          sed -i "s|image: .*frontend.*|image: ${FRONTEND_IMAGE}|g" docker-compose.dev.yml
+
+          # 拉取新镜像
+          docker-compose -f docker-compose.dev.yml pull
+
+          # 重启服务
+          docker-compose -f docker-compose.dev.yml up -d
+
+          # 等待服务启动
+          sleep 30
+
+          # 健康检查
+          curl -f http://localhost:5000/health || exit 1
+
+          # 清理旧镜像
+          docker image prune -f
+
+    - name: Run smoke tests on dev
+      run: |
+        # 等待部署完成
+        sleep 60
+
+        # 运行冒烟测试
+        curl -f ${{ secrets.DEV_BASE_URL }}/health
+        curl -f ${{ secrets.DEV_BASE_URL }}/api/v1/health
+
+  # 部署到预生产环境
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to staging server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USERNAME }}
+        key: ${{ secrets.STAGING_SSH_KEY }}
+        port: ${{ secrets.STAGING_PORT }}
+        script: |
+          # 设置环境变量
+          export BACKEND_IMAGE="${{ needs.build-and-push.outputs.backend-image }}"
+          export FRONTEND_IMAGE="${{ needs.build-and-push.outputs.frontend-image }}"
+
+          # 进入项目目录
+          cd /opt/agri-platform
+
+          # 拉取最新代码
+          git pull origin main
+
+          # 备份当前配置
+          cp docker-compose.yml docker-compose.yml.backup.$(date +%Y%m%d_%H%M%S)
+
+          # 更新 docker-compose 文件中的镜像版本
+          sed -i "s|build:|# build:|g" docker-compose.yml
+          sed -i "s|context: .*|image: ${BACKEND_IMAGE}|g" docker-compose.yml
+          sed -i "s|dockerfile: .*||g" docker-compose.yml
+
+          # 拉取新镜像
+          docker-compose pull
+
+          # 滚动更新
+          docker-compose up -d --no-deps backend
+          sleep 30
+          docker-compose up -d --no-deps frontend
+
+          # 健康检查
+          for i in {1..10}; do
+            if curl -f http://localhost:5000/health; then
+              echo "Health check passed"
+              break
+            fi
+            echo "Health check failed, retrying in 10s..."
+            sleep 10
+          done
+
+          # 清理旧镜像
+          docker image prune -f
+
+    - name: Run integration tests on staging
+      run: |
+        # 等待部署完成
+        sleep 60
+
+        # 运行集成测试
+        curl -f ${{ secrets.STAGING_BASE_URL }}/health
+        curl -f ${{ secrets.STAGING_BASE_URL }}/api/v1/health
+
+        # 运行更全面的测试
+        if [ -f "tests/staging-tests.sh" ]; then
+          chmod +x tests/staging-tests.sh
+          ./tests/staging-tests.sh ${{ secrets.STAGING_BASE_URL }}
+        fi
+
+  # 部署到生产环境
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy-staging]
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create deployment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const deployment = await github.rest.repos.createDeployment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.ref,
+            environment: 'production',
+            description: 'Deploy to production',
+            auto_merge: false,
+            required_contexts: []
+          });
+
+          core.setOutput('deployment_id', deployment.data.id);
+
+    - name: Deploy to production server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PROD_HOST }}
+        username: ${{ secrets.PROD_USERNAME }}
+        key: ${{ secrets.PROD_SSH_KEY }}
+        port: ${{ secrets.PROD_PORT }}
+        script: |
+          # 设置环境变量
+          export BACKEND_IMAGE="${{ needs.build-and-push.outputs.backend-image }}"
+          export FRONTEND_IMAGE="${{ needs.build-and-push.outputs.frontend-image }}"
+
+          # 进入项目目录
+          cd /opt/agri-platform
+
+          # 创建部署备份
+          BACKUP_DIR="/opt/backups/agri-platform/$(date +%Y%m%d_%H%M%S)"
+          mkdir -p $BACKUP_DIR
+
+          # 备份数据库
+          docker exec agri-mysql mysqldump -u root -proot123 agri_platform > $BACKUP_DIR/database.sql
+
+          # 备份配置文件
+          cp -r . $BACKUP_DIR/
+
+          # 拉取最新代码
+          git pull origin main
+
+          # 更新镜像配置
+          sed -i "s|build:|# build:|g" docker-compose.yml
+          sed -i "s|context: .*|image: ${BACKEND_IMAGE}|g" docker-compose.yml
+          sed -i "s|dockerfile: .*||g" docker-compose.yml
+
+          # 拉取新镜像
+          docker-compose pull
+
+          # 蓝绿部署策略
+          # 1. 启动新版本服务（使用不同端口）
+          docker-compose -f docker-compose.blue-green.yml up -d
+
+          # 2. 等待新服务启动
+          sleep 60
+
+          # 3. 健康检查
+          for i in {1..20}; do
+            if curl -f http://localhost:5001/health; then
+              echo "New version health check passed"
+              break
+            fi
+            echo "New version health check failed, retrying in 15s..."
+            sleep 15
+          done
+
+          # 4. 切换流量（更新 nginx 配置或负载均衡器）
+          # 这里需要根据实际的负载均衡器配置进行调整
+
+          # 5. 停止旧版本
+          docker-compose down
+
+          # 6. 启动新版本到正式端口
+          docker-compose up -d
+
+          # 最终健康检查
+          sleep 30
+          curl -f http://localhost:5000/health || exit 1
+
+          # 清理
+          docker image prune -f
+
+    - name: Update deployment status (success)
+      if: success()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: '${{ steps.create-deployment.outputs.deployment_id }}',
+            state: 'success',
+            description: 'Deployment succeeded',
+            environment_url: '${{ secrets.PROD_BASE_URL }}'
+          });
+
+    - name: Update deployment status (failure)
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: '${{ steps.create-deployment.outputs.deployment_id }}',
+            state: 'failure',
+            description: 'Deployment failed'
+          });
+
+    - name: Run production smoke tests
+      if: success()
+      run: |
+        # 等待部署完成
+        sleep 120
+
+        # 运行生产环境冒烟测试
+        curl -f ${{ secrets.PROD_BASE_URL }}/health
+        curl -f ${{ secrets.PROD_BASE_URL }}/api/v1/health
+
+        # 运行关键业务流程测试
+        if [ -f "tests/production-smoke-tests.sh" ]; then
+          chmod +x tests/production-smoke-tests.sh
+          ./tests/production-smoke-tests.sh ${{ secrets.PROD_BASE_URL }}
+        fi
+
+  # 回滚机制
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure() && github.ref == 'refs/heads/main'
+    needs: [deploy-production]
+    environment: production
+
+    steps:
+    - name: Rollback production deployment
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PROD_HOST }}
+        username: ${{ secrets.PROD_USERNAME }}
+        key: ${{ secrets.PROD_SSH_KEY }}
+        port: ${{ secrets.PROD_PORT }}
+        script: |
+          cd /opt/agri-platform
+
+          # 获取最新的备份
+          LATEST_BACKUP=$(ls -t /opt/backups/agri-platform/ | head -1)
+
+          if [ -n "$LATEST_BACKUP" ]; then
+            echo "Rolling back to backup: $LATEST_BACKUP"
+
+            # 停止当前服务
+            docker-compose down
+
+            # 恢复配置文件
+            cp -r /opt/backups/agri-platform/$LATEST_BACKUP/* .
+
+            # 恢复数据库（如果需要）
+            # docker exec agri-mysql mysql -u root -proot123 agri_platform < /opt/backups/agri-platform/$LATEST_BACKUP/database.sql
+
+            # 启动服务
+            docker-compose up -d
+
+            # 健康检查
+            sleep 30
+            curl -f http://localhost:5000/health || exit 1
+
+            echo "Rollback completed successfully"
+          else
+            echo "No backup found for rollback"
+            exit 1
+          fi
+
+  # 通知
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy-dev, deploy-staging, deploy-production]
+    if: always()
+
+    steps:
+    - name: Notify deployment success
+      if: ${{ needs.deploy-production.result == 'success' }}
+      run: |
+        echo "🚀 Production deployment successful!"
+        echo "Version: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+
+    - name: Notify deployment failure
+      if: ${{ needs.deploy-production.result == 'failure' }}
+      run: |
+        echo "❌ Production deployment failed!"
+        echo "Version: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+
+        # 这里可以集成 Slack、钉钉等通知服务
+        # curl -X POST -H 'Content-type: application/json' \
+        #   --data '{"text":"Production deployment failed for '${{ github.ref_name }}'"}' \
+        #   ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # 安全扫描
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ needs.build-and-push.outputs.backend-image }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'

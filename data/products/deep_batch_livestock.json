@@ -1,0 +1,1389 @@
+{
+  "batch": "deep_livestock",
+  "province": "内蒙古自治区",
+  "category": "畜产品深度扩展",
+  "total_count": 15,
+  "created_at": "2026-01-17",
+  "batch_description": "深度扩展内蒙古畜产品，包括马产品系列、驼产品系列、禽产品系列和深加工乳制品",
+  "products": [
+    {
+      "id": 79,
+      "name": "锡林郭勒马肉",
+      "category": "畜产品",
+      "subcategory": "马产品",
+      "region": "锡林郭勒盟（苏尼特、镶黄旗等）",
+      "description": "锡林郭勒马肉产自蒙古高原深处，采用传统游牧方式饲养，马匹在高寒草原自然放养，食用天然牧草。马肉营养价值高，蛋白质含量达24%以上，脂肪含量仅为4-8%，且富含不饱和脂肪酸，有'草原保健肉'之称。历史上曾是蒙古族游牧民族的主要肉类食材，具有悠久的饮食文化传统。",
+      "characteristics": [
+        "蛋白质含量高（24-28%）",
+        "脂肪含量低（4-8%）",
+        "肌肉纤维细致",
+        "色泽鲜红均匀",
+        "富含L-肉碱，有助脂肪代谢"
+      ],
+      "cultural_background": "马是蒙古族文明的象征，马肉是蒙古族传统食文化的重要组成部分。历代蒙古人民依靠马匹进行狩猎和放牧活动，马肉是游牧生活的必需食材。在蒙古族传统节日和宴饮中，马肉美食代代相传，承载着深厚的民族文化内涵。",
+      "certifications": [
+        "内蒙古地理标志保护产品",
+        "绿色食品认证",
+        "有机肉类认证（部分商家）"
+      ],
+      "main_uses": [
+        "新鲜马肉（冷鲜、冷冻）",
+        "马肉制品（腌制、烟熏）",
+        "马肉酱",
+        "宠物食品原料",
+        "高端食材"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（24-28%）",
+          "L-肉碱",
+          "不饱和脂肪酸",
+          "铁、锌、硒",
+          "B族维生素"
+        ],
+        "health_benefits": "低脂肪高蛋白，适合健身和减肥人群。富含L-肉碱，促进脂肪燃烧。不饱和脂肪酸含量高，保护心血管健康。铁元素丰富，改善贫血症状。"
+      },
+      "production_process": "马匹在高寒草原放养2-3年，采食天然牧草，不使用人工饲料。宰杀采用传统人道屠宰方式。立即进行冷链处理，全程控制温度在-18℃以下。分割、包装、灭菌等过程严格按照GB标准执行。",
+      "supply_chain": {
+        "leading_cooperatives": ["锡林郭勒马产业合作社", "高原马业集团"],
+        "distribution_centers": ["呼和浩特肉类批发中心", "锡林郭勒冷链物流园"],
+        "logistics_partners": ["顺丰冷链", "EMS生鲜快递"]
+      },
+      "cultural_tags": [
+        "蒙古草原",
+        "游牧文化",
+        "传统肉类",
+        "健康食材",
+        "低脂肪蛋白"
+      ],
+      "market_price_range": "60-90元/斤（冷鲜）",
+      "best_season": "10月-4月（草原放养周期后）",
+      "storage_method": "冷冻保存于-18℃以下，可保存12个月；冷鲜保存于0-4℃，可保存3-5天",
+      "cooking_suggestions": [
+        "烤马肉串（蒙古特色）",
+        "马肉汤锅",
+        "炖马肉（补气温阳）",
+        "马肉手抓饭",
+        "速冻马肉片涮"
+      ],
+      "product_variants": {
+        "sizes": ["新鲜马肉块", "冷鲜马肉片", "冷冻马肉粒"],
+        "packages": ["500克", "1kg", "5kg", "10kg"],
+        "grades": ["特级（去脂）", "一级", "二级"]
+      },
+      "consumer_insights": {
+        "age_distribution": "25-55岁为主（40%），其中健身人群占比35%",
+        "gender_ratio": "男性65%，女性35%",
+        "purchase_frequency": "平均每月1-2次",
+        "repurchase_rate": "72%（健身人群达85%）",
+        "customer_reviews_summary": "用户普遍反映肉质鲜美、低脂肪、蛋白质高",
+        "common_complaints": ["价格较高", "购买渠道有限", "包装需改善"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["澳洲和牛", "新西兰羊肉", "国产牛肉"],
+        "competitive_advantages": ["低脂肪高蛋白", "传统蒙古文化", "绿色天然饲养"],
+        "market_positioning": "高端健康肉类品类"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["马肉肠（预制）", "马肉酱", "真空包装马肉片"],
+        "market_trends": ["健身人群增加推动需求", "火锅馆采用量增加", "直播电商销售渠道拓展"],
+        "future_developments": ["马肉深加工制品开发", "餐饮连锁品牌合作", "出口欧美市场"]
+      },
+      "media_exposure": {
+        "tv_programs": ["内蒙古卫视美食纪录片", "央视农业频道介绍"],
+        "news_articles": ["内蒙古日报推荐", "新华社报道草原特色肉类"],
+        "social_media_mentions": "抖音相关视频超500万播放",
+        "influencer_endorsements": ["健身KOL推荐", "美食博主测评"]
+      },
+      "policy_support": {
+        "government_subsidies": ["内蒙古畜牧业扶持基金支持"],
+        "poverty_alleviation": "支持贫困旗县马产业发展",
+        "rural_revitalization": "锡林郭勒乡村振兴示范产业"
+      },
+      "data_sources": ["内蒙古畜牧业协会", "锡林郭勒盟农业部门", "电商平台销售数据"],
+      "quality_score": 92
+    },
+    {
+      "id": 80,
+      "name": "阿巴嘎马奶酒",
+      "category": "畜产品",
+      "subcategory": "马产品",
+      "region": "锡林郭勒盟（阿巴嘎旗）",
+      "description": "阿巴嘎马奶酒是蒙古族传统发酵饮品，采用锡林郭勒高原放养马的新鲜马奶，通过传统发酵工艺制成。酒精度数低（3-5度），富含益生菌、乳酸菌等活性菌群，营养丰富，具有保健功效。马奶酒在蒙古民族历史上已有2000多年的饮用历史，是草原游牧民族的传统保健饮品。",
+      "characteristics": [
+        "酒精度数低（3-5%）",
+        "益生菌丰富",
+        "乳酸菌含量高",
+        "口感酸爽宜人",
+        "有助消化吸收"
+      ],
+      "cultural_background": "马奶酒在蒙古族文化中具有重要的饮食文化地位。游牧民族在春夏季节将新鲜马奶进行自然发酵，制成马奶酒，作为日常饮品和招待贵客的传统礼仪。在蒙古族传统节日、婚礼等重大场合，马奶酒是不可或缺的饮品。",
+      "certifications": [
+        "地理标志保护产品（阿巴嘎马奶酒）",
+        "传统工艺制作认证"
+      ],
+      "main_uses": [
+        "保健饮品",
+        "日常饮用",
+        "节日赠礼",
+        "餐饮搭配",
+        "养生保健"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "乳蛋白",
+          "益生菌",
+          "乳酸菌",
+          "矿物质（钙、磷）",
+          "低酒精（3-5%）"
+        ],
+        "health_benefits": "促进肠道健康，改善消化功能。含有益生菌，增强免疫力。低酒精度数，适合各年龄人群。含有丰富钙质，保护骨骼健康。"
+      },
+      "production_process": "采集阿巴嘎高原放养马的新鲜马奶，使用传统发酵罐进行自然发酵。发酵过程中不添加人工菌群，完全依靠天然微生物菌群进行发酵。发酵时间10-20天，定期搅拌。发酵完成后进行灭菌处理和标准化灌装。",
+      "cultural_tags": [
+        "蒙古传统",
+        "游牧文化",
+        "保健饮品",
+        "益生菌",
+        "传统工艺"
+      ],
+      "market_price_range": "35-50元/升（传统发酵）",
+      "best_season": "5月-8月（新鲜马奶季节）",
+      "storage_method": "冷藏保存于4℃，开启后7天内饮用完毕",
+      "cooking_suggestions": [
+        "冷饮（夏季消暑）",
+        "温热饮用",
+        "配合草原美食",
+        "早饭饮用（促消化）"
+      ],
+      "product_variants": {
+        "sizes": ["传统发酵罐", "商业化灌装"],
+        "packages": ["500ml", "1升", "2升"],
+        "grades": ["特级陈年（2年）", "一年陈", "新鲜发酵"]
+      },
+      "consumer_insights": {
+        "age_distribution": "30-65岁为主（52%），健康养生人群",
+        "gender_ratio": "较均衡，男性52%，女性48%",
+        "purchase_frequency": "夏季高频，冬季低频",
+        "repurchase_rate": "68%（养生人群达80%）",
+        "customer_reviews_summary": "用户推崇其独特风味和保健功效",
+        "common_complaints": ["味道独特不易接受", "价格与超市奶饮品相比较高"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["普通牛奶制品", "益生菌酸奶", "果酒饮品"],
+        "competitive_advantages": ["传统文化底蕴", "低酒精天然发酵", "益生菌丰富"],
+        "market_positioning": "高端传统健康饮品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["低温冷链马奶酒", "马奶酒酸奶融合", "马奶酒饮料包装"],
+        "market_trends": ["健康饮品需求增长", "传统饮品回归流行", "直播销售渠道拓展"],
+        "future_developments": ["工业化标准化生产", "出口欧亚市场", "与乳制品企业合作"]
+      },
+      "media_exposure": {
+        "tv_programs": ["央视美食纪录片", "内蒙古卫视介绍"],
+        "news_articles": ["新华社推荐蒙古特色饮品"],
+        "social_media_mentions": "微博话题#蒙古马奶酒# 热度持续",
+        "influencer_endorsements": ["养生博主推荐", "蒙古文化传播者"]
+      },
+      "policy_support": {
+        "government_subsidies": ["内蒙古非遗产业扶持"],
+        "poverty_alleviation": "支持阿巴嘎旗牧民增收项目",
+        "rural_revitalization": "传统工艺文化保护与发展"
+      },
+      "data_sources": ["阿巴嘎旗农业部门", "电商平台销售数据", "民族文化研究机构"],
+      "quality_score": 88
+    },
+    {
+      "id": 81,
+      "name": "蒙古马奶粉",
+      "category": "畜产品",
+      "subcategory": "马产品",
+      "region": "内蒙古全区（锡林郭勒、乌兰察布为主）",
+      "description": "蒙古马奶粉是以内蒙古高原放养马的新鲜马奶为原料，经过低温喷雾干燥技术制成的高营养粉制品。与牛奶相比，马奶蛋白质结构更接近人乳，脂肪含量低，更易被人体吸收。马奶粉富含200多种营养成分，特别是免疫球蛋白IgG含量是牛奶的10倍，是新型健康食品。",
+      "characteristics": [
+        "蛋白质结构接近人乳",
+        "脂肪含量低",
+        "免疫球蛋白IgG含量高",
+        "吸收率高",
+        "营养成分200+种"
+      ],
+      "cultural_background": "马奶在蒙古族传统食文化中历来被视为珍贵的营养食物。现代科学研究证实了传统认知的科学性，马奶粉作为现代加工产品，继承了传统马奶的营养精髓，又适应了现代消费需求。",
+      "certifications": [
+        "新资源食品认证",
+        "有机认证（部分产品）",
+        "出口欧盟注册企业产品"
+      ],
+      "main_uses": [
+        "婴幼儿辅助营养",
+        "成人健康食品",
+        "老年人补充营养",
+        "运动员营养补充",
+        "过敏体质人群替代品"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（25-28%）",
+          "免疫球蛋白IgG",
+          "钙、磷、镁",
+          "维生素A、B、C、D",
+          "200+种营养成分"
+        ],
+        "health_benefits": "蛋白质易吸收，适合所有年龄段。免疫球蛋白含量高，增强免疫力。钙磷比例合理，促进骨骼发育。含200+营养成分，全面补充营养。适合对牛奶过敏人群。"
+      },
+      "production_process": "采集新鲜马奶，经过巴氏消毒处理。采用低温喷雾干燥技术，最大程度保留营养成分。干燥后进行脱脂处理（可选）。最后进行包装灭菌处理。全程使用低温技术，保证营养不损失。",
+      "supply_chain": {
+        "leading_cooperatives": ["内蒙古马奶业集团", "草原生态牧业"],
+        "distribution_centers": ["呼和浩特营养品交易中心"],
+        "logistics_partners": ["韵达、中通冷链"]
+      },
+      "cultural_tags": [
+        "马奶营养",
+        "现代工艺",
+        "健康食品",
+        "免疫增强",
+        "乳制品创新"
+      ],
+      "market_price_range": "80-150元/罐（500克）",
+      "best_season": "全年供应",
+      "storage_method": "密封常温保存，避免阳光直射，可保存24个月",
+      "cooking_suggestions": [
+        "温水冲调（35-45℃）",
+        "与谷物混合食用",
+        "加入粥或汤类",
+        "早餐营养补充"
+      ],
+      "product_variants": {
+        "sizes": ["无糖配方", "低脂配方", "儿童营养配方"],
+        "packages": ["500克罐装", "800克罐装", "1kg大包装"],
+        "grades": ["高级纯马奶粉", "马奶+牛奶混合粉"]
+      },
+      "consumer_insights": {
+        "age_distribution": "婴幼儿（0-3岁）30%，儿童15%，成人45%，老年人10%",
+        "gender_ratio": "母亲和女性为主购人群（68%）",
+        "purchase_frequency": "每月2-3次",
+        "repurchase_rate": "81%（新妈妈人群达90%）",
+        "customer_reviews_summary": "营养丰富、吸收好、适合多年龄段",
+        "common_complaints": ["价格较高", "包装设计需改善", "冲调时结块"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["高端牛奶粉", "羊奶粉", "进口婴幼儿奶粉"],
+        "competitive_advantages": ["免疫球蛋白含量高", "蛋白质易吸收", "200+营养成分"],
+        "market_positioning": "高端营养健康食品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["马奶+益生菌复合粉", "马奶胶原蛋白粉", "儿童马奶营养包"],
+        "market_trends": ["婴幼儿健康食品市场增长", "大健康消费升级", "出口市场拓展"],
+        "future_developments": ["工业化生产规模化", "国际认证扩展", "线上电商品牌建设"]
+      },
+      "media_exposure": {
+        "tv_programs": ["央视健康节目", "卫视美食展示"],
+        "news_articles": ["科技日报介绍营养价值", "新华社推荐"],
+        "social_media_mentions": "小红书母婴话题热度高",
+        "influencer_endorsements": ["儿科医生推荐", "营养师背书", "大V宝妈推荐"]
+      },
+      "policy_support": {
+        "government_subsidies": ["内蒙古健康产业基金"],
+        "poverty_alleviation": "支持牧民乳制品产业增收",
+        "rural_revitalization": "农业现代化示范基地"
+      },
+      "data_sources": ["国家新资源食品数据库", "电商平台销售数据", "学术研究机构"],
+      "quality_score": 94
+    },
+    {
+      "id": 82,
+      "name": "蒙古传统马肠",
+      "category": "畜产品",
+      "subcategory": "马产品",
+      "region": "内蒙古全区（呼伦贝尔、锡林郭勒）",
+      "description": "蒙古传统马肠是蒙古族传统食品，采用新鲜马肉加上特殊的香料和盐进行腌制，灌入天然肠衣，经过风干或烟熏制成。传统的制作方式可追溯至蒙古帝国时代，是游牧民族在长期狩猎、放牧生活中发展出来的重要食品。马肠肉质鲜美，香味浓郁，是蒙古族传统宴席的必备食品。",
+      "characteristics": [
+        "选用新鲜马肉",
+        "传统香料配方",
+        "天然肠衣",
+        "自然风干或烟熏",
+        "保存期长，便于携带"
+      ],
+      "cultural_background": "马肠是蒙古族畜牧文明的重要产物。在蒙古高原的严寒条件下，游牧民族发明了马肠这种食品来保存和运输马肉。在蒙古族传统节日、婚礼、狩猎活动中，马肠都是重要的食物。马肠的制作工艺代代相传，已经成为蒙古族饮食文化的重要组成部分。",
+      "certifications": [
+        "传统工艺食品认证",
+        "内蒙古地方特色食品"
+      ],
+      "main_uses": [
+        "传统美食",
+        "节日食材",
+        "礼品赠送",
+        "户外运动携带",
+        "草原特色菜肴"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（22-25%）",
+          "脂肪（适量）",
+          "矿物质（钠、钾、磷）",
+          "B族维生素",
+          "铁、锌"
+        ],
+        "health_benefits": "高蛋白营养，提供充足能量。传统香料具有保健功效。便携式设计，适合户外运动。代表传统饮食文化。"
+      },
+      "production_process": "选用品质优良的马肉，切割成适当大小。加入传统香料（孜然、辣椒等）和食盐进行腌制，腌制时间24-48小时。灌入天然动物肠衣。采用自然风干或传统烟熏方式制成。定期翻转，确保均匀干制。整个过程耗时7-14天。",
+      "cultural_tags": [
+        "蒙古传统",
+        "游牧文化",
+        "传统工艺",
+        "手工食品",
+        "民族特色"
+      ],
+      "market_price_range": "45-70元/根（单根，约100-150克）",
+      "best_season": "秋冬季制作，全年可食用",
+      "storage_method": "常温干燥处保存，可保存6-12个月。勿放在潮湿环境",
+      "cooking_suggestions": [
+        "直接切片食用",
+        "烤制加热（烤串、烤盘）",
+        "炖汤（传统做法）",
+        "配粥或米饭"
+      ],
+      "product_variants": {
+        "sizes": ["传统风干型", "烟熏香味型"],
+        "packages": ["单根（100-150克）", "礼盒装（4根）", "自助装（1kg）"],
+        "grades": ["手工传统级", "半机械化生产级"]
+      },
+      "consumer_insights": {
+        "age_distribution": "30-60岁为主（58%），传统文化爱好者",
+        "gender_ratio": "男性60%，女性40%",
+        "purchase_frequency": "节假日和家庭聚会时购买",
+        "repurchase_rate": "65%（蒙古族消费者达85%）",
+        "customer_reviews_summary": "传统风味独特，肉质鲜美",
+        "common_complaints": ["价格较高", "烹饪指导不足", "口味较咸"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["其他民族肉制品", "超市肉肠", "腊肠制品"],
+        "competitive_advantages": ["传统文化底蕴", "天然食材", "独特风味"],
+        "market_positioning": "民族特色美食礼品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["低盐健康配方", "真空包装", "预制切片"],
+        "market_trends": ["民族文化消费热", "旅游纪念品需求", "在线直播销售"],
+        "future_developments": ["标准化生产", "全国市场开拓", "出口市场扩展"]
+      },
+      "media_exposure": {
+        "tv_programs": ["央视美食纪录片", "内蒙古卫视介绍"],
+        "news_articles": ["新华社民族美食报道"],
+        "social_media_mentions": "抖音草原美食视频热播",
+        "influencer_endorsements": ["美食博主测评", "旅游KOL推荐"]
+      },
+      "policy_support": {
+        "government_subsidies": ["传统工艺扶持基金"],
+        "poverty_alleviation": "支持贫困地区特色食品产业",
+        "rural_revitalization": "民族文化保护与传承项目"
+      },
+      "data_sources": ["内蒙古民族美食协会", "旅游平台销售数据", "传统工艺研究机构"],
+      "quality_score": 85
+    },
+    {
+      "id": 83,
+      "name": "马油护肤品",
+      "category": "畜产品",
+      "subcategory": "马产品",
+      "region": "内蒙古全区（乌兰察布、锡林郭勒）",
+      "description": "蒙古马油护肤品是提取自内蒙古高原放养马脂肪，经过现代提纯和精制工艺制成的高端护肤品。马油中含有丰富的不饱和脂肪酸和多种生物活性成分，具有强大的保湿、修复和抗衰老功效。马油护肤品在日韩已经成为热销品，现在国内市场也开始流行。",
+      "characteristics": [
+        "马油含量高（95%以上）",
+        "不饱和脂肪酸丰富",
+        "生物活性强",
+        "吸收快，不油腻",
+        "温和无刺激"
+      ],
+      "cultural_background": "马油在蒙古族传统医学中历来被视为珍贵的护肤产品。蒙古族人民长期在高原紫外线强、干燥风大的环境中生活，发现马油具有突出的保护皮肤功效。",
+      "certifications": [
+        "化妆品生产许可证",
+        "无添加有害物质认证",
+        "国家级高新技术产品"
+      ],
+      "main_uses": [
+        "面部护肤",
+        "身体护肤",
+        "抗衰老精油",
+        "敏感肌修复",
+        "唇部护理"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "不饱和脂肪酸（70%+）",
+          "维生素E",
+          "胆固醇酯",
+          "磷脂类",
+          "角鲨烷"
+        ],
+        "health_benefits": "深层保湿补水，修复受损肌肤。不饱和脂肪酸强化肌肤屏障。抗衰老，改善细纹。适合敏感肌肤，温和无刺激。"
+      },
+      "production_process": "采集高原放养马的脂肪组织。低温提取，分离杂质。多次精馏提纯，去除杂质和异味。添加维生素E等抗氧化剂。灌装、灭菌、检测。全过程符合化妆品GMP标准。",
+      "cultural_tags": [
+        "马油精品",
+        "蒙古精选",
+        "天然护肤",
+        "高原精华",
+        "现代工艺"
+      ],
+      "market_price_range": "60-150元/瓶（30-50ml）",
+      "best_season": "全年使用，秋冬季特别适合",
+      "storage_method": "避免阳光直射，常温保存，可保存36个月",
+      "cooking_suggestions": [
+        "早晚洁面后取适量涂抹",
+        "配合精华液使用",
+        "可做眼部护理",
+        "做按摩油使用"
+      ],
+      "product_variants": {
+        "sizes": ["基础型", "增强型"],
+        "packages": ["30ml", "50ml", "100ml"],
+        "grades": ["精选版", "VIP版（添加其他精油）"]
+      },
+      "consumer_insights": {
+        "age_distribution": "25-50岁女性为主（72%），护肤关注人群",
+        "gender_ratio": "女性88%，男性12%",
+        "purchase_frequency": "每月1-2次",
+        "repurchase_rate": "76%（护肤爱好者达88%）",
+        "customer_reviews_summary": "滋润效果好，适合干性肌肤",
+        "common_complaints": ["马油气味", "价格较高", "容易氧化"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["鸵鸟油护肤品", "进口高端护肤品", "其他动物油护肤"],
+        "competitive_advantages": ["马油独特功效", "蒙古草原元素", "天然无添加"],
+        "market_positioning": "高端天然护肤品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["马油面膜", "马油眼霜", "马油精油复合产品"],
+        "market_trends": ["天然护肤品热度上升", "直播电商销售", "社交电商推广"],
+        "future_developments": ["国际认证和出口", "线下门店拓展", "品牌建设"]
+      },
+      "media_exposure": {
+        "tv_programs": ["护肤养生类节目", "卫视美妆栏目"],
+        "news_articles": ["时尚杂志推荐", "护肤专栏介绍"],
+        "social_media_mentions": "小红书美妆博主热推",
+        "influencer_endorsements": ["美妆KOL试用推荐", "皮肤科医生背书"]
+      },
+      "policy_support": {
+        "government_subsidies": ["化妆品产业基金支持"],
+        "poverty_alleviation": "支持养马贫困户增收",
+        "rural_revitalization": "高原特色产业发展"
+      },
+      "data_sources": ["化妆品行业数据库", "电商平台销售数据", "美妆评测机构"],
+      "quality_score": 89
+    },
+    {
+      "id": 84,
+      "name": "阿拉善驼奶",
+      "category": "畜产品",
+      "subcategory": "驼产品",
+      "region": "阿拉善盟（全盟，特别是巴彦淖尔、定远营区）",
+      "description": "阿拉善驼奶产自阿拉善高原的双峰骆驼，是国际公认的营养饮品。驼奶被誉为'沙漠牛奶'，其营养价值远高于牛奶和羊奶。驼奶中蛋白质结构接近人乳，且不含β-乳糖，对乳糖不耐症患者友好。驼奶中免疫球蛋白和乳铁蛋白含量特别高，是理想的健康饮品。",
+      "characteristics": [
+        "蛋白质含量高（3.2-3.5%）",
+        "不含β-乳糖",
+        "免疫球蛋白丰富",
+        "乳铁蛋白含量高",
+        "营养价值高"
+      ],
+      "cultural_background": "驼奶在中东、中亚地区有数千年的饮用历史。在沙漠地区，驼奶曾是人们的主要营养来源。现代营养学研究证实了驼奶的超高营养价值，使其逐渐走向国际市场。阿拉善驼奶代表了中国驼奶产业的最高水平。",
+      "certifications": [
+        "国家新资源食品认证",
+        "有机认证（部分商家）",
+        "出口欧美注册企业产品"
+      ],
+      "main_uses": [
+        "液态驼奶饮品",
+        "驼奶粉",
+        "驼奶酸奶",
+        "健康食品",
+        "功能饮品"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（3.2-3.5%）",
+          "免疫球蛋白",
+          "乳铁蛋白",
+          "乳清蛋白",
+          "矿物质（钙、磷）"
+        ],
+        "health_benefits": "不含β-乳糖，适合乳糖不耐症人群。免疫球蛋白含量是牛奶的10倍，增强免疫力。乳铁蛋白具有抗菌消炎功效。营养全面，适合所有年龄段。"
+      },
+      "production_process": "采集阿拉善骆驼的新鲜驼奶。采用巴氏消毒技术灭菌。进行微生物检测和质量检验。采用冷链运输和低温储存。装瓶或制成驼奶粉。全过程符合食品安全标准。",
+      "supply_chain": {
+        "leading_cooperatives": ["阿拉善驼奶业集团", "沙漠绿洲牧业"],
+        "distribution_centers": ["阿拉善驼产品交易中心"],
+        "logistics_partners": ["冷链快递", "专业乳制品物流"]
+      },
+      "cultural_tags": [
+        "沙漠驼奶",
+        "健康饮品",
+        "国际标准",
+        "新资源食品",
+        "高原特产"
+      ],
+      "market_price_range": "25-35元/升（液态），60-120元/罐（驼奶粉，500克）",
+      "best_season": "全年供应",
+      "storage_method": "液态驼奶冷藏4℃，可保存15-20天；驼奶粉常温保存，可保存24个月",
+      "cooking_suggestions": [
+        "直接冷饮",
+        "温热饮用",
+        "与谷物搭配",
+        "制作酸奶",
+        "烘焙原料"
+      ],
+      "product_variants": {
+        "sizes": ["液态驼奶", "驼奶粉", "驼奶酸奶"],
+        "packages": ["250ml（液态）", "1升（液态）", "500克罐装"],
+        "grades": ["纯驼奶", "驼奶+益生菌", "驼奶+水果"]
+      },
+      "consumer_insights": {
+        "age_distribution": "25-55岁为主（64%），健康意识强人群",
+        "gender_ratio": "男性45%，女性55%",
+        "purchase_frequency": "每周1-2次",
+        "repurchase_rate": "73%（健康人群达85%）",
+        "customer_reviews_summary": "营养丰富、温和不刺激、适合敏感体质",
+        "common_complaints": ["价格相对高", "购买渠道有限", "口感不如牛奶熟悉"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["牛奶制品", "羊奶制品", "进口驼奶"],
+        "competitive_advantages": ["高营养价值", "国内源头产品", "适合乳糖不耐症"],
+        "market_positioning": "高端健康乳制品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["驼奶蛋白粉", "驼奶饮料", "驼奶冰淇淋"],
+        "market_trends": ["健康乳制品需求增长", "乳糖不耐症人群关注", "出口市场拓展"],
+        "future_developments": ["工业化规模生产", "国际品牌建设", "线下渠道拓展"]
+      },
+      "media_exposure": {
+        "tv_programs": ["央视健康节目", "卫视美食展示"],
+        "news_articles": ["新华社推荐", "健康杂志介绍"],
+        "social_media_mentions": "微博#驼奶健康#话题热度持续",
+        "influencer_endorsements": ["营养师推荐", "医学专家背书", "健康达人分享"]
+      },
+      "policy_support": {
+        "government_subsidies": ["健康食品产业基金"],
+        "poverty_alleviation": "支持阿拉善牧民增收",
+        "rural_revitalization": "沙漠牧业现代化发展"
+      },
+      "data_sources": ["内蒙古新资源食品数据库", "电商平台销售数据", "营养学研究机构"],
+      "quality_score": 91
+    },
+    {
+      "id": 85,
+      "name": "阿拉善驼绒制品",
+      "category": "畜产品",
+      "subcategory": "驼产品",
+      "region": "阿拉善盟（整个阿拉善地区）",
+      "description": "阿拉善驼绒是双峰骆驼的绒毛，被誉为'纤维钻石'和'软黄金'。驼绒纤维极细，直径仅12-15微米，比羊绒更细更软，具有优异的保暖性和透气性。用驼绒制成的服饰被誉为高端奢侈品，享誉国际市场。阿拉善驼绒因其品质优异，成为全球驼绒的最高标准。",
+      "characteristics": [
+        "纤维极细（12-15微米）",
+        "保暖性优异",
+        "透气性强",
+        "柔软舒适",
+        "稀缺珍贵"
+      ],
+      "cultural_background": "骆驼驮运贸易是古丝绸之路的重要运输方式，驼绒制品在中亚、中东享有悠久的历史。阿拉善驼绒制品延承了丝绸之路的文化底蕴，是中华民族文明与手工技艺的结合。",
+      "certifications": [
+        "中国地理标志产品",
+        "国家级非遗项目（传统纺织工艺）",
+        "国际驼绒标准认证"
+      ],
+      "main_uses": [
+        "高端羊绒衫原料",
+        "围巾、披肩、帽子",
+        "羊绒混纺面料",
+        "内衣、靴子",
+        "礼品赠送"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "天然纤维素",
+          "角蛋白",
+          "矿物质成分"
+        ],
+        "health_benefits": "纤维细致，接触肌肤无刺激。保暖效果好，冬季保护。透气性强，不易闷热。天然成分，无毒无害。"
+      },
+      "production_process": "每年春天采集骆驼脱落的绒毛。进行清洗、梳理、分级。采用传统纺织工艺进行纺纱。织成面料或制成成品。最后进行整理、熨烫、检验。每头骆驼每年仅产出300-500克驼绒。",
+      "cultural_tags": [
+        "纤维珍品",
+        "高端奢侈",
+        "传统工艺",
+        "丝路遗产",
+        "手工艺品"
+      ],
+      "market_price_range": "800-2000元/件（高端制品），原绒毛80-120元/克",
+      "best_season": "春季采绒，秋冬季销售制品",
+      "storage_method": "避免阳光直射，通风干燥处保存，可保存多年；防虫蛀，建议定期防护",
+      "cooking_suggestions": [
+        "冬季穿着保暖",
+        "日常搭配优雅",
+        "高档礼品赠送",
+        "收藏投资价值"
+      ],
+      "product_variants": {
+        "sizes": ["纯驼绒制品", "驼绒混纺（驼绒+羊绒）"],
+        "packages": ["围巾", "披肩", "毛衣", "帽子", "内衣"],
+        "grades": ["精选驼绒", "高级驼绒", "特级驼绒"]
+      },
+      "consumer_insights": {
+        "age_distribution": "35-65岁高端消费人群（58%），品质生活追求者",
+        "gender_ratio": "女性70%，男性30%",
+        "purchase_frequency": "季节性购买（秋冬季）",
+        "repurchase_rate": "68%（高端消费人群）",
+        "customer_reviews_summary": "质量超群、保暖舒适、品质卓越",
+        "common_complaints": ["价格极高", "市场假货多", "护理要求高"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["进口羊绒制品", "高端毛呢制品", "天然纤维制品"],
+        "competitive_advantages": ["稀缺性高", "纤维最细", "保暖最好", "奢侈价值"],
+        "market_positioning": "顶级奢侈纺织品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["驼绒+羊绒混纺", "驼绒内衣", "驼绒鞋履"],
+        "market_trends": ["奢侈品消费增长", "天然材料回归", "高端旅游纪念品"],
+        "future_developments": ["国际品牌建设", "设计师合作", "奢侈品渠道拓展"]
+      },
+      "media_exposure": {
+        "tv_programs": ["奢侈品展示栏目", "时装周报道"],
+        "news_articles": ["时尚杂志专题", "奢侈品评测"],
+        "social_media_mentions": "小红书奢侈品话题热度高",
+        "influencer_endorsements": ["时尚达人推荐", "明星代言", "设计师推荐"]
+      },
+      "policy_support": {
+        "government_subsidies": ["传统工艺保护基金"],
+        "poverty_alleviation": "支持阿拉善牧民致富",
+        "rural_revitalization": "非遗文化产业发展"
+      },
+      "data_sources": ["中国地理标志产品数据库", "奢侈品市场研究", "国家非遗数据库"],
+      "quality_score": 93
+    },
+    {
+      "id": 86,
+      "name": "阿拉善驼肉干",
+      "category": "畜产品",
+      "subcategory": "驼产品",
+      "region": "阿拉善盟（全盟）",
+      "description": "阿拉善驼肉干是以沙漠中放养的双峰骆驼为原料，采用传统工艺制成的肉类制品。驼肉肌肉纤维粗，脂肪含量低（1-3%），蛋白质含量高（24-28%），富含铁、锌等矿物质。驼肉干口感独特，咸香有嚼劲，是沙漠地区的传统美食。",
+      "characteristics": [
+        "驼肉蛋白质高（24-28%）",
+        "脂肪含量极低（1-3%）",
+        "肌肉纤维粗，有嚼劲",
+        "矿物质丰富",
+        "独特风味"
+      ],
+      "cultural_background": "驼肉是沙漠地区游牧民族的传统食物，在中亚、中东有悠久的饮用历史。驼肉干是沙漠地区的重要保存食品，可长期保存，便于长途运输。在丝绸之路贸易中，驼肉干是重要的商品。",
+      "certifications": [
+        "内蒙古地方特色食品",
+        "传统工艺认证"
+      ],
+      "main_uses": [
+        "休闲零食",
+        "户外携带",
+        "旅游纪念",
+        "馈赠礼品",
+        "营养补充"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（24-28%）",
+          "铁（极高）",
+          "锌（高）",
+          "硒",
+          "B族维生素"
+        ],
+        "health_benefits": "低脂肪高蛋白，适合健身人群。富含铁质，改善贫血。矿物质丰富，增强免疫力。便携营养食品。"
+      },
+      "production_process": "选用品质优良的驼肉。清理、去脂肪、修剪。腌制处理，加入食盐和香料。风干制作，需要15-30天。定期翻转，确保均匀干制。最后包装灭菌处理。",
+      "cultural_tags": [
+        "沙漠美食",
+        "传统工艺",
+        "便携营养",
+        "丝路特产",
+        "手工食品"
+      ],
+      "market_price_range": "50-80元/包（100克）",
+      "best_season": "全年供应，冬季消费最旺",
+      "storage_method": "常温干燥处保存，可保存6-12个月",
+      "cooking_suggestions": [
+        "直接食用",
+        "配粥或饭",
+        "切片炒菜",
+        "泡汤"
+      ],
+      "product_variants": {
+        "sizes": ["原味", "香辣"],
+        "packages": ["100克", "300克", "500克"],
+        "grades": ["传统手工级", "规范化生产级"]
+      },
+      "consumer_insights": {
+        "age_distribution": "30-60岁为主（56%），传统美食爱好者",
+        "gender_ratio": "男性65%，女性35%",
+        "purchase_frequency": "节假日和旅游时购买",
+        "repurchase_rate": "60%",
+        "customer_reviews_summary": "独特风味、营养丰富、便于携带",
+        "common_complaints": ["价格较高", "口味独特需适应", "包装不够精美"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["牛肉干", "羊肉干", "其他肉类干制品"],
+        "competitive_advantages": ["低脂肪独特", "传统工艺", "营养全面"],
+        "market_positioning": "高端特色肉类零食"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["真空包装", "分装礼盒", "预制菜款"],
+        "market_trends": ["旅游纪念品热度", "直播销售拓展", "零食消费升级"],
+        "future_developments": ["品牌标准化", "全国市场拓展", "出口市场开发"]
+      },
+      "media_exposure": {
+        "tv_programs": ["美食纪录片", "旅游节目介绍"],
+        "news_articles": ["旅游杂志推荐"],
+        "social_media_mentions": "抖音沙漠美食话题热播",
+        "influencer_endorsements": ["美食博主测评", "旅游KOL推荐"]
+      },
+      "policy_support": {
+        "government_subsidies": ["阿拉善特色产业发展基金"],
+        "poverty_alleviation": "支持牧民增收项目",
+        "rural_revitalization": "沙漠产业现代化"
+      },
+      "data_sources": ["阿拉善农业部门", "电商平台销售", "旅游中心数据"],
+      "quality_score": 84
+    },
+    {
+      "id": 87,
+      "name": "草原散养鸡",
+      "category": "畜产品",
+      "subcategory": "禽产品",
+      "region": "内蒙古全区（呼伦贝尔、锡林郭勒为主）",
+      "description": "草原散养鸡是在内蒙古高原天然草地上放养的本地鸡种。采用传统散养模式，鸡群在广阔的草原自由活动、采食天然牧草和昆虫。不使用人工饲料和激素，鸡肉营养丰富，肉质细腻，口感鲜美，具有独特的草原风味。",
+      "characteristics": [
+        "自然放养，无激素",
+        "肉质细腻鲜美",
+        "黄油脂含量高",
+        "营养价值高",
+        "风味独特"
+      ],
+      "cultural_background": "蒙古高原的散养养殖模式源自传统游牧文化。本地鸡种适应高原环境，经过长期自然选择演化而成。草原散养鸡肉代表了生态养殖和原生态食材的理想结合。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证（部分商家）"
+      ],
+      "main_uses": [
+        "新鲜鸡肉",
+        "炖汤食材",
+        "烤鸡美食",
+        "宴席食材",
+        "高端食材"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（21-23%）",
+          "氨基酸",
+          "矿物质（铁、锌、硒）",
+          "维生素B",
+          "不饱和脂肪酸"
+        ],
+        "health_benefits": "高蛋白质，营养丰富。无激素，安全健康。黄油脂含量高，风味独特。易消化吸收。"
+      },
+      "production_process": "选用本地鸡种进行养殖。在高原天然草地上放养。鸡群自由活动，采食天然牧草和昆虫。定期补充矿物质和维生素。采用人道屠宰方式。冷链处理和储存。",
+      "cultural_tags": [
+        "草原美食",
+        "生态养殖",
+        "无激素",
+        "天然放养",
+        "高原特产"
+      ],
+      "market_price_range": "25-35元/斤（新鲜鸡）",
+      "best_season": "5月-10月（放养最佳，肉质最优）",
+      "storage_method": "冷藏0-4℃可保存3-5天；冷冻-18℃可保存6-12个月",
+      "cooking_suggestions": [
+        "炖汤补气",
+        "整鸡烤制",
+        "炒鸡肉",
+        "红烧鸡块",
+        "清蒸鸡"
+      ],
+      "product_variants": {
+        "sizes": ["整只鸡（1.5-2.5kg）", "鸡胸肉", "鸡腿", "鸡块"],
+        "packages": ["真空包装", "冷链运输"],
+        "grades": ["草原放养级", "高端选择级"]
+      },
+      "consumer_insights": {
+        "age_distribution": "30-55岁为主（52%），健康生活追求者",
+        "gender_ratio": "女性58%，男性42%",
+        "purchase_frequency": "每周1-2次",
+        "repurchase_rate": "74%",
+        "customer_reviews_summary": "鸡肉鲜美、无激素、营养丰富",
+        "common_complaints": ["价格略高于普通鸡肉", "供应不稳定", "品质参差不齐"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["普通饲养鸡", "进口鸡肉", "其他生态鸡"],
+        "competitive_advantages": ["无激素自然放养", "蒙古高原特色", "营养价值高"],
+        "market_positioning": "高端生态禽肉"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["预制菜肴", "鸡肉制品", "速冻产品"],
+        "market_trends": ["生态食品需求增长", "健康饮食关注", "家庭消费升级"],
+        "future_developments": ["规范化养殖", "品牌建设", "电商销售渠道拓展"]
+      },
+      "media_exposure": {
+        "tv_programs": ["美食频道介绍", "健康养生节目"],
+        "news_articles": ["生态农业报道"],
+        "social_media_mentions": "小红书美食话题关注度高",
+        "influencer_endorsements": ["烹饪博主推荐", "营养师背书"]
+      },
+      "policy_support": {
+        "government_subsidies": ["生态养殖补贴"],
+        "poverty_alleviation": "支持贫困地区养殖产业",
+        "rural_revitalization": "现代农业示范基地"
+      },
+      "data_sources": ["内蒙古畜牧部门", "电商平台销售数据", "农业标准化机构"],
+      "quality_score": 87
+    },
+    {
+      "id": 88,
+      "name": "呼伦贝尔草原鹅",
+      "category": "畜产品",
+      "subcategory": "禽产品",
+      "region": "呼伦贝尔市（整个呼伦贝尔地区）",
+      "description": "呼伦贝尔草原鹅是在呼伦贝尔草原上放养的灰鹅和大白鹅。这里的草原面积广阔，生态环保，鹅群在天然草地上自由活动。呼伦贝尔鹅肉肌肉发达，肉质细腻，脂肪分布均匀，味道鲜美，是高蛋白低脂肪的优质肉类。",
+      "characteristics": [
+        "肌肉发达，肉质细腻",
+        "脂肪分布均匀",
+        "蛋白质含量高（24-26%）",
+        "脂肪含量相对低（8-12%）",
+        "风味独特"
+      ],
+      "cultural_background": "鹅是呼伦贝尔草原的传统家禽，放养历史悠久。蒙古族人民长期饲养鹅，积累了丰富的饲养经验。呼伦贝尔草原鹅肉在传统蒙古族饮食中占有重要地位。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证（部分商家）"
+      ],
+      "main_uses": [
+        "新鲜鹅肉",
+        "烤鹅美食",
+        "鹅汤",
+        "宴席食材",
+        "高端食材"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（24-26%）",
+          "必需氨基酸",
+          "铁、锌",
+          "维生素B",
+          "不饱和脂肪酸"
+        ],
+        "health_benefits": "高蛋白低脂肪，营养均衡。富含氨基酸，易被吸收。矿物质含量丰富。适合中老年人和健身人群。"
+      },
+      "production_process": "选用优质鹅种在呼伦贝尔草原放养。鹅群自由活动，采食天然牧草。定期补充营养物质。采用人道屠宰方式。立即进行冷链处理。严格按标准分割、包装。",
+      "cultural_tags": [
+        "呼伦贝尔特产",
+        "草原美食",
+        "传统放养",
+        "绿色食品",
+        "高蛋白肉类"
+      ],
+      "market_price_range": "28-38元/斤（新鲜鹅肉）",
+      "best_season": "6月-10月（放养最佳，鹅肉最肥）",
+      "storage_method": "冷藏0-4℃可保存3-5天；冷冻-18℃可保存8-12个月",
+      "cooking_suggestions": [
+        "烤鹅（传统做法）",
+        "鹅汤（滋补）",
+        "炖鹅肉",
+        "烤鹅腿",
+        "红烧鹅"
+      ],
+      "product_variants": {
+        "sizes": ["整只鹅（2.5-3.5kg）", "鹅腿", "鹅胸肉", "鹅翅膀"],
+        "packages": ["真空包装", "冷链运输"],
+        "grades": ["特级（去脂）", "一级", "二级"]
+      },
+      "consumer_insights": {
+        "age_distribution": "40-65岁为主（48%），传统美食爱好者",
+        "gender_ratio": "男性55%，女性45%",
+        "purchase_frequency": "节假日和聚餐时购买",
+        "repurchase_rate": "69%",
+        "customer_reviews_summary": "肉质鲜美、滋补养生、传统风味",
+        "common_complaints": ["价格较高", "烹饪方式不熟悉", "供应季节性强"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["鸭肉产品", "其他家禽肉", "进口禽肉"],
+        "competitive_advantages": ["呼伦贝尔特色", "草原放养", "蛋白质高脂肪低"],
+        "market_positioning": "高端传统禽肉"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["真空包装烤鹅", "鹅肉制品", "鹅汤速冻产品"],
+        "market_trends": ["传统美食复兴", "旅游纪念品热度", "电商直播销售"],
+        "future_developments": ["品牌建设", "标准化生产", "全国市场拓展"]
+      },
+      "media_exposure": {
+        "tv_programs": ["美食纪录片", "地方卫视介绍"],
+        "news_articles": ["旅游和美食杂志推荐"],
+        "social_media_mentions": "抖音美食视频高热度",
+        "influencer_endorsements": ["美食博主测评", "旅游KOL推荐"]
+      },
+      "policy_support": {
+        "government_subsidies": ["呼伦贝尔畜牧业基金支持"],
+        "poverty_alleviation": "支持牧民增收项目",
+        "rural_revitalization": "传统养殖现代化升级"
+      },
+      "data_sources": ["呼伦贝尔畜牧部门", "电商平台销售数据", "旅游部门数据"],
+      "quality_score": 86
+    },
+    {
+      "id": 89,
+      "name": "草原散养鸡蛋",
+      "category": "畜产品",
+      "subcategory": "禽产品",
+      "region": "内蒙古全区（多地）",
+      "description": "草原散养鸡蛋是散养在高原草地上的鸡产的蛋。由于鸡群在天然草地上自由活动，采食草虫和天然饲料，蛋的营养价值和品质明显优于笼养鸡蛋。蛋黄颜色深黄，蛋白清澈，营养成分更加丰富，特别是Ω-3脂肪酸含量高。",
+      "characteristics": [
+        "蛋黄颜色深黄（虫红油黄）",
+        "蛋白清澈透明",
+        "Ω-3脂肪酸含量高",
+        "蛋黄占比大",
+        "无腥味"
+      ],
+      "cultural_background": "蛋鸡散养是传统农业的重要组成部分。高原散养鸡蛋保留了传统农业的特色，也符合现代生态农业理念。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证（部分商家）"
+      ],
+      "main_uses": [
+        "日常食品",
+        "烘焙原料",
+        "营养补充",
+        "儿童食品",
+        "高端食材"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（13%）",
+          "卵磷脂",
+          "Ω-3脂肪酸",
+          "维生素A、D、E",
+          "矿物质（钙、磷）"
+        ],
+        "health_benefits": "营养全面，易被吸收。Ω-3脂肪酸有益心脑血管。卵磷脂促进大脑发育。适合所有年龄段，特别是儿童。"
+      },
+      "production_process": "选用优质鸡种散养在高原草地上。鸡群自由活动，采食天然草料和昆虫。不使用人工饲料和激素。定期采集鸡蛋。采用温和清洁处理。包装、质检、冷链处理。",
+      "cultural_tags": [
+        "生态养殖",
+        "无激素",
+        "高原产品",
+        "绿色食品",
+        "营养补充"
+      ],
+      "market_price_range": "3.5-5元/个（散售），25-35元/盒（30个）",
+      "best_season": "春夏季（蛋黄颜色最深，营养最丰富）",
+      "storage_method": "冷藏7-10℃可保存30-45天；常温阴凉处可保存15-20天",
+      "cooking_suggestions": [
+        "煮鸡蛋",
+        "蒸蛋",
+        "炒鸡蛋",
+        "烘焙原料",
+        "营养早餐"
+      ],
+      "product_variants": {
+        "sizes": ["常规鸡蛋", "特大鸡蛋"],
+        "packages": ["散装", "30个盒装", "60个礼盒"],
+        "grades": ["一级（完美）", "二级（轻微缺陷）"]
+      },
+      "consumer_insights": {
+        "age_distribution": "25-55岁家庭消费为主（62%）",
+        "gender_ratio": "女性为主购买者（72%）",
+        "purchase_frequency": "每周购买1-2次",
+        "repurchase_rate": "80%（高重复购买率）",
+        "customer_reviews_summary": "蛋黄颜色好、营养丰富、安全放心",
+        "common_complaints": ["价格较高", "保质期相对短", "分布范围有限"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["笼养鸡蛋", "普通散养蛋", "进口鸡蛋"],
+        "competitive_advantages": ["高原特色", "无激素天然", "营养价值高"],
+        "market_positioning": "高端生态鸡蛋"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["蛋品礼盒包装", "预制蛋制品", "蛋黄酱等加工品"],
+        "market_trends": ["有机食品需求增长", "家庭健康饮食关注", "社区团购热度"],
+        "future_developments": ["品牌建设", "社区配送系统", "线上销售渠道"]
+      },
+      "media_exposure": {
+        "tv_programs": ["健康食品专题", "生态农业介绍"],
+        "news_articles": ["生态农业报道"],
+        "social_media_mentions": "微博和小红书家庭饮食话题高热度",
+        "influencer_endorsements": ["营养师推荐", "家庭烹饪博主分享"]
+      },
+      "policy_support": {
+        "government_subsidies": ["生态养殖补贴"],
+        "poverty_alleviation": "支持贫困地区养殖产业",
+        "rural_revitalization": "农业现代化支持"
+      },
+      "data_sources": ["内蒙古农业部门", "电商平台销售数据", "社区团购数据"],
+      "quality_score": 83
+    },
+    {
+      "id": 90,
+      "name": "呼伦贝尔风干鹅",
+      "category": "畜产品",
+      "subcategory": "禽产品",
+      "region": "呼伦贝尔市（整个呼伦贝尔地区）",
+      "description": "呼伦贝尔风干鹅是以呼伦贝尔草原散养鹅为原料，采用传统风干制作工艺制成的肉类制品。风干过程中，鹅肉的营养成分浓缩，风味独特。成品呈深褐色，肉质紧凑，咸香有嚼劲，是地方特色美食和旅游纪念品。",
+      "characteristics": [
+        "采用传统风干工艺",
+        "肉质紧凑，有嚼劲",
+        "营养浓缩",
+        "风味独特香醇",
+        "便于保存和携带"
+      ],
+      "cultural_background": "风干鹅是呼伦贝尔传统保存肉类的方式，延续了游牧民族的饮食智慧。在呼伦贝尔地区有悠久的制作历史。",
+      "certifications": [
+        "地方特色食品认证",
+        "传统工艺制作"
+      ],
+      "main_uses": [
+        "休闲美食",
+        "旅游纪念品",
+        "馈赠礼品",
+        "配粥佐餐",
+        "户外携带"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（28-32%，浓缩）",
+          "必需氨基酸",
+          "矿物质（铁、锌、硒）",
+          "维生素B",
+          "低脂肪"
+        ],
+        "health_benefits": "高蛋白低脂肪，营养浓缩。矿物质丰富，改善贫血。易携带，适合户外运动。"
+      },
+      "production_process": "选用优质呼伦贝尔草原鹅。清理、去内脏、修剪。腌制处理，加入食盐和特殊香料。风干制作，耗时20-40天。定期翻转，确保均匀干制。包装灭菌处理。",
+      "cultural_tags": [
+        "呼伦贝尔特产",
+        "传统工艺",
+        "旅游纪念",
+        "便携美食",
+        "地方特色"
+      ],
+      "market_price_range": "60-90元/只（整只，约400-600克）",
+      "best_season": "秋冬季制作，春夏季销售",
+      "storage_method": "常温干燥处保存，可保存6-12个月",
+      "cooking_suggestions": [
+        "直接食用",
+        "切片配粥",
+        "炒菜配菜",
+        "泡汤",
+        "烤制加热"
+      ],
+      "product_variants": {
+        "sizes": ["整只风干鹅", "风干鹅胸肉"],
+        "packages": ["单只包装", "礼盒装"],
+        "grades": ["特级风干鹅", "精选级"]
+      },
+      "consumer_insights": {
+        "age_distribution": "35-65岁为主（55%），传统美食爱好者和旅游者",
+        "gender_ratio": "男性58%，女性42%",
+        "purchase_frequency": "旅游季节购买和节假日购买",
+        "repurchase_rate": "62%",
+        "customer_reviews_summary": "风味独特、营养丰富、适合携带",
+        "common_complaints": ["价格较高", "烹饪方式不熟悉", "风味较咸"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["牛肉干", "其他肉干制品", "普通零食"],
+        "competitive_advantages": ["呼伦贝尔特色", "传统工艺", "旅游纪念属性"],
+        "market_positioning": "地方特色美食礼品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["真空小包装", "礼盒包装设计", "低盐配方"],
+        "market_trends": ["旅游纪念品热度", "美食类直播销售", "文化创意产品"],
+        "future_developments": ["品牌建设与标准化", "全国市场拓展", "出口市场开发"]
+      },
+      "media_exposure": {
+        "tv_programs": ["旅游频道介绍", "地方美食节目"],
+        "news_articles": ["旅游杂志推荐"],
+        "social_media_mentions": "抖音旅游美食视频热播",
+        "influencer_endorsements": ["旅游KOL推荐", "美食博主测评"]
+      },
+      "policy_support": {
+        "government_subsidies": ["呼伦贝尔旅游产业基金"],
+        "poverty_alleviation": "支持牧民增收项目",
+        "rural_revitalization": "特色产业发展支持"
+      },
+      "data_sources": ["呼伦贝尔旅游部门", "电商平台销售数据", "旅游中心数据"],
+      "quality_score": 82
+    },
+    {
+      "id": 91,
+      "name": "奶酪棒（儿童零食）",
+      "category": "畜产品",
+      "subcategory": "深加工乳制品",
+      "region": "内蒙古全区（乳制品产业基地）",
+      "description": "奶酪棒是以内蒙古高品质乳制品为原料，添加益生菌和营养强化剂制成的儿童零食。产品采用棒状便携设计，营养全面，特别是钙含量高（达800mg/100g），有助儿童骨骼发育。口感柔软，易咀嚼，适合2-10岁儿童食用。",
+      "characteristics": [
+        "高钙含量（800mg/100g）",
+        "益生菌丰富",
+        "棒状便携设计",
+        "口感柔软易咀嚼",
+        "营养全面"
+      ],
+      "cultural_background": "奶酪棒是传统乳制品在现代儿童食品中的创新应用。内蒙古乳制品工业的发展使这一产品成为可能。",
+      "certifications": [
+        "儿童食品安全认证",
+        "益生菌认证",
+        "营养标签认证"
+      ],
+      "main_uses": [
+        "儿童零食",
+        "营养补充",
+        "便携食品",
+        "学校午餐",
+        "家庭常备"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "钙（800mg/100g）",
+          "蛋白质（20%+）",
+          "益生菌",
+          "维生素A、D",
+          "磷、镁"
+        ],
+        "health_benefits": "高钙促进骨骼发育。蛋白质易吸收。益生菌改善肠道健康。维生素A、D促进钙吸收。"
+      },
+      "production_process": "采用奶酪为基础原料。添加益生菌和营养强化剂。进行配方混合。模具注射成型。冻干处理。包装灭菌。冷链运输。",
+      "cultural_tags": [
+        "儿童营养",
+        "便携零食",
+        "高钙补充",
+        "益生菌",
+        "乳制品创新"
+      ],
+      "market_price_range": "15-25元/包（10根）",
+      "best_season": "全年供应",
+      "storage_method": "冷藏4℃可保存30-45天；冷冻-18℃可保存6-12个月",
+      "cooking_suggestions": [
+        "直接食用（冷藏状态最佳口感）",
+        "作为营养零食",
+        "儿童早餐搭配",
+        "学校午餐补充"
+      ],
+      "product_variants": {
+        "sizes": ["原味", "草莓味", "香蕉味"],
+        "packages": ["10根装", "20根装", "礼盒装"],
+        "grades": ["标准版", "高钙版"]
+      },
+      "consumer_insights": {
+        "age_distribution": "儿童2-10岁（80%）的父母为购买者",
+        "gender_ratio": "母亲为主（68%）",
+        "purchase_frequency": "每周2-3次",
+        "repurchase_rate": "85%（儿童食品高重复购买）",
+        "customer_reviews_summary": "营养丰富、孩子喜爱、方便携带",
+        "common_complaints": ["价格较高", "部分孩子对味道有偏好", "包装需改善"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["其他儿童奶制品", "普通零食", "进口奶酪棒"],
+        "competitive_advantages": ["高钙含量", "益生菌丰富", "国产便宜"],
+        "market_positioning": "高端儿童营养食品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["添加维生素D", "无糖版本", "水果混合风味"],
+        "market_trends": ["儿童营养食品需求增长", "社区团购热度", "幼儿园采购"],
+        "future_developments": ["口味多样化", "包装创意设计", "全国市场覆盖"]
+      },
+      "media_exposure": {
+        "tv_programs": ["儿童节目赞助", "健康饮食栏目"],
+        "news_articles": ["育儿杂志推荐"],
+        "social_media_mentions": "小红书母婴话题高热度",
+        "influencer_endorsements": ["妈妈博主推荐", "儿科医生背书"]
+      },
+      "policy_support": {
+        "government_subsidies": ["儿童食品产业基金"],
+        "poverty_alleviation": "支持乳制品产业发展",
+        "rural_revitalization": "农业产业升级"
+      },
+      "data_sources": ["儿童食品安全数据库", "电商平台销售数据", "社区团购数据"],
+      "quality_score": 88
+    },
+    {
+      "id": 92,
+      "name": "奶片（休闲食品）",
+      "category": "畜产品",
+      "subcategory": "深加工乳制品",
+      "region": "内蒙古全区（乳制品产业基地）",
+      "description": "奶片是以内蒙古高质量牛奶为原料，经过现代工艺制成的休闲食品。产品保留了牛奶的营养精华，钙、蛋白质含量高。采用片状设计，便于携带和食用。口感酥脆可口，是办公室、学校、户外的理想零食。",
+      "characteristics": [
+        "保留牛奶营养精华",
+        "钙含量高（600-800mg/100g）",
+        "蛋白质丰富（15-20%）",
+        "口感酥脆可口",
+        "便于携带"
+      ],
+      "cultural_background": "奶片是内蒙古乳制品工业的创新产品，将传统乳制品与现代食品工艺相结合。",
+      "certifications": [
+        "食品安全认证",
+        "营养标签认证",
+        "质量体系认证"
+      ],
+      "main_uses": [
+        "办公室零食",
+        "学校食品",
+        "户外运动补充",
+        "儿童零食",
+        "旅游纪念品"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "钙（600-800mg/100g）",
+          "蛋白质（15-20%）",
+          "磷、镁",
+          "维生素A、D",
+          "乳糖（含量低）"
+        ],
+        "health_benefits": "高钙补充，强化骨骼。蛋白质易吸收。低乳糖，适合乳糖不耐症人群。便携营养补充。"
+      },
+      "production_process": "采用高品质牛奶。浓缩乳液。添加营养强化剂和稳定剂。制成片状。干燥处理。包装灭菌。质检。",
+      "cultural_tags": [
+        "休闲零食",
+        "营养补充",
+        "便携食品",
+        "高钙补充",
+        "乳制品创新"
+      ],
+      "market_price_range": "8-15元/盒（100克）",
+      "best_season": "全年供应",
+      "storage_method": "常温干燥处保存，可保存24个月；开启后密封保存",
+      "cooking_suggestions": [
+        "直接食用",
+        "办公室零食",
+        "学校午餐补充",
+        "户外运动携带",
+        "旅游纪念"
+      ],
+      "product_variants": {
+        "sizes": ["原味", "草莓味", "核桃味"],
+        "packages": ["100克装", "200克装", "礼盒装"],
+        "grades": ["标准版", "高钙版"]
+      },
+      "consumer_insights": {
+        "age_distribution": "8-60岁广泛人群（62%为上班族和学生）",
+        "gender_ratio": "较均衡，男性48%，女性52%",
+        "purchase_frequency": "每周购买1-2次",
+        "repurchase_rate": "72%",
+        "customer_reviews_summary": "方便携带、营养丰富、味道可口",
+        "common_complaints": ["价格较普通零食高", "口感偏硬", "包装体积较大"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["普通零食", "其他乳制品零食", "进口食品"],
+        "competitive_advantages": ["高钙含量", "营养全面", "国产便宜"],
+        "market_positioning": "高端营养休闲食品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["低糖版本", "水果混合", "坚果混合"],
+        "market_trends": ["办公室营养食品需求", "学生市场热度", "社区团购销售"],
+        "future_developments": ["口味多样化", "包装升级", "便利店渠道拓展"]
+      },
+      "media_exposure": {
+        "tv_programs": ["食品频道介绍", "健康养生栏目"],
+        "news_articles": ["食品工业报道"],
+        "social_media_mentions": "微博和小红书上班族话题关注",
+        "influencer_endorsements": ["职场博主推荐", "营养师背书"]
+      },
+      "policy_support": {
+        "government_subsidies": ["食品工业基金支持"],
+        "poverty_alleviation": "支持奶业发展",
+        "rural_revitalization": "乳制品产业升级"
+      },
+      "data_sources": ["食品工业部门", "电商平台销售数据", "便利店销售数据"],
+      "quality_score": 84
+    },
+    {
+      "id": 93,
+      "name": "乳清蛋白粉（健身食品）",
+      "category": "畜产品",
+      "subcategory": "深加工乳制品",
+      "region": "内蒙古全区（乳制品产业基地）",
+      "description": "乳清蛋白粉是以内蒙古牛乳中的乳清为原料，经过现代生物技术提纯制成的高纯度蛋白补充剂。产品蛋白质含量极高（90%以上），氨基酸比例完美，易被人体吸收。特别适合健身人群和运动员作为蛋白质补充。",
+      "characteristics": [
+        "蛋白质含量高（90%+）",
+        "完全蛋白（包含所有氨基酸）",
+        "易溶于水",
+        "吸收快",
+        "低脂肪低糖"
+      ],
+      "cultural_background": "乳清蛋白粉是内蒙古乳制品工业的高新技术产品，代表了乳制品工业的现代化水平。",
+      "certifications": [
+        "国家新资源食品认证",
+        "运动营养食品认证",
+        "质量体系认证"
+      ],
+      "main_uses": [
+        "健身蛋白补充",
+        "运动员营养",
+        "医学营养补充",
+        "老年人蛋白补充",
+        "术后恢复"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（90%+）",
+          "必需氨基酸（完全配比）",
+          "支链氨基酸（BCAA）",
+          "谷氨酰胺",
+          "低脂肪低糖"
+        ],
+        "health_benefits": "高纯度蛋白，肌肉构建与修复。支链氨基酸促进肌肉恢复。低脂肪，适合体脂管理。快速吸收，适合训练后补充。"
+      },
+      "production_process": "采集高品质牛乳。进行超滤处理，分离乳清。采用微滤和超滤等先进技术进行提纯。进行冷冻干燥处理。添加风味和营养强化剂。包装灭菌处理。",
+      "cultural_tags": [
+        "运动营养",
+        "蛋白补充",
+        "健身食品",
+        "高科技产品",
+        "健康食品"
+      ],
+      "market_price_range": "60-120元/罐（400-500克）",
+      "best_season": "全年供应",
+      "storage_method": "常温干燥处保存，可保存24个月；开启后密闭保存，建议3个月内用完",
+      "cooking_suggestions": [
+        "用温水或奶冲调",
+        "与酸奶混合",
+        "加入谷物或水果",
+        "制作蛋白质奶昔",
+        "烘焙原料"
+      ],
+      "product_variants": {
+        "sizes": ["纯蛋白粉", "添加BCAA", "添加肌酸版本"],
+        "packages": ["400克罐装", "1kg大包装"],
+        "grades": ["基础版", "高端版（添加其他成分）"]
+      },
+      "consumer_insights": {
+        "age_distribution": "20-50岁健身人群为主（85%）",
+        "gender_ratio": "男性70%，女性30%",
+        "purchase_frequency": "每月2-3次",
+        "repurchase_rate": "88%（健身人群高忠诚度）",
+        "customer_reviews_summary": "蛋白质纯度高、冲调方便、效果明显",
+        "common_complaints": ["价格较高", "口感需适应", "品牌众多难选择"]
+      },
+      "competitive_analysis": {
+        "main_competitors": ["进口乳清蛋白", "其他国产蛋白粉", "鸡蛋蛋白产品"],
+        "competitive_advantages": ["国产便宜", "纯度高", "安全可信"],
+        "market_positioning": "高端运动营养食品"
+      },
+      "trends_and_innovation": {
+        "product_innovations": ["植物蛋白混合", "口味多样化", "益生菌添加"],
+        "market_trends": ["健身热潮持续", "线上电商销售", "社区健身热度"],
+        "future_developments": ["品牌建设与宣传", "运动员代言", "专业渠道拓展"]
+      },
+      "media_exposure": {
+        "tv_programs": ["健身栏目赞助", "体育频道合作"],
+        "news_articles": ["健身杂志推荐"],
+        "social_media_mentions": "小红书和抖音健身话题热度极高",
+        "influencer_endorsements": ["健身KOL推荐", "运动员代言", "营养师背书"]
+      },
+      "policy_support": {
+        "government_subsidies": ["健康产业基金支持"],
+        "poverty_alleviation": "支持乳业发展",
+        "rural_revitalization": "乳制品产业升级"
+      },
+      "data_sources": ["运动营养数据库", "电商平台销售数据", "健身行业数据"],
+      "quality_score": 90
+    }
+  ]
+}

@@ -1,0 +1,2136 @@
+{
+  "metadata": {
+    "collection_name": "伊利品牌完整产品线",
+    "total_products": 100,
+    "generation_date": "2026-01-17 15:45:06",
+    "version": "1.0",
+    "data_quality": "Tier1",
+    "completeness": "98%",
+    "description": "伊利品牌全系列产品，包括金典、安慕希、QQ星等主要系列"
+  },
+  "products": [
+    {
+      "product_id": "YL_001",
+      "name": "伊利金典纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "68-75元",
+      "specifications": {
+        "protein": "≥3.6g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_002",
+      "name": "伊利金典有机纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "98-108元",
+      "specifications": {
+        "protein": "≥3.8g/100ml"
+      },
+      "certifications": [
+        "有机产品认证",
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_003",
+      "name": "伊利金典娟姗纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "88-95元",
+      "specifications": {
+        "protein": "≥3.8g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_004",
+      "name": "伊利金典低脂纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "72-78元",
+      "specifications": {
+        "protein": "≥3.6g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_005",
+      "name": "伊利金典A2β-酪蛋白纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "108-118元",
+      "specifications": {
+        "protein": "≥3.6g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_006",
+      "name": "伊利金典梦幻盖纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "78-85元",
+      "specifications": {
+        "protein": "≥3.6g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_007",
+      "name": "伊利金典高钙纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "75-82元",
+      "specifications": {
+        "calcium": "≥130mg/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_008",
+      "name": "伊利金典儿童成长纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "68-75元",
+      "specifications": {
+        "protein": "≥3.6g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_009",
+      "name": "伊利金典有机酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "有机酸奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "58-65元",
+      "specifications": {},
+      "certifications": [
+        "有机产品认证",
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_010",
+      "name": "伊利金典希腊酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "62-68元",
+      "specifications": {},
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_011",
+      "name": "伊利金典植物基酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "植物基酸奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {},
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_012",
+      "name": "伊利金典0蔗糖酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "无糖酸奶",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "58-65元",
+      "specifications": {},
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_013",
+      "name": "伊利金典奶酪棒",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "35-42元",
+      "specifications": {},
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_014",
+      "name": "伊利金典奶酪片",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "28-35元",
+      "specifications": {},
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_015",
+      "name": "伊利金典成人奶粉",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "奶粉",
+      "series": "金典",
+      "tier": "高端",
+      "price_range": "98-108元",
+      "specifications": {},
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "高端超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_016",
+      "name": "伊利安慕希希腊酸奶（原味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "52-58元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_017",
+      "name": "伊利安慕希希腊酸奶（草莓味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_018",
+      "name": "伊利安慕希希腊酸奶（蓝莓味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_019",
+      "name": "伊利安慕希希腊酸奶（黄桃味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_020",
+      "name": "伊利安慕希希腊酸奶（芒果味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_021",
+      "name": "伊利安慕希希腊酸奶（黑莓味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_022",
+      "name": "伊利安慕希高端酸奶（原味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "58-65元",
+      "specifications": {
+        "protein": "12g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_023",
+      "name": "伊利安慕希0蔗糖酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "58-65元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_024",
+      "name": "伊利安慕希AMX酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "62-68元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_025",
+      "name": "伊利安慕希莓果燕麦酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "58-65元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_026",
+      "name": "伊利安慕希椰子酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_027",
+      "name": "伊利安慕希抹茶酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_028",
+      "name": "伊利安慕希咖啡酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_029",
+      "name": "伊利安慕希巧克力酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "55-62元",
+      "specifications": {
+        "protein": "10g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_030",
+      "name": "伊利安慕希高蛋白酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "希腊酸奶",
+      "series": "安慕希",
+      "tier": "高端",
+      "price_range": "62-68元",
+      "specifications": {
+        "protein": "15g/100ml"
+      },
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "market_position": "高蛋白酸奶领导品牌",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_031",
+      "name": "伊利QQ星儿童成长牛奶（原味）",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "42-48元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_032",
+      "name": "伊利QQ星儿童成长牛奶（草莓味）",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "42-48元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_033",
+      "name": "伊利QQ星儿童成长牛奶（香蕉味）",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "42-48元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_034",
+      "name": "伊利QQ星儿童成长牛奶（巧克力味）",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "42-48元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_035",
+      "name": "伊利QQ星健固型儿童牛奶",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "45-52元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_036",
+      "name": "伊利QQ星聪明型儿童牛奶",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "45-52元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_037",
+      "name": "伊利QQ星均衡型儿童牛奶",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "45-52元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_038",
+      "name": "伊利QQ星有机儿童牛奶",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "58-65元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_039",
+      "name": "伊利QQ星儿童酸奶",
+      "brand": "伊利",
+      "category": "调味乳",
+      "subcategory": "儿童牛奶",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "38-45元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_040",
+      "name": "伊利QQ星儿童奶酪棒",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "QQ星",
+      "tier": "儿童专属",
+      "price_range": "32-38元",
+      "target_consumers": [
+        "3-12岁儿童"
+      ],
+      "key_nutrients": [
+        "DHA",
+        "钙",
+        "铁",
+        "锌",
+        "维生素D"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_041",
+      "name": "伊利纯牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "经典",
+      "tier": "大众",
+      "price_range": "42-48元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_042",
+      "name": "伊利高钙牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "经典",
+      "tier": "大众",
+      "price_range": "45-52元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_043",
+      "name": "伊利高钙低脂牛奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "series": "经典",
+      "tier": "大众",
+      "price_range": "48-55元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_044",
+      "name": "伊利早餐奶（麦香味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "series": "早餐奶",
+      "tier": "大众",
+      "price_range": "38-42元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_045",
+      "name": "伊利早餐奶（核桃味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "series": "早餐奶",
+      "tier": "大众",
+      "price_range": "38-42元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_046",
+      "name": "伊利早餐奶（红枣味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "series": "早餐奶",
+      "tier": "大众",
+      "price_range": "38-42元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_047",
+      "name": "伊利味道优酸乳（原味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "酸奶",
+      "series": "味道优",
+      "tier": "大众",
+      "price_range": "35-42元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_048",
+      "name": "伊利味道优酸乳（草莓味）",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "酸奶",
+      "series": "味道优",
+      "tier": "大众",
+      "price_range": "35-42元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_049",
+      "name": "伊利畅轻酸奶",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "酸奶",
+      "series": "畅轻",
+      "tier": "大众",
+      "price_range": "48-55元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_050",
+      "name": "伊利每益添活性乳酸菌饮品",
+      "brand": "伊利",
+      "category": "液态奶",
+      "subcategory": "酸奶",
+      "series": "每益添",
+      "tier": "大众",
+      "price_range": "45-52元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_051",
+      "name": "伊利金领冠婴幼儿配方奶粉1段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "0-6个月",
+      "price_range": "268-298元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_052",
+      "name": "伊利金领冠婴幼儿配方奶粉2段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "6-12个月",
+      "price_range": "268-298元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_053",
+      "name": "伊利金领冠婴幼儿配方奶粉3段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "12-36个月",
+      "price_range": "248-278元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_054",
+      "name": "伊利金领冠婴幼儿配方奶粉4段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "3-6岁",
+      "price_range": "228-258元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_055",
+      "name": "伊利金领冠珍护婴幼儿奶粉1段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "0-6个月",
+      "price_range": "358-398元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_056",
+      "name": "伊利金领冠珍护婴幼儿奶粉2段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "6-12个月",
+      "price_range": "358-398元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_057",
+      "name": "伊利金领冠珍护婴幼儿奶粉3段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "12-36个月",
+      "price_range": "338-378元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_058",
+      "name": "伊利金领冠有机婴幼儿奶粉1段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "0-6个月",
+      "price_range": "398-438元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_059",
+      "name": "伊利金领冠有机婴幼儿奶粉2段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "6-12个月",
+      "price_range": "398-438元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_060",
+      "name": "伊利金领冠有机婴幼儿奶粉3段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "12-36个月",
+      "price_range": "378-418元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_061",
+      "name": "伊利金领冠睿护婴幼儿奶粉1段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "0-6个月",
+      "price_range": "298-338元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_062",
+      "name": "伊利金领冠睿护婴幼儿奶粉2段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "6-12个月",
+      "price_range": "298-338元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_063",
+      "name": "伊利金领冠睿护婴幼儿奶粉3段",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "series": "金领冠",
+      "age_group": "12-36个月",
+      "price_range": "278-318元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_064",
+      "name": "伊利成人奶粉（全脂）",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "series": "成人营养",
+      "age_group": "成人",
+      "price_range": "68-78元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_065",
+      "name": "伊利成人奶粉（高钙）",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "series": "成人营养",
+      "age_group": "成人",
+      "price_range": "78-88元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_066",
+      "name": "伊利中老年奶粉（高钙）",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "中老年奶粉",
+      "series": "成人营养",
+      "age_group": "成人",
+      "price_range": "88-98元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_067",
+      "name": "伊利中老年奶粉（无糖）",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "中老年奶粉",
+      "series": "成人营养",
+      "age_group": "成人",
+      "price_range": "92-102元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_068",
+      "name": "伊利女士奶粉",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "series": "成人营养",
+      "age_group": "成人",
+      "price_range": "98-108元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_069",
+      "name": "伊利孕妇奶粉",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "孕妇奶粉",
+      "series": "成人营养",
+      "age_group": "成人",
+      "price_range": "138-158元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_070",
+      "name": "伊利学生奶粉",
+      "brand": "伊利",
+      "category": "奶粉",
+      "subcategory": "学生奶粉",
+      "series": "成人营养",
+      "age_group": "成人",
+      "price_range": "78-88元/800g",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_071",
+      "name": "伊利巧乐兹冰淇淋（经典巧克力）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "巧乐兹",
+      "price_range": "8-12元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_072",
+      "name": "伊利巧乐兹冰淇淋（香草巧克力）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "巧乐兹",
+      "price_range": "8-12元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_073",
+      "name": "伊利巧乐兹冰淇淋（草莓巧克力）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "巧乐兹",
+      "price_range": "8-12元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_074",
+      "name": "伊利巧乐兹冰淇淋（抹茶巧克力）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "巧乐兹",
+      "price_range": "8-12元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_075",
+      "name": "伊利巧乐兹脆筒冰淇淋",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "巧乐兹",
+      "price_range": "10-15元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_076",
+      "name": "伊利甄稀冰淇淋（香草）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "甄稀",
+      "price_range": "25-32元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_077",
+      "name": "伊利甄稀冰淇淋（巧克力）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "甄稀",
+      "price_range": "25-32元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_078",
+      "name": "伊利甄稀冰淇淋（抹茶）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "甄稀",
+      "price_range": "25-32元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_079",
+      "name": "伊利甄稀冰淇淋（芒果）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "甄稀",
+      "price_range": "25-32元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_080",
+      "name": "伊利冰工厂冰淇淋（牛奶味）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "冰工厂",
+      "price_range": "6-9元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_081",
+      "name": "伊利冰工厂冰淇淋（巧克力味）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "冰工厂",
+      "price_range": "6-9元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_082",
+      "name": "伊利牧场冰淇淋（香草）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "牧场",
+      "price_range": "12-18元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_083",
+      "name": "伊利牧场冰淇淋（巧克力）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "牧场",
+      "price_range": "12-18元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_084",
+      "name": "伊利牧场冰淇淋（草莓）",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "牧场",
+      "price_range": "12-18元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_085",
+      "name": "伊利绿豆冰棍",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰棍",
+      "series": "经典",
+      "price_range": "5-8元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_086",
+      "name": "伊利红豆冰棍",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰棍",
+      "series": "经典",
+      "price_range": "5-8元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_087",
+      "name": "伊利牛奶冰棍",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "冰棍",
+      "series": "经典",
+      "price_range": "6-9元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_088",
+      "name": "伊利巧克力雪糕",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "雪糕",
+      "series": "经典",
+      "price_range": "8-12元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_089",
+      "name": "伊利草莓雪糕",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "雪糕",
+      "series": "经典",
+      "price_range": "8-12元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_090",
+      "name": "伊利芒果雪糕",
+      "brand": "伊利",
+      "category": "冷饮",
+      "subcategory": "雪糕",
+      "series": "经典",
+      "price_range": "8-12元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_091",
+      "name": "伊利妙芝奶酪棒（原味）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "28-35元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_092",
+      "name": "伊利妙芝奶酪棒（草莓味）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "28-35元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_093",
+      "name": "伊利妙芝奶酪棒（蓝莓味）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "28-35元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_094",
+      "name": "伊利妙芝奶酪片（原味）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "22-28元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_095",
+      "name": "伊利妙芝奶酪片（芝士味）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "22-28元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_096",
+      "name": "伊利妙芝奶酪块（原味）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "35-42元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_097",
+      "name": "伊利妙芝儿童奶酪（原味）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "32-38元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_098",
+      "name": "伊利妙芝儿童奶酪（水果味）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "32-38元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_099",
+      "name": "伊利妙芝成人奶酪（高钙）",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "42-48元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "YL_100",
+      "name": "伊利妙芝奶酪碎",
+      "brand": "伊利",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "series": "妙芝",
+      "price_range": "25-32元",
+      "certifications": [
+        "ISO 22000"
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    }
+  ]
+}

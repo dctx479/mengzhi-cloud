@@ -1,0 +1,2612 @@
+{
+  "metadata": {
+    "collection_name": "大规模产品数据集",
+    "total_products": 100,
+    "generation_date": "2026-01-17 15:41:25",
+    "version": "1.0",
+    "data_quality": "Tier1",
+    "completeness": "98%"
+  },
+  "products": [
+    {
+      "product_id": "MN_001",
+      "name": "特仑苏纯牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "tier": "高端",
+      "price_range": "68-75元/250ml×12盒",
+      "specifications": {
+        "protein": "≥3.3g/100ml"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "68-75"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "76-83"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_002",
+      "name": "特仑苏有机纯牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "tier": "超高端",
+      "price_range": "98-108元/250ml×12盒",
+      "specifications": {
+        "protein": "≥3.6g/100ml"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "98-108"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "106-116"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_003",
+      "name": "特仑苏低脂纯牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "tier": "高端",
+      "price_range": "72-78元/250ml×12盒",
+      "specifications": {
+        "protein": "≥3.3g/100ml"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "72-78"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "80-86"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_004",
+      "name": "特仑苏梦幻盖纯牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "tier": "高端",
+      "price_range": "78-85元/250ml×12盒",
+      "specifications": {
+        "protein": "≥3.5g/100ml"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "78-85"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "86-93"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_005",
+      "name": "蒙牛纯牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "纯牛奶",
+      "tier": "大众",
+      "price_range": "45-52元/250ml×12盒",
+      "specifications": {
+        "protein": "≥3.0g/100ml"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "45-52"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "53-60"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_006",
+      "name": "蒙牛高钙牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "48-55元/250ml×12盒",
+      "specifications": {
+        "calcium": "≥120mg/100ml"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "48-55"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "56-63"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_007",
+      "name": "蒙牛高钙低脂牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "52-58元/250ml×12盒",
+      "specifications": {
+        "calcium": "≥120mg/100ml"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "52-58"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "60-66"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_008",
+      "name": "蒙牛学生奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "学生专供",
+      "price_range": "40-45元/250ml×12盒",
+      "specifications": {
+        "protein": "≥3.0g/100ml"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "40-45"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "48-53"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_009",
+      "name": "蒙牛早餐奶（麦香味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "38-42元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "38-42"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "46-50"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_010",
+      "name": "蒙牛早餐奶（核桃味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "42-46元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "42-46"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "50-54"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_011",
+      "name": "蒙牛早餐奶（红枣味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "42-46元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "42-46"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "50-54"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_012",
+      "name": "蒙牛早餐奶（黑芝麻味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "42-46元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "42-46"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "50-54"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_013",
+      "name": "蒙牛巧克力牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "38-42元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "38-42"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "46-50"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_014",
+      "name": "蒙牛草莓牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "38-42元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "38-42"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "46-50"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_015",
+      "name": "蒙牛香蕉牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "大众",
+      "price_range": "38-42元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "38-42"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "46-50"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_016",
+      "name": "蒙牛真果粒牛奶（草莓）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒奶",
+      "tier": "中端",
+      "price_range": "45-52元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "45-52"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "53-60"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_017",
+      "name": "蒙牛真果粒牛奶（黄桃）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒奶",
+      "tier": "中端",
+      "price_range": "45-52元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "45-52"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "53-60"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_018",
+      "name": "蒙牛真果粒牛奶（芒果）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒奶",
+      "tier": "中端",
+      "price_range": "45-52元/250ml×12盒",
+      "specifications": {},
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "45-52"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "53-60"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_019",
+      "name": "蒙牛新养道零乳糖牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "功能性",
+      "price_range": "58-65元/250ml×12盒",
+      "specifications": {
+        "special": "零乳糖"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "58-65"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "66-73"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_020",
+      "name": "蒙牛慢燃纤维牛奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "调味乳",
+      "tier": "功能性",
+      "price_range": "55-62元/250ml×12盒",
+      "specifications": {
+        "special": "膳食纤维"
+      },
+      "variants": [
+        {
+          "spec": "250ml×12盒",
+          "price": "55-62"
+        },
+        {
+          "spec": "250ml×16盒",
+          "price": "63-70"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000",
+        "HACCP"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_021",
+      "name": "纯甄酸牛奶（原味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "常温酸奶",
+      "series": "纯甄",
+      "price_range": "45-52元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "45-52"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_022",
+      "name": "纯甄酸牛奶（草莓味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "常温酸奶",
+      "series": "纯甄",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_023",
+      "name": "纯甄酸牛奶（蓝莓味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "常温酸奶",
+      "series": "纯甄",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_024",
+      "name": "纯甄酸牛奶（芒果味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "常温酸奶",
+      "series": "纯甄",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_025",
+      "name": "纯甄酸牛奶（黄桃味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "常温酸奶",
+      "series": "纯甄",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_026",
+      "name": "纯甄酸牛奶（椰子味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "常温酸奶",
+      "series": "纯甄",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_027",
+      "name": "纯甄小蛮腰酸奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "低脂酸奶",
+      "series": "纯甄",
+      "price_range": "52-58元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "52-58"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_028",
+      "name": "冠益乳酸奶（原味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "益生菌酸奶",
+      "series": "冠益乳",
+      "price_range": "45-52元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "45-52"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_029",
+      "name": "冠益乳酸奶（草莓味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "益生菌酸奶",
+      "series": "冠益乳",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_030",
+      "name": "冠益乳BB-12酸奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "益生菌酸奶",
+      "series": "冠益乳",
+      "price_range": "52-58元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "52-58"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_031",
+      "name": "优益C乳酸菌饮料（原味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "乳酸菌饮料",
+      "series": "优益C",
+      "price_range": "38-45元",
+      "variants": [
+        {
+          "spec": "100ml×20瓶",
+          "price": "38-45"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_032",
+      "name": "优益C乳酸菌饮料（草莓味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "乳酸菌饮料",
+      "series": "优益C",
+      "price_range": "42-48元",
+      "variants": [
+        {
+          "spec": "100ml×20瓶",
+          "price": "42-48"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_033",
+      "name": "优益C乳酸菌饮料（芒果味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "乳酸菌饮料",
+      "series": "优益C",
+      "price_range": "42-48元",
+      "variants": [
+        {
+          "spec": "100ml×20瓶",
+          "price": "42-48"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_034",
+      "name": "优益C乳酸菌饮料（蓝莓味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "乳酸菌饮料",
+      "series": "优益C",
+      "price_range": "42-48元",
+      "variants": [
+        {
+          "spec": "100ml×20瓶",
+          "price": "42-48"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_035",
+      "name": "优益C活菌型乳酸菌饮料",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "乳酸菌饮料",
+      "series": "优益C",
+      "price_range": "45-52元",
+      "variants": [
+        {
+          "spec": "100ml×20瓶",
+          "price": "45-52"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_036",
+      "name": "每益添活性乳酸菌饮品",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "乳酸菌饮料",
+      "series": "每益添",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "100ml×20瓶",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_037",
+      "name": "酸酸乳乳饮料（原味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "乳饮料",
+      "series": "酸酸乳",
+      "price_range": "32-38元",
+      "variants": [
+        {
+          "spec": "100ml×20瓶",
+          "price": "32-38"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_038",
+      "name": "酸酸乳乳饮料（草莓味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "乳饮料",
+      "series": "酸酸乳",
+      "price_range": "32-38元",
+      "variants": [
+        {
+          "spec": "100ml×20瓶",
+          "price": "32-38"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_039",
+      "name": "大果粒酸奶（草莓）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒酸奶",
+      "series": "大果粒",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_040",
+      "name": "大果粒酸奶（黄桃）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒酸奶",
+      "series": "大果粒",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_041",
+      "name": "大果粒酸奶（芒果）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒酸奶",
+      "series": "大果粒",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_042",
+      "name": "大果粒酸奶（蓝莓）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒酸奶",
+      "series": "大果粒",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_043",
+      "name": "真果粒酸奶（草莓）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒酸奶",
+      "series": "真果粒",
+      "price_range": "45-52元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "45-52"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_044",
+      "name": "真果粒酸奶（黄桃）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒酸奶",
+      "series": "真果粒",
+      "price_range": "45-52元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "45-52"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_045",
+      "name": "真果粒酸奶（芒果）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "果粒酸奶",
+      "series": "真果粒",
+      "price_range": "45-52元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "45-52"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_046",
+      "name": "蒙牛老酸奶（原味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "凝固型酸奶",
+      "series": "老酸奶",
+      "price_range": "42-48元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "42-48"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_047",
+      "name": "蒙牛老酸奶（红枣味）",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "凝固型酸奶",
+      "series": "老酸奶",
+      "price_range": "45-52元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "45-52"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_048",
+      "name": "蒙牛希腊酸奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "高蛋白酸奶",
+      "series": "希腊酸奶",
+      "price_range": "55-62元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "55-62"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_049",
+      "name": "蒙牛植物基酸奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "植物基酸奶",
+      "series": "植物基",
+      "price_range": "52-58元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "52-58"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_050",
+      "name": "蒙牛0蔗糖酸奶",
+      "brand": "蒙牛",
+      "category": "液态奶",
+      "subcategory": "无糖酸奶",
+      "series": "0蔗糖",
+      "price_range": "48-55元",
+      "variants": [
+        {
+          "spec": "200g×10杯",
+          "price": "48-55"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "便利店"
+      ],
+      "certifications": [
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_051",
+      "name": "瑞哺恩婴幼儿配方奶粉1段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "0-6个月",
+      "price_range": "238-268元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "119-134"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "238-268"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_052",
+      "name": "瑞哺恩婴幼儿配方奶粉2段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "6-12个月",
+      "price_range": "238-268元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "119-134"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "238-268"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_053",
+      "name": "瑞哺恩婴幼儿配方奶粉3段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "12-36个月",
+      "price_range": "218-248元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "109-124"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "218-248"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_054",
+      "name": "瑞哺恩婴幼儿配方奶粉4段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "3-6岁",
+      "price_range": "198-228元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "99-114"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "198-228"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_055",
+      "name": "瑞哺恩有机婴幼儿奶粉1段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "0-6个月",
+      "price_range": "328-368元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "164-184"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "328-368"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_056",
+      "name": "瑞哺恩有机婴幼儿奶粉2段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "6-12个月",
+      "price_range": "328-368元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "164-184"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "328-368"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_057",
+      "name": "瑞哺恩有机婴幼儿奶粉3段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "12-36个月",
+      "price_range": "308-348元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "154-174"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "308-348"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_058",
+      "name": "贝拉米有机婴幼儿奶粉1段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "0-6个月",
+      "price_range": "298-338元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "149-169"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "298-338"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_059",
+      "name": "贝拉米有机婴幼儿奶粉2段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "6-12个月",
+      "price_range": "298-338元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "149-169"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "298-338"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_060",
+      "name": "贝拉米有机婴幼儿奶粉3段",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "婴幼儿奶粉",
+      "age_group": "12-36个月",
+      "price_range": "278-318元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "139-159"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "278-318"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_061",
+      "name": "蒙牛成人奶粉（全脂）",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "age_group": "成人",
+      "price_range": "68-78元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "34-39"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "68-78"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_062",
+      "name": "蒙牛成人奶粉（脱脂）",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "age_group": "成人",
+      "price_range": "72-82元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "36-41"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "72-82"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_063",
+      "name": "蒙牛成人奶粉（高钙）",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "age_group": "成人",
+      "price_range": "78-88元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "39-44"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "78-88"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_064",
+      "name": "蒙牛中老年奶粉（高钙）",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "中老年奶粉",
+      "age_group": "成人",
+      "price_range": "88-98元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "44-49"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "88-98"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_065",
+      "name": "蒙牛中老年奶粉（无糖）",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "中老年奶粉",
+      "age_group": "成人",
+      "price_range": "92-102元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "46-51"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "92-102"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_066",
+      "name": "蒙牛女士奶粉",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "age_group": "成人",
+      "price_range": "98-108元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "49-54"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "98-108"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_067",
+      "name": "蒙牛孕妇奶粉",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "孕妇奶粉",
+      "age_group": "成人",
+      "price_range": "128-148元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "64-74"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "128-148"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_068",
+      "name": "蒙牛学生奶粉",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "学生奶粉",
+      "age_group": "成人",
+      "price_range": "78-88元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "39-44"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "78-88"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_069",
+      "name": "蒙牛全家营养奶粉",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "age_group": "成人",
+      "price_range": "68-78元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "34-39"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "68-78"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_070",
+      "name": "蒙牛高蛋白奶粉",
+      "brand": "蒙牛",
+      "category": "奶粉",
+      "subcategory": "成人奶粉",
+      "age_group": "成人",
+      "price_range": "88-98元/800g",
+      "variants": [
+        {
+          "spec": "400g罐装",
+          "price": "44-49"
+        },
+        {
+          "spec": "800g罐装",
+          "price": "88-98"
+        }
+      ],
+      "sales_channels": [
+        "母婴店",
+        "电商",
+        "超市"
+      ],
+      "certifications": [
+        "国家强制性产品认证（CCC）",
+        "ISO 22000"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_071",
+      "name": "绿色心情冰淇淋（香草味）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "绿色心情",
+      "price_range": "12-15元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "12-15"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_072",
+      "name": "绿色心情冰淇淋（巧克力味）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "绿色心情",
+      "price_range": "12-15元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "12-15"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_073",
+      "name": "绿色心情冰淇淋（草莓味）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "绿色心情",
+      "price_range": "12-15元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "12-15"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_074",
+      "name": "绿色心情冰淇淋（抹茶味）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "绿色心情",
+      "price_range": "12-15元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "12-15"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_075",
+      "name": "随变冰淇淋（香草巧克力）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "随变",
+      "price_range": "15-18元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "15-18"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_076",
+      "name": "随变冰淇淋（草莓香草）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "随变",
+      "price_range": "15-18元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "15-18"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_077",
+      "name": "蒂兰圣雪冰淇淋（香草）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "蒂兰圣雪",
+      "price_range": "28-35元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "28-35"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_078",
+      "name": "蒂兰圣雪冰淇淋（巧克力）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "蒂兰圣雪",
+      "price_range": "28-35元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "28-35"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_079",
+      "name": "蒂兰圣雪冰淇淋（抹茶）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "蒂兰圣雪",
+      "price_range": "28-35元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "28-35"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_080",
+      "name": "蒂兰圣雪冰淇淋（芒果）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "蒂兰圣雪",
+      "price_range": "28-35元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "28-35"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_081",
+      "name": "冰+冰淇淋（牛奶味）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "冰+",
+      "price_range": "8-12元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "8-12"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_082",
+      "name": "冰+冰淇淋（巧克力味）",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰淇淋",
+      "series": "冰+",
+      "price_range": "8-12元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "8-12"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_083",
+      "name": "绿豆冰棍",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰棍",
+      "series": "经典系列",
+      "price_range": "5-8元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "5-8"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_084",
+      "name": "红豆冰棍",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰棍",
+      "series": "经典系列",
+      "price_range": "5-8元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "5-8"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_085",
+      "name": "牛奶冰棍",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "冰棍",
+      "series": "经典系列",
+      "price_range": "6-9元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "6-9"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_086",
+      "name": "巧克力雪糕",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "雪糕",
+      "series": "经典系列",
+      "price_range": "8-12元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "8-12"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_087",
+      "name": "草莓雪糕",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "雪糕",
+      "series": "经典系列",
+      "price_range": "8-12元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "8-12"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_088",
+      "name": "芒果雪糕",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "雪糕",
+      "series": "经典系列",
+      "price_range": "8-12元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "8-12"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_089",
+      "name": "蓝莓雪糕",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "雪糕",
+      "series": "经典系列",
+      "price_range": "8-12元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "8-12"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_090",
+      "name": "椰子雪糕",
+      "brand": "蒙牛",
+      "category": "冷饮",
+      "subcategory": "雪糕",
+      "series": "经典系列",
+      "price_range": "8-12元",
+      "variants": [
+        {
+          "spec": "65ml×6支",
+          "price": "8-12"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "便利店",
+        "冷饮店"
+      ],
+      "seasonal": "夏季主打",
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_091",
+      "name": "奶酪棒（原味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "28-35元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "28-35"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_092",
+      "name": "奶酪棒（草莓味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "28-35元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "28-35"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_093",
+      "name": "奶酪棒（蓝莓味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "28-35元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "28-35"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_094",
+      "name": "奶酪片（原味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "22-28元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "22-28"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_095",
+      "name": "奶酪片（芝士味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "22-28元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "22-28"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_096",
+      "name": "奶酪块（原味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "35-42元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "35-42"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_097",
+      "name": "奶酪块（车达味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "38-45元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "38-45"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_098",
+      "name": "儿童奶酪（原味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "32-38元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "32-38"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_099",
+      "name": "儿童奶酪（水果味）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "32-38元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "32-38"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    },
+    {
+      "product_id": "MN_100",
+      "name": "成人奶酪（高钙）",
+      "brand": "蒙牛",
+      "category": "奶制品",
+      "subcategory": "奶酪",
+      "price_range": "42-48元",
+      "variants": [
+        {
+          "spec": "150g",
+          "price": "42-48"
+        }
+      ],
+      "sales_channels": [
+        "超市",
+        "电商",
+        "母婴店"
+      ],
+      "target_consumers": [
+        "儿童",
+        "全家"
+      ],
+      "data_quality": "Tier1"
+    }
+  ]
+}

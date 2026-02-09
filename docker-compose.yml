@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: agri-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: agri_platform
+      MYSQL_USER: agri_user
+      MYSQL_PASSWORD: agri_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # 注：migrations 脚本由应用通过 ORM 执行，不在 MySQL 初始化时执行
+      # - ./backend/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - agri-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: agri-redis
+    ports:
+      - "6380:6379"
+    networks:
+      - agri-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agri-backend
+    environment:
+      DATABASE_URL: mysql+pymysql://agri_user:agri_pass@mysql:3306/agri_platform
+      REDIS_URL: redis://redis:6379/0
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-default-key-change-in-production}
+      ENVIRONMENT: development
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-sk-placeholder-for-development}
+    ports:
+      - "5000:8000"
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - agri-network
+    restart: unless-stopped
+
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: agri-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - agri-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  agri-network:
+    driver: bridge

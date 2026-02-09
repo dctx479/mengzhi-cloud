@@ -1,0 +1,331 @@
+# Alertmanager 配置文件
+# 定义告警路由、接收器和抑制规则
+
+global:
+  # 全局配置
+  resolve_timeout: 5m  # 告警解决超时时间
+  smtp_from: 'alertmanager@example.com'
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_auth_username: 'alertmanager@example.com'
+  smtp_auth_password: 'your-password'
+  smtp_require_tls: true
+
+# 告警路由配置
+route:
+  # 默认接收器
+  receiver: 'default'
+
+  # 分组配置: 按告警名称、组件、严重程度分组
+  # 这样相同类型的告警会聚合在一起，避免告警风暴
+  group_by: ['alertname', 'component', 'severity']
+
+  # 告警聚合时间配置
+  group_wait: 30s       # 首次告警等待30秒，收集同组告警一起发送
+  group_interval: 5m    # 同组新告警间隔5分钟才发送，避免频繁通知
+  repeat_interval: 4h   # 未解决的告警每4小时重复提醒一次
+
+  # 子路由: 按严重程度和组件定制路由策略
+  routes:
+    # ==================== 紧急告警 - 立即通知 ====================
+    - match:
+        severity: emergency
+      receiver: 'emergency-team'
+      group_wait: 10s          # 紧急告警只等待10秒
+      group_interval: 1m       # 新告警1分钟后再发
+      repeat_interval: 30m     # 每30分钟重复提醒
+      continue: true           # 继续匹配其他路由（同时发送到多个接收器）
+
+    # ==================== 严重告警 - 快速通知 ====================
+    - match:
+        severity: critical
+      receiver: 'critical-team'
+      group_wait: 30s          # 等待30秒收集同类告警
+      group_interval: 2m       # 新告警2分钟后再发
+      repeat_interval: 1h      # 每小时重复提醒
+      continue: true           # 继续匹配其他路由
+
+    # ==================== 值班团队 - 接收所有critical告警 ====================
+    - match:
+        severity: critical
+      receiver: 'oncall-pager'
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 30m
+      continue: true
+
+    # 支付系统告警 - 专门团队
+    - match:
+        component: payment
+      receiver: 'payment-team'
+      group_by: ['alertname', 'payment_method']
+      group_wait: 30s
+      group_interval: 3m
+      repeat_interval: 2h
+
+    # 安全告警 - 安全团队
+    - match:
+        security: 'true'
+      receiver: 'security-team'
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 30m
+      continue: true
+
+    # 数据库告警
+    - match:
+        component: database
+      receiver: 'database-team'
+      group_wait: 1m
+      group_interval: 5m
+      repeat_interval: 2h
+
+    # 系统资源告警
+    - match:
+        component: system
+      receiver: 'ops-team'
+      group_wait: 2m
+      group_interval: 10m
+      repeat_interval: 4h
+
+    # 警告级别 - 降低通知频率
+    - match:
+        severity: warning
+      receiver: 'warning-team'
+      group_wait: 5m
+      group_interval: 15m
+      repeat_interval: 12h
+
+# 抑制规则 - 避免告警风暴
+inhibit_rules:
+  # ==================== 规则1: 严重告警抑制同类低级别告警 ====================
+  # 如果有紧急告警，抑制同组的严重告警
+  - source_match:
+      severity: 'emergency'
+    target_match:
+      severity: 'critical'
+    equal: ['alertname', 'component']
+
+  # 如果有严重告警，抑制同组的警告告警
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'component']
+
+  # ==================== 规则2: 上游服务故障抑制下游告警 ====================
+  # 如果支付失败率严重过高，抑制普通失败率告警
+  - source_match:
+      alertname: 'CriticalPaymentFailureRate'
+    target_match:
+      alertname: 'HighPaymentFailureRate'
+    equal: ['payment_method']
+
+  # 如果数据库不可用，抑制慢查询和连接数告警
+  - source_match:
+      alertname: 'DatabaseDown'
+    target_match_re:
+      alertname: '(SlowDatabaseQueries|HighDatabaseConnections|DatabaseConnectionPoolExhausted)'
+    equal: ['instance']
+
+  # 如果Redis不可用，抑制Redis内存和连接告警
+  - source_match:
+      alertname: 'RedisDown'
+    target_match_re:
+      alertname: '(RedisMemoryHigh|RedisConnectionFailed)'
+    equal: ['instance']
+
+  # 如果后端服务不可用，抑制该服务的所有其他告警
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '(HighResponseTime|HighErrorRate|HighCPUUsage|HighMemoryUsage)'
+    equal: ['job', 'instance']
+
+  # ==================== 规则3: 资源告警抑制应用告警 ====================
+  # 如果系统资源严重不足，抑制性能告警
+  - source_match:
+      component: 'system'
+      severity: 'critical'
+    target_match:
+      component: 'payment'
+      severity: 'warning'
+
+  # 如果CPU使用率过高，抑制API响应慢告警
+  - source_match:
+      alertname: 'HighCPUUsage'
+      severity: 'critical'
+    target_match:
+      alertname: 'SlowPaymentProcessing'
+    equal: ['instance']
+
+  # 如果内存使用率过高，抑制应用性能告警
+  - source_match:
+      alertname: 'HighMemoryUsage'
+      severity: 'critical'
+    target_match_re:
+      alertname: '(SlowPaymentProcessing|SlowPaymentCallback)'
+    equal: ['instance']
+
+  # 如果磁盘空间不足，抑制日志和缓存告警
+  - source_match:
+      alertname: 'HighDiskUsage'
+      severity: 'critical'
+    target_match_re:
+      alertname: '(LogWriteFailed|CacheFull)'
+    equal: ['instance']
+
+  # ==================== 规则4: 容器告警抑制容器资源告警 ====================
+  # 如果容器频繁重启，抑制容器CPU和内存告警
+  - source_match:
+      alertname: 'ContainerRestarting'
+    target_match_re:
+      alertname: '(ContainerHighCPU|ContainerHighMemory)'
+    equal: ['container_name']
+
+  # 如果容器不健康，抑制容器性能告警
+  - source_match:
+      alertname: 'ContainerUnhealthy'
+    target_match_re:
+      alertname: '(ContainerHighCPU|ContainerHighMemory|ContainerHighDisk)'
+    equal: ['container_name']
+
+# 接收器配置
+receivers:
+  # 默认接收器
+  - name: 'default'
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+
+  # 值班团队 - 接收所有critical告警（寻呼机/短信/电话）
+  - name: 'oncall-pager'
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+    # 可以配置短信/电话通知
+    # webhook_configs:
+    #   - url: 'https://sms-gateway.example.com/send'
+    #     send_resolved: true
+    # 企业微信机器人
+    # wechat_configs:
+    #   - corp_id: 'your-corp-id'
+    #     api_secret: 'your-api-secret'
+    #     to_user: '@all'
+    #     agent_id: 'your-agent-id'
+
+  # 紧急团队 - 多渠道通知
+  - name: 'emergency-team'
+    email_configs:
+      - to: 'emergency@example.com'
+        headers:
+          Subject: '🚨 [紧急] {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>紧急告警</h2>
+          <p><strong>告警名称:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>严重程度:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>组件:</strong> {{ .GroupLabels.component }}</p>
+          <p><strong>详情:</strong></p>
+          <ul>
+          {{ range .Alerts }}
+            <li>{{ .Annotations.summary }}: {{ .Annotations.description }}</li>
+          {{ end }}
+          </ul>
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+    # 可以添加短信、电话等通知方式
+    # slack_configs:
+    #   - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+    #     channel: '#emergency-alerts'
+
+  # 严重告警团队
+  - name: 'critical-team'
+    email_configs:
+      - to: 'critical@example.com'
+        headers:
+          Subject: '⚠️ [严重] {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+
+  # 支付团队
+  - name: 'payment-team'
+    email_configs:
+      - to: 'payment-team@example.com'
+        headers:
+          Subject: '💳 [支付系统] {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>支付系统告警</h2>
+          <p><strong>告警名称:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>支付方式:</strong> {{ .GroupLabels.payment_method }}</p>
+          <p><strong>严重程度:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>详情:</strong></p>
+          <ul>
+          {{ range .Alerts }}
+            <li>{{ .Annotations.summary }}: {{ .Annotations.description }}</li>
+            <li>运维手册: <a href="{{ .Annotations.runbook_url }}">{{ .Annotations.runbook_url }}</a></li>
+          {{ end }}
+          </ul>
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+    # 企业微信通知
+    # wechat_configs:
+    #   - corp_id: 'your-corp-id'
+    #     api_secret: 'your-api-secret'
+    #     to_user: '@all'
+    #     agent_id: 'your-agent-id'
+
+  # 安全团队
+  - name: 'security-team'
+    email_configs:
+      - to: 'security@example.com'
+        headers:
+          Subject: '🔒 [安全] {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>安全告警</h2>
+          <p><strong>告警名称:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>组件:</strong> {{ .GroupLabels.component }}</p>
+          <p><strong>详情:</strong></p>
+          <ul>
+          {{ range .Alerts }}
+            <li>{{ .Annotations.summary }}: {{ .Annotations.description }}</li>
+          {{ end }}
+          </ul>
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+
+  # 数据库团队
+  - name: 'database-team'
+    email_configs:
+      - to: 'dba@example.com'
+        headers:
+          Subject: '🗄️ [数据库] {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+
+  # 运维团队
+  - name: 'ops-team'
+    email_configs:
+      - to: 'ops@example.com'
+        headers:
+          Subject: '🖥️ [系统] {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+
+  # 警告团队
+  - name: 'warning-team'
+    email_configs:
+      - to: 'warnings@example.com'
+        headers:
+          Subject: 'ℹ️ [警告] {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://backend:8000/api/v1/alerts/webhook'
+        send_resolved: true
+
+# 模板配置
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

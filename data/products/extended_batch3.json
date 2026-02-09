@@ -1,0 +1,1305 @@
+{
+  "batch": "extended_batch3",
+  "title": "内蒙古特色产品、加工品与新兴产品 - 菌菇、中药材、浆果与深加工",
+  "province": "内蒙古自治区",
+  "total_count": 15,
+  "created_at": "2026-01-17",
+  "products": [
+    {
+      "id": 67,
+      "name": "大兴安岭野生蘑菇",
+      "category": "特色产品",
+      "subcategory": "菌菇类",
+      "region": "呼伦贝尔市（大兴安岭地区）",
+      "description": "大兴安岭野生蘑菇产自呼伦贝尔市大兴安岭地区，是中国最重要的野生蘑菇产地。大兴安岭原始森林保护完好，为野生蘑菇提供了理想的生长环境。这里生产的野生蘑菇种类丰富、品质优异、营养价值极高，是高端食材和食疗佳品。",
+      "characteristics": [
+        "种类丰富（黑蘑、牛肝菌、松茸等）",
+        "口感鲜美独特",
+        "香气浓郁",
+        "营养价值高",
+        "完全天然野生"
+      ],
+      "cultural_background": "大兴安岭原始森林养育了丰富的野生蘑菇资源。当地林业工人代代相传野生蘑菇采摘知识，形成了独特的采集文化。",
+      "certifications": [
+        "绿色食品认证",
+        "原生态产品认证",
+        "食疗食品认证"
+      ],
+      "main_uses": [
+        "鲜食食材",
+        "干制品",
+        "食疗药膳",
+        "高级餐饮原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（18-25%，干品）",
+          "多糖类（β-葡聚糖）",
+          "矿物质（硒、锌、铁）",
+          "维生素D"
+        ],
+        "health_benefits": "含丰富的多糖类物质，有益免疫调节。硒含量高，有抗氧化和防癌作用。维生素D含量丰富，有益骨骼健康。"
+      },
+      "production_process": "完全天然野生采摘，不进行任何人工种植。采摘采用可持续方式，保护森林生态。采摘后采用传统晾晒或低温干制工艺。严格质量检测，确保无污染。",
+      "seasonal_availability": {
+        "harvest_season": "6月至10月（不同种类季节不同）",
+        "best_consumption_period": "秋季（8月-10月）为盛产期",
+        "storage_duration": "干品常温可保存1-2年"
+      },
+      "production_info": {
+        "annual_output": "约3-5万吨（鲜品折合）",
+        "main_producers": ["林区采集者", "龙头企业"],
+        "production_area": "大兴安岭林区（约3000万亩）",
+        "yield_per_unit": "约1000-3000g/亩（取决于年份和品种）"
+      },
+      "market_info": {
+        "retail_price_range": "100-500元/斤（干品，按品种）、20-80元/斤（鲜品）",
+        "wholesale_price_range": "50-300元/斤（干品）",
+        "main_sales_channels": ["高档餐厅", "食材批发市场", "电商", "保健品店"],
+        "target_markets": ["全国高端市场", "日本", "欧洲"],
+        "market_share": "约占野生蘑菇市场的25%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 食品卫生标准"],
+        "industry_standards": ["NY/T 654 绿色食品（食用菌）"],
+        "inspection_items": ["重金属（铅、镉）", "微生物", "农药残留", "放射性核素"]
+      },
+      "brand_info": {
+        "leading_brands": ["大兴安岭野生菌", "森林珍品"],
+        "brand_stories": ["原始森林的馈赠"],
+        "awards": ["绿色食品认证", "森林生态产品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["炒食", "炖汤", "烤食", "食疗"],
+        "recipe_suggestions": ["蘑菇汤", "烤蘑菇", "蘑菇炒肉", "药膳炖汤"],
+        "pairing_suggestions": ["配肉类", "配豆制品", "配中医药材"],
+        "health_benefits": ["增强免疫", "防癌抗癌", "调理身体"]
+      },
+      "cultural_depth": {
+        "historical_records": "大兴安岭原始森林养育了丰富的生物资源，野生蘑菇采集是古老传统",
+        "folklore_stories": "林区采集者的蘑菇寻找故事",
+        "festival_connection": "森林丰收的象征",
+        "traditional_customs": "俄罗斯传统美食的灵感来源"
+      },
+      "sustainability": {
+        "production_method": "野生采摘 + 可持续保护",
+        "environmental_impact": "完全保护森林生态",
+        "carbon_footprint": "零碳足迹"
+      },
+      "export_info": {
+        "export_countries": ["日本", "欧盟", "俄罗斯"],
+        "export_standards": ["欧盟食品安全标准"],
+        "international_certifications": ["有机认证", "绿色认证"]
+      },
+      "cultural_tags": [
+        "原始森林",
+        "野生采摘",
+        "免疫增强",
+        "食疗佳品",
+        "生态保护"
+      ],
+      "market_price_range": "20-500元/斤（按品种和形态）",
+      "best_season": "秋季（8月-10月）",
+      "storage_method": "干品常温防潮保存，鲜品冷藏（2-5℃）",
+      "cooking_suggestions": [
+        "炖汤最营养",
+        "干品需提前泡软",
+        "不要过度烹饪",
+        "食疗效果最好"
+      ],
+      "image_links": [
+        "https://example.com/daxingan-mushroom-1.jpg",
+        "https://example.com/daxingan-mushroom-2.jpg",
+        "https://example.com/daxingan-mushroom-3.jpg"
+      ]
+    },
+    {
+      "id": 68,
+      "name": "阿尔山木耳",
+      "category": "特色产品",
+      "subcategory": "菌菇类",
+      "region": "兴安盟阿尔山市",
+      "description": "阿尔山木耳产自兴安盟阿尔山市，是中国重要的黑木耳生产基地。阿尔山地处大兴安岭，气候冷凉，水质清纯，特别适合黑木耳生长。阿尔山木耳以色泽乌黑、口感爽脆、营养丰富而著称，是国际公认的优质木耳。",
+      "characteristics": [
+        "颜色乌黑发亮",
+        "口感爽脆有弹性",
+        "无杂质，纯正",
+        "营养成分丰富",
+        "易泡软"
+      ],
+      "cultural_background": "木耳是中国传统的食材，阿尔山木耳的种植采用传统和现代相结合的方式。阿尔山冷凉的气候使其生产的木耳品质特别优异。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "有机认证"
+      ],
+      "main_uses": [
+        "鲜食食材",
+        "干制品",
+        "食疗食品",
+        "食品加工原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（10-13%，干品）",
+          "多糖类（β-葡聚糖）",
+          "铁（血红素铁）",
+          "纤维素"
+        ],
+        "health_benefits": "含丰富的多糖类物质，有益免疫调节。铁含量特别丰富，有助补血。纤维素含量高，促进肠道健康。"
+      },
+      "production_process": "采用林地种植模式，利用阿尔山的天然环境。采用传统的段木培养或现代菌包种植。坚持绿色无污染的生产方式。采摘后采用自然晾晒。",
+      "seasonal_availability": {
+        "harvest_season": "全年可种（春夏秋冬都有新鲜木耳）",
+        "best_consumption_period": "全年可食",
+        "storage_duration": "干品常温可保存2-3年"
+      },
+      "production_info": {
+        "annual_output": "约5-8万吨（干品）",
+        "main_producers": ["阿尔山木耳企业", "合作社"],
+        "production_area": "阿尔山市（约20万亩林地）",
+        "yield_per_unit": "约500-1000kg/亩（干品）"
+      },
+      "market_info": {
+        "retail_price_range": "60-120元/斤（优质干品）",
+        "wholesale_price_range": "40-80元/斤",
+        "main_sales_channels": ["超市", "电商", "食品厂", "餐饮"],
+        "target_markets": ["全国", "日本", "韩国", "东南亚"],
+        "market_share": "约占国内高端黑木耳市场的20%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 食品卫生标准"],
+        "industry_standards": ["NY/T 652 绿色食品（黑木耳）"],
+        "inspection_items": ["颜色", "水分含量", "农药残留", "重金属"]
+      },
+      "brand_info": {
+        "leading_brands": ["阿尔山木耳", "森林珍品"],
+        "brand_stories": ["冷凉气候培育的优质木耳"],
+        "awards": ["地理标志产品认证", "优质木耳奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["炒食", "炖汤", "凉拌", "食疗"],
+        "recipe_suggestions": ["木耳炒肉", "木耳汤", "凉拌木耳", "黑木耳粥"],
+        "pairing_suggestions": ["配肉类", "配蔬菜", "配豆制品"],
+        "health_benefits": ["补血益气", "清肺排毒", "降血脂"]
+      },
+      "cultural_depth": {
+        "historical_records": "木耳是中国传统食材，阿尔山木耳质量在全国领先",
+        "folklore_stories": "木耳的营养故事",
+        "festival_connection": "传统进补食材",
+        "traditional_customs": "北方家庭的常见食材"
+      },
+      "sustainability": {
+        "production_method": "林地生态种植 + 有机管理",
+        "environmental_impact": "保护森林生态",
+        "carbon_footprint": "低碳种植"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国", "东南亚"],
+        "export_standards": ["日本JAS标准", "国际食品安全标准"],
+        "international_certifications": ["有机认证", "绿色认证"]
+      },
+      "cultural_tags": [
+        "传统食材",
+        "补血益气",
+        "绿色认证",
+        "地理标志",
+        "冷凉气候"
+      ],
+      "market_price_range": "60-120元/斤",
+      "best_season": "全年可食",
+      "storage_method": "干品常温防潮保存，密封罐装",
+      "cooking_suggestions": [
+        "干品需提前泡软（温水2小时）",
+        "炒食最常见",
+        "炖汤补血效果好",
+        "凉拌爽口清凉"
+      ],
+      "image_links": [
+        "https://example.com/aershanmu-ear-1.jpg",
+        "https://example.com/aershanmu-ear-2.jpg",
+        "https://example.com/aershanmu-ear-3.jpg"
+      ]
+    },
+    {
+      "id": 69,
+      "name": "赤峰滑子菇",
+      "category": "特色产品",
+      "subcategory": "菌菇类",
+      "region": "赤峰市",
+      "description": "赤峰滑子菇产自赤峰市，是中国重要的滑子菇生产基地。赤峰的气候条件特别适合滑子菇生长，生产的滑子菇个大、肉质厚实、香气浓郁。滑子菇是日本料理的常用食材，现在成为中国高端食材的代表。",
+      "characteristics": [
+        "菌盖黄褐色",
+        "菌柄细长",
+        "口感爽滑",
+        "香气独特",
+        "营养丰富"
+      ],
+      "cultural_background": "滑子菇是日本料理的传统食材，现在在赤峰发展成为重要产业。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "出口认证"
+      ],
+      "main_uses": [
+        "鲜食食材",
+        "日本料理",
+        "高级餐饮",
+        "出口产品"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（20-22%，干品）",
+          "多糖类",
+          "维生素B族",
+          "矿物质（钾、铁、硒）"
+        ],
+        "health_benefits": "含丰富的多糖类和维生素，有益免疫调节。矿物质含量丰富，有益健康。"
+      },
+      "production_process": "采用现代菌包种植技术，在温度、湿度、光照精确控制的环境下生长。采用有机培养基。采摘后采用冷链保鲜处理。",
+      "seasonal_availability": {
+        "harvest_season": "全年供应（工业化种植）",
+        "best_consumption_period": "全年可食",
+        "storage_duration": "冷藏可保存1-2周，冻存3个月"
+      },
+      "production_info": {
+        "annual_output": "约3-5万吨",
+        "main_producers": ["赤峰菌菇企业", "现代农业园"],
+        "production_area": "赤峰市（约100个标准化温室）",
+        "yield_per_unit": "约2-3kg/㎡（年产）"
+      },
+      "market_info": {
+        "retail_price_range": "15-30元/斤（鲜品）",
+        "wholesale_price_range": "8-15元/斤",
+        "main_sales_channels": ["日本料理店", "高档超市", "电商", "餐饮"],
+        "target_markets": ["全国", "日本"],
+        "market_share": "约占国内滑子菇市场的30%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 食品卫生标准"],
+        "industry_standards": ["NY/T 1376 绿色食品（食用菌）"],
+        "inspection_items": ["农药残留", "微生物", "重金属", "营养成分"]
+      },
+      "brand_info": {
+        "leading_brands": ["赤峰滑子菇", "日系优品"],
+        "brand_stories": ["日本料理的中国优质食材"],
+        "awards": ["出口认证", "优质菌菇奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["炒食", "汤料", "日本料理", "烤食"],
+        "recipe_suggestions": ["日式滑子菇汤", "炒滑子菇", "寿司配菜", "烤菌菇"],
+        "pairing_suggestions": ["配豆制品", "配肉类", "配其他蘑菇"],
+        "health_benefits": ["增强免疫", "营养均衡"]
+      },
+      "cultural_depth": {
+        "historical_records": "滑子菇是日本料理的传统食材，现在中国也成为重要产地",
+        "folklore_stories": "日本滑子菇文化的传承",
+        "festival_connection": "现代健康饮食的代表",
+        "traditional_customs": "日本料理文化在中国的发展"
+      },
+      "sustainability": {
+        "production_method": "有机温室种植 + 现代管理",
+        "environmental_impact": "绿色工业化生产",
+        "carbon_footprint": "低碳菌菇生产"
+      },
+      "export_info": {
+        "export_countries": ["日本"],
+        "export_standards": ["日本JAS标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "日本料理",
+        "有机认证",
+        "现代农业",
+        "高档食材",
+        "出口产品"
+      ],
+      "market_price_range": "15-30元/斤",
+      "best_season": "全年均有，春秋季品质最佳",
+      "storage_method": "冷藏保存（2-5℃），不宜冻存",
+      "cooking_suggestions": [
+        "日式汤料最常见",
+        "炒食口感爽滑",
+        "不需长时间烹饪",
+        "鲜食最营养"
+      ],
+      "image_links": [
+        "https://example.com/chifeng-slippery-1.jpg",
+        "https://example.com/chifeng-slippery-2.jpg",
+        "https://example.com/chifeng-slippery-3.jpg"
+      ]
+    },
+    {
+      "id": 70,
+      "name": "阿拉善肉苁蓉",
+      "category": "特色产品",
+      "subcategory": "中药材",
+      "region": "阿拉善盟",
+      "description": "阿拉善肉苁蓉产自阿拉善盟沙漠地区，是中国著名的中药材。肉苁蓉是寄生在红柳根部的珍贵植物，在阿拉善的沙漠环境中生长，营养成分特别丰富。阿拉善肉苁蓉以肉质厚实、香气浓郁、有效成分含量高而著称，是滋补强身的名贵中药材。",
+      "characteristics": [
+        "肉质厚实",
+        "颜色棕褐色",
+        "香气浓郁",
+        "口感甘甜",
+        "营养极丰富"
+      ],
+      "cultural_background": "肉苁蓉是中医药学中的名贵药材，在蒙古族传统医学中应用广泛。阿拉善肉苁蓉因其独特的生长环境和营养价值而备受推崇。",
+      "certifications": [
+        "中药材地理标志保护",
+        "绿色中药材认证",
+        "中医药传统认证"
+      ],
+      "main_uses": [
+        "中医药材",
+        "食疗滋补",
+        "保健品原料",
+        "名酒配方"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "肉苁蓉苷（主要成分）",
+          "多糖类",
+          "矿物质（钾、锌、硒）",
+          "氨基酸"
+        ],
+        "health_benefits": "中医认为具有补肾阳、益精血、润肠通便的功效。现代研究证实有改善免疫、延缓衰老的作用。"
+      },
+      "production_process": "采用传统的沙漠采摘方式，在红柳林中寻找并挖掘肉苁蓉。采摘后采用传统晾晒工艺，不使用任何化学处理。经过严格的质量检测和中医标准认证。",
+      "seasonal_availability": {
+        "harvest_season": "5月至6月",
+        "best_consumption_period": "冬季（作为滋补品）",
+        "storage_duration": "常温干燥可保存2-3年"
+      },
+      "production_info": {
+        "annual_output": "约500-800吨",
+        "main_producers": ["阿拉善采集者", "中药企业"],
+        "production_area": "阿拉善盟（约5000万亩红柳林）",
+        "yield_per_unit": "约50-100g/株（因年份而异）"
+      },
+      "market_info": {
+        "retail_price_range": "200-500元/斤（优质品）",
+        "wholesale_price_range": "150-350元/斤",
+        "main_sales_channels": ["中医药店", "电商", "保健品店", "高档礼品"],
+        "target_markets": ["全国", "日本", "韩国", "东南亚"],
+        "market_share": "约占高端肉苁蓉市场的35%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 11607 中药材质量标准"],
+        "industry_standards": ["《中国药典》肉苁蓉标准"],
+        "inspection_items": ["肉苁蓉苷含量", "重金属", "微生物", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["阿拉善肉苁蓉", "沙漠珍品"],
+        "brand_stories": ["沙漠中的滋补瑰宝"],
+        "awards": ["中药材地理标志认证", "名贵中药材奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["炖汤", "泡酒", "中医配方", "食疗"],
+        "recipe_suggestions": ["肉苁蓉炖羊肉", "肉苁蓉泡酒", "肉苁蓉粥"],
+        "pairing_suggestions": ["配羊肉", "配红枣", "配黄芪"],
+        "health_benefits": ["补肾阳", "益精血", "延缓衰老"]
+      },
+      "cultural_depth": {
+        "historical_records": "肉苁蓉在《本草纲目》中有详细记载，古代皇帝的滋补品",
+        "folklore_stories": "沙漠中的神奇植物的故事",
+        "festival_connection": "冬季进补的传统中药材",
+        "traditional_customs": "蒙古族传统医学的重要药物"
+      },
+      "sustainability": {
+        "production_method": "野生采摘 + 沙漠保护",
+        "environmental_impact": "可持续采摘模式",
+        "carbon_footprint": "零碳足迹"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国", "东南亚"],
+        "export_standards": ["国际中药材标准"],
+        "international_certifications": ["传统中药认证"]
+      },
+      "cultural_tags": [
+        "名贵中药",
+        "沙漠植物",
+        "补肾阳",
+        "冬季进补",
+        "传统医学"
+      ],
+      "market_price_range": "200-500元/斤",
+      "best_season": "冬季食用（滋补效果最好）",
+      "storage_method": "常温干燥，防潮防虫，避免阳光",
+      "cooking_suggestions": [
+        "炖汤最常见用法",
+        "配羊肉效果倍增",
+        "冬季进补首选",
+        "中医配方组合"
+      ],
+      "image_links": [
+        "https://example.com/alasan-cordyceps-1.jpg",
+        "https://example.com/alasan-cordyceps-2.jpg",
+        "https://example.com/alasan-cordyceps-3.jpg"
+      ]
+    },
+    {
+      "id": 71,
+      "name": "阿拉善锁阳",
+      "category": "特色产品",
+      "subcategory": "中药材",
+      "region": "阿拉善盟",
+      "description": "阿拉善锁阳产自阿拉善盟沙漠地区，是中国传统的珍贵中药材。锁阳是寄生在白刺根部的植物，在阿拉善的荒漠条件下生长，营养成分独特。阿拉善锁阳以肉质饱满、成分浓郁、功效显著而著称，是中医药学中的补肾佳品。",
+      "characteristics": [
+        "肉质饱满",
+        "颜色棕褐色",
+        "形状独特",
+        "香气特殊",
+        "性质温和"
+      ],
+      "cultural_background": "锁阳是传统中医药学中的重要药材，在蒙古族医学中应用历史悠久。",
+      "certifications": [
+        "中药材地理标志保护",
+        "传统中医认证",
+        "绿色药材认证"
+      ],
+      "main_uses": [
+        "中医药材",
+        "食疗滋补",
+        "保健品原料",
+        "功能饮品"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "锁阳苷（主要成分）",
+          "多糖类",
+          "矿物质",
+          "微量元素"
+        ],
+        "health_benefits": "中医认为补肾阳、益精血、润肠。现代研究证实有改善性功能、延缓衰老的作用。"
+      },
+      "production_process": "采用传统的沙漠采摘方式，在荒漠中寻找并挖掘锁阳。采摘后采用传统晾晒工艺。经过中医标准检验。产品完全天然，无任何化学处理。",
+      "seasonal_availability": {
+        "harvest_season": "6月至7月",
+        "best_consumption_period": "冬季和春季",
+        "storage_duration": "常温干燥可保存2-3年"
+      },
+      "production_info": {
+        "annual_output": "约300-500吨",
+        "main_producers": ["采集者", "中药企业"],
+        "production_area": "阿拉善盟（约3000万亩荒漠）",
+        "yield_per_unit": "约30-60g/株"
+      },
+      "market_info": {
+        "retail_price_range": "150-300元/斤",
+        "wholesale_price_range": "100-200元/斤",
+        "main_sales_channels": ["中医药店", "电商", "功能饮品企业", "保健品店"],
+        "target_markets": ["全国", "日本", "韩国"],
+        "market_share": "约占锁阳市场的30%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 11607 中药材质量标准"],
+        "industry_standards": ["《中国药典》锁阳标准"],
+        "inspection_items": ["有效成分含量", "重金属", "微生物", "纯度"]
+      },
+      "brand_info": {
+        "leading_brands": ["阿拉善锁阳", "沙漠瑰宝"],
+        "brand_stories": ["沙漠中的补肾神物"],
+        "awards": ["中药材地理标志认证"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["炖汤", "泡酒", "中医配方", "粥品"],
+        "recipe_suggestions": ["锁阳炖羊肉", "锁阳泡酒", "锁阳粥"],
+        "pairing_suggestions": ["配肉类", "配红枣", "配冬虫夏草"],
+        "health_benefits": ["补肾阳", "强筋骨", "延缓衰老"]
+      },
+      "cultural_depth": {
+        "historical_records": "锁阳在《本草纲目》中记载，是古代皇家的滋补品",
+        "folklore_stories": "沙漠中的秘密植物",
+        "festival_connection": "传统进补的重要药材",
+        "traditional_customs": "沙漠民族的传统滋补品"
+      },
+      "sustainability": {
+        "production_method": "野生采摘 + 可持续保护",
+        "environmental_impact": "合理利用沙漠资源",
+        "carbon_footprint": "零碳足迹"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国"],
+        "export_standards": ["国际中药材标准"],
+        "international_certifications": ["传统中药认证"]
+      },
+      "cultural_tags": [
+        "名贵中药",
+        "补肾阳",
+        "沙漠植物",
+        "传统医学",
+        "性功能"
+      ],
+      "market_price_range": "150-300元/斤",
+      "best_season": "冬季和春季（滋补效果最好）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "炖汤最常见",
+        "配肉类效果好",
+        "冬季进补首选",
+        "中医配方组合"
+      ],
+      "image_links": [
+        "https://example.com/alasan-suoyang-1.jpg",
+        "https://example.com/alasan-suoyang-2.jpg",
+        "https://example.com/alasan-suoyang-3.jpg"
+      ]
+    },
+    {
+      "id": 72,
+      "name": "兴安盟蓝莓",
+      "category": "特色产品",
+      "subcategory": "浆果类",
+      "region": "兴安盟",
+      "description": "兴安盟蓝莓产自兴安盟大兴安岭地区，是中国北方重要的蓝莓生产基地。兴安盟的冷凉气候特别适合优质蓝莓生长，生产的蓝莓粒大、果肉饱满、甜度高、营养丰富。兴安盟蓝莓因其花青素含量极高而享誉国内外。",
+      "characteristics": [
+        "果粒大且饱满",
+        "颜色深蓝鲜艳",
+        "甜度高（糖度14-16 Brix）",
+        "花青素含量高",
+        "口感细腻"
+      ],
+      "cultural_background": "蓝莓是现代超级食品，兴安盟是中国北方重要的蓝莓产地。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "超级食品认证"
+      ],
+      "main_uses": [
+        "鲜食水果",
+        "果酱和饮料制作",
+        "冻干制品",
+        "保健品原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "花青素（3-5mg/g，干品）",
+          "维生素C（100-150mg/100g）",
+          "纤维素",
+          "矿物质（锌、硒）"
+        ],
+        "health_benefits": "花青素含量极高，具有强抗氧化作用。有益视力保护、预防心血管疾病。维生素C丰富，增强免疫力。"
+      },
+      "production_process": "采用有机果园种植，充分利用兴安盟冷凉气候优势。采用滴灌技术，精细管理蓝莓生长。不使用化学农药和化肥。采用手工采摘，确保果实完整。",
+      "seasonal_availability": {
+        "harvest_season": "7月至8月",
+        "best_consumption_period": "夏季（鲜果），全年（冻干产品）",
+        "storage_duration": "冷藏可保存2-3周，冻结可保存12个月"
+      },
+      "production_info": {
+        "annual_output": "约3-5万吨",
+        "main_producers": ["蓝莓种植企业", "有机果园"],
+        "production_area": "兴安盟（约5万亩）",
+        "yield_per_unit": "约2000-3000kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "30-80元/斤（鲜果），100-200元/斤（冻干）",
+        "wholesale_price_range": "15-40元/斤（鲜果）",
+        "main_sales_channels": ["超市", "电商", "高档水果店", "保健品店"],
+        "target_markets": ["全国", "日本", "欧洲", "北美"],
+        "market_share": "约占国内高端蓝莓市场的20%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2440 水果卫生标准"],
+        "industry_standards": ["NY/T 284 绿色食品水果"],
+        "inspection_items": ["花青素含量", "农药残留", "Brix值", "维生素C"]
+      },
+      "brand_info": {
+        "leading_brands": ["兴安蓝莓", "北方蓝宝石"],
+        "brand_stories": ["冷凉气候培育的超级食品"],
+        "awards": ["绿色食品认证", "超级食品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["鲜食", "果酱", "榨汁", "烘焙"],
+        "recipe_suggestions": ["蓝莓果酱", "蓝莓酸奶", "蓝莓蛋糕", "蓝莓汁"],
+        "pairing_suggestions": ["配酸奶", "配燕麦", "配坚果"],
+        "health_benefits": ["抗氧化", "保护视力", "心血管保护"]
+      },
+      "cultural_depth": {
+        "historical_records": "蓝莓是现代超级食品，北美土著的传统食物",
+        "folklore_stories": "蓝莓的营养奇迹",
+        "festival_connection": "现代健康生活的象征",
+        "traditional_customs": "北方夏季的特色水果"
+      },
+      "sustainability": {
+        "production_method": "有机种植 + 水肥一体化",
+        "environmental_impact": "完全生态保护",
+        "carbon_footprint": "低碳果园"
+      },
+      "export_info": {
+        "export_countries": ["日本", "欧洲", "北美"],
+        "export_standards": ["欧盟有机标准"],
+        "international_certifications": ["欧盟有机认证", "美国有机认证"]
+      },
+      "cultural_tags": [
+        "超级食品",
+        "花青素",
+        "有机认证",
+        "视力保护",
+        "抗氧化"
+      ],
+      "market_price_range": "30-200元/斤（按形态和品质）",
+      "best_season": "夏季（鲜果最佳）",
+      "storage_method": "冷藏（2-5℃）或冷冻（-18℃）",
+      "cooking_suggestions": [
+        "鲜食最营养",
+        "做果酱保留营养",
+        "配酸奶最健康",
+        "烘焙口感佳"
+      ],
+      "image_links": [
+        "https://example.com/xingan-blueberry-1.jpg",
+        "https://example.com/xingan-blueberry-2.jpg",
+        "https://example.com/xingan-blueberry-3.jpg"
+      ]
+    },
+    {
+      "id": 73,
+      "name": "牙克石蓝莓",
+      "category": "特色产品",
+      "subcategory": "浆果类",
+      "region": "呼伦贝尔市牙克石市",
+      "description": "牙克石蓝莓产自呼伦贝尔市牙克石市，是内蒙古又一个重要的蓝莓生产基地。牙克石地处大兴安岭，气候冷凉，日照充足，生产的蓝莓品质与兴安盟相当，具有独特的风味。牙克石蓝莓因其高山生长、营养丰富而在高端市场享有盛誉。",
+      "characteristics": [
+        "果粒饱满圆润",
+        "颜色深蓝靓丽",
+        "甜度适中（糖度13-15 Brix）",
+        "香气独特",
+        "口感细腻"
+      ],
+      "cultural_background": "蓝莓在牙克石发展成为重要产业，成为当地经济发展的重要支柱。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "生态产品认证"
+      ],
+      "main_uses": [
+        "鲜食水果",
+        "冻干制品",
+        "果汁饮料",
+        "保健品原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "花青素（高含量）",
+          "维生素C",
+          "纤维素",
+          "矿物质（钾、铁）"
+        ],
+        "health_benefits": "花青素含量丰富，有强抗氧化作用。有益视力和心血管健康。维生素C丰富，增强免疫。"
+      },
+      "production_process": "采用有机高山果园种植，充分利用大兴安岭冷凉气候。采用现代果园管理技术。不使用化学农药。采摘后采用冷链保鲜。",
+      "seasonal_availability": {
+        "harvest_season": "7月下旬至8月",
+        "best_consumption_period": "夏秋季（鲜果），全年（冻干）",
+        "storage_duration": "冷藏2-3周，冻结12个月"
+      },
+      "production_info": {
+        "annual_output": "约1-2万吨",
+        "main_producers": ["牙克石蓝莓企业", "高山果园"],
+        "production_area": "牙克石市（约2万亩）",
+        "yield_per_unit": "约1500-2000kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "25-70元/斤（鲜果），80-150元/斤（冻干）",
+        "wholesale_price_range": "12-35元/斤",
+        "main_sales_channels": ["超市", "电商", "水果店", "保健品店"],
+        "target_markets": ["全国", "日本"],
+        "market_share": "约占北方蓝莓市场的12%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2440 水果卫生标准"],
+        "industry_standards": ["NY/T 284 绿色食品水果"],
+        "inspection_items": ["花青素", "农药残留", "维生素C", "Brix值"]
+      },
+      "brand_info": {
+        "leading_brands": ["牙克石蓝莓", "高山珍品"],
+        "brand_stories": ["大兴安岭的蓝色宝石"],
+        "awards": ["绿色食品认证", "高山产品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["鲜食", "冻干", "果汁", "甜品"],
+        "recipe_suggestions": ["鲜食", "冻干粉", "蓝莓汁", "蓝莓甜品"],
+        "pairing_suggestions": ["配酸奶", "配麦片", "配蜂蜜"],
+        "health_benefits": ["视力保护", "抗氧化", "增强免疫"]
+      },
+      "cultural_depth": {
+        "historical_records": "蓝莓在牙克石近年发展成为重要产业",
+        "folklore_stories": "高山蓝莓的种植故事",
+        "festival_connection": "夏季丰收的象征",
+        "traditional_customs": "北方高山水果文化"
+      },
+      "sustainability": {
+        "production_method": "有机高山种植 + 生态保护",
+        "environmental_impact": "保护森林生态",
+        "carbon_footprint": "零碳高山果园"
+      },
+      "export_info": {
+        "export_countries": ["日本"],
+        "export_standards": ["日本JAS标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "高山蓝莓",
+        "有机认证",
+        "视力保护",
+        "高寒气候",
+        "抗氧化"
+      ],
+      "market_price_range": "25-150元/斤（按形态）",
+      "best_season": "夏季（7月-8月）",
+      "storage_method": "冷藏（2-5℃）或冷冻",
+      "cooking_suggestions": [
+        "鲜食最佳",
+        "冻干便携",
+        "果汁营养高",
+        "甜品装饰"
+      ],
+      "image_links": [
+        "https://example.com/yakeshi-blueberry-1.jpg",
+        "https://example.com/yakeshi-blueberry-2.jpg",
+        "https://example.com/yakeshi-blueberry-3.jpg"
+      ]
+    },
+    {
+      "id": 74,
+      "name": "扎兰屯榛子",
+      "category": "特色产品",
+      "subcategory": "坚果类",
+      "region": "呼伦贝尔市扎兰屯市",
+      "description": "扎兰屯榛子产自呼伦贝尔市扎兰屯市，是中国重要的榛子生产基地。扎兰屯地处大兴安岭，森林资源丰富，生产的榛子粒大、香气浓郁、营养丰富。扎兰屯榛子因其高油含量和独特的香气在国际市场享有盛誉。",
+      "characteristics": [
+        "粒大饱满",
+        "颜色棕褐色有光泽",
+        "香气浓郁独特",
+        "油含量高（55-60%）",
+        "口感香脆"
+      ],
+      "cultural_background": "榛子是传统的野生坚果，扎兰屯榛子的种植和采集有悠久历史。",
+      "certifications": [
+        "地理标志产品保护",
+        "绿色食品认证",
+        "有机认证"
+      ],
+      "main_uses": [
+        "坚果零食",
+        "巧克力馅料",
+        "烘焙原料",
+        "高级食材"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "脂肪（55-60%）",
+          "蛋白质（14-16%）",
+          "维生素E（天然抗氧化）",
+          "矿物质（钾、镁、铜）"
+        ],
+        "health_benefits": "含丰富的不饱和脂肪酸，有益心血管健康。维生素E含量高，有抗氧化作用。矿物质丰富，有益健康。"
+      },
+      "production_process": "采用林地种植模式，利用扎兰屯的森林环境。采用传统的采摘和烘干工艺。不使用化学农药。经过严格的质量检测和分级。",
+      "seasonal_availability": {
+        "harvest_season": "8月至9月",
+        "best_consumption_period": "秋冬季（9月-2月）",
+        "storage_duration": "常温干燥可保存1-2年"
+      },
+      "production_info": {
+        "annual_output": "约2-3万吨",
+        "main_producers": ["扎兰屯榛子企业", "林区合作社"],
+        "production_area": "扎兰屯市（约50万亩林地）",
+        "yield_per_unit": "约50-100kg/亩（林间种植）"
+      },
+      "market_info": {
+        "retail_price_range": "30-60元/斤（带壳），60-120元/斤（仁）",
+        "wholesale_price_range": "15-40元/斤",
+        "main_sales_channels": ["坚果店", "电商", "烘焙企业", "超市"],
+        "target_markets": ["全国", "欧洲", "日本"],
+        "market_share": "约占国内高端榛子市场的25%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["NY/T 277 绿色食品（榛子）"],
+        "inspection_items": ["油含量", "蛋白质", "农药残留", "黄曲霉毒素"]
+      },
+      "brand_info": {
+        "leading_brands": ["扎兰屯榛子", "森林珍果"],
+        "brand_stories": ["大兴安岭的森林馈赠"],
+        "awards": ["地理标志产品认证", "高端坚果奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["直接食用", "烘焙", "制巧克力馅", "磨粉"],
+        "recipe_suggestions": ["榛子仁", "榛子粉", "榛子巧克力", "榛子油"],
+        "pairing_suggestions": ["配巧克力", "配咖啡", "配坚果混合"],
+        "health_benefits": ["心血管保护", "抗氧化", "美容养颜"]
+      },
+      "cultural_depth": {
+        "historical_records": "榛子是中国传统坚果，扎兰屯榛子品质优异",
+        "folklore_stories": "林区采集者的榛子故事",
+        "festival_connection": "森林丰收的象征",
+        "traditional_customs": "北方坚果文化"
+      },
+      "sustainability": {
+        "production_method": "林地生态种植 + 可持续采摘",
+        "environmental_impact": "保护森林生态",
+        "carbon_footprint": "低碳坚果"
+      },
+      "export_info": {
+        "export_countries": ["欧洲", "日本"],
+        "export_standards": ["欧盟食品安全标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "森林坚果",
+        "心血管保护",
+        "地理标志",
+        "高油脂",
+        "生态保护"
+      ],
+      "market_price_range": "30-120元/斤（按处理方式）",
+      "best_season": "秋冬季（品质最佳）",
+      "storage_method": "常温干燥，防潮防虫，密封保存",
+      "cooking_suggestions": [
+        "直接食用最佳",
+        "烘烤后香气更浓",
+        "磨粉用于烘焙",
+        "坚果混合食用"
+      ],
+      "image_links": [
+        "https://example.com/zalantun-hazelnut-1.jpg",
+        "https://example.com/zalantun-hazelnut-2.jpg",
+        "https://example.com/zalantun-hazelnut-3.jpg"
+      ]
+    },
+    {
+      "id": 75,
+      "name": "沙棘果汁",
+      "category": "新兴产品",
+      "subcategory": "健康饮品",
+      "region": "阿拉善盟",
+      "description": "沙棘果汁产自阿拉善盟沙漠地区，是用新鲜沙棘果制成的天然果汁。沙棘是生长在沙漠和荒漠地带的野生灌木，果实营养价值极高。沙棘果汁以维生素C含量极高、营养全面、口感酸甜而著称，是现代健康饮品的代表。",
+      "characteristics": [
+        "颜色橙黄鲜艳",
+        "维生素C含量极高（500-1000mg/100ml）",
+        "口感酸甜适口",
+        "香气独特",
+        "营养全面"
+      ],
+      "cultural_background": "沙棘是古代丝绸之路的重要食物，现在成为现代健康饮品的代表。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "功能饮品认证"
+      ],
+      "main_uses": [
+        "健康饮品",
+        "营养补充",
+        "美容养颜",
+        "保健食品原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "维生素C（500-1000mg/100ml）",
+          "维生素A、E",
+          "有机酸",
+          "矿物质（钾、铁、钙）"
+        ],
+        "health_benefits": "维生素C含量极高，是柑橘的50倍，有强抗氧化作用。有益增强免疫力、美容养颜。"
+      },
+      "production_process": "采用冷压工艺，完整保留营养成分。使用新鲜沙棘果，采用无添加糖的天然果汁工艺。经过严格的菌核检测。产品不含任何人工添加剂。",
+      "seasonal_availability": {
+        "harvest_season": "全年供应（冷链保存）",
+        "best_consumption_period": "随时可饮",
+        "storage_duration": "冷藏可保存12个月"
+      },
+      "production_info": {
+        "annual_output": "约5-8万吨",
+        "main_producers": ["沙棘饮品企业", "现代果汁厂"],
+        "production_area": "阿拉善盟（约5000万亩沙棘林）",
+        "yield_per_unit": "10kg沙棘果出汁5L"
+      },
+      "market_info": {
+        "retail_price_range": "30-80元/升（纯果汁），8-15元/瓶（250ml包装）",
+        "wholesale_price_range": "15-40元/升",
+        "main_sales_channels": ["超市", "电商", "健康饮品店", "便利店"],
+        "target_markets": ["全国", "日本", "韩国"],
+        "market_share": "约占功能饮品市场的8%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2719 饮料卫生标准"],
+        "industry_standards": ["GB/T 31121 冷压果汁"],
+        "inspection_items": ["维生素C含量", "菌核", "添加剂", "SOD活性"]
+      },
+      "brand_info": {
+        "leading_brands": ["沙棘果汁精品", "沙漠阳光"],
+        "brand_stories": ["沙漠中的营养宝藏"],
+        "awards": ["绿色食品认证", "健康饮品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["直接饮用", "稀释饮用", "加热饮用", "调制饮品"],
+        "recipe_suggestions": ["原汁原味", "稀释果汁", "热饮", "鸡尾酒调制"],
+        "pairing_suggestions": ["配早餐", "配运动后", "配美容护肤"],
+        "health_benefits": ["增强免疫", "美容养颜", "抗疲劳"]
+      },
+      "cultural_depth": {
+        "historical_records": "沙棘是丝绸之路的传统食物，现代健康饮品的代表",
+        "folklore_stories": "沙漠植物的营养奇迹",
+        "festival_connection": "现代健康生活的象征",
+        "traditional_customs": "沙漠民族的传统滋补品"
+      },
+      "sustainability": {
+        "production_method": "野生沙棘 + 冷压工艺",
+        "environmental_impact": "保护沙漠生态",
+        "carbon_footprint": "零碳果汁"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国", "新加坡"],
+        "export_standards": ["国际饮料安全标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "超高维生素C",
+        "功能饮品",
+        "美容养颜",
+        "有机认证",
+        "健康饮品"
+      ],
+      "market_price_range": "8-80元/杯（按规格）",
+      "best_season": "全年可饮",
+      "storage_method": "冷藏保存（2-8℃），避免阳光照射",
+      "cooking_suggestions": [
+        "直接饮用最营养",
+        "可稀释2倍饮用",
+        "温热后饮用更舒适",
+        "早晨饮用最佳"
+      ],
+      "image_links": [
+        "https://example.com/seabuckthorn-juice-1.jpg",
+        "https://example.com/seabuckthorn-juice-2.jpg",
+        "https://example.com/seabuckthorn-juice-3.jpg"
+      ]
+    },
+    {
+      "id": 76,
+      "name": "亚麻籽油",
+      "category": "新兴产品",
+      "subcategory": "油料制品",
+      "region": "内蒙古各地（主要在河西地区）",
+      "description": "亚麻籽油产自内蒙古，是用亚麻籽冷压制成的高端食用油。亚麻籽含有丰富的α-亚麻酸（Omega-3脂肪酸），是天然的Omega-3来源。亚麻籽油因其独特的营养价值和保健功效在国际市场享有盛誉，是现代健康食用油的代表。",
+      "characteristics": [
+        "颜色金黄透亮",
+        "香气独特",
+        "α-亚麻酸含量高（50-60%）",
+        "烟点适中",
+        "口感香浓"
+      ],
+      "cultural_background": "亚麻是古代的重要油料作物，现在成为现代健康食用油的代表。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "Omega-3认证"
+      ],
+      "main_uses": [
+        "健康食用油",
+        "营养补充",
+        "美容护肤",
+        "保健品原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "α-亚麻酸（Omega-3）（50-60%）",
+          "亚油酸（Omega-6）（15-20%）",
+          "维生素E",
+          "木酚素（植物激素）"
+        ],
+        "health_benefits": "α-亚麻酸含量丰富，是天然的Omega-3脂肪酸来源。有益脑部健康、心血管保护、改善炎症。木酚素具有植物激素作用，有益女性健康。"
+      },
+      "production_process": "采用冷压初榨工艺，完全保留营养成分。不使用任何化学溶剂。采用传统的石磨或现代低温榨油机。产品经过自然沉淀和过滤。",
+      "seasonal_availability": {
+        "harvest_season": "全年供应",
+        "best_consumption_period": "随时可食",
+        "storage_duration": "冷藏可保存12个月"
+      },
+      "production_info": {
+        "annual_output": "约3-5万吨",
+        "main_producers": ["亚麻油企业", "现代榨油厂"],
+        "production_area": "内蒙古各地",
+        "yield_per_unit": "3kg亚麻籽出油1kg"
+      },
+      "market_info": {
+        "retail_price_range": "50-100元/升（高端冷压）",
+        "wholesale_price_range": "30-60元/升",
+        "main_sales_channels": ["健康食品店", "电商", "保健品店", "超市"],
+        "target_markets": ["全国", "欧洲", "北美"],
+        "market_share": "约占高端Omega-3油品市场的12%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2716 食用油卫生标准"],
+        "industry_standards": ["冷压油脂标准"],
+        "inspection_items": ["α-亚麻酸含量", "过氧化值", "维生素E含量", "木酚素"]
+      },
+      "brand_info": {
+        "leading_brands": ["亚麻籽油精品", "Omega-3珍品"],
+        "brand_stories": ["天然Omega-3的力量"],
+        "awards": ["有机认证", "健康食品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["凉拌", "汤料", "护肤", "营养补充"],
+        "recipe_suggestions": ["凉拌沙拉", "汤料调味", "护肤用油", "营养补充"],
+        "pairing_suggestions": ["配蔬菜", "配坚果", "配鱼类"],
+        "health_benefits": ["脑部保健", "心血管保护", "女性激素平衡"]
+      },
+      "cultural_depth": {
+        "historical_records": "亚麻是古代重要油料，现代健康油品的代表",
+        "folklore_stories": "Omega-3的健康故事",
+        "festival_connection": "现代健康生活的象征",
+        "traditional_customs": "健康饮食文化"
+      },
+      "sustainability": {
+        "production_method": "有机亚麻种植 + 冷压初榨",
+        "environmental_impact": "完全生态保护",
+        "carbon_footprint": "低碳油品"
+      },
+      "export_info": {
+        "export_countries": ["欧洲", "北美"],
+        "export_standards": ["欧盟有机标准"],
+        "international_certifications": ["欧盟有机认证", "北美有机认证"]
+      },
+      "cultural_tags": [
+        "Omega-3脂肪酸",
+        "脑部保健",
+        "有机认证",
+        "女性健康",
+        "心血管保护"
+      ],
+      "market_price_range": "50-100元/升",
+      "best_season": "全年使用",
+      "storage_method": "冷藏保存（2-8℃），避免光照",
+      "cooking_suggestions": [
+        "凉拌最健康",
+        "不适合高温烹饪",
+        "营养补充食用",
+        "护肤应用"
+      ],
+      "image_links": [
+        "https://example.com/flaxseed-oil-1.jpg",
+        "https://example.com/flaxseed-oil-2.jpg",
+        "https://example.com/flaxseed-oil-3.jpg"
+      ]
+    },
+    {
+      "id": 77,
+      "name": "黑小麦产品",
+      "category": "新兴产品",
+      "subcategory": "杂粮制品",
+      "region": "乌兰察布市",
+      "description": "黑小麦产品产自乌兰察布市，以黑小麦为主要原料制成的各类健康食品。黑小麦是小麦的特殊品种，含有丰富的黑色素（花青素）和营养物质。黑小麦产品因其独特的黑色和极高的营养价值而成为新兴的健康食品。",
+      "characteristics": [
+        "颜色黑色独特",
+        "花青素含量高",
+        "营养价值极高",
+        "口感独特香甜",
+        "健康食品代表"
+      ],
+      "cultural_background": "黑小麦是近年发展的新兴杂粮，成为健康饮食的新代表。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "功能食品认证"
+      ],
+      "main_uses": [
+        "黑小麦粉制品",
+        "黑小麦粥",
+        "黑小麦面条",
+        "功能食品原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "花青素（黑色素）",
+          "蛋白质（15-17%）",
+          "纤维素",
+          "矿物质（硒、锌、铁）"
+        ],
+        "health_benefits": "花青素含量极高，具有强抗氧化作用。有益血糖控制、预防心血管疾病。纤维素丰富，促进肠道健康。"
+      },
+      "production_process": "采用黑小麦全谷物加工技术，完整保留营养。采用传统磨粉和现代加工相结合。不添加任何化学物质。经过严格的质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "秋季收获（8月-9月）",
+        "best_consumption_period": "全年可食",
+        "storage_duration": "常温干燥可保存1-2年"
+      },
+      "production_info": {
+        "annual_output": "约1-2万吨",
+        "main_producers": ["黑小麦加工企业", "健康食品厂"],
+        "production_area": "乌兰察布市（约10万亩）",
+        "yield_per_unit": "约200-300kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "15-30元/斤（黑小麦粉），20-40元/斤（黑小麦面条）",
+        "wholesale_price_range": "8-15元/斤",
+        "main_sales_channels": ["杂粮店", "电商", "健康食品店", "超市"],
+        "target_markets": ["全国", "日本"],
+        "market_share": "约占新兴杂粮市场的5%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["功能食品标准"],
+        "inspection_items": ["花青素含量", "农药残留", "蛋白质", "纤维素"]
+      },
+      "brand_info": {
+        "leading_brands": ["黑小麦精品", "健康黑珍珠"],
+        "brand_stories": ["新兴杂粮的健康代表"],
+        "awards": ["功能食品认证", "健康食品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["磨粉做面", "煮粥", "做面条", "烘焙"],
+        "recipe_suggestions": ["黑小麦粉面包", "黑小麦粥", "黑小麦面条"],
+        "pairing_suggestions": ["配蔬菜", "配肉类", "配豆制品"],
+        "health_benefits": ["抗氧化", "血糖控制", "肠道健康"]
+      },
+      "cultural_depth": {
+        "historical_records": "黑小麦是近年发展的新兴品种，成为现代健康食品代表",
+        "folklore_stories": "黑小麦的营养奇迹",
+        "festival_connection": "现代健康饮食的象征",
+        "traditional_customs": "健康杂粮文化"
+      },
+      "sustainability": {
+        "production_method": "有机黑小麦种植 + 绿色加工",
+        "environmental_impact": "生态保护型农业",
+        "carbon_footprint": "低碳杂粮"
+      },
+      "export_info": {
+        "export_countries": ["日本"],
+        "export_standards": ["国际功能食品标准"],
+        "international_certifications": ["有机认证"]
+      },
+      "cultural_tags": [
+        "花青素",
+        "新兴杂粮",
+        "功能食品",
+        "抗氧化",
+        "血糖控制"
+      ],
+      "market_price_range": "15-40元/斤",
+      "best_season": "秋冬季（新麦最佳）",
+      "storage_method": "常温干燥，防潮防虫",
+      "cooking_suggestions": [
+        "磨粉做面包最佳",
+        "煮粥营养丰富",
+        "做面条口感好",
+        "血糖高人群适合"
+      ],
+      "image_links": [
+        "https://example.com/black-wheat-1.jpg",
+        "https://example.com/black-wheat-2.jpg",
+        "https://example.com/black-wheat-3.jpg"
+      ]
+    },
+    {
+      "id": 78,
+      "name": "藜麦",
+      "category": "新兴产品",
+      "subcategory": "超级谷物",
+      "region": "乌兰察布市",
+      "description": "藜麦产自乌兰察布市，是从南美传入的超级谷物。藜麦在乌兰察布的高原环境中生长良好，营养价值极高。藜麦因其完全蛋白质、高纤维、低血糖指数而成为现代健康食品的代表，被称为'超级食品'。",
+      "characteristics": [
+        "粒小圆润",
+        "颜色多样（白、黑、红）",
+        "完全蛋白质",
+        "纤维素丰富",
+        "低血糖指数"
+      ],
+      "cultural_background": "藜麦是南美的传统食物，现在在乌兰察布发展成为新兴作物。",
+      "certifications": [
+        "绿色食品认证",
+        "有机认证",
+        "超级食品认证"
+      ],
+      "main_uses": [
+        "粗粮代替品",
+        "健身食品",
+        "素食蛋白源",
+        "功能食品原料"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（14-16%，完全蛋白质）",
+          "纤维素（7-8%）",
+          "矿物质（镁、锌、磷、铁）",
+          "维生素B族"
+        ],
+        "health_benefits": "含完全蛋白质，所有必需氨基酸齐全，特别适合素食者。纤维素丰富，有益肠道健康。低血糖指数，有益血糖控制。"
+      },
+      "production_process": "采用有机高原种植，充分利用乌兰察布的高海拔优势。采用传统的晾晒和脱粒工艺。不使用化学肥料和农药。经过严格的质量检测。",
+      "seasonal_availability": {
+        "harvest_season": "9月中旬至10月初",
+        "best_consumption_period": "全年可食",
+        "storage_duration": "常温干燥可保存2-3年"
+      },
+      "production_info": {
+        "annual_output": "约500-1000吨",
+        "main_producers": ["藜麦种植企业", "有机农场"],
+        "production_area": "乌兰察布市（约5万亩）",
+        "yield_per_unit": "约200-300kg/亩"
+      },
+      "market_info": {
+        "retail_price_range": "25-50元/斤",
+        "wholesale_price_range": "15-30元/斤",
+        "main_sales_channels": ["健康食品店", "电商", "超市", "健身房"],
+        "target_markets": ["全国", "欧洲", "北美"],
+        "market_share": "约占超级谷物市场的8%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2715 粮谷卫生标准"],
+        "industry_standards": ["超级食品标准"],
+        "inspection_items": ["蛋白质", "纤维素", "矿物质", "农药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["乌兰察布藜麦", "超级谷物精选"],
+        "brand_stories": ["南美超级食品在中国的发展"],
+        "awards": ["有机认证", "超级食品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煮粥", "沙拉", "粥品", "烘焙"],
+        "recipe_suggestions": ["藜麦粥", "藜麦沙拉", "藜麦饭"],
+        "pairing_suggestions": ["配蔬菜", "配豆类", "配肉类"],
+        "health_benefits": ["完全蛋白质", "低血糖", "肠道健康"]
+      },
+      "cultural_depth": {
+        "historical_records": "藜麦是南美传统食物，现在全球健康食品代表",
+        "folklore_stories": "南美超级食品的故事",
+        "festival_connection": "现代健康生活的象征",
+        "traditional_customs": "健身饮食文化"
+      },
+      "sustainability": {
+        "production_method": "有机高原种植 + 传统工艺",
+        "environmental_impact": "生态保护型农业",
+        "carbon_footprint": "低碳超级谷物"
+      },
+      "export_info": {
+        "export_countries": ["欧洲", "北美"],
+        "export_standards": ["国际有机标准"],
+        "international_certifications": ["欧盟有机认证", "美国有机认证"]
+      },
+      "cultural_tags": [
+        "完全蛋白质",
+        "超级食品",
+        "低血糖",
+        "素食蛋白",
+        "有机认证"
+      ],
+      "market_price_range": "25-50元/斤",
+      "best_season": "秋冬季（新品上市）",
+      "storage_method": "常温干燥，防潮防虫，密封保存",
+      "cooking_suggestions": [
+        "煮粥最常见（1:3粥水比）",
+        "沙拉清爽健康",
+        "混合谷物更营养",
+        "素食者首选蛋白"
+      ],
+      "image_links": [
+        "https://example.com/quinoa-1.jpg",
+        "https://example.com/quinoa-2.jpg",
+        "https://example.com/quinoa-3.jpg"
+      ]
+    }
+  ]
+}

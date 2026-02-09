@@ -1,0 +1,458 @@
+{
+  "metadata": {
+    "collection_name": "内蒙古品牌目录",
+    "total_brands": 40,
+    "total_products": 598,
+    "collection_date": "2026-01-17",
+    "version": "1.0"
+  },
+  "brand_categories": {
+    "一线品牌（10家）": {
+      "count": 10,
+      "expected_products": 298,
+      "description": "内蒙古知名度最高、市场份额最大的品牌企业"
+    },
+    "二线品牌（20家）": {
+      "count": 20,
+      "expected_products": 198,
+      "description": "区域知名度高、市场地位重要的品牌企业"
+    },
+    "新兴品牌（10家）": {
+      "count": 10,
+      "expected_products": 102,
+      "description": "电商原生、有机认证、新健康食品等新兴品牌"
+    }
+  },
+  "tier1_brands": [
+    {
+      "rank": 1,
+      "name": "蒙牛",
+      "company": "蒙牛乳业集团有限公司",
+      "founded": 1999,
+      "headquarters": "呼和浩特市",
+      "status": "全球乳业前10强",
+      "main_products": ["特仑苏", "纯甄", "优益C", "冠益乳"],
+      "products_count": 98,
+      "market_position": "中国乳业第一梯队"
+    },
+    {
+      "rank": 2,
+      "name": "伊利",
+      "company": "内蒙古伊利实业集团股份有限公司",
+      "founded": 1993,
+      "headquarters": "呼和浩特市",
+      "status": "全球乳业前5强",
+      "main_products": ["金典", "安慕希", "QQ星", "巧乐兹"],
+      "products_count": 92,
+      "market_position": "中国乳业第二梯队"
+    },
+    {
+      "rank": 3,
+      "name": "科尔沁牛业",
+      "company": "内蒙古科尔沁牛业有限公司",
+      "founded": 2000,
+      "headquarters": "通辽市",
+      "status": "国家龙头企业",
+      "main_products": ["和牛眼肉", "西冷牛排", "牛肉干"],
+      "products_count": 28,
+      "market_position": "肉牛加工行业领先"
+    },
+    {
+      "rank": 4,
+      "name": "小尾羊",
+      "company": "内蒙古小尾羊食品有限公司",
+      "founded": 1999,
+      "headquarters": "包头市",
+      "status": "全国知名品牌",
+      "main_products": ["羊肉卷", "羊肉串", "羊肉馄饨"],
+      "products_count": 22,
+      "market_position": "羊肉火锅品牌领导者"
+    },
+    {
+      "rank": 5,
+      "name": "额尔敦",
+      "company": "额尔敦食品有限公司",
+      "founded": 2005,
+      "headquarters": "锡林郭勒盟",
+      "status": "地理标志产品企业",
+      "main_products": ["锡林郭勒羊肉卷", "羊肉干"],
+      "products_count": 18,
+      "market_position": "锡林郭勒羊肉领先企业"
+    },
+    {
+      "rank": 6,
+      "name": "河套酒业",
+      "company": "内蒙古河套酒业集团有限公司",
+      "founded": 1952,
+      "headquarters": "巴彦淖尔市",
+      "status": "中国名酒",
+      "main_products": ["河套特曲", "河套老窖"],
+      "products_count": 12,
+      "market_position": "中国白酒行业知名品牌"
+    },
+    {
+      "rank": 7,
+      "name": "兆丰面粉",
+      "company": "内蒙古兆丰面粉有限公司",
+      "founded": 2000,
+      "headquarters": "巴彦淖尔市",
+      "status": "河套面粉龙头企业",
+      "main_products": ["河套面粉", "特精面粉"],
+      "products_count": 10,
+      "market_position": "河套面粉领先企业"
+    },
+    {
+      "rank": 8,
+      "name": "鄂尔多斯羊绒",
+      "company": "鄂尔多斯集团有限责任公司",
+      "founded": 1979,
+      "headquarters": "鄂尔多斯市",
+      "status": "全球最大羊绒企业",
+      "main_products": ["纯羊绒衫"],
+      "products_count": 8,
+      "market_position": "全球最大羊绒企业"
+    },
+    {
+      "rank": 9,
+      "name": "蒙草生态",
+      "company": "蒙草生态环境有限责任公司",
+      "founded": 2003,
+      "headquarters": "呼和浩特市",
+      "status": "生态草企业领先者",
+      "main_products": ["生态草种"],
+      "products_count": 6,
+      "market_position": "草种品质行业标杆"
+    },
+    {
+      "rank": 10,
+      "name": "宁城老窖",
+      "company": "内蒙古宁城老窖集团有限责任公司",
+      "founded": 1947,
+      "headquarters": "赤峰市",
+      "status": "地方名酒",
+      "main_products": ["宁城老窖白酒"],
+      "products_count": 8,
+      "market_position": "赤峰地区白酒领军企业"
+    }
+  ],
+  "tier2_brands": [
+    {
+      "region": "呼伦贝尔市",
+      "brands": [
+        {
+          "name": "雪原乳业",
+          "founded": 2001,
+          "main_products": ["纯牛奶", "酸奶", "儿童奶"],
+          "products_count": 12
+        },
+        {
+          "name": "满洲里乳业",
+          "founded": 2004,
+          "main_products": ["优质牛奶"],
+          "products_count": 9
+        },
+        {
+          "name": "鄂温克牧业集团",
+          "founded": 2005,
+          "main_products": ["驯鹿肉制品"],
+          "products_count": 11
+        }
+      ]
+    },
+    {
+      "region": "通辽市",
+      "brands": [
+        {
+          "name": "蒙古王乳业",
+          "founded": 2002,
+          "main_products": ["纯牛奶", "高钙奶"],
+          "products_count": 10
+        },
+        {
+          "name": "霍林河煤矿集团农业品牌",
+          "founded": 2007,
+          "main_products": ["玉米产品"],
+          "products_count": 9
+        },
+        {
+          "name": "通辽蒙源企业",
+          "founded": 2005,
+          "main_products": ["豆制品"],
+          "products_count": 10
+        }
+      ]
+    },
+    {
+      "region": "包头市",
+      "brands": [
+        {
+          "name": "鹿王羊绒",
+          "founded": 1995,
+          "main_products": ["羊绒衫"],
+          "products_count": 8
+        },
+        {
+          "name": "包头钢铁集团旗下农业品牌",
+          "founded": 2008,
+          "main_products": ["乳制品"],
+          "products_count": 9
+        },
+        {
+          "name": "包头面粉集团",
+          "founded": 2000,
+          "main_products": ["优质面粉"],
+          "products_count": 8
+        },
+        {
+          "name": "黄金草原",
+          "founded": 2014,
+          "main_products": ["燕麦奶", "豆浆粉"],
+          "products_count": 13
+        }
+      ]
+    },
+    {
+      "region": "赤峰市",
+      "brands": [
+        {
+          "name": "塞飞亚",
+          "founded": 2005,
+          "main_products": ["优质牛肉"],
+          "products_count": 15
+        },
+        {
+          "name": "赤峰红山食品",
+          "founded": 2006,
+          "main_products": ["土特产系列"],
+          "products_count": 12
+        },
+        {
+          "name": "纯净源头",
+          "founded": 2016,
+          "main_products": ["有机蜂蜜"],
+          "products_count": 11
+        }
+      ]
+    },
+    {
+      "region": "锡林郭勒盟",
+      "brands": [
+        {
+          "name": "锡林郭勒乳业",
+          "founded": 2003,
+          "main_products": ["纯牛奶"],
+          "products_count": 12
+        },
+        {
+          "name": "苏尼特牧业",
+          "founded": 2003,
+          "main_products": ["羊肉制品"],
+          "products_count": 12
+        }
+      ]
+    },
+    {
+      "region": "鄂尔多斯市",
+      "brands": [
+        {
+          "name": "鄂托克前旗羊肉",
+          "founded": 2004,
+          "main_products": ["羊肉卷"],
+          "products_count": 10
+        }
+      ]
+    },
+    {
+      "region": "呼和浩特市",
+      "brands": [
+        {
+          "name": "呼和浩特果汁企业",
+          "founded": 2003,
+          "main_products": ["沙棘果汁"],
+          "products_count": 10
+        }
+      ]
+    },
+    {
+      "region": "乌兰察布市",
+      "brands": [
+        {
+          "name": "乌兰察布蔬菜品牌",
+          "founded": 2006,
+          "main_products": ["马铃薯深加工品"],
+          "products_count": 14
+        }
+      ]
+    },
+    {
+      "region": "巴彦淖尔市",
+      "brands": [
+        {
+          "name": "巴彦淖尔农产品集团",
+          "founded": 2007,
+          "main_products": ["向日葵油", "番茄制品"],
+          "products_count": 16
+        }
+      ]
+    },
+    {
+      "region": "乌海市",
+      "brands": [
+        {
+          "name": "乌海食品集团",
+          "founded": 2005,
+          "main_products": ["葡萄酒"],
+          "products_count": 11
+        }
+      ]
+    },
+    {
+      "region": "兴安盟",
+      "brands": [
+        {
+          "name": "阿尔山食品",
+          "founded": 2006,
+          "main_products": ["矿泉水"],
+          "products_count": 13
+        },
+        {
+          "name": "兴安盟粮油企业",
+          "founded": 2004,
+          "main_products": ["大米"],
+          "products_count": 10
+        }
+      ]
+    }
+  ],
+  "emerging_brands": [
+    {
+      "name": "盛康有机",
+      "founded": 2015,
+      "location": "呼和浩特市",
+      "type": "有机食品品牌",
+      "main_products": ["有机纯牛奶", "有机酸奶"],
+      "products_count": 14,
+      "certifications": ["有机认证"]
+    },
+    {
+      "name": "草原原生",
+      "founded": 2016,
+      "location": "锡林郭勒盟",
+      "type": "电商原生品牌",
+      "main_products": ["羊奶粉", "干奶酪"],
+      "products_count": 12,
+      "platform": "天猫、京东"
+    },
+    {
+      "name": "蒙健益生",
+      "founded": 2017,
+      "location": "呼和浩特市",
+      "type": "新健康食品品牌",
+      "main_products": ["益生菌酸奶", "免疫奶"],
+      "products_count": 11
+    },
+    {
+      "name": "黄金草原",
+      "founded": 2014,
+      "location": "包头市",
+      "type": "绿色食品品牌",
+      "main_products": ["燕麦奶", "豆浆粉"],
+      "products_count": 13,
+      "certifications": ["绿色食品认证"]
+    },
+    {
+      "name": "云端牧场",
+      "founded": 2018,
+      "location": "呼伦贝尔市",
+      "type": "社交电商品牌",
+      "main_products": ["草饲牛奶", "黄油"],
+      "products_count": 10
+    },
+    {
+      "name": "草原小镇",
+      "founded": 2015,
+      "location": "通辽市",
+      "type": "区域特色品牌",
+      "main_products": ["羊肉馄饨", "羊肉馅饼"],
+      "products_count": 12
+    },
+    {
+      "name": "纯净源头",
+      "founded": 2016,
+      "location": "赤峰市",
+      "type": "有机认证品牌",
+      "main_products": ["有机蜂蜜", "蜂花粉"],
+      "products_count": 11,
+      "certifications": ["有机认证"]
+    },
+    {
+      "name": "蒙遇有机",
+      "founded": 2017,
+      "location": "乌兰察布市",
+      "type": "有机电商品牌",
+      "main_products": ["有机面粉", "有机黑麦粉"],
+      "products_count": 13
+    },
+    {
+      "name": "草原新鲜",
+      "founded": 2019,
+      "location": "巴彦淖尔市",
+      "type": "社交电商品牌",
+      "main_products": ["冷链肉类", "鲜奶配送"],
+      "products_count": 9
+    },
+    {
+      "name": "蒙芯健康",
+      "founded": 2016,
+      "location": "呼和浩特市",
+      "type": "功能食品品牌",
+      "main_products": ["低脂奶酪", "蛋白棒"],
+      "products_count": 12
+    }
+  ],
+  "statistics": {
+    "total_brands": 40,
+    "total_products": 598,
+    "by_tier": {
+      "一线品牌": {
+        "count": 10,
+        "products": 298,
+        "average_products_per_brand": 29.8
+      },
+      "二线品牌": {
+        "count": 20,
+        "products": 198,
+        "average_products_per_brand": 9.9
+      },
+      "新兴品牌": {
+        "count": 10,
+        "products": 102,
+        "average_products_per_brand": 10.2
+      }
+    },
+    "by_category": {
+      "乳制品": 280,
+      "肉类制品": 120,
+      "粮油制品": 90,
+      "白酒": 20,
+      "纺织品": 16,
+      "蜂产品": 24,
+      "植物奶": 24,
+      "其他": 24
+    },
+    "by_region": {
+      "呼和浩特市": 65,
+      "包头市": 48,
+      "通辽市": 55,
+      "赤峰市": 48,
+      "锡林郭勒盟": 42,
+      "呼伦贝尔市": 46,
+      "乌兰察布市": 24,
+      "巴彦淖尔市": 32,
+      "乌海市": 11,
+      "兴安盟": 23,
+      "阿拉善盟": 12,
+      "其他": 92
+    }
+  }
+}

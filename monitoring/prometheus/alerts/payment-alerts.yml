@@ -1,0 +1,584 @@
+# 支付系统告警规则
+# 定义支付系统的关键告警指标和阈值
+
+groups:
+  - name: payment_alerts
+    interval: 30s
+    rules:
+      # ==================== 支付失败率告警 ====================
+
+      - alert: HighPaymentFailureRate
+        expr: |
+          (
+            sum(rate(payment_failure_total[5m])) by (payment_method)
+            /
+            sum(rate(payment_requests_total[5m])) by (payment_method)
+          ) * 100 > 5
+        for: 2m
+        labels:
+          severity: critical
+          component: payment
+        annotations:
+          summary: "支付失败率过高 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 支付方式的失败率为 {{ $value | humanize }}%，超过5%阈值。请立即检查支付服务。"
+          runbook_url: "https://docs.example.com/runbooks/payment-failure-rate"
+
+      - alert: CriticalPaymentFailureRate
+        expr: |
+          (
+            sum(rate(payment_failure_total[5m])) by (payment_method)
+            /
+            sum(rate(payment_requests_total[5m])) by (payment_method)
+          ) * 100 > 10
+        for: 1m
+        labels:
+          severity: emergency
+          component: payment
+        annotations:
+          summary: "支付失败率严重过高 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 支付方式的失败率为 {{ $value | humanize }}%，超过10%阈值。这是紧急情况！"
+          runbook_url: "https://docs.example.com/runbooks/payment-failure-rate"
+
+      # ==================== 签名验证失败告警 ====================
+
+      - alert: HighSignatureVerificationFailures
+        expr: |
+          sum(rate(payment_signature_verification_failures[1m])) by (payment_method) > 10
+        for: 2m
+        labels:
+          severity: critical
+          component: payment
+          security: true
+        annotations:
+          summary: "签名验证失败次数过多 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 在过去1分钟内签名验证失败超过10次。可能存在安全问题或配置错误。"
+          runbook_url: "https://docs.example.com/runbooks/signature-verification"
+
+      - alert: SignatureVerificationFailureSpike
+        expr: |
+          (
+            sum(rate(payment_signature_verification_failures[5m])) by (payment_method)
+            /
+            sum(rate(payment_signature_verification_failures[1h] offset 1h)) by (payment_method)
+          ) > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: payment
+          security: true
+        annotations:
+          summary: "签名验证失败激增 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 签名验证失败率相比1小时前增加了 {{ $value | humanize }} 倍。"
+          runbook_url: "https://docs.example.com/runbooks/signature-verification"
+
+      # ==================== 金额验证失败告警 ====================
+
+      - alert: PaymentAmountMismatch
+        expr: |
+          sum(rate(payment_amount_mismatch_total[5m])) by (payment_method) > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: payment
+          security: true
+        annotations:
+          summary: "检测到支付金额不匹配 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 检测到支付金额不匹配，可能存在欺诈行为或系统错误。"
+          runbook_url: "https://docs.example.com/runbooks/amount-mismatch"
+
+      # ==================== 支付响应时间告警 ====================
+
+      - alert: SlowPaymentProcessing
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(payment_duration_seconds_bucket{operation="create_payment"}[5m])) by (payment_method, le)
+          ) > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: payment
+        annotations:
+          summary: "支付处理速度慢 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 的95分位支付处理时间为 {{ $value | humanize }}秒，超过5秒阈值。"
+          runbook_url: "https://docs.example.com/runbooks/slow-payment"
+
+      - alert: VerySlowPaymentProcessing
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(payment_duration_seconds_bucket{operation="create_payment"}[5m])) by (payment_method, le)
+          ) > 10
+        for: 2m
+        labels:
+          severity: critical
+          component: payment
+        annotations:
+          summary: "支付处理严重缓慢 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 的95分位支付处理时间为 {{ $value | humanize }}秒，超过10秒阈值。"
+          runbook_url: "https://docs.example.com/runbooks/slow-payment"
+
+      # ==================== 支付回调告警 ====================
+
+      - alert: PaymentCallbackFailures
+        expr: |
+          sum(rate(payment_callback_total{status="failed"}[5m])) by (payment_method) > 1
+        for: 3m
+        labels:
+          severity: warning
+          component: payment
+        annotations:
+          summary: "支付回调处理失败 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 支付回调处理失败率为 {{ $value | humanize }}/秒。"
+          runbook_url: "https://docs.example.com/runbooks/callback-failures"
+
+      - alert: SlowPaymentCallback
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(payment_callback_duration_seconds_bucket[5m])) by (payment_method, le)
+          ) > 3
+        for: 5m
+        labels:
+          severity: warning
+          component: payment
+        annotations:
+          summary: "支付回调处理缓慢 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 的95分位回调处理时间为 {{ $value | humanize }}秒，超过3秒阈值。"
+          runbook_url: "https://docs.example.com/runbooks/slow-callback"
+
+      # ==================== 配额发放告警 ====================
+
+      - alert: QuotaGrantFailures
+        expr: |
+          sum(rate(quota_grant_total{status!="success"}[5m])) by (quota_type) > 0.1
+        for: 3m
+        labels:
+          severity: critical
+          component: payment
+        annotations:
+          summary: "配额发放失败 ({{ $labels.quota_type }})"
+          description: "{{ $labels.quota_type }} 配额发放失败率为 {{ $value | humanize }}/秒。用户可能无法获得已购买的配额。"
+          runbook_url: "https://docs.example.com/runbooks/quota-grant-failures"
+
+      # ==================== 并发支付告警 ====================
+
+      - alert: HighConcurrentPayments
+        expr: |
+          concurrent_payment_requests > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: payment
+        annotations:
+          summary: "并发支付请求过多"
+          description: "当前并发支付请求数为 {{ $value }}，超过100个。系统可能面临压力。"
+          runbook_url: "https://docs.example.com/runbooks/high-concurrency"
+
+      - alert: CriticalConcurrentPayments
+        expr: |
+          concurrent_payment_requests > 200
+        for: 2m
+        labels:
+          severity: critical
+          component: payment
+        annotations:
+          summary: "并发支付请求严重过多"
+          description: "当前并发支付请求数为 {{ $value }}，超过200个。系统可能即将过载！"
+          runbook_url: "https://docs.example.com/runbooks/high-concurrency"
+
+      # ==================== 待支付订单堆积告警 ====================
+
+      - alert: PendingPaymentsBacklog
+        expr: |
+          payment_pending_total > 1000
+        for: 10m
+        labels:
+          severity: warning
+          component: payment
+        annotations:
+          summary: "待支付订单堆积"
+          description: "当前有 {{ $value }} 个待支付订单，可能存在支付流程问题。"
+          runbook_url: "https://docs.example.com/runbooks/pending-backlog"
+
+      # ==================== 支付成功率告警 ====================
+
+      - alert: LowPaymentSuccessRate
+        expr: |
+          payment_success_rate < 90
+        for: 5m
+        labels:
+          severity: warning
+          component: payment
+        annotations:
+          summary: "支付成功率低 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 支付成功率为 {{ $value | humanize }}%，低于90%阈值。"
+          runbook_url: "https://docs.example.com/runbooks/low-success-rate"
+
+      # ==================== 无支付活动告警 ====================
+
+      - alert: NoPaymentActivity
+        expr: |
+          sum(rate(payment_requests_total[10m])) == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: payment
+        annotations:
+          summary: "支付系统无活动"
+          description: "过去30分钟内没有任何支付请求，支付系统可能出现问题或被阻断。"
+          runbook_url: "https://docs.example.com/runbooks/no-activity"
+
+      # ==================== 支付金额异常告警 ====================
+
+      - alert: UnusualPaymentAmount
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(payment_amount_histogram_bucket[1h])) by (payment_method, le)
+          ) > 50000
+        for: 5m
+        labels:
+          severity: info
+          component: payment
+        annotations:
+          summary: "检测到异常大额支付 ({{ $labels.payment_method }})"
+          description: "{{ $labels.payment_method }} 的99分位支付金额为 {{ $value | humanize }}元，可能存在异常交易。"
+          runbook_url: "https://docs.example.com/runbooks/unusual-amount"
+
+  # ==================== 系统资源告警 ====================
+
+  - name: system_alerts
+    interval: 30s
+    rules:
+      - alert: HighCPUUsage
+        expr: |
+          system_cpu_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "CPU使用率过高"
+          description: "系统CPU使用率为 {{ $value | humanize }}%，超过80%阈值。"
+
+      - alert: HighMemoryUsage
+        expr: |
+          system_memory_usage_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "内存使用率过高"
+          description: "系统内存使用率为 {{ $value | humanize }}%，超过85%阈值。"
+
+      - alert: HighDiskUsage
+        expr: |
+          system_disk_usage_percent > 90
+        for: 5m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "磁盘使用率过高"
+          description: "系统磁盘使用率为 {{ $value | humanize }}%，超过90%阈值。"
+
+  # ==================== 数据库告警 ====================
+
+  - name: database_alerts
+    interval: 30s
+    rules:
+      # ==================== 慢查询告警 ====================
+      - alert: SlowDatabaseQueries
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(db_query_duration_seconds_bucket[5m])) by (operation, le)
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "数据库查询缓慢 ({{ $labels.operation }})"
+          description: "{{ $labels.operation }} 操作的95分位查询时间为 {{ $value | humanize }}秒，超过1秒阈值。"
+          runbook_url: "https://docs.example.com/runbooks/slow-database"
+
+      # ==================== 数据库连接池告警 ====================
+      - alert: HighDatabaseConnections
+        expr: |
+          db_active_connections > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "数据库连接数过多"
+          description: "当前活跃数据库连接数为 {{ $value }}，接近连接池上限。"
+          runbook_url: "https://docs.example.com/runbooks/high-db-connections"
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: |
+          (db_active_connections / db_max_connections) * 100 > 90
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "数据库连接池即将耗尽"
+          description: "数据库连接池使用率为 {{ $value | humanize }}%，超过90%阈值。"
+          runbook_url: "https://docs.example.com/runbooks/db-pool-exhausted"
+
+      # ==================== 数据库不可用告警 ====================
+      - alert: DatabaseDown
+        expr: |
+          up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "数据库服务不可用"
+          description: "PostgreSQL数据库已宕机超过1分钟。"
+          runbook_url: "https://docs.example.com/runbooks/database-down"
+
+      # ==================== 数据库锁等待告警 ====================
+      - alert: DatabaseLockWaiting
+        expr: |
+          pg_locks_waiting > 5
+        for: 3m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "数据库锁等待过多"
+          description: "当前有 {{ $value }} 个查询在等待锁，可能存在死锁或长事务。"
+          runbook_url: "https://docs.example.com/runbooks/db-lock-waiting"
+
+  # ==================== Redis 告警 ====================
+
+  - name: redis_alerts
+    interval: 30s
+    rules:
+      # ==================== Redis 内存告警 ====================
+      - alert: RedisMemoryHigh
+        expr: |
+          (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis内存使用率过高"
+          description: "Redis内存使用率为 {{ $value | humanize }}%，超过90%阈值。"
+          runbook_url: "https://docs.example.com/runbooks/redis-memory-high"
+
+      - alert: RedisMemoryCritical
+        expr: |
+          (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis内存使用率严重过高"
+          description: "Redis内存使用率为 {{ $value | humanize }}%，接近100%。"
+          runbook_url: "https://docs.example.com/runbooks/redis-memory-critical"
+
+      # ==================== Redis 连接数告警 ====================
+      - alert: RedisConnectionFailed
+        expr: |
+          redis_connected_clients == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis无活跃连接"
+          description: "Redis没有活跃客户端连接，可能服务不可用。"
+          runbook_url: "https://docs.example.com/runbooks/redis-connection-failed"
+
+      - alert: RedisConnectionsHigh
+        expr: |
+          redis_connected_clients > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis连接数过多"
+          description: "Redis连接数为 {{ $value }}，可能存在连接泄漏。"
+          runbook_url: "https://docs.example.com/runbooks/redis-connections-high"
+
+      # ==================== Redis 不可用告警 ====================
+      - alert: RedisDown
+        expr: |
+          up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis服务不可用"
+          description: "Redis已宕机超过1分钟。"
+          runbook_url: "https://docs.example.com/runbooks/redis-down"
+
+      # ==================== Redis 键过期告警 ====================
+      - alert: RedisKeyEvictionHigh
+        expr: |
+          rate(redis_evicted_keys_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis键驱逐率过高"
+          description: "Redis每秒驱逐 {{ $value | humanize }} 个键，内存不足。"
+          runbook_url: "https://docs.example.com/runbooks/redis-eviction-high"
+
+  # ==================== 容器告警 ====================
+
+  - name: container_alerts
+    interval: 30s
+    rules:
+      # ==================== 容器重启告警 ====================
+      - alert: ContainerRestarting
+        expr: |
+          rate(container_restarts_total[15m]) > 3
+        for: 5m
+        labels:
+          severity: critical
+          component: container
+        annotations:
+          summary: "容器频繁重启 ({{ $labels.container_name }})"
+          description: "容器 {{ $labels.container_name }} 在过去15分钟内重启超过3次。"
+          runbook_url: "https://docs.example.com/runbooks/container-restarting"
+
+      # ==================== 容器CPU告警 ====================
+      - alert: ContainerHighCPU
+        expr: |
+          (container_cpu_usage_seconds_total / container_cpu_limit) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "容器CPU使用率过高 ({{ $labels.container_name }})"
+          description: "容器 {{ $labels.container_name }} CPU使用率为 {{ $value | humanize }}%。"
+          runbook_url: "https://docs.example.com/runbooks/container-high-cpu"
+
+      # ==================== 容器内存告警 ====================
+      - alert: ContainerHighMemory
+        expr: |
+          (container_memory_usage_bytes / container_memory_limit_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "容器内存使用率过高 ({{ $labels.container_name }})"
+          description: "容器 {{ $labels.container_name }} 内存使用率为 {{ $value | humanize }}%。"
+          runbook_url: "https://docs.example.com/runbooks/container-high-memory"
+
+      # ==================== 容器不健康告警 ====================
+      - alert: ContainerUnhealthy
+        expr: |
+          container_health_status{status!="healthy"} == 1
+        for: 2m
+        labels:
+          severity: critical
+          component: container
+        annotations:
+          summary: "容器健康检查失败 ({{ $labels.container_name }})"
+          description: "容器 {{ $labels.container_name }} 健康检查失败。"
+          runbook_url: "https://docs.example.com/runbooks/container-unhealthy"
+
+  # ==================== API 性能告警 ====================
+
+  - name: api_alerts
+    interval: 30s
+    rules:
+      # ==================== API 响应时间告警 ====================
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (endpoint, le)
+          ) > 3
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "API响应时间过长 ({{ $labels.endpoint }})"
+          description: "端点 {{ $labels.endpoint }} 的P95响应时间为 {{ $value | humanize }}秒，超过3秒阈值。"
+          runbook_url: "https://docs.example.com/runbooks/high-response-time"
+
+      # ==================== API 错误率告警 ====================
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) by (endpoint)
+            /
+            sum(rate(http_requests_total[5m])) by (endpoint)
+          ) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "API错误率过高 ({{ $labels.endpoint }})"
+          description: "端点 {{ $labels.endpoint }} 的5xx错误率为 {{ $value | humanize }}%，超过5%阈值。"
+          runbook_url: "https://docs.example.com/runbooks/high-error-rate"
+
+      # ==================== API 无响应告警 ====================
+      - alert: ServiceDown
+        expr: |
+          up{job="backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "后端服务不可用"
+          description: "后端服务已宕机超过1分钟。"
+          runbook_url: "https://docs.example.com/runbooks/service-down"
+
+  # ==================== 磁盘告警 ====================
+
+  - name: disk_alerts
+    interval: 30s
+    rules:
+      # ==================== 磁盘使用率告警 ====================
+      - alert: HighDiskUsage
+        expr: |
+          (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "磁盘使用率过高 ({{ $labels.mountpoint }})"
+          description: "挂载点 {{ $labels.mountpoint }} 磁盘使用率为 {{ $value | humanize }}%，超过85%阈值。"
+          runbook_url: "https://docs.example.com/runbooks/high-disk-usage"
+
+      - alert: CriticalDiskUsage
+        expr: |
+          (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "磁盘使用率严重过高 ({{ $labels.mountpoint }})"
+          description: "挂载点 {{ $labels.mountpoint }} 磁盘使用率为 {{ $value | humanize }}%，即将耗尽。"
+          runbook_url: "https://docs.example.com/runbooks/critical-disk-usage"
+
+      # ==================== 磁盘IO告警 ====================
+      - alert: HighDiskIO
+        expr: |
+          rate(node_disk_io_time_seconds_total[5m]) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "磁盘IO使用率过高 ({{ $labels.device }})"
+          description: "磁盘 {{ $labels.device }} IO使用率为 {{ $value | humanize }}，可能成为瓶颈。"
+          runbook_url: "https://docs.example.com/runbooks/high-disk-io"
+

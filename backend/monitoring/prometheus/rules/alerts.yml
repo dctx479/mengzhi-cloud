@@ -1,0 +1,101 @@
+# Prometheus告警规则
+
+groups:
+  - name: system_alerts
+    interval: 30s
+    rules:
+      # CPU使用率过高
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU使用率过高 (instance {{ $labels.instance }})"
+          description: "CPU使用率已超过80% (当前值: {{ $value }}%)"
+
+      # 内存使用率过高
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "内存使用率过高 (instance {{ $labels.instance }})"
+          description: "内存使用率已超过85% (当前值: {{ $value }}%)"
+
+      # 磁盘空间不足
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "磁盘空间不足 (instance {{ $labels.instance }})"
+          description: "根分区可用空间低于15% (当前值: {{ $value }}%)"
+
+  - name: container_alerts
+    interval: 30s
+    rules:
+      # 容器重启频繁
+      - alert: ContainerRestartingFrequently
+        expr: rate(container_start_time_seconds[15m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "容器频繁重启 ({{ $labels.name }})"
+          description: "容器在过去15分钟内重启超过3次"
+
+      # 容器CPU使用率过高
+      - alert: ContainerHighCPU
+        expr: sum(rate(container_cpu_usage_seconds_total{name=~".+"}[5m])) by (name) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "容器CPU使用率过高 ({{ $labels.name }})"
+          description: "容器CPU使用率超过80%"
+
+      # 容器内存使用率过高
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes{name=~".+"} / container_spec_memory_limit_bytes{name=~".+"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "容器内存使用率过高 ({{ $labels.name }})"
+          description: "容器内存使用率超过85% (当前值: {{ $value }}%)"
+
+  - name: application_alerts
+    interval: 30s
+    rules:
+      # 应用响应时间过长
+      - alert: HighResponseTime
+        expr: http_request_duration_seconds{quantile="0.9"} > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "应用响应时间过长"
+          description: "P90响应时间超过2秒 (当前值: {{ $value }}秒)"
+
+      # 错误率过高
+      - alert: HighErrorRate
+        expr: (rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "错误率过高"
+          description: "5xx错误率超过5% (当前值: {{ $value }}%)"
+
+      # 服务不可用
+      - alert: ServiceDown
+        expr: up{job="backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "服务不可用 ({{ $labels.job }})"
+          description: "服务已下线超过1分钟"

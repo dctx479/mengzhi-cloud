@@ -1,0 +1,193 @@
+version: '3.8'
+
+# 监控系统 Docker Compose 配置
+# 包含 Prometheus, Grafana, Alertmanager 和相关 Exporters
+
+services:
+  # ==================== Prometheus ====================
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts:/etc/prometheus/alerts:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'  # 数据保留30天
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'  # 允许热重载
+    networks:
+      - monitoring
+    depends_on:
+      - alertmanager
+
+  # ==================== Grafana ====================
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123  # 生产环境请修改
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana-data:/var/lib/grafana
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  # ==================== Alertmanager ====================
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    networks:
+      - monitoring
+
+  # ==================== Node Exporter ====================
+  node-exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - monitoring
+
+  # ==================== MySQL Exporter ====================
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.15.0
+    container_name: mysql-exporter
+    restart: unless-stopped
+    ports:
+      - "9104:9104"
+    environment:
+      - DATA_SOURCE_NAME=exporter:exporter_password@(mysql:3306)/
+    networks:
+      - monitoring
+    depends_on:
+      - mysql
+
+  # ==================== Redis Exporter ====================
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.52.0
+    container_name: redis-exporter
+    restart: unless-stopped
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=your_redis_password  # 如果Redis有密码
+    networks:
+      - monitoring
+    depends_on:
+      - redis
+
+  # ==================== MySQL (用于测试) ====================
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=ai_platform
+      - MYSQL_USER=app_user
+      - MYSQL_PASSWORD=app_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-mysql.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - monitoring
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+
+  # ==================== Redis (用于测试) ====================
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass your_redis_password
+    volumes:
+      - redis-data:/data
+    networks:
+      - monitoring
+
+  # ==================== 应用后端 (连接到监控) ====================
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://app_user:app_password@mysql:3306/ai_platform
+      - REDIS_URL=redis://:your_redis_password@redis:6379/0
+      - PAYMENT_DEV_MODE=true
+    volumes:
+      - ../backend:/app
+    networks:
+      - monitoring
+    depends_on:
+      - mysql
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# ==================== 网络配置 ====================
+networks:
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ==================== 数据卷配置 ====================
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  alertmanager-data:
+    driver: local
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local

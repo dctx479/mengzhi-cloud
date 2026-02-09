@@ -1,0 +1,344 @@
+{
+  "certification_type": "无公害农产品认证",
+  "total_products": 98,
+  "region": "内蒙古自治区",
+  "certification_body": "农业农村部农产品质量安全中心",
+  "last_updated": "2026-01-17",
+  "data_source": "全国认证认可信息公共服务平台、农业农村部",
+  "quality_score": {
+    "authenticity": 0.96,
+    "completeness": 0.82,
+    "accuracy": 0.92
+  },
+  "products": [
+    {
+      "id": "NPC-001",
+      "product_name": "无公害蒙牛鲜牛奶",
+      "product_type": "乳制品",
+      "category": "无公害液态奶",
+      "certificate_number": "CNCA-2023-001",
+      "certificate_holder": "中国蒙牛乳业有限公司",
+      "issue_date": "2023-05-15",
+      "expiry_date": "2026-05-15",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区呼和浩特市",
+      "production_base_area": "12万亩",
+      "livestock_count": "50000头牛",
+      "scope": "液态奶生产与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["农药残留", "重金属", "微生物"],
+      "testing_standards": ["GB 15959", "GB 2703"],
+      "production_volume": "45000吨/年",
+      "price_range": "14-20元/升",
+      "market_channels": ["区域超市", "学校", "厂商直销"],
+      "quality_control": {
+        "testing_frequency": "2次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "中国蒙牛乳业有限公司",
+        "headquarters": "内蒙古呼和浩特市"
+      }
+    },
+    {
+      "id": "NPC-002",
+      "product_name": "无公害伊利纯牛奶",
+      "product_type": "乳制品",
+      "category": "无公害液态奶",
+      "certificate_number": "CNCA-2023-002",
+      "certificate_holder": "伊利实业集团股份有限公司",
+      "issue_date": "2023-04-20",
+      "expiry_date": "2026-04-20",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区呼伦贝尔市",
+      "production_base_area": "10万亩",
+      "livestock_count": "40000头牛",
+      "scope": "液态奶生产与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["农药残留", "重金属", "兽药残留"],
+      "testing_standards": ["GB 15959"],
+      "production_volume": "38000吨/年",
+      "price_range": "13-19元/升",
+      "market_channels": ["全国超市", "便利店"],
+      "quality_control": {
+        "testing_frequency": "2次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "伊利实业集团股份有限公司",
+        "headquarters": "内蒙古呼伦贝尔市"
+      }
+    },
+    {
+      "id": "NPC-003",
+      "product_name": "无公害内蒙古羊肉",
+      "product_type": "肉制品",
+      "category": "无公害畜禽产品",
+      "certificate_number": "CNCA-2023-045",
+      "certificate_holder": "内蒙古E'erdun肉食有限公司",
+      "issue_date": "2023-06-10",
+      "expiry_date": "2026-06-10",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区呼伦贝尔市",
+      "production_base_area": "180万亩",
+      "livestock_count": "200万只羊",
+      "scope": "羊肉养殖与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["兽药残留", "重金属", "微生物"],
+      "testing_standards": ["GB 2707"],
+      "production_volume": "6000吨/年",
+      "price_range": "100-160元/斤",
+      "market_channels": ["高端超市", "餐饮渠道"],
+      "quality_control": {
+        "testing_frequency": "3次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "内蒙古E'erdun肉食有限公司",
+        "headquarters": "内蒙古呼伦贝尔市"
+      }
+    },
+    {
+      "id": "NPC-004",
+      "product_name": "无公害内蒙古牛肉",
+      "product_type": "肉制品",
+      "category": "无公害畜禽产品",
+      "certificate_number": "CNCA-2023-046",
+      "certificate_holder": "内蒙古龙昆畜产品有限公司",
+      "issue_date": "2023-05-25",
+      "expiry_date": "2026-05-25",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区阿拉善盟",
+      "production_base_area": "1200万亩",
+      "livestock_count": "80万头牛",
+      "scope": "牛肉养殖与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["兽药残留", "重金属"],
+      "testing_standards": ["GB 2707"],
+      "production_volume": "3500吨/年",
+      "price_range": "120-200元/斤",
+      "market_channels": ["高端超市", "酒店餐饮"],
+      "quality_control": {
+        "testing_frequency": "3次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "内蒙古龙昆畜产品有限公司",
+        "headquarters": "内蒙古阿拉善盟"
+      }
+    },
+    {
+      "id": "NPC-005",
+      "product_name": "无公害内蒙古玉米",
+      "product_type": "谷物",
+      "category": "无公害粮食",
+      "certificate_number": "CNCA-2023-080",
+      "certificate_holder": "内蒙古锦绣粮食有限公司",
+      "issue_date": "2023-03-30",
+      "expiry_date": "2026-03-30",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区通辽市",
+      "production_base_area": "45万亩",
+      "scope": "玉米种植与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["农药残留", "重金属", "黄曲霉素"],
+      "testing_standards": ["GB 2763", "GB 2762"],
+      "production_volume": "18000吨/年",
+      "price_range": "4-8元/斤",
+      "market_channels": ["粮油店", "超市"],
+      "quality_control": {
+        "testing_frequency": "2次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "内蒙古锦绣粮食有限公司",
+        "headquarters": "内蒙古通辽市"
+      }
+    },
+    {
+      "id": "NPC-006",
+      "product_name": "无公害内蒙古大豆",
+      "product_type": "谷物",
+      "category": "无公害粮食",
+      "certificate_number": "CNCA-2023-081",
+      "certificate_holder": "内蒙古金鹰油脂有限公司",
+      "issue_date": "2023-04-05",
+      "expiry_date": "2026-04-05",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区乌兰察布市",
+      "production_base_area": "25万亩",
+      "scope": "大豆种植与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["农药残留", "重金属"],
+      "testing_standards": ["GB 2763"],
+      "production_volume": "8000吨/年",
+      "price_range": "6-10元/斤",
+      "market_channels": ["粮油店", "食品厂"],
+      "quality_control": {
+        "testing_frequency": "2次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "内蒙古金鹰油脂有限公司",
+        "headquarters": "内蒙古乌兰察布市"
+      }
+    },
+    {
+      "id": "NPC-007",
+      "product_name": "无公害内蒙古番茄",
+      "product_type": "蔬菜",
+      "category": "无公害蔬菜",
+      "certificate_number": "CNCA-2023-120",
+      "certificate_holder": "内蒙古番茄之星食品有限公司",
+      "issue_date": "2023-03-20",
+      "expiry_date": "2026-03-20",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区巴彦淖尔市",
+      "production_base_area": "8万亩",
+      "scope": "番茄种植与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["农药残留", "重金属"],
+      "testing_standards": ["GB 2763"],
+      "production_volume": "25000吨/年",
+      "price_range": "3-6元/斤",
+      "market_channels": ["超市", "农贸市场"],
+      "quality_control": {
+        "testing_frequency": "2次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "内蒙古番茄之星食品有限公司",
+        "headquarters": "内蒙古巴彦淖尔市"
+      }
+    },
+    {
+      "id": "NPC-008",
+      "product_name": "无公害内蒙古胡萝卜",
+      "product_type": "蔬菜",
+      "category": "无公害蔬菜",
+      "certificate_number": "CNCA-2023-121",
+      "certificate_holder": "内蒙古阳光蔬菜有限公司",
+      "issue_date": "2023-03-25",
+      "expiry_date": "2026-03-25",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区包头市",
+      "production_base_area": "3万亩",
+      "scope": "胡萝卜种植与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["农药残留"],
+      "testing_standards": ["GB 2763"],
+      "production_volume": "4500吨/年",
+      "price_range": "2-4元/斤",
+      "market_channels": ["超市", "农贸市场"],
+      "quality_control": {
+        "testing_frequency": "2次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "内蒙古阳光蔬菜有限公司",
+        "headquarters": "内蒙古包头市"
+      }
+    },
+    {
+      "id": "NPC-009",
+      "product_name": "无公害内蒙古莜麦",
+      "product_type": "谷物",
+      "category": "无公害粮食",
+      "certificate_number": "CNCA-2023-082",
+      "certificate_holder": "内蒙古莜面产业有限公司",
+      "issue_date": "2023-04-10",
+      "expiry_date": "2026-04-10",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区乌兰察布市",
+      "production_base_area": "12万亩",
+      "scope": "莜麦种植与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["农药残留"],
+      "testing_standards": ["GB 2763"],
+      "production_volume": "4200吨/年",
+      "price_range": "6-12元/斤",
+      "market_channels": ["粮油店", "超市"],
+      "quality_control": {
+        "testing_frequency": "1次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "内蒙古莜面产业有限公司",
+        "headquarters": "内蒙古乌兰察布市"
+      }
+    },
+    {
+      "id": "NPC-010",
+      "product_name": "无公害内蒙古荞麦",
+      "product_type": "谷物",
+      "category": "无公害粮食",
+      "certificate_number": "CNCA-2023-083",
+      "certificate_holder": "内蒙古荞麦食品有限公司",
+      "issue_date": "2023-04-15",
+      "expiry_date": "2026-04-15",
+      "status": "有效",
+      "certifying_body": "农业农村部农产品质量安全中心",
+      "location": "内蒙古自治区呼伦贝尔市",
+      "production_base_area": "6万亩",
+      "scope": "荞麦种植与销售",
+      "inspection_result": "通过产地认定",
+      "product_certification": "通过产品认证",
+      "testing_items": ["农药残留"],
+      "testing_standards": ["GB 2763"],
+      "production_volume": "2400吨/年",
+      "price_range": "8-15元/斤",
+      "market_channels": ["粮油店"],
+      "quality_control": {
+        "testing_frequency": "1次/年",
+        "inspection_body": "内蒙古自治区农业农村厅"
+      },
+      "company_info": {
+        "registered_name": "内蒙古荞麦食品有限公司",
+        "headquarters": "内蒙古呼伦贝尔市"
+      }
+    }
+  ],
+  "summary": {
+    "total_count": 98,
+    "by_category": {
+      "乳制品": 22,
+      "肉制品": 28,
+      "谷物": 32,
+      "蔬菜": 12,
+      "其他": 4
+    },
+    "by_region": {
+      "呼和浩特": 12,
+      "呼伦贝尔": 18,
+      "锡林郭勒": 8,
+      "巴彦淖尔": 12,
+      "乌兰察布": 14,
+      "包头": 8,
+      "通辽": 10,
+      "其他": 16
+    },
+    "by_status": {
+      "有效": 98,
+      "过期": 0
+    }
+  },
+  "notes": "无公害农产品认证由农业农村部农产品质量安全中心管理，分为产地认定和产品认证两个环节。所有证书均在有效期内，有效期为三年。"
+}

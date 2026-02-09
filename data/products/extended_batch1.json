@@ -1,0 +1,873 @@
+{
+  "batch": "extended_batch1",
+  "title": "内蒙古畜产品细分扩展 - 牛肉、羊肉及奶制品",
+  "province": "内蒙古自治区",
+  "total_count": 12,
+  "created_at": "2026-01-17",
+  "products": [
+    {
+      "id": 41,
+      "name": "科尔沁肥牛",
+      "category": "畜产品",
+      "subcategory": "牛肉细分",
+      "region": "通辽市（科尔沁草原）",
+      "description": "科尔沁肥牛是产自内蒙古通辽市科尔沁草原的优质肥牛。科尔沁草原处于松辽平原边缘，草质优美，水草丰美，是中国四大草原之一。在这片肥沃的草原上放养的肥牛，因优越的自然条件和精细的饲养管理，形成了独特的品质。科尔沁肥牛肉质细腻，大理石纹理分布均匀，高端和牛品质。",
+      "characteristics": [
+        "大理石纹理清晰",
+        "肌间脂肪分布均匀",
+        "肉质鲜嫩细腻",
+        "脂肪含量适中（5-8%）",
+        "风味独特、口感柔和"
+      ],
+      "cultural_background": "科尔沁是蒙古族历史上的重要部落，以畜牧业著称。科尔沁肥牛的饲养继承了蒙古族传统的放牧文化，强调天然、绿色、可持续的生产模式。",
+      "certifications": [
+        "地理标志产品保护（申报中）",
+        "绿色食品认证（A级）",
+        "有机产品认证"
+      ],
+      "main_uses": [
+        "高端餐饮（日式和牛风格涮烤）",
+        "顶级火锅食材",
+        "牛肉烧烤",
+        "牛肉制品加工"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（26-28%）",
+          "脂肪酸（单不饱和脂肪酸）",
+          "铁、锌、硒微量元素",
+          "维生素B12、B6"
+        ],
+        "health_benefits": "富含优质蛋白质和单不饱和脂肪酸，有益心血管健康。矿物质含量丰富，特别是生物利用度高的血红素铁。"
+      },
+      "production_process": "采用传统放牧与现代精饲结合模式。肉牛在科尔沁草原自然放牧6-8个月，然后进行精饲育肥。饲料选用优质青贮和谷物，不添加激素。屠宰采用现代工艺，冷链运输和储存。",
+      "seasonal_availability": {
+        "harvest_season": "全年可得（最佳品质在秋冬季）",
+        "best_consumption_period": "冬季（11月-次年2月）",
+        "storage_duration": "冷冻可保存12个月"
+      },
+      "production_info": {
+        "annual_output": "约2-3万头",
+        "main_producers": ["通辽市畜牧龙头企业", "科尔沁牛业集团"],
+        "production_area": "科尔沁草原（约5000万亩）",
+        "yield_per_unit": "出肉率约62%"
+      },
+      "market_info": {
+        "retail_price_range": "180-280元/斤（雪花牛肉切片）",
+        "wholesale_price_range": "120-180元/斤",
+        "main_sales_channels": ["高端餐厅", "生鲜电商", "会员制商超", "直营店"],
+        "target_markets": ["北京", "上海", "深圳", "南京"],
+        "market_share": "约占高端和牛市场的12%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 9959.1-2020 牛肉"],
+        "industry_standards": ["NY/T 2108-2012 绿色食品 牛肉"],
+        "inspection_items": ["感官评价", "微生物检测", "兽药残留", "重金属", "脂肪酸成分"]
+      },
+      "brand_info": {
+        "leading_brands": ["科尔沁之星", "草原黄金"],
+        "brand_stories": ["从草原到餐桌的美食之旅"],
+        "awards": ["2023年内蒙古优质农畜产品评选金奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["涮烤", "烤肉", "煎炸", "炖汤"],
+        "recipe_suggestions": ["日式和牛火锅", "铁板烤肉", "黑椒牛排"],
+        "pairing_suggestions": ["配红酒（赤霞珠）", "配白葡萄酒", "配黑啤"],
+        "health_benefits": ["补气养血", "增强体质", "美容养颜"]
+      },
+      "cultural_depth": {
+        "historical_records": "科尔沁畜牧业在清末民初就享誉全国，是北京、天津等地高级宾馆的主要供货地",
+        "folklore_stories": "蒙古族游牧民族关于肥牛的传说和选育经验",
+        "festival_connection": "那达慕大会的重要美食文化代表",
+        "traditional_customs": "蒙古族招待贵客的传统美食"
+      },
+      "sustainability": {
+        "production_method": "有机放牧 + 科学精饲",
+        "environmental_impact": "完全采用有机饲料，0化学肥料，有益草原生态",
+        "carbon_footprint": "碳中和养殖（采用新型能源）"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国", "中国香港", "新加坡"],
+        "export_standards": ["日本食品安全法", "FSSC 22000"],
+        "international_certifications": ["ORGANIC 有机认证", "JAS 日本农产品标准"]
+      },
+      "cultural_tags": [
+        "蒙古牧文化",
+        "和牛级肉质",
+        "绿色有机",
+        "高端食材",
+        "那达慕文化"
+      ],
+      "market_price_range": "180-280元/斤（高端切片）",
+      "best_season": "秋冬季最佳（9月-2月）",
+      "storage_method": "冷冻（-18℃以下），真空包装",
+      "cooking_suggestions": [
+        "涮烤火锅 - 切1-2mm厚片",
+        "铁板烤肉 - 保持粉红中心",
+        "清汤火锅 - 突出原汁原味",
+        "配红酒享用更佳"
+      ],
+      "image_links": [
+        "https://example.com/keersqin-beef-1.jpg",
+        "https://example.com/keersqin-beef-2.jpg",
+        "https://example.com/keersqin-beef-3.jpg"
+      ]
+    },
+    {
+      "id": 42,
+      "name": "草原黄牛",
+      "category": "畜产品",
+      "subcategory": "牛肉细分",
+      "region": "兴安盟（大兴安岭边缘草原）",
+      "description": "草原黄牛是兴安盟特有的本地牛种，具有数百年的驯化历史。这些黄牛适应力强，在大兴安岭边缘的亚寒带草原自然生长，形成了独特的肉质特征。草原黄牛肉质粗纤维少，营养价值高，是传统中医药膳的重要食材。",
+      "characteristics": [
+        "肉质红润有光泽",
+        "纤维细密",
+        "营养价值均衡",
+        "没有明显膻味",
+        "适合长时间炖煮"
+      ],
+      "cultural_background": "草原黄牛是蒙古族传统牲畜选育的重要成果，在兴安盟已有300多年的饲养历史。是当地牧民的重要财富和生活来源，也是传统食文化的重要载体。",
+      "certifications": [
+        "地理标志产品（申报中）",
+        "非遗保护产品",
+        "绿色食品"
+      ],
+      "main_uses": [
+        "传统炖汤",
+        "高汤制作",
+        "牛肉制品",
+        "中医药膳"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（24-26%）",
+          "胶原蛋白",
+          "钙、磷、铁",
+          "氨基酸种类全"
+        ],
+        "health_benefits": "蛋白质易消化吸收，含丰富胶原蛋白，有益皮肤和关节。中医认为性质平和，适合四季食用。"
+      },
+      "production_process": "采用完全放牧饲养模式，黄牛在兴安盟草原自由放牧2-3年。屠宰后采用传统冷却工艺，保留部分自然香气。产品保留了传统工艺特色。",
+      "seasonal_availability": {
+        "harvest_season": "全年可得",
+        "best_consumption_period": "冬季（特别是冬至前后作药膳）",
+        "storage_duration": "冷冻12个月，常温盐腌可1-2年"
+      },
+      "production_info": {
+        "annual_output": "约5000-8000头",
+        "main_producers": ["兴安盟牧民合作社", "传统牧户"],
+        "production_area": "大兴安岭边缘（约3000万亩草原）",
+        "yield_per_unit": "出肉率约55%"
+      },
+      "market_info": {
+        "retail_price_range": "45-75元/斤",
+        "wholesale_price_range": "35-55元/斤",
+        "main_sales_channels": ["农贸市场", "传统商超", "电商平台", "药膳馆"],
+        "target_markets": ["东北三省", "中原地区"],
+        "market_share": "约占传统老汤牛肉市场的8%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 9959.1-2020 牛肉"],
+        "industry_standards": ["NY/T 2108 绿色食品牛肉"],
+        "inspection_items": ["感官品质", "微生物", "兽药残留", "营养成分"]
+      },
+      "brand_info": {
+        "leading_brands": ["兴安黄牛", "草原精选"],
+        "brand_stories": ["传承300年的蒙古黄牛养殖故事"],
+        "awards": ["2023年内蒙古传统畜产品保护奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["炖汤", "清煮", "红烧", "药膳"],
+        "recipe_suggestions": ["黄芪炖牛肉", "冬虫夏草炖牛腱", "红参炖牛尾"],
+        "pairing_suggestions": ["配黄酒", "配红茶", "配中药材"],
+        "health_benefits": ["补气血", "强身健体", "调理脾胃"]
+      },
+      "cultural_depth": {
+        "historical_records": "兴安盟志记载：草原黄牛为当地特产，清末民初即外销京津",
+        "folklore_stories": "蒙古族关于黄牛的民间故事和驯化传说",
+        "festival_connection": "春节年夜饭的必备食材",
+        "traditional_customs": "蒙古族牧民招待尊贵客人的传统"
+      },
+      "sustainability": {
+        "production_method": "传统放牧养殖",
+        "environmental_impact": "完全生态友好，支持草原保护",
+        "carbon_footprint": "极低碳足迹"
+      },
+      "export_info": {
+        "export_countries": ["韩国", "越南"],
+        "export_standards": ["GB/T 9959"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "蒙古本土牛种",
+        "传统药膳",
+        "生态放牧",
+        "地方特产",
+        "老汤美食"
+      ],
+      "market_price_range": "45-75元/斤",
+      "best_season": "冬季（12月-2月）",
+      "storage_method": "冷冻（-18℃），或盐腌传统工艺",
+      "cooking_suggestions": [
+        "炖汤4-6小时最佳",
+        "搭配黄芪、红枣、冬虫夏草",
+        "不宜炒，宜煮",
+        "保留牛骨提鲜"
+      ],
+      "image_links": [
+        "https://example.com/grassland-yellow-beef-1.jpg",
+        "https://example.com/grassland-yellow-beef-2.jpg",
+        "https://example.com/grassland-yellow-beef-3.jpg"
+      ]
+    },
+    {
+      "id": 43,
+      "name": "西门塔尔牛肉",
+      "category": "畜产品",
+      "subcategory": "牛肉细分",
+      "region": "呼伦贝尔市（呼伦贝尔草原）",
+      "description": "西门塔尔牛肉是由引进的西门塔尔肉牛在呼伦贝尔高寒草原的适应性选育而成的优质肉牛产品。西门塔尔牛原产于瑞士，是国际公认的优质肉用牛。在呼伦贝尔恶劣的自然环境中，经过数十年的驯化和选育，形成了完全适应高寒的呼伦贝尔西门塔尔牛，肉质优异。",
+      "characteristics": [
+        "肌肉发达，体型大",
+        "瘦肉率高（≥65%）",
+        "脂肪分布合理",
+        "肉质细腻鲜嫩",
+        "产肉量高"
+      ],
+      "cultural_background": "西门塔尔牛的引进是呼伦贝尔现代畜牧业发展的重要里程碑。通过数十年的本地化选育，形成了完全适应呼伦贝尔气候条件的新型牛种。",
+      "certifications": [
+        "绿色食品认证",
+        "有机产品认证",
+        "GAP认证"
+      ],
+      "main_uses": [
+        "高端牛排",
+        "出口牛肉",
+        "速冻产品",
+        "牛肉制品"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（27-29%）",
+          "低脂肪（3-5%）",
+          "铁、锌、硒",
+          "维生素B族"
+        ],
+        "health_benefits": "高蛋白低脂肪，是健身人群的理想食材。矿物质含量丰富，特别适合贫血患者。"
+      },
+      "production_process": "西门塔尔牛在呼伦贝尔高寒草原自然放牧，采食天然草料。后期进行精饲育肥，大幅提高肉质。屠宰采用国际标准工艺，严格冷链管理。",
+      "seasonal_availability": {
+        "harvest_season": "全年可得",
+        "best_consumption_period": "秋冬季肉质最佳",
+        "storage_duration": "冷冻可保存12-18个月"
+      },
+      "production_info": {
+        "annual_output": "约3-5万头",
+        "main_producers": ["大型龙头企业", "现代牧场"],
+        "production_area": "呼伦贝尔草原",
+        "yield_per_unit": "出肉率约65%"
+      },
+      "market_info": {
+        "retail_price_range": "120-180元/斤（高端切片）",
+        "wholesale_price_range": "80-120元/斤",
+        "main_sales_channels": ["高档餐厅", "进口超市", "电商平台", "专卖店"],
+        "target_markets": ["北京", "上海", "广州", "国际市场"],
+        "market_share": "约占高端牛肉市场的15%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 9959 牛肉国家标准"],
+        "industry_standards": ["NY/T 2108 绿色食品牛肉"],
+        "inspection_items": ["牛肉等级评定", "微生物检测", "兽药残留", "营养成分分析"]
+      },
+      "brand_info": {
+        "leading_brands": ["呼伦贝尔西门塔尔", "草原珍品"],
+        "brand_stories": ["从草原到国际餐桌的精英之肉"],
+        "awards": ["国家级优质农产品奖", "2024年内蒙古畜产品金奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煎、烤、炸", "火锅", "炖汤"],
+        "recipe_suggestions": ["西餐牛排", "日式和牛风格", "铁板烤肉"],
+        "pairing_suggestions": ["配红葡萄酒", "配黑啤", "配洋葱和蘑菇"],
+        "health_benefits": ["增肌减脂", "补血益气", "增强体力"]
+      },
+      "cultural_depth": {
+        "historical_records": "呼伦贝尔西门塔尔牛引进于1980年代，是改革开放后农业现代化的标志",
+        "folklore_stories": "草原牧民与西门塔尔牛的驯化传奇",
+        "festival_connection": "现代国际美食节的主角",
+        "traditional_customs": "草原招待国际友人的高档美食"
+      },
+      "sustainability": {
+        "production_method": "放牧 + 科学精饲 + 有机管理",
+        "environmental_impact": "采用循环农业模式，肥料利用率高",
+        "carbon_footprint": "低碳认证"
+      },
+      "export_info": {
+        "export_countries": ["日本", "韩国", "欧盟", "新加坡", "中国香港"],
+        "export_standards": ["HALAL清真认证", "ISO系列"],
+        "international_certifications": ["ORGANIC有机", "GAP", "FSSC 22000"]
+      },
+      "cultural_tags": [
+        "国际优质牛种",
+        "现代农业代表",
+        "高端餐饮",
+        "出口明星产品",
+        "健身食材"
+      ],
+      "market_price_range": "120-180元/斤",
+      "best_season": "秋冬季最佳（9月-2月）",
+      "storage_method": "冷冻（-18℃）真空包装",
+      "cooking_suggestions": [
+        "牛排：3-5分熟最佳",
+        "火锅：切薄片涮30秒",
+        "烤肉：不宜过火，保持肉汁",
+        "适合西餐烹饪"
+      ],
+      "image_links": [
+        "https://example.com/simmental-beef-1.jpg",
+        "https://example.com/simmental-beef-2.jpg",
+        "https://example.com/simmental-beef-3.jpg"
+      ]
+    },
+    {
+      "id": 44,
+      "name": "安格斯牛肉",
+      "category": "畜产品",
+      "subcategory": "牛肉细分",
+      "region": "锡林郭勒盟（乌拉盖管理区）",
+      "description": "安格斯牛肉产自锡林郭勒盟的安格斯牛专养基地。安格斯牛是苏格兰原产的黑毛肉牛，以产肉性能优异著称。在锡林郭勒天然草原的放牧下，安格斯牛形成了独有的肉质特征，肌间脂肪丰富，和牛品质。",
+      "characteristics": [
+        "大理石纹理清晰",
+        "肌间脂肪特别丰富",
+        "肉质细软多汁",
+        "鲜艳的肉色",
+        "脂肪香气浓郁"
+      ],
+      "cultural_background": "安格斯牛引进锡林郭勒是现代高端畜牧业发展的标志。结合草原放牧文化和国际先进饲养技术，创造出了世界级的和牛产品。",
+      "certifications": [
+        "有机产品认证",
+        "ANGUS认证（国际标准）",
+        "绿色食品"
+      ],
+      "main_uses": [
+        "顶级和牛",
+        "高端餐饮",
+        "出口高档肉",
+        "国际市场"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（26-28%）",
+          "单不饱和脂肪酸",
+          "共轭亚油酸（CLA）",
+          "铁、锌、硒"
+        ],
+        "health_benefits": "脂肪组成优异，富含对心血管有益的单不饱和脂肪酸。CLA具有抗癌作用。"
+      },
+      "production_process": "安格斯牛在锡林郭勒草原自然放牧12-18个月，然后进行集中精饲育肥4-6个月。采用现代冷链技术处理和运输，确保产品品质。",
+      "seasonal_availability": {
+        "harvest_season": "全年可得",
+        "best_consumption_period": "秋冬季",
+        "storage_duration": "冷冻18个月"
+      },
+      "production_info": {
+        "annual_output": "约1-2万头",
+        "main_producers": ["锡林郭勒安格斯牧场", "高端养殖企业"],
+        "production_area": "乌拉盖管理区",
+        "yield_per_unit": "出肉率约63%"
+      },
+      "market_info": {
+        "retail_price_range": "200-350元/斤（顶级产品）",
+        "wholesale_price_range": "150-250元/斤",
+        "main_sales_channels": ["米其林星级餐厅", "进口超市", "高端电商"],
+        "target_markets": ["北京", "上海", "深圳", "国际"],
+        "market_share": "约占极奢侈肉类市场的5%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 9959 牛肉国标"],
+        "industry_standards": ["ANGUS国际标准", "NY/T 2108"],
+        "inspection_items": ["USDA等级评定", "微生物", "兽药残留", "脂肪酸构成"]
+      },
+      "brand_info": {
+        "leading_brands": ["锡林郭勒安格斯", "草原金牌"],
+        "brand_stories": ["从北纬46度到世界顶级餐厅"],
+        "awards": ["2023年国际肉类品质大赛金奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["煎烤", "火锅", "涮烤"],
+        "recipe_suggestions": ["和牛寿司", "顶级牛排", "铁板焙烤"],
+        "pairing_suggestions": ["配2000元以上红酒", "配日本清酒", "配黑松露"],
+        "health_benefits": ["心血管保护", "抗衰老", "增强免疫"]
+      },
+      "cultural_depth": {
+        "historical_records": "2010年代初引进，历经十年选育，形成世界顶级产品",
+        "folklore_stories": "牧民与安格斯牛的亲近关系",
+        "festival_connection": "国际美食论坛的焦点产品",
+        "traditional_customs": "现代贵族招待仪式的象征"
+      },
+      "sustainability": {
+        "production_method": "有机放牧 + 精准精饲",
+        "environmental_impact": "完全碳中和养殖",
+        "carbon_footprint": "负碳足迹"
+      },
+      "export_info": {
+        "export_countries": ["日本", "新加坡", "中国香港", "澳门", "韩国"],
+        "export_standards": ["USDA标准", "日本进口标准"],
+        "international_certifications": ["ORGANIC", "ANGUS认证", "HALAL"]
+      },
+      "cultural_tags": [
+        "世界顶级和牛",
+        "奢侈美食",
+        "国际品质",
+        "有机认证",
+        "出口明星"
+      ],
+      "market_price_range": "200-350元/斤",
+      "best_season": "秋冬季（品质最佳）",
+      "storage_method": "冷冻（-25℃）恒温库",
+      "cooking_suggestions": [
+        "建议由专业厨师烹饪",
+        "牛排5分熟保持肉汁",
+        "火锅涮10-15秒即可",
+        "配顶级葡萄酒享用"
+      ],
+      "image_links": [
+        "https://example.com/angus-beef-1.jpg",
+        "https://example.com/angus-beef-2.jpg",
+        "https://example.com/angus-beef-3.jpg"
+      ]
+    },
+    {
+      "id": 45,
+      "name": "乌珠穆沁羊肉",
+      "category": "畜产品",
+      "subcategory": "羊肉细分",
+      "region": "锡林郭勒盟（乌珠穆沁草原）",
+      "description": "乌珠穆沁羊肉是产自锡林郭勒盟东部乌珠穆沁草原的优质羊肉。乌珠穆沁是蒙古族历史上的重要部落，其羊肉在清末民初就被列为皇家供品。乌珠穆沁羊肉品质优异，膻味极低，肉质细嫩，营养价值高。",
+      "characteristics": [
+        "膻味极低，鲜香突出",
+        "肉质细腻娇嫩",
+        "脂肪分布均匀",
+        "颜色鲜艳红润",
+        "口感柔软"
+      ],
+      "cultural_background": "乌珠穆沁是蒙古族12部落之一，其羊肉文化源远流长。清末民初被列为皇家供品，民国时期成为北京'东来顺'火锅的专用羊肉。",
+      "certifications": [
+        "国家地理标志产品",
+        "中欧地理标志协定保护",
+        "绿色食品认证"
+      ],
+      "main_uses": [
+        "涮羊肉",
+        "羊肉汤",
+        "烤羊肉",
+        "高端餐饮"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（25-27%）",
+          "脂肪（5-7%）",
+          "铁、锌、硒、钙",
+          "B族维生素"
+        ],
+        "health_benefits": "高蛋白低脂肪，特别富含铁和锌，有益补血。温阳补气，冬季进补首选。"
+      },
+      "production_process": "采用完全传统放牧模式，羊群以天然草料为主食。乌珠穆沁草原因其独特的生态系统，生出的牧草营养成分极高。羊肉采用传统工艺屠宰和冷却。",
+      "seasonal_availability": {
+        "harvest_season": "全年可得（秋冬最佳）",
+        "best_consumption_period": "冬季（11月-2月）",
+        "storage_duration": "冷冻12个月"
+      },
+      "production_info": {
+        "annual_output": "约15-20万只",
+        "main_producers": ["乌珠穆沁牧民", "龙头企业"],
+        "production_area": "乌珠穆沁草原（约2000万亩）",
+        "yield_per_unit": "每只羊出肉15-18kg"
+      },
+      "market_info": {
+        "retail_price_range": "110-160元/斤",
+        "wholesale_price_range": "70-110元/斤",
+        "main_sales_channels": ["火锅连锁", "高档餐厅", "电商平台", "超市"],
+        "target_markets": ["北京", "上海", "内蒙古", "东北"],
+        "market_share": "约占高端羊肉市场的18%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 9960 羊肉"],
+        "industry_standards": ["NY/T 2109 绿色食品羊肉"],
+        "inspection_items": ["感官评价", "微生物检测", "兽药残留", "营养成分"]
+      },
+      "brand_info": {
+        "leading_brands": ["乌珠穆沁王", "草原皇品"],
+        "brand_stories": ["从皇家贡品到现代美食"],
+        "awards": ["2023年中国地理标志产品100强"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["涮烤", "清汤火锅", "羊汤", "烤肉"],
+        "recipe_suggestions": ["老北京涮羊肉", "蒙古羊汤", "烤羊排"],
+        "pairing_suggestions": ["配白酒", "配羊汤", "配配菜"],
+        "health_benefits": ["温阳补气", "增强体质", "冬季进补"]
+      },
+      "cultural_depth": {
+        "historical_records": "清末民初被列为皇家供品，民国时期'东来顺'专用羊肉",
+        "folklore_stories": "乌珠穆沁部落的羊肉选育传说",
+        "festival_connection": "那达慕节的传统美食",
+        "traditional_customs": "蒙古族婚礼的必备肉食"
+      },
+      "sustainability": {
+        "production_method": "传统放牧养殖",
+        "environmental_impact": "完全生态保护模式",
+        "carbon_footprint": "极低碳足迹"
+      },
+      "export_info": {
+        "export_countries": ["日本", "新加坡", "香港"],
+        "export_standards": ["GB/T 9960标准"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "皇家贡品",
+        "蒙古名肴",
+        "地理标志",
+        "涮羊肉文化",
+        "那达慕美食"
+      ],
+      "market_price_range": "110-160元/斤",
+      "best_season": "冬季（最佳品质）",
+      "storage_method": "冷冻（-18℃），真空包装",
+      "cooking_suggestions": [
+        "涮火锅：薄片30秒",
+        "清汤：突出原汁原味",
+        "烤肉：不宜过熟",
+        "配黄酒最佳"
+      ],
+      "image_links": [
+        "https://example.com/ujimucin-lamb-1.jpg",
+        "https://example.com/ujimucin-lamb-2.jpg",
+        "https://example.com/ujimucin-lamb-3.jpg"
+      ]
+    },
+    {
+      "id": 46,
+      "name": "察哈尔羊肉",
+      "category": "畜产品",
+      "subcategory": "羊肉细分",
+      "region": "乌兰察布市（察哈尔草原）",
+      "description": "察哈尔羊肉产自乌兰察布市的察哈尔草原。察哈尔是蒙古族重要部落，其羊肉文化源远流长。察哈尔草原处于华北平原向内蒙古高原过渡地带，地理位置独特，生产的羊肉具有草原羊肉的特色，又有靠近农业区的营养优势。",
+      "characteristics": [
+        "肉质细嫩",
+        "膻味轻",
+        "营养丰富",
+        "脂肪含量适中",
+        "肌间脂肪分布好"
+      ],
+      "cultural_background": "察哈尔部落在蒙古族历史中占有重要地位。察哈尔羊肉是传统草原美食的代表，具有深厚的民族文化底蕴。",
+      "certifications": [
+        "地理标志产品保护（申报中）",
+        "绿色食品认证",
+        "无公害产品认证"
+      ],
+      "main_uses": [
+        "涮羊肉",
+        "烤羊肉",
+        "羊肉汤",
+        "传统美食"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（24-26%）",
+          "脂肪（6-8%）",
+          "铁、锌、钙",
+          "维生素B族"
+        ],
+        "health_benefits": "营养均衡，特别适合冬季食用。补气血、温阳、强体质。"
+      },
+      "production_process": "采用自然放牧养殖，羊群在察哈尔草原自由活动。采用传统屠宰工艺，冷链处理。产品保留了草原美食的原汁原味。",
+      "seasonal_availability": {
+        "harvest_season": "全年可得",
+        "best_consumption_period": "秋冬季（10月-2月）",
+        "storage_duration": "冷冻12个月"
+      },
+      "production_info": {
+        "annual_output": "约10-15万只",
+        "main_producers": ["乌兰察布牧民", "龙头企业"],
+        "production_area": "察哈尔草原",
+        "yield_per_unit": "每只出肉15-17kg"
+      },
+      "market_info": {
+        "retail_price_range": "80-120元/斤",
+        "wholesale_price_range": "50-80元/斤",
+        "main_sales_channels": ["农贸市场", "火锅店", "电商", "超市"],
+        "target_markets": ["华北地区", "东北", "中原"],
+        "market_share": "约占中档羊肉市场的12%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 9960 羊肉"],
+        "industry_standards": ["NY/T 2109 绿色食品羊肉"],
+        "inspection_items": ["感官品质", "微生物", "兽药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["察哈尔羊肉", "草原牧歌"],
+        "brand_stories": ["蒙古部落的传统美食文化"],
+        "awards": ["乌兰察布市优质农产品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["涮火锅", "清汤", "红烧", "烤肉"],
+        "recipe_suggestions": ["涮羊肉", "羊汤面", "烤羊肉"],
+        "pairing_suggestions": ["配白酒", "配羊汤", "配芝麻酱"],
+        "health_benefits": ["补气血", "温阳健脾"]
+      },
+      "cultural_depth": {
+        "historical_records": "察哈尔部落羊肉文化，蒙古族四大部落之一",
+        "folklore_stories": "蒙古族关于察哈尔羊的传奇故事",
+        "festival_connection": "那达慕节的传统肉食",
+        "traditional_customs": "蒙古族传统宴席必备"
+      },
+      "sustainability": {
+        "production_method": "传统放牧",
+        "environmental_impact": "草原保护型养殖",
+        "carbon_footprint": "低碳模式"
+      },
+      "export_info": {
+        "export_countries": [],
+        "export_standards": ["GB/T 9960"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "蒙古部落文化",
+        "草原美食",
+        "地理标志",
+        "传统工艺",
+        "那达慕肉食"
+      ],
+      "market_price_range": "80-120元/斤",
+      "best_season": "秋冬季（品质最佳）",
+      "storage_method": "冷冻（-18℃）",
+      "cooking_suggestions": [
+        "涮火锅最佳",
+        "薄片涮30秒",
+        "配羊汤享用",
+        "配黄酒品味"
+      ],
+      "image_links": [
+        "https://example.com/chahar-lamb-1.jpg",
+        "https://example.com/chahar-lamb-2.jpg",
+        "https://example.com/chahar-lamb-3.jpg"
+      ]
+    },
+    {
+      "id": 47,
+      "name": "阿尔巴斯白绒山羊肉",
+      "category": "畜产品",
+      "subcategory": "羊肉细分",
+      "region": "鄂尔多斯市（阿尔巴斯草原）",
+      "description": "阿尔巴斯白绒山羊肉是产自鄂尔多斯市阿尔巴斯草原的特色羊肉。阿尔巴斯白绒山羊是我国特有的品种，以其优质的绒毛著称，是制作羊绒制品的原料。同时，其肉质也具有独特的品质，膻味轻，肉质细。",
+      "characteristics": [
+        "膻味轻，肉味鲜",
+        "肉质细嫩",
+        "脂肪含量低",
+        "颜色红润",
+        "口感独特"
+      ],
+      "cultural_background": "阿尔巴斯白绒山羊是中国特有品种，与蒙古族牧民的生活和文化紧密相关。既是羊绒产业的基础，也是优质肉食的来源。",
+      "certifications": [
+        "原产地地理标志",
+        "优质农产品认证",
+        "生态产品认证"
+      ],
+      "main_uses": [
+        "高档羊肉",
+        "羊肉制品",
+        "烤羊肉",
+        "特色美食"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（24-25%）",
+          "脂肪（4-6%）",
+          "铁、钙、锌",
+          "B族维生素"
+        ],
+        "health_benefits": "低脂肪高蛋白，特别适合健身爱好者。铁锌含量丰富，有益补血。"
+      },
+      "production_process": "阿尔巴斯白绒山羊在荒漠草原自然放牧，采食沙生植物。这种独特的生态环境造就了独特的肉质。采用传统屠宰和冷链处理。",
+      "seasonal_availability": {
+        "harvest_season": "全年可得",
+        "best_consumption_period": "秋冬季（9月-2月）",
+        "storage_duration": "冷冻12个月"
+      },
+      "production_info": {
+        "annual_output": "约5-8万只",
+        "main_producers": ["鄂尔多斯牧民", "龙头企业"],
+        "production_area": "阿尔巴斯草原（约1000万亩）",
+        "yield_per_unit": "每只出肉12-15kg"
+      },
+      "market_info": {
+        "retail_price_range": "90-140元/斤",
+        "wholesale_price_range": "60-90元/斤",
+        "main_sales_channels": ["高档餐厅", "电商平台", "专卖店"],
+        "target_markets": ["华北", "华东"],
+        "market_share": "约占特色羊肉市场的8%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB/T 9960 羊肉"],
+        "industry_standards": ["NY/T 2109"],
+        "inspection_items": ["感官评价", "微生物检测", "兽药残留"]
+      },
+      "brand_info": {
+        "leading_brands": ["阿尔巴斯羊肉", "沙漠珍品"],
+        "brand_stories": ["沙漠中的羊肉美食"],
+        "awards": ["鄂尔多斯市优质产品奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["烤肉", "涮火锅", "炖汤"],
+        "recipe_suggestions": ["沙漠烤羊肉", "羊肉炖冬虫夏草", "羊杂汤"],
+        "pairing_suggestions": ["配沙漠蘑菇", "配红葡萄酒", "配黄酒"],
+        "health_benefits": ["补气血", "增强体质", "美容养颜"]
+      },
+      "cultural_depth": {
+        "historical_records": "阿尔巴斯白绒山羊饲养历史超过千年",
+        "folklore_stories": "沙漠牧民与白绒羊的生活故事",
+        "festival_connection": "那达慕节的特色肉食",
+        "traditional_customs": "鄂尔多斯蒙古族传统招待仪式"
+      },
+      "sustainability": {
+        "production_method": "生态放牧",
+        "environmental_impact": "有益沙漠草原保护",
+        "carbon_footprint": "碳中和"
+      },
+      "export_info": {
+        "export_countries": [],
+        "export_standards": ["GB/T 9960"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "特有品种",
+        "沙漠草原",
+        "绒羊肉食",
+        "生态保护",
+        "那达慕文化"
+      ],
+      "market_price_range": "90-140元/斤",
+      "best_season": "秋冬季",
+      "storage_method": "冷冻（-18℃）",
+      "cooking_suggestions": [
+        "烤肉：不宜过焦",
+        "涮火锅：适合薄片",
+        "炖汤：突出鲜味",
+        "配沙漠蘑菇最佳"
+      ],
+      "image_links": [
+        "https://example.com/albas-goat-1.jpg",
+        "https://example.com/albas-goat-2.jpg",
+        "https://example.com/albas-goat-3.jpg"
+      ]
+    },
+    {
+      "id": 48,
+      "name": "蒙古风干牛肉",
+      "category": "畜产品",
+      "subcategory": "肉制品",
+      "region": "锡林郭勒盟、呼伦贝尔市、乌兰察布市",
+      "description": "蒙古风干牛肉是内蒙古传统的肉类加工品，采用优质牛肉经过传统晾晒和风干工艺制成。这种加工方法源自蒙古族游牧民族的传统保存技术，不仅保持了牛肉的营养价值，还赋予了独特的香气和口感。",
+      "characteristics": [
+        "风干后香气浓郁",
+        "口感干爽有嚼劲",
+        "营养浓缩",
+        "保存时间长",
+        "便于携带"
+      ],
+      "cultural_background": "风干肉是蒙古族传统游牧民族的保存肉食的重要方法。在没有冰箱的年代，风干肉成为长途跋涉的重要食品。现在成为传统美食的代表。",
+      "certifications": [
+        "绿色食品认证",
+        "无公害产品认证",
+        "传统工艺认证"
+      ],
+      "main_uses": [
+        "零食",
+        "旅行食品",
+        "礼品",
+        "佐酒食品"
+      ],
+      "nutrition": {
+        "key_nutrients": [
+          "蛋白质（45-50%）",
+          "铁、锌、硒",
+          "B族维生素",
+          "必需氨基酸"
+        ],
+        "health_benefits": "营养高度浓缩，蛋白质含量特别高。便于携带，是登山、旅游的理想食品。"
+      },
+      "production_process": "选用优质牛肉，切成条状，用传统工艺腌制，然后在天然条件下风干。整个过程不添加防腐剂，完全依靠自然晾晒。",
+      "seasonal_availability": {
+        "harvest_season": "全年可得",
+        "best_consumption_period": "随时可食",
+        "storage_duration": "常温可保存6-12个月"
+      },
+      "production_info": {
+        "annual_output": "约500-800吨",
+        "main_producers": ["传统手工作坊", "现代企业"],
+        "production_area": "内蒙古草原地区",
+        "yield_per_unit": "10kg鲜肉可制1kg风干肉"
+      },
+      "market_info": {
+        "retail_price_range": "120-200元/斤",
+        "wholesale_price_range": "80-120元/斤",
+        "main_sales_channels": ["旅游景区", "电商平台", "特产店", "机场免税"],
+        "target_markets": ["游客", "礼品市场"],
+        "market_share": "约占传统肉制品市场的10%"
+      },
+      "quality_standards": {
+        "national_standards": ["GB 2726 肉制品安全标准"],
+        "industry_standards": ["NY/T 2110"],
+        "inspection_items": ["微生物检测", "营养成分", "感官评价"]
+      },
+      "brand_info": {
+        "leading_brands": ["蒙古风干牛肉", "草原美味"],
+        "brand_stories": ["游牧民族的传统保存智慧"],
+        "awards": ["内蒙古传统工艺奖"]
+      },
+      "usage_scenarios": {
+        "cooking_methods": ["生食", "烤、炸", "炖汤"],
+        "recipe_suggestions": ["直接食用", "烤后食用", "切碎炖汤"],
+        "pairing_suggestions": ["配白酒", "配啤酒", "配茶"],
+        "health_benefits": ["补气血", "滋阴补肾"]
+      },
+      "cultural_depth": {
+        "historical_records": "蒙古族游牧文化中的重要食品，成吉思汗时代的远征食品",
+        "folklore_stories": "草原上的古老保存智慧",
+        "festival_connection": "那达慕节的传统食品",
+        "traditional_customs": "草原招待客人的传统美食"
+      },
+      "sustainability": {
+        "production_method": "传统手工 + 天然晾晒",
+        "environmental_impact": "完全天然，无污染",
+        "carbon_footprint": "极低碳足迹"
+      },
+      "export_info": {
+        "export_countries": ["日本", "新加坡"],
+        "export_standards": ["GB 2726"],
+        "international_certifications": []
+      },
+      "cultural_tags": [
+        "游牧文化",
+        "传统工艺",
+        "旅游食品",
+        "便携食物",
+        "那达慕美食"
+      ],
+      "market_price_range": "120-200元/斤",
+      "best_season": "全年可食",
+      "storage_method": "常温保存，防潮防晒",
+      "cooking_suggestions": [
+        "直接食用最佳",
+        "可烤软后食用",
+        "可切碎炖汤",
+        "佐酒小食"
+      ],
+      "image_links": [
+        "https://example.com/dried-beef-1.jpg",
+        "https://example.com/dried-beef-2.jpg",
+        "https://example.com/dried-beef-3.jpg"
+      ]
+    }
+  ]
+}
