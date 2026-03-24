@@ -1,5 +1,58 @@
 <template>
   <div class="ai-config-view">
+    <!-- 管理员: 提供商管理面板 -->
+    <el-card v-if="userStore.isAdmin" style="margin-bottom: 20px">
+      <template #header>
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <span>提供商管理</span>
+          <el-button type="primary" size="small" :loading="savingProviders" @click="saveProviderSettings">
+            保存设置
+          </el-button>
+        </div>
+      </template>
+      <el-alert
+        type="info"
+        :closable="false"
+        show-icon
+        style="margin-bottom: 16px"
+      >
+        <template #default>
+          管理员可以控制哪些AI提供商对普通用户可见。「自定义接入」始终对用户开放。
+        </template>
+      </el-alert>
+      <div class="provider-groups">
+        <div class="provider-group">
+          <h4>国际</h4>
+          <div class="provider-switches">
+            <div v-for="p in providersByGroup.international" :key="p.id" class="provider-switch-item">
+              <el-switch v-model="p.enabled" :disabled="p.id === 'custom'" />
+              <span>{{ p.name }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="provider-group">
+          <h4>国产</h4>
+          <div class="provider-switches">
+            <div v-for="p in providersByGroup.national" :key="p.id" class="provider-switch-item">
+              <el-switch v-model="p.enabled" />
+              <span>{{ p.name }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="provider-group">
+          <h4>其他</h4>
+          <div class="provider-switches">
+            <div v-for="p in providersByGroup.other" :key="p.id" class="provider-switch-item">
+              <el-switch v-model="p.enabled" :disabled="p.id === 'custom'" />
+              <span>{{ p.name }}</span>
+              <el-tag v-if="p.id === 'custom'" size="small" type="info" style="margin-left: 8px">始终启用</el-tag>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-card>
+
+    <!-- AI配置列表 -->
     <el-card>
       <template #header>
         <div style="display: flex; justify-content: space-between; align-items: center">
@@ -10,9 +63,9 @@
 
       <el-table :data="configs" v-loading="loading">
         <el-table-column prop="name" label="配置名称" />
-        <el-table-column prop="provider" label="提供商" width="120">
+        <el-table-column prop="provider" label="提供商" width="140">
           <template #default="{ row }">
-            <el-tag>{{ providerMap[row.provider] }}</el-tag>
+            <el-tag>{{ providerMap[row.provider] || row.provider }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="model" label="模型" />
@@ -44,13 +97,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import AIConfigForm from '@/components/enterprise/AIConfigForm.vue';
-import { getAIConfigs, createAIConfig, updateAIConfig, deleteAIConfig, testAIConfig } from '@/api/aiConfig';
+import {
+  getAIConfigs, createAIConfig, updateAIConfig, deleteAIConfig, testAIConfig,
+  getProviderSettings, updateProviderSettings, type ProviderInfo
+} from '@/api/aiConfig';
 import type { AIConfig, AIConfigForm as AIConfigFormType } from '@/types/aiConfig';
+import { useUserStore } from '@/stores/user';
 
-const enterpriseId = ref('1'); // TODO: 从路由或store获取
+const userStore = useUserStore();
+const enterpriseId = computed(() => {
+  // 优先使用enterprise_id，其次tenant_id，再次user.id
+  const id = userStore.user?.enterprise_id || userStore.user?.tenant_id || userStore.user?.id
+  return String(id ?? 'default')
+});
 const configs = ref<AIConfig[]>([]);
 const loading = ref(false);
 const dialogVisible = ref(false);
@@ -67,11 +129,65 @@ const formData = ref<AIConfigFormType>({
 const submitting = ref(false);
 const editingId = ref<string>();
 
+// 提供商管理
+const allProviders = ref<(ProviderInfo & { enabled: boolean })[]>([]);
+const savingProviders = ref(false);
+
+const providersByGroup = computed(() => {
+  const groups: Record<string, (ProviderInfo & { enabled: boolean })[]> = {
+    international: [],
+    national: [],
+    other: [],
+  };
+  for (const p of allProviders.value) {
+    const g = p.group || 'other';
+    if (groups[g]) groups[g].push(p);
+    else groups.other.push(p);
+  }
+  return groups;
+});
+
 const providerMap: Record<string, string> = {
   openai: 'OpenAI',
   azure: 'Azure',
   anthropic: 'Anthropic',
+  deepseek: 'DeepSeek',
+  qwen: '通义千问',
+  wenxin: '文心一言',
+  glm: '智谱GLM',
+  spark: '讯飞星火',
+  moonshot: 'Moonshot',
   custom: '自定义'
+};
+
+const loadProviderSettings = async () => {
+  if (!userStore.isAdmin) return;
+  try {
+    const result = await getProviderSettings();
+    if (result?.providers) {
+      allProviders.value = result.providers.map((p: ProviderInfo) => ({
+        ...p,
+        enabled: (p as any).enabled ?? true
+      }));
+    }
+  } catch {
+    // 加载失败不影响主功能
+  }
+};
+
+const saveProviderSettings = async () => {
+  savingProviders.value = true;
+  try {
+    const enabledIds = allProviders.value
+      .filter(p => p.enabled)
+      .map(p => p.id);
+    await updateProviderSettings(enabledIds);
+    ElMessage.success('提供商设置已保存');
+  } catch (error: any) {
+    ElMessage.error(error.message || '保存失败');
+  } finally {
+    savingProviders.value = false;
+  }
 };
 
 const loadConfigs = async () => {
@@ -163,11 +279,44 @@ const resetForm = () => {
 
 onMounted(() => {
   loadConfigs();
+  loadProviderSettings();
 });
 </script>
 
 <style scoped>
 .ai-config-view {
   padding: 20px;
+}
+
+.provider-groups {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.provider-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.provider-group h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #606266;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.provider-switches {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.provider-switch-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
 }
 </style>

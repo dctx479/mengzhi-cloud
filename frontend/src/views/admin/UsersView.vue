@@ -78,8 +78,8 @@ const editForm = ref<Partial<User>>({})
 const loadUsers = async () => {
   loading.value = true
   try {
-    const { data } = await adminApi.getUsers({ search: search.value })
-    users.value = data
+    const users_data = await adminApi.getUsers({ search: search.value })
+    users.value = users_data
   } catch (error) {
     ElMessage.error('加载失败')
   } finally {

@@ -3,7 +3,7 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User, UserProfile } from '@/types/user'
+import type { User, UserProfile, UpdateProfileRequest } from '@/types/user'
 import * as authAPI from '@/api/auth'
 
 export const useUserStore = defineStore('user', () => {
@@ -61,12 +61,13 @@ export const useUserStore = defineStore('user', () => {
   const logout = async () => {
     try {
       await authAPI.logout()
+    } catch (err) {
+      // logout API failure should not block local cleanup
+    } finally {
       user.value = null
       isLoggedIn.value = false
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Logout failed'
     }
   }
 
@@ -88,14 +89,16 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  const updateProfile = async (profileData: Partial<User>) => {
+  const updateProfile = async (profileData: UpdateProfileRequest) => {
     loading.value = true
     error.value = null
     try {
-      const updated = await authAPI.updateProfile(profileData)
-      user.value = updated
-      localStorage.setItem('user', JSON.stringify(updated))
-      return updated
+      await authAPI.updateProfile(profileData)
+      // Backend returns only {updated:true}; re-fetch to get fresh user data
+      const userData = await authAPI.getCurrentUser()
+      user.value = userData
+      localStorage.setItem('user', JSON.stringify(userData))
+      return userData
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Update failed'
       throw err

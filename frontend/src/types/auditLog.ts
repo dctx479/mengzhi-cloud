@@ -23,6 +23,7 @@ export interface AuditLogQuery {
   endTime?: string
   action?: string
   resourceType?: string
+  resourceId?: string
   userId?: number
   username?: string
   status?: 'success' | 'failure'

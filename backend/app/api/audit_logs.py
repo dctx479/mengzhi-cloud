@@ -23,7 +23,7 @@ from app.core.logging_config import logger
 router = APIRouter()
 
 
-@router.get("/audit-logs", response_model=dict, tags=["审计日志"])
+@router.get("/", response_model=dict, tags=["审计日志"])
 async def list_audit_logs(
     user_id: Optional[int] = Query(None, description="用户ID"),
     username: Optional[str] = Query(None, description="用户名（模糊搜索）"),
@@ -42,25 +42,6 @@ async def list_audit_logs(
     获取审计日志列表
 
     需要管理员权限
-
-    参数:
-        user_id: 用户ID（可选）
-        username: 用户名，支持模糊搜索（可选）
-        action: 操作类型（可选）
-        resource: 资源类型（可选）
-        resource_id: 资源ID（可选）
-        is_success: 是否成功（可选）
-        start_date: 开始日期（可选）
-        end_date: 结束日期（可选）
-        page: 页码，默认1
-        page_size: 每页数量，默认20，最大100
-
-    返回:
-        审计日志列表和分页信息
-
-    示例:
-        GET /api/audit-logs?action=login&page=1&page_size=20
-        GET /api/audit-logs?username=admin&start_date=2026-01-01T00:00:00
     """
     try:
         # 解析日期
@@ -122,55 +103,7 @@ async def list_audit_logs(
         )
 
 
-@router.get("/audit-logs/{log_id}", response_model=dict, tags=["审计日志"])
-async def get_audit_log(
-    log_id: int,
-    current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
-) -> dict:
-    """
-    获取审计日志详情
-
-    需要管理员权限
-
-    参数:
-        log_id: 日志ID
-
-    返回:
-        审计日志详情
-
-    示例:
-        GET /api/audit-logs/123
-    """
-    try:
-        log = AuditService.get_log_by_id(db, log_id)
-
-        if not log:
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content=error_response(
-                    code=ErrorCode.RECORD_NOT_FOUND,
-                    message="审计日志不存在"
-                ).dict()
-            )
-
-        return success_response(
-            data=log,
-            message="查询成功"
-        ).dict()
-
-    except Exception as e:
-        logger.error(f"获取审计日志详情失败: {str(e)}")
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(
-                code=ErrorCode.SYSTEM_ERROR,
-                message=f"查询失败: {str(e)}"
-            ).dict()
-        )
-
-
-@router.get("/audit-logs/stats/summary", response_model=dict, tags=["审计日志"])
+@router.get("/stats", response_model=dict, tags=["审计日志"])
 async def get_audit_statistics(
     start_date: Optional[str] = Query(None, description="开始日期（ISO格式）"),
     end_date: Optional[str] = Query(None, description="结束日期（ISO格式）"),
@@ -181,22 +114,6 @@ async def get_audit_statistics(
     获取审计日志统计信息
 
     需要管理员权限
-
-    参数:
-        start_date: 开始日期（可选）
-        end_date: 结束日期（可选）
-
-    返回:
-        统计信息，包括：
-        - 总操作数
-        - 成功/失败数量和比率
-        - 按操作类型统计
-        - 按资源类型统计
-        - 活跃用户TOP10
-
-    示例:
-        GET /api/audit-logs/stats/summary
-        GET /api/audit-logs/stats/summary?start_date=2026-01-01T00:00:00&end_date=2026-01-31T23:59:59
     """
     try:
         # 解析日期
@@ -250,7 +167,7 @@ async def get_audit_statistics(
         )
 
 
-@router.get("/audit-logs/export", tags=["审计日志"])
+@router.get("/export", tags=["审计日志"])
 async def export_audit_logs(
     format: str = Query("json", pattern="^(json|csv)$", description="导出格式（json/csv）"),
     user_id: Optional[int] = Query(None, description="用户ID"),
@@ -266,22 +183,6 @@ async def export_audit_logs(
     导出审计日志
 
     需要管理员权限
-
-    参数:
-        format: 导出格式，json或csv
-        user_id: 用户ID（可选）
-        action: 操作类型（可选）
-        resource: 资源类型（可选）
-        start_date: 开始日期（可选）
-        end_date: 结束日期（可选）
-        limit: 最大导出数量，默认10000，最大50000
-
-    返回:
-        JSON或CSV格式的审计日志数据
-
-    示例:
-        GET /api/audit-logs/export?format=csv&action=login
-        GET /api/audit-logs/export?format=json&start_date=2026-01-01T00:00:00
     """
     try:
         # 解析日期
@@ -365,7 +266,7 @@ async def export_audit_logs(
         )
 
 
-@router.get("/audit-logs/user/{user_id}", response_model=dict, tags=["审计日志"])
+@router.get("/user/{user_id}", response_model=dict, tags=["审计日志"])
 async def get_user_audit_logs(
     user_id: int,
     action: Optional[str] = Query(None, description="操作类型"),
@@ -379,20 +280,6 @@ async def get_user_audit_logs(
     获取指定用户的审计日志
 
     需要管理员权限
-
-    参数:
-        user_id: 用户ID
-        action: 操作类型（可选）
-        resource: 资源类型（可选）
-        page: 页码，默认1
-        page_size: 每页数量，默认20，最大100
-
-    返回:
-        用户的审计日志列表
-
-    示例:
-        GET /api/audit-logs/user/123
-        GET /api/audit-logs/user/123?action=update&resource=product
     """
     try:
         result = AuditService.query_logs(
@@ -420,7 +307,7 @@ async def get_user_audit_logs(
         )
 
 
-@router.get("/audit-logs/resource/{resource}/{resource_id}", response_model=dict, tags=["审计日志"])
+@router.get("/resource/{resource}/{resource_id}", response_model=dict, tags=["审计日志"])
 async def get_resource_audit_logs(
     resource: str,
     resource_id: int,
@@ -434,20 +321,6 @@ async def get_resource_audit_logs(
     获取指定资源的审计日志
 
     需要管理员权限
-
-    参数:
-        resource: 资源类型
-        resource_id: 资源ID
-        action: 操作类型（可选）
-        page: 页码，默认1
-        page_size: 每页数量，默认20，最大100
-
-    返回:
-        资源的审计日志列表
-
-    示例:
-        GET /api/audit-logs/resource/product/123
-        GET /api/audit-logs/resource/user/456?action=update
     """
     try:
         result = AuditService.query_logs(
@@ -473,3 +346,81 @@ async def get_resource_audit_logs(
                 message=f"查询失败: {str(e)}"
             ).dict()
         )
+
+
+@router.get("/{log_id}", response_model=dict, tags=["审计日志"])
+async def get_audit_log(
+    log_id: int,
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+) -> dict:
+    """
+    获取审计日志详情
+
+    需要管理员权限
+    """
+    try:
+        log = AuditService.get_log_by_id(db, log_id)
+
+        if not log:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content=error_response(
+                    code=ErrorCode.RECORD_NOT_FOUND,
+                    message="审计日志不存在"
+                ).dict()
+            )
+
+        return success_response(
+            data=log,
+            message="查询成功"
+        ).dict()
+
+    except Exception as e:
+        logger.error(f"获取审计日志详情失败: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=error_response(
+                code=ErrorCode.SYSTEM_ERROR,
+                message=f"查询失败: {str(e)}"
+            ).dict()
+        )
+
+
+@router.get("/action-types", response_model=dict, tags=["审计日志"])
+async def get_action_types(current_user: dict = Depends(get_current_user)):
+    """获取可用的操作类型列表"""
+    return success_response(
+        data=[
+            {"value": "login", "label": "登录"},
+            {"value": "logout", "label": "登出"},
+            {"value": "create", "label": "创建"},
+            {"value": "update", "label": "更新"},
+            {"value": "delete", "label": "删除"},
+            {"value": "export", "label": "导出"},
+            {"value": "import", "label": "导入"},
+            {"value": "query", "label": "查询"},
+            {"value": "config_change", "label": "配置变更"},
+            {"value": "permission_change", "label": "权限变更"},
+        ],
+        message="获取操作类型成功"
+    ).dict()
+
+
+@router.get("/resource-types", response_model=dict, tags=["审计日志"])
+async def get_resource_types(current_user: dict = Depends(get_current_user)):
+    """获取可用的资源类型列表"""
+    return success_response(
+        data=[
+            {"value": "user", "label": "用户"},
+            {"value": "enterprise", "label": "企业"},
+            {"value": "product", "label": "产品"},
+            {"value": "order", "label": "订单"},
+            {"value": "quota", "label": "配额"},
+            {"value": "ai_config", "label": "AI配置"},
+            {"value": "content", "label": "内容"},
+            {"value": "billing", "label": "计费"},
+            {"value": "system", "label": "系统"},
+        ],
+        message="获取资源类型成功"
+    ).dict()

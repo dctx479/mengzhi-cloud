@@ -24,7 +24,7 @@ describe('Settings Component', () => {
       sms_notifications: false,
       profile_public: false,
       language: 'zh-CN',
-      theme: 'auto',
+      theme: 'auto' as const,
     }
 
     vi.mocked(userAPI.getSettings).mockResolvedValue(mockSettings)
@@ -65,7 +65,7 @@ describe('Settings Component', () => {
       sms_notifications: false,
       profile_public: false,
       language: 'zh-CN',
-      theme: 'light',
+      theme: 'light' as const,
     }
 
     vi.mocked(userAPI.getSettings).mockResolvedValue(mockSettings)
@@ -180,13 +180,13 @@ describe('Settings Component', () => {
 
     // We can't fully test this without mocking the confirmation dialog
     // But we can check the method exists
-    expect(wrapper.vm.handleClearCache).toBeDefined()
+    expect((wrapper.vm as any).handleClearCache).toBeDefined()
   })
 
   it('should handle delete account action', async () => {
     const wrapper = mount(Settings)
 
     // Check method exists
-    expect(wrapper.vm.handleDeleteAccount).toBeDefined()
+    expect((wrapper.vm as any).handleDeleteAccount).toBeDefined()
   })
 })

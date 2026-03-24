@@ -34,7 +34,7 @@
           <el-form-item prop="email">
             <el-autocomplete
               v-model="formData.email"
-              :fetch-suggestions="(queryString, cb) => cb(emailSuggestions.map(s => ({ value: s })))"
+              :fetch-suggestions="(_queryString: string, cb: (suggestions: { value: string }[]) => void) => cb(emailSuggestions.map(s => ({ value: s })))"
               placeholder="邮箱地址"
               clearable
               @input="() => { debouncedCheckEmail(); validateEmailField(); }"
@@ -157,6 +157,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElForm } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { User, Message, Lock } from '@element-plus/icons-vue'
 import { Loading, CircleCheck, CircleClose } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
@@ -357,7 +358,7 @@ const selectDomain = (domain: string) => {
   debouncedCheckEmail()
 }
 
-const rules = {
+const rules: FormRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
     { min: 3, max: 50, message: '用户名长度 3-50 位', trigger: 'blur' },

@@ -8,9 +8,7 @@ API依赖注入和中间件
 from typing import Optional
 from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, pool
-from sqlalchemy.orm import sessionmaker
-from jose import jwt
+from jose.exceptions import JWTError
 
 from app.core.config import settings
 from app.core.errors import (
@@ -20,41 +18,11 @@ from app.core.errors import (
     ERROR_HTTP_STATUS,
 )
 from app.services.auth_service import AuthService
+from app.database import SessionLocal, engine, get_db
 
 
 # ==================== 数据库会话 ====================
-
-# 创建数据库引擎
-engine = create_engine(
-    settings.DATABASE_URL,
-    poolclass=pool.QueuePool,
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True,
-    echo=settings.DEBUG
-)
-
-# 创建Session工厂
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def get_db() -> Session:
-    """
-    获取数据库会话
-
-    返回:
-        SQLAlchemy Session对象
-
-    示例:
-        @router.get("/users")
-        async def get_users(db: Session = Depends(get_db)):
-            ...
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# engine/SessionLocal/get_db 统一由 app.database 提供，此处直接复用
 
 
 # ==================== 认证依赖 ====================
@@ -163,7 +131,7 @@ def get_current_user(
             status_code=http_status,
             detail=e.message
         )
-    except jwt.InvalidTokenError:
+    except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="无效的认证令牌",
@@ -210,7 +178,7 @@ def get_optional_user(
             "role": payload.get("role"),
             "tenant_id": payload.get("tenant_id")
         }
-    except (TokenExpiredError, BusinessException, jwt.InvalidTokenError):
+    except (TokenExpiredError, BusinessException, JWTError):
         return None
 
 

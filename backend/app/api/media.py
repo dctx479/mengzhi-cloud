@@ -27,10 +27,19 @@ from app.schemas.media import (
     MediaType as MediaTypeSchema
 )
 from app.models.media import Media, MediaType
+from app.models.user import User
 from app.services.upload_service import UploadService
 
 
 router = APIRouter(prefix="/media", tags=["媒体素材管理"])
+
+
+def _get_user_int_id(current_user: dict, db: Session) -> int:
+    """从current_user dict获取用户整数数据库ID"""
+    user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="用户不存在")
+    return user.id
 
 
 def get_upload_service(db: Session = Depends(get_db)) -> UploadService:
@@ -47,6 +56,7 @@ async def upload_image(
     description: Optional[str] = Form(None, description="描述"),
     alt_text: Optional[str] = Form(None, description="图片alt文本"),
     current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
     upload_service: UploadService = Depends(get_upload_service)
 ):
     """
@@ -61,7 +71,7 @@ async def upload_image(
         media = await upload_service.upload_image(
             file=file,
             category=category,
-            user_id=int(current_user["user_id"]),
+            user_id=_get_user_int_id(current_user, db),
             product_id=product_id,
             title=title,
             description=description,
@@ -87,6 +97,7 @@ async def upload_video(
     title: Optional[str] = Form(None, description="标题"),
     description: Optional[str] = Form(None, description="描述"),
     current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
     upload_service: UploadService = Depends(get_upload_service)
 ):
     """
@@ -99,7 +110,7 @@ async def upload_video(
         media = await upload_service.upload_video(
             file=file,
             category=category,
-            user_id=int(current_user["user_id"]),
+            user_id=_get_user_int_id(current_user, db),
             product_id=product_id,
             title=title,
             description=description
@@ -138,7 +149,7 @@ async def list_media(
 
     # 权限过滤
     if current_user["role"] != "admin":
-        query = query.filter(Media.user_id == int(current_user["user_id"]))
+        query = query.filter(Media.user_id == _get_user_int_id(current_user, db))
     elif user_id:
         # 管理员可以筛选特定用户
         query = query.filter(Media.user_id == user_id)
@@ -169,6 +180,7 @@ async def list_media(
 @router.get("/stats", response_model=MediaStatsResponse)
 async def get_media_stats(
     current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
     upload_service: UploadService = Depends(get_upload_service)
 ):
     """
@@ -178,7 +190,7 @@ async def get_media_stats(
     - 按类型统计
     - 按分类统计
     """
-    stats = upload_service.get_user_media_stats(int(current_user["user_id"]))
+    stats = upload_service.get_user_media_stats(_get_user_int_id(current_user, db))
     return stats
 
 
@@ -186,6 +198,7 @@ async def get_media_stats(
 async def get_media(
     media_id: int,
     current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
     upload_service: UploadService = Depends(get_upload_service)
 ):
     """
@@ -200,7 +213,7 @@ async def get_media(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 权限验证
-    if media.user_id != int(current_user["user_id"]) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="无权访问此媒体")
 
     return media
@@ -227,7 +240,7 @@ async def update_media(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 权限验证
-    if media.user_id != int(current_user["user_id"]) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="无权修改此媒体")
 
     # 更新字段
@@ -245,6 +258,7 @@ async def update_media(
 async def delete_media(
     media_id: int,
     current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
     upload_service: UploadService = Depends(get_upload_service)
 ):
     """
@@ -260,7 +274,7 @@ async def delete_media(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 权限验证
-    if media.user_id != int(current_user["user_id"]) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="无权删除此媒体")
 
     # 删除媒体
@@ -290,7 +304,7 @@ async def assign_media_to_product(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 验证媒体所有权
-    if media.user_id != int(current_user["user_id"]) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="无权操作此媒体")
 
     # 验证产品存在
@@ -299,7 +313,7 @@ async def assign_media_to_product(
         raise HTTPException(status_code=404, detail="产品不存在")
 
     # 验证产品所有权
-    if product.created_by != int(current_user["user_id"]) and current_user["role"] != "admin":
+    if product.created_by != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="无权操作此产品")
 
     # 关联产品
@@ -325,7 +339,7 @@ async def unassign_media_from_product(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 权限验证
-    if media.user_id != int(current_user["user_id"]) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="无权操作此媒体")
 
     # 取消关联

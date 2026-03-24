@@ -38,7 +38,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import VirtualList from './VirtualList.vue'
 
 // 定义Props

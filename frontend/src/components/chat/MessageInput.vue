@@ -82,7 +82,7 @@
             type="primary"
             :loading="loading"
             :disabled="!canSend"
-            icon="SendFilled"
+            icon="Promotion"
             @click="handleSend"
           >
             {{ loading ? '发送中...' : '发送' }}
@@ -92,7 +92,7 @@
 
       <!-- 输入提示 -->
       <div class="input-hint">
-        <span>Shift + Enter 换行</span>
+        <span>Ctrl + Enter 发送，Enter 换行</span>
         <span v-if="selectedFiles.length > 0" class="files-count">
           已选择 {{ selectedFiles.length }} 个文件
         </span>
@@ -151,7 +151,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { DocumentAdd, Picture, Setting, SendFilled } from '@element-plus/icons-vue'
 import type { FileUploadResponse } from '@/types/chat'
 import FileUpload from './FileUpload.vue'
 
@@ -177,7 +176,7 @@ interface ChatSettings {
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
-  placeholder: '输入消息... (Shift+Enter 换行，Enter 发送)',
+  placeholder: '输入消息... (Ctrl+Enter 发送，Enter 换行)',
   maxLength: 4000,
   showWordLimit: false,
   inputRows: 3,
@@ -203,7 +202,7 @@ const canSend = computed(() => {
 })
 
 const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
+  if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
     event.preventDefault()
     if (canSend.value) {
       handleSend()

@@ -48,7 +48,7 @@
           <el-dropdown
             v-if="row.status === 'completed'"
             size="small"
-            @command="(cmd) => handleExport(row, cmd)"
+            @command="(cmd: 'txt' | 'docx' | 'pdf') => handleExport(row, cmd)"
           >
             <el-button size="small">
               导出

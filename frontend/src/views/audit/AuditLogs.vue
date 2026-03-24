@@ -141,29 +141,29 @@
 
         <el-table-column prop="username" label="操作人" width="120" />
 
-        <el-table-column prop="resourceType" label="资源类型" width="120" />
+        <el-table-column prop="resource" label="资源类型" width="120" />
 
-        <el-table-column prop="resourceName" label="资源名称" min-width="150">
+        <el-table-column label="资源名称" min-width="150">
           <template #default="{ row }">
-            <el-text truncated>{{ row.resourceName || row.resourceId }}</el-text>
+            <el-text truncated>{{ row.details || row.resource_id }}</el-text>
           </template>
         </el-table-column>
 
-        <el-table-column prop="ipAddress" label="IP地址" width="140" />
+        <el-table-column prop="ip_address" label="IP地址" width="140" />
 
-        <el-table-column prop="status" label="状态" width="80">
+        <el-table-column label="状态" width="80">
           <template #default="{ row }">
             <el-tag
-              :type="row.status === 'success' ? 'success' : 'danger'"
+              :type="row.is_success ? 'success' : 'danger'"
               size="small"
             >
-              {{ row.status === 'success' ? '成功' : '失败' }}
+              {{ row.is_success ? '成功' : '失败' }}
             </el-tag>
           </template>
         </el-table-column>
 
         <el-table-column
-          prop="createdAt"
+          prop="created_at"
           label="操作时间"
           width="180"
           sortable="custom"

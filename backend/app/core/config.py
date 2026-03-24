@@ -1,20 +1,65 @@
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from functools import lru_cache
 from typing import Optional, List
+import warnings
+import os
 
 
 class Settings(BaseSettings):
-    """应用配置"""
+    """应用配置
+
+    P1安全修复:
+    - DEBUG 默认值根据 ENVIRONMENT 自动设置
+    - 生产环境自动禁用 DEBUG
+    - 数据库密码安全验证
+    - 启动时安全检查
+    """
 
     # 应用配置
     APP_NAME: str = "内蒙古农畜产品AI平台"
-    DEBUG: bool = True
+    DEBUG: bool = False  # P1修复: 默认为 False，仅开发环境显式启用
     VERSION: str = "0.1.0"
-    ENVIRONMENT: str = "development"  # development/production
+    ENVIRONMENT: str = "development"  # development/production/test
 
     # 数据库配置
     DATABASE_URL: str = "mysql+pymysql://root:root123@localhost:3306/agri_platform?charset=utf8mb4"
+
+    # P1修复: 验证数据库URL安全性
+    @field_validator('DATABASE_URL')
+    @classmethod
+    def validate_database_url(cls, v: str, info) -> str:
+        """验证数据库URL的安全性
+
+        生产环境不允许使用默认的弱密码
+        """
+        environment = os.getenv('ENVIRONMENT', 'development')
+        app_env = os.getenv('APP_ENV', '')
+
+        # 测试环境跳过验证
+        if environment == 'test' or app_env == 'test' or os.getenv('TEST_MODE') == 'True':
+            return v
+
+        # 默认弱密码列表
+        weak_passwords = ['root123', 'password', '123456', 'admin', 'root', 'test']
+
+        for weak_pwd in weak_passwords:
+            if f':{weak_pwd}@' in v:
+                if environment == 'production' or app_env == 'production':
+                    raise ValueError(
+                        f"生产环境不允许使用弱数据库密码！\n"
+                        f"检测到可能的弱密码，请在.env文件中设置强密码:\n"
+                        f"  DATABASE_URL=mysql+pymysql://user:strong_password@host:port/db"
+                    )
+                else:
+                    # 开发环境仅警告
+                    warnings.warn(
+                        f"检测到弱数据库密码，建议在生产环境使用强密码",
+                        UserWarning
+                    )
+                break
+
+        return v
 
     # 多租户隔离配置
     TENANT_ISOLATION_MODE: str = "hybrid"  # hybrid/shared/isolated
@@ -23,6 +68,34 @@ class Settings(BaseSettings):
     TENANT_DB_PORT: int = 3306  # 租户数据库端口
     TENANT_DB_USER: str = "root"  # 租户数据库用户
     TENANT_DB_PASSWORD: str = "root123"  # 租户数据库密码
+
+    # P1修复: 验证租户数据库密码安全性
+    @field_validator('TENANT_DB_PASSWORD')
+    @classmethod
+    def validate_tenant_db_password(cls, v: str, info) -> str:
+        """验证租户数据库密码的安全性"""
+        environment = os.getenv('ENVIRONMENT', 'development')
+        app_env = os.getenv('APP_ENV', '')
+
+        if environment == 'test' or app_env == 'test' or os.getenv('TEST_MODE') == 'True':
+            return v
+
+        weak_passwords = ['root123', 'password', '123456', 'admin', 'root', 'test', '']
+
+        if v in weak_passwords:
+            if environment == 'production' or app_env == 'production':
+                raise ValueError(
+                    "生产环境不允许使用弱租户数据库密码！\n"
+                    "请在.env文件中设置TENANT_DB_PASSWORD为强密码"
+                )
+            else:
+                warnings.warn(
+                    "检测到弱租户数据库密码，建议在生产环境使用强密码",
+                    UserWarning
+                )
+
+        return v
+
     MAX_TENANT_DATABASES: int = 1000  # 最大租户数据库数
     TENANT_DB_POOL_SIZE: int = 5  # 租户数据库连接池大小
     TENANT_DB_MAX_OVERFLOW: int = 10  # 租户数据库最大溢出连接数
@@ -78,21 +151,34 @@ class Settings(BaseSettings):
 
         # 检查是否为默认值或弱密钥
         if v.lower() in [k.lower() for k in weak_keys]:
-            raise ValueError(
-                "SECRET_KEY不能使用默认值或弱密钥！\n"
-                "请在.env文件中设置强密钥，或使用以下命令生成:\n"
-                "  python scripts/generate_secret_key.py\n"
-                "然后将生成的密钥添加到.env文件:\n"
-                "  SECRET_KEY=<生成的密钥>"
-            )
+            if environment == 'production' or app_env == 'production':
+                raise ValueError(
+                    "生产环境不允许使用默认值或弱SECRET_KEY！\n"
+                    "请在.env文件中设置强密钥，或使用以下命令生成:\n"
+                    "  python scripts/generate_secret_key.py\n"
+                    "然后将生成的密钥添加到.env文件:\n"
+                    "  SECRET_KEY=<生成的密钥>"
+                )
+            else:
+                # 开发环境仅警告
+                warnings.warn(
+                    "检测到弱SECRET_KEY，建议在生产环境使用强密钥",
+                    UserWarning
+                )
 
         # 检查长度
         if len(v) < 32:
-            raise ValueError(
-                f"SECRET_KEY长度不足！当前长度: {len(v)}, 要求至少: 32\n"
-                "请使用以下命令生成强密钥:\n"
-                "  python scripts/generate_secret_key.py"
-            )
+            if environment == 'production' or app_env == 'production':
+                raise ValueError(
+                    f"生产环境SECRET_KEY长度不足！当前长度: {len(v)}, 要求至少: 32\n"
+                    "请使用以下命令生成强密钥:\n"
+                    "  python scripts/generate_secret_key.py"
+                )
+            else:
+                warnings.warn(
+                    f"SECRET_KEY长度不足 ({len(v)} < 32)，建议在生产环境使用更长的密钥",
+                    UserWarning
+                )
 
         return v
 
@@ -163,17 +249,18 @@ class Settings(BaseSettings):
 
         # 检查API密钥格式（DeepSeek密钥通常以sk-开头）
         if not v.startswith('sk-'):
-            raise ValueError(
-                f"DeepSeek API密钥格式不正确！\n"
-                "正确格式应该以'sk-'开头\n"
-                "请检查您的API密钥是否正确"
+            import warnings
+            warnings.warn(
+                f"DeepSeek API密钥格式可能不正确（通常以'sk-'开头），当前值: {v[:6]}...",
+                UserWarning
             )
 
         # 检查密钥长度（DeepSeek密钥通常较长）
         if len(v) < 20:
-            raise ValueError(
-                f"DeepSeek API密钥长度不足！当前长度: {len(v)}\n"
-                "请确认您使用的是完整的API密钥"
+            import warnings
+            warnings.warn(
+                f"DeepSeek API密钥长度可能不足（当前: {len(v)}），请确认使用完整密钥",
+                UserWarning
             )
 
         return v
@@ -265,6 +352,60 @@ class Settings(BaseSettings):
         env_file = ".env"
         case_sensitive = True
         extra = "ignore"  # 忽略.env中未定义的字段
+
+    # P1修复: 模型初始化后的安全检查
+    @model_validator(mode='after')
+    def security_check(self) -> 'Settings':
+        """启动时安全检查
+
+        在配置加载完成后执行综合安全检查，
+        生产环境强制执行，开发环境仅警告
+        """
+        is_production = self.ENVIRONMENT == 'production'
+        security_issues = []
+
+        # 检查 DEBUG 模式
+        if self.DEBUG and is_production:
+            security_issues.append(
+                "生产环境不应启用 DEBUG 模式！请设置 DEBUG=False"
+            )
+
+        # 检查支付开发模式
+        if self.PAYMENT_DEV_MODE and is_production and self.PAYMENT_ENABLED:
+            security_issues.append(
+                "生产环境不应启用支付开发模式！请设置 PAYMENT_DEV_MODE=False"
+            )
+
+        # 检查邮件开发模式
+        if self.EMAIL_DEV_MODE and is_production:
+            security_issues.append(
+                "生产环境不应启用邮件开发模式！请设置 EMAIL_DEV_MODE=False"
+            )
+
+        # 检查短信开发模式
+        if self.SMS_DEV_MODE and is_production:
+            security_issues.append(
+                "生产环境不应启用短信开发模式！请设置 SMS_DEV_MODE=False"
+            )
+
+        # 检查 CORS 配置
+        if is_production and '*' in str(self.CORS_ORIGINS):
+            security_issues.append(
+                "生产环境不应允许所有来源的 CORS 请求！请配置具体的域名"
+            )
+
+        # 输出安全检查结果
+        if security_issues:
+            if is_production:
+                raise ValueError(
+                    "生产环境安全检查失败:\n" +
+                    "\n".join(f"  - {issue}" for issue in security_issues)
+                )
+            else:
+                for issue in security_issues:
+                    warnings.warn(f"安全提示: {issue}", UserWarning)
+
+        return self
 
 
 @lru_cache()

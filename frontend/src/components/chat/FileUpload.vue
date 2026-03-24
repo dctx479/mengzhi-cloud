@@ -2,7 +2,6 @@
   <div class="file-upload-container">
     <!-- 上传区域 -->
     <el-upload
-      ref="uploadRef"
       :action="uploadAction"
       :before-upload="beforeUpload"
       :on-success="handleUploadSuccess"
@@ -113,11 +112,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { UploadFilled, Document, FileZip, Table } from '@element-plus/icons-vue'
+import { UploadFilled } from '@element-plus/icons-vue'
 import type { FileUploadResponse } from '@/types/chat'
 
 interface Props {
   chatId?: string
+  uploadAction?: string
   multiple?: boolean
   drag?: boolean
   buttonText?: string
@@ -130,6 +130,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  uploadAction: '/api/v1/media/upload',
   multiple: true,
   drag: true,
   buttonText: '上传文件',
@@ -150,7 +151,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-const uploadRef = ref()
 const uploadedFiles = ref<FileUploadResponse[]>([])
 const imagePreviewVisible = ref(false)
 const previewingImage = ref<FileUploadResponse | null>(null)

@@ -57,6 +57,11 @@ from app.schemas.auth import (
 router = APIRouter()
 
 
+def _enum_val(v):
+    """Convert ORM Enum or raw SQL uppercase string to lowercase."""
+    return v.value if hasattr(v, 'value') else str(v).lower()
+
+
 # ==================== 1. 用户注册 ====================
 
 @router.post(
@@ -259,15 +264,15 @@ async def login(
         # 5. 更新登录信息
         auth_service._update_successful_login(user.id)
 
-        # 6. 构建响应
+        # 6. 构建响应 (normalize enum values to lowercase for frontend)
         user_data = UserResponse(
             user_id=user.user_uuid,
             username=user.username,
             email=auth_service.mask_email(user.email),
             phone=auth_service.mask_phone(user.phone),
-            user_type=user.user_type,
-            status=user.status,
-            role=user.role,
+            user_type=_enum_val(user.user_type),
+            status=_enum_val(user.status),
+            role=_enum_val(user.role),
             created_at=user.created_at,
             last_login_at=user.last_login_at
         )
@@ -502,16 +507,22 @@ async def get_me(
         if not user:
             raise UserNotFoundError()
 
+        def _attr(obj, key, default=None):
+            """Get attribute from ORM Row or dict."""
+            if isinstance(obj, dict):
+                return obj.get(key, default)
+            return getattr(obj, key, default)
+
         response_data = UserResponse(
-            user_id=user.user_uuid if hasattr(user, 'user_uuid') else user['user_uuid'],
-            username=user.username if hasattr(user, 'username') else user['username'],
-            email=auth_service.mask_email(user.email if hasattr(user, 'email') else user['email']),
-            phone=auth_service.mask_phone(user.phone if hasattr(user, 'phone') else user['phone']),
-            user_type=user.user_type if hasattr(user, 'user_type') else user['user_type'],
-            status=user.status if hasattr(user, 'status') else user['status'],
-            role=user.role if hasattr(user, 'role') else user['role'],
-            created_at=user.created_at if hasattr(user, 'created_at') else None,
-            last_login_at=user.last_login_at if hasattr(user, 'last_login_at') else user.get('last_login_at')
+            user_id=_attr(user, 'user_uuid'),
+            username=_attr(user, 'username'),
+            email=auth_service.mask_email(_attr(user, 'email')),
+            phone=auth_service.mask_phone(_attr(user, 'phone')),
+            user_type=_enum_val(_attr(user, 'user_type', 'personal')),
+            status=_enum_val(_attr(user, 'status', 'active')),
+            role=_enum_val(_attr(user, 'role', 'user')),
+            created_at=_attr(user, 'created_at'),
+            last_login_at=_attr(user, 'last_login_at')
         )
 
         return APIResponse(
@@ -525,8 +536,7 @@ async def get_me(
     except Exception as e:
         return error_response(
             code=ErrorCode.SYSTEM_ERROR,
-            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
-            data=None
+            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
         )
 
 
@@ -612,7 +622,8 @@ async def update_profile(
             )
 
         # 执行更新
-        update_fields.append("updated_at = NOW()")
+        params["updated_at"] = datetime.utcnow()
+        update_fields.append("updated_at = :updated_at")
         sql = f"UPDATE users SET {', '.join(update_fields)} WHERE user_uuid = :user_id"
 
         db.execute(text(sql), params)
@@ -632,8 +643,7 @@ async def update_profile(
         db.rollback()
         return error_response(
             code=ErrorCode.SYSTEM_ERROR,
-            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
-            data=None
+            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
         )
 
 
@@ -711,17 +721,19 @@ async def change_password(
 
         # 更新密码
         from sqlalchemy import text
+        now = datetime.utcnow()
         db.execute(
             text("""
                 UPDATE users
                 SET password_hash = :password_hash,
-                    password_changed_at = NOW(),
-                    updated_at = NOW()
+                    password_changed_at = :now,
+                    updated_at = :now
                 WHERE user_uuid = :user_id
             """),
             {
                 "password_hash": new_password_hash,
-                "user_id": current_user["user_id"]
+                "user_id": current_user["user_id"],
+                "now": now
             }
         )
         db.commit()
@@ -743,8 +755,7 @@ async def change_password(
         db.rollback()
         return error_response(
             code=ErrorCode.SYSTEM_ERROR,
-            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
-            data=None
+            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
         )
 
 
@@ -830,17 +841,19 @@ async def reset_password(
 
         # 更新密码
         from sqlalchemy import text
+        now = datetime.utcnow()
         db.execute(
             text("""
                 UPDATE users
                 SET password_hash = :password_hash,
-                    password_changed_at = NOW(),
-                    updated_at = NOW()
+                    password_changed_at = :now,
+                    updated_at = :now
                 WHERE id = :user_id
             """),
             {
                 "password_hash": new_password_hash,
-                "user_id": user.id
+                "user_id": user.id,
+                "now": now
             }
         )
         db.commit()
@@ -862,8 +875,7 @@ async def reset_password(
         db.rollback()
         return error_response(
             code=ErrorCode.SYSTEM_ERROR,
-            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
-            data=None
+            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
         )
 
 

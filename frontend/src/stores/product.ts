@@ -3,14 +3,14 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Product, Category } from '@/types/product'
+import type { Product, ProductDetail, Category } from '@/types/product'
 import * as productAPI from '@/api/products'
 
 export const useProductStore = defineStore('product', () => {
   // State
   const products = ref<Product[]>([])
   const categories = ref<Category[]>([])
-  const currentProduct = ref<Product | null>(null)
+  const currentProduct = ref<ProductDetail | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -32,7 +32,7 @@ export const useProductStore = defineStore('product', () => {
       filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(keyword) ||
-          p.description.toLowerCase().includes(keyword)
+          (p.description || '').toLowerCase().includes(keyword)
       )
     }
     return filtered

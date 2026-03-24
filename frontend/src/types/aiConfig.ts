@@ -1,7 +1,9 @@
+export type AIProvider = 'openai' | 'azure' | 'anthropic' | 'deepseek' | 'qwen' | 'wenxin' | 'glm' | 'spark' | 'moonshot' | 'custom';
+
 export interface AIConfig {
   id: string;
   name: string;
-  provider: 'openai' | 'azure' | 'anthropic' | 'custom';
+  provider: AIProvider;
   apiKey: string;
   endpoint?: string;
   model: string;
@@ -11,7 +13,7 @@ export interface AIConfig {
 
 export interface AIConfigForm {
   name: string;
-  provider: 'openai' | 'azure' | 'anthropic' | 'custom';
+  provider: AIProvider;
   apiKey: string;
   endpoint?: string;
   model: string;

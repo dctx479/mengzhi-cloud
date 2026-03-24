@@ -25,9 +25,9 @@ logger = logging.getLogger(__name__)
 
 def verify_alertmanager_auth(credentials: HTTPBasicCredentials = Depends(security)):
     """验证Alertmanager的HTTP Basic Auth"""
-    # 在生产环境中，这些凭据应该从环境变量或配置文件读取
-    correct_username = "alertmanager"
-    correct_password = "alertmanager_webhook_secret"  # 应该使用更强的密码
+    import os
+    correct_username = os.getenv("ALERTMANAGER_WEBHOOK_USER", "alertmanager")
+    correct_password = os.getenv("ALERTMANAGER_WEBHOOK_SECRET", "changeme")
 
     if (
         credentials.username != correct_username

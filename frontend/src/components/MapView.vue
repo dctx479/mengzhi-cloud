@@ -172,11 +172,6 @@ const handleRefreshMap = () => {
   console.log('刷新地图')
 }
 
-const handleSelectProduct = (product: Product) => {
-  selectedMapProduct.value = product
-  showProductPopup.value = true
-}
-
 const handleViewMapProductDetail = () => {
   if (selectedMapProduct.value) {
     showProductPopup.value = false

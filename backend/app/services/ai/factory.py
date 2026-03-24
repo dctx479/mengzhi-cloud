@@ -29,6 +29,15 @@ class AIProviderFactory:
     _providers: Dict[str, Type[BaseAIProvider]] = {
         "deepseek": DeepSeekProvider,
         "openai": OpenAIProvider,
+        # 国产模型 - 使用 OpenAI 兼容接口
+        "qwen": OpenAIProvider,       # 通义千问 (阿里)
+        "glm": OpenAIProvider,         # 智谱GLM
+        "moonshot": OpenAIProvider,    # 月之暗面
+        "wenxin": OpenAIProvider,      # 文心一言 (百度) - 需配置endpoint
+        "spark": OpenAIProvider,       # 讯飞星火 - 需配置endpoint
+        "anthropic": OpenAIProvider,   # Anthropic
+        "azure": OpenAIProvider,       # Azure OpenAI
+        "custom": OpenAIProvider,      # 自定义
     }
 
     _instances: Dict[str, BaseAIProvider] = {}

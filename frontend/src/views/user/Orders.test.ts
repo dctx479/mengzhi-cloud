@@ -35,19 +35,19 @@ describe('Orders Component', () => {
   it('should load and display orders', async () => {
     const mockOrders = [
       {
-        id: '1',
+        id: 1,
         order_no: 'ORDER-001',
         user_id: 'user-1',
-        status: 'completed',
+        status: 'completed' as const,
         total_amount: 100,
         created_at: '2024-01-01T00:00:00Z',
         updated_at: '2024-01-02T00:00:00Z',
         items: [
           {
-            id: 'item-1',
-            product_id: 'prod-1',
+            id: 1,
+            product_id: 1,
             product: {
-              id: 'prod-1',
+              id: 1,
               name: '测试产品',
               image: 'https://example.com/image.jpg',
               price: 100,

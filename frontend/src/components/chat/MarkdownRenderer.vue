@@ -1,11 +1,13 @@
 <template>
-  <div class="markdown-renderer" v-html="renderedHTML"></div>
+  <!-- S-P0-001修复: 使用 DOMPurify 清理 HTML 防止 XSS -->
+  <div class="markdown-renderer" v-html="sanitizedHTML"></div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
+import DOMPurify from 'dompurify'
 import 'highlight.js/styles/atom-one-light.css'
 
 interface Props {
@@ -14,9 +16,27 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {})
 
+// 配置 DOMPurify 安全策略
+DOMPurify.setConfig({
+  ALLOWED_TAGS: [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'p', 'br', 'hr',
+    'ul', 'ol', 'li',
+    'blockquote', 'pre', 'code',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'a', 'strong', 'em', 'del', 'img', 'span', 'div'
+  ],
+  ALLOWED_ATTR: [
+    'href', 'target', 'rel', 'class', 'src', 'alt', 'title',
+    'colspan', 'rowspan'
+  ],
+  ALLOW_DATA_ATTR: false,
+  ADD_ATTR: ['target', 'rel'],
+})
+
 // 初始化 Markdown 渲染器
-const md = new MarkdownIt({
-  html: true,
+const md: MarkdownIt = new MarkdownIt({
+  html: false, // S-P0-001: 禁用原始 HTML 以增强安全性
   linkify: true,
   typographer: true,
   highlight: (str: string, lang: string) => {
@@ -32,31 +52,33 @@ const md = new MarkdownIt({
 })
 
 // 自定义渲染规则
-const defaultLinkOpenRender = md.renderer.rules.link_open || function (tokens, idx) {
-  return md.renderToken(tokens, idx, {})
+const defaultLinkOpenRender = md.renderer.rules.link_open || function (tokens: any, idx: number, options: any, _env: any, self: any) {
+  return self.renderToken(tokens, idx, options)
 }
 
-md.renderer.rules.link_open = function (tokens, idx) {
+md.renderer.rules.link_open = function (tokens: any, idx: number, options: any, env: any, self: any) {
   const token = tokens[idx]
   token.attrSet('target', '_blank')
   token.attrSet('rel', 'noopener noreferrer')
-  return defaultLinkOpenRender(tokens, idx, {})
+  return defaultLinkOpenRender(tokens, idx, options, env, self)
 }
 
 // 自定义表格样式
-const defaultTableOpenRender = md.renderer.rules.table_open || function (tokens, idx) {
+const defaultTableOpenRender = md.renderer.rules.table_open || function (_tokens: any, _idx: any) {
   return '<table class="md-table">'
 }
 
 md.renderer.rules.table_open = defaultTableOpenRender
 
-// 渲染 HTML
-const renderedHTML = computed(() => {
+// 渲染并清理 HTML
+const sanitizedHTML = computed(() => {
   try {
-    return md.render(props.content)
+    const rawHTML = md.render(props.content)
+    // S-P0-001: 使用 DOMPurify 清理潜在的 XSS 攻击代码
+    return DOMPurify.sanitize(rawHTML)
   } catch (e) {
     console.error('Markdown render error:', e)
-    return `<p>${md.utils.escapeHtml(props.content)}</p>`
+    return DOMPurify.sanitize(`<p>${props.content}</p>`)
   }
 })
 </script>

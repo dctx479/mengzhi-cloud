@@ -16,11 +16,9 @@ from datetime import datetime, date, timedelta
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
+from loguru import logger
 
-from app.models.billing import (
-    BillingPlan, BillingRecord, Invoice,
-    BillingMode, InvoiceStatus, PaymentMethod
-)
+from app.models.billing import BillingPlan, BillingRecord, Invoice, BillingMode, InvoiceStatus, PaymentMethod
 from app.models.user import User
 
 
@@ -52,10 +50,7 @@ class BillingEngine:
         """
         # TODO: 实现用户与计费方案的关联逻辑
         # 目前返回默认方案
-        return self.db.query(BillingPlan).filter(
-            BillingPlan.is_default == True,
-            BillingPlan.is_active == True
-        ).first()
+        return self.db.query(BillingPlan).filter(BillingPlan.is_default == True, BillingPlan.is_active == True).first()
 
     def record_usage(
         self,
@@ -64,7 +59,7 @@ class BillingEngine:
         usage_data: Dict[str, Any],
         resource_type: str = None,
         resource_id: int = None,
-        notes: str = None
+        notes: str = None,
     ) -> BillingRecord:
         """记录使用量并计费
 
@@ -109,7 +104,7 @@ class BillingEngine:
             resource_id=resource_id,
             billing_date=today,
             billing_month=billing_month,
-            notes=notes
+            notes=notes,
         )
 
         self.db.add(record)
@@ -161,13 +156,7 @@ class BillingEngine:
         else:
             return plan.pricing_rules.get("unit_price", 0) or plan.pricing_rules.get("monthly_fee", 0)
 
-    def generate_invoice(
-        self,
-        user_id: int,
-        period_start: date,
-        period_end: date,
-        due_days: int = 7
-    ) -> Invoice:
+    def generate_invoice(self, user_id: int, period_start: date, period_end: date, due_days: int = 7) -> Invoice:
         """生成账单
 
         参数:
@@ -180,12 +169,16 @@ class BillingEngine:
             Invoice: 账单
         """
         # 查询该周期内未关联账单的计费记录
-        records = self.db.query(BillingRecord).filter(
-            BillingRecord.user_id == user_id,
-            BillingRecord.billing_date >= period_start,
-            BillingRecord.billing_date <= period_end,
-            BillingRecord.invoice_id == None
-        ).all()
+        records = (
+            self.db.query(BillingRecord)
+            .filter(
+                BillingRecord.user_id == user_id,
+                BillingRecord.billing_date >= period_start,
+                BillingRecord.billing_date <= period_end,
+                BillingRecord.invoice_id == None,
+            )
+            .all()
+        )
 
         if not records:
             raise ValueError(f"No billing records found for user {user_id} in period {period_start} to {period_end}")
@@ -203,7 +196,7 @@ class BillingEngine:
             billing_period_start=period_start,
             billing_period_end=period_end,
             due_date=due_date,
-            status=InvoiceStatus.PENDING
+            status=InvoiceStatus.PENDING,
         )
 
         self.db.add(invoice)
@@ -233,12 +226,7 @@ class BillingEngine:
         返回:
             Dict: 使用量汇总
         """
-        summary = {
-            "total_tokens": 0,
-            "total_messages": 0,
-            "total_api_calls": 0,
-            "by_mode": {}
-        }
+        summary = {"total_tokens": 0, "total_messages": 0, "total_api_calls": 0, "by_mode": {}}
 
         for record in records:
             # 统计总量
@@ -250,22 +238,14 @@ class BillingEngine:
             # 按计费模式统计
             mode = record.billing_mode.value
             if mode not in summary["by_mode"]:
-                summary["by_mode"][mode] = {
-                    "quantity": 0,
-                    "amount": 0.0
-                }
+                summary["by_mode"][mode] = {"quantity": 0, "amount": 0.0}
 
             summary["by_mode"][mode]["quantity"] += record.quantity
             summary["by_mode"][mode]["amount"] += float(record.amount)
 
         return summary
 
-    def pay_invoice(
-        self,
-        invoice_id: int,
-        payment_method: PaymentMethod,
-        transaction_id: str = None
-    ) -> Invoice:
+    def pay_invoice(self, invoice_id: int, payment_method: PaymentMethod, transaction_id: str = None) -> Invoice:
         """支付账单
 
         参数:
@@ -296,7 +276,7 @@ class BillingEngine:
         end_date: date = None,
         billing_mode: BillingMode = None,
         limit: int = 100,
-        offset: int = 0
+        offset: int = 0,
     ) -> Tuple[List[BillingRecord], int]:
         """获取用户的计费记录
 
@@ -311,9 +291,7 @@ class BillingEngine:
         返回:
             Tuple[List[BillingRecord], int]: (记录列表, 总数)
         """
-        query = self.db.query(BillingRecord).filter(
-            BillingRecord.user_id == user_id
-        )
+        query = self.db.query(BillingRecord).filter(BillingRecord.user_id == user_id)
 
         if start_date:
             query = query.filter(BillingRecord.billing_date >= start_date)
@@ -328,11 +306,7 @@ class BillingEngine:
         return records, total
 
     def get_user_invoices(
-        self,
-        user_id: int,
-        status: InvoiceStatus = None,
-        limit: int = 100,
-        offset: int = 0
+        self, user_id: int, status: InvoiceStatus = None, limit: int = 100, offset: int = 0
     ) -> Tuple[List[Invoice], int]:
         """获取用户的账单
 
@@ -345,9 +319,7 @@ class BillingEngine:
         返回:
             Tuple[List[Invoice], int]: (账单列表, 总数)
         """
-        query = self.db.query(Invoice).filter(
-            Invoice.user_id == user_id
-        )
+        query = self.db.query(Invoice).filter(Invoice.user_id == user_id)
 
         if status:
             query = query.filter(Invoice.status == status)
@@ -357,12 +329,7 @@ class BillingEngine:
 
         return invoices, total
 
-    def get_billing_statistics(
-        self,
-        user_id: int,
-        start_date: date = None,
-        end_date: date = None
-    ) -> Dict[str, Any]:
+    def get_billing_statistics(self, user_id: int, start_date: date = None, end_date: date = None) -> Dict[str, Any]:
         """获取计费统计信息
 
         参数:
@@ -373,9 +340,7 @@ class BillingEngine:
         返回:
             Dict: 统计信息
         """
-        query = self.db.query(BillingRecord).filter(
-            BillingRecord.user_id == user_id
-        )
+        query = self.db.query(BillingRecord).filter(BillingRecord.user_id == user_id)
 
         if start_date:
             query = query.filter(BillingRecord.billing_date >= start_date)
@@ -392,11 +357,7 @@ class BillingEngine:
         for record in records:
             mode = record.billing_mode.value
             if mode not in by_mode:
-                by_mode[mode] = {
-                    "count": 0,
-                    "quantity": 0,
-                    "amount": 0.0
-                }
+                by_mode[mode] = {"count": 0, "quantity": 0, "amount": 0.0}
 
             by_mode[mode]["count"] += 1
             by_mode[mode]["quantity"] += record.quantity
@@ -407,10 +368,7 @@ class BillingEngine:
         for record in records:
             date_str = record.billing_date.isoformat()
             if date_str not in by_date:
-                by_date[date_str] = {
-                    "count": 0,
-                    "amount": 0.0
-                }
+                by_date[date_str] = {"count": 0, "amount": 0.0}
 
             by_date[date_str]["count"] += 1
             by_date[date_str]["amount"] += float(record.amount)
@@ -420,10 +378,7 @@ class BillingEngine:
         for record in records:
             month = record.billing_month
             if month not in by_month:
-                by_month[month] = {
-                    "count": 0,
-                    "amount": 0.0
-                }
+                by_month[month] = {"count": 0, "amount": 0.0}
 
             by_month[month]["count"] += 1
             by_month[month]["amount"] += float(record.amount)
@@ -436,8 +391,8 @@ class BillingEngine:
             "by_month": by_month,
             "period": {
                 "start": start_date.isoformat() if start_date else None,
-                "end": end_date.isoformat() if end_date else None
-            }
+                "end": end_date.isoformat() if end_date else None,
+            },
         }
 
     def auto_generate_monthly_invoices(self, target_month: date = None) -> List[Invoice]:
@@ -467,11 +422,16 @@ class BillingEngine:
             period_end = date(target_month.year, target_month.month + 1, 1) - timedelta(days=1)
 
         # 查询该月有计费记录但未生成账单的用户
-        user_ids = self.db.query(BillingRecord.user_id).filter(
-            BillingRecord.billing_date >= period_start,
-            BillingRecord.billing_date <= period_end,
-            BillingRecord.invoice_id == None
-        ).distinct().all()
+        user_ids = (
+            self.db.query(BillingRecord.user_id)
+            .filter(
+                BillingRecord.billing_date >= period_start,
+                BillingRecord.billing_date <= period_end,
+                BillingRecord.invoice_id == None,
+            )
+            .distinct()
+            .all()
+        )
 
         invoices = []
         for (user_id,) in user_ids:
@@ -479,7 +439,7 @@ class BillingEngine:
                 invoice = self.generate_invoice(user_id, period_start, period_end)
                 invoices.append(invoice)
             except Exception as e:
-                print(f"Failed to generate invoice for user {user_id}: {e}")
+                logger.warning(f"Failed to generate invoice for user {user_id}: {e}")
                 continue
 
         return invoices
@@ -493,10 +453,9 @@ class BillingEngine:
         today = date.today()
 
         # 查询逾期的待支付账单
-        overdue_invoices = self.db.query(Invoice).filter(
-            Invoice.status == InvoiceStatus.PENDING,
-            Invoice.due_date < today
-        ).all()
+        overdue_invoices = (
+            self.db.query(Invoice).filter(Invoice.status == InvoiceStatus.PENDING, Invoice.due_date < today).all()
+        )
 
         # 更新状态为逾期
         for invoice in overdue_invoices:
@@ -549,10 +508,7 @@ class BillingPlanManager:
         return self.db.query(BillingPlan).filter(BillingPlan.id == plan_id).first()
 
     def get_plans(
-        self,
-        is_active: bool = None,
-        billing_mode: BillingMode = None,
-        applicable_to: str = None
+        self, is_active: bool = None, billing_mode: BillingMode = None, applicable_to: str = None
     ) -> List[BillingPlan]:
         """获取计费方案列表
 
@@ -571,12 +527,7 @@ class BillingPlanManager:
         if billing_mode:
             query = query.filter(BillingPlan.billing_mode == billing_mode)
         if applicable_to:
-            query = query.filter(
-                or_(
-                    BillingPlan.applicable_to == applicable_to,
-                    BillingPlan.applicable_to == "all"
-                )
-            )
+            query = query.filter(or_(BillingPlan.applicable_to == applicable_to, BillingPlan.applicable_to == "all"))
 
         return query.order_by(BillingPlan.sort_order, BillingPlan.created_at).all()
 
@@ -629,9 +580,7 @@ class BillingPlanManager:
             BillingPlan: 设置后的方案
         """
         # 取消其他默认方案
-        self.db.query(BillingPlan).filter(
-            BillingPlan.is_default == True
-        ).update({"is_default": False})
+        self.db.query(BillingPlan).filter(BillingPlan.is_default == True).update({"is_default": False})
 
         # 设置新的默认方案
         plan = self.get_plan(plan_id)

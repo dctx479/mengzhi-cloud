@@ -345,7 +345,8 @@ class AuditService:
                 query = query.filter(AuditLog.user_id == user_id)
 
             if username:
-                query = query.filter(AuditLog.username.like(f"%{username}%"))
+                safe_username = username.replace("%", "\\%").replace("_", "\\_")
+                query = query.filter(AuditLog.username.like(f"%{safe_username}%"))
 
             if action:
                 query = query.filter(AuditLog.action == action)

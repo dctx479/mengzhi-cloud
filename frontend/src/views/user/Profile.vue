@@ -153,7 +153,6 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElForm } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import type { UserProfile } from '@/types/user'
 
 const userStore = useUserStore()
 const formRef = ref<InstanceType<typeof ElForm>>()

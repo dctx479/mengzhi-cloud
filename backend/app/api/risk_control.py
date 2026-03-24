@@ -22,7 +22,7 @@ from ..models.risk_control import (
 from .deps import get_current_user, require_permission
 from ..models.user import User
 
-router = APIRouter(prefix="/api/risk", tags=["风控系统"])
+router = APIRouter(tags=["风控系统"])
 
 
 # Pydantic 模型定义
@@ -174,7 +174,7 @@ async def process_risk_event(
     try:
         success = risk_service.process_risk_event(
             event_id=event_id,
-            processed_by=current_user.id,
+            processed_by=current_user["user_id"],
             result=request.result
         )
 
@@ -214,7 +214,7 @@ async def create_rule(
             raise HTTPException(status_code=400, detail="无效的处理动作")
 
         rule_data = request.dict()
-        rule_data["created_by"] = current_user.id
+        rule_data["created_by"] = current_user["user_id"]
 
         rule = risk_service.create_rule(rule_data)
 
@@ -337,7 +337,7 @@ async def add_to_blacklist(
             raise HTTPException(status_code=400, detail="无效的风险等级")
 
         blacklist_data = request.dict()
-        blacklist_data["created_by"] = current_user.id
+        blacklist_data["created_by"] = current_user["user_id"]
 
         blacklist = risk_service.add_to_blacklist(blacklist_data)
 

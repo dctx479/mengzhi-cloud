@@ -47,12 +47,12 @@ class SLAAgreement(BaseModel):
 
     __tablename__ = "sla_agreements"
 
-    id = Column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
+    id = Column(BIGINT, primary_key=True, autoincrement=True)
     agreement_uuid = Column(String(36), unique=True, nullable=False, default=generate_uuid, comment="协议UUID")
 
-    # 关联信息
-    enterprise_id = Column(BIGINT(unsigned=True), ForeignKey("enterprises.id"), nullable=True, comment="企业ID")
-    user_id = Column(BIGINT(unsigned=True), ForeignKey("users.id"), nullable=True, comment="用户ID")
+    # 关联信息 - 类型必须与 enterprises.id / users.id (BIGINT) 一致
+    enterprise_id = Column(BIGINT, ForeignKey("enterprises.id"), nullable=True, comment="企业ID")
+    user_id = Column(BIGINT, ForeignKey("users.id"), nullable=True, comment="用户ID")
 
     # 协议基本信息
     name = Column(String(200), nullable=False, comment="协议名称")
@@ -121,11 +121,11 @@ class SLAMetric(BaseModel):
 
     __tablename__ = "sla_metrics"
 
-    id = Column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
+    id = Column(BIGINT, primary_key=True, autoincrement=True)
     metric_uuid = Column(String(36), unique=True, nullable=False, default=generate_uuid, comment="指标UUID")
 
     # 关联协议
-    agreement_id = Column(BIGINT(unsigned=True), ForeignKey("sla_agreements.id"), nullable=False, comment="协议ID")
+    agreement_id = Column(BIGINT, ForeignKey("sla_agreements.id"), nullable=False, comment="协议ID")
 
     # 指标信息
     metric_type = Column(Enum(MetricType), nullable=False, comment="指标类型")
@@ -206,11 +206,11 @@ class SLAViolation(BaseModel):
 
     __tablename__ = "sla_violations"
 
-    id = Column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
+    id = Column(BIGINT, primary_key=True, autoincrement=True)
     violation_uuid = Column(String(36), unique=True, nullable=False, default=generate_uuid, comment="违约UUID")
 
     # 关联协议
-    agreement_id = Column(BIGINT(unsigned=True), ForeignKey("sla_agreements.id"), nullable=False, comment="协议ID")
+    agreement_id = Column(BIGINT, ForeignKey("sla_agreements.id"), nullable=False, comment="协议ID")
 
     # 违约信息
     metric_type = Column(Enum(MetricType), nullable=False, comment="违约指标类型")
@@ -288,7 +288,7 @@ class PerformanceLog(BaseModel):
 
     __tablename__ = "performance_logs"
 
-    id = Column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
+    id = Column(BIGINT, primary_key=True, autoincrement=True)
     log_uuid = Column(String(36), unique=True, nullable=False, default=generate_uuid, comment="日志UUID")
 
     # 请求信息
@@ -297,8 +297,8 @@ class PerformanceLog(BaseModel):
     method = Column(String(10), nullable=False, comment="请求方法")
 
     # 用户信息
-    user_id = Column(BIGINT(unsigned=True), nullable=True, comment="用户ID")
-    enterprise_id = Column(BIGINT(unsigned=True), nullable=True, comment="企业ID")
+    user_id = Column(BIGINT, nullable=True, comment="用户ID")
+    enterprise_id = Column(BIGINT, nullable=True, comment="企业ID")
 
     # 性能数据
     response_time = Column(Float, nullable=False, comment="响应时间(ms)")

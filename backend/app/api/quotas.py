@@ -24,7 +24,7 @@ from app.models.user import User
 from app.core.errors import BusinessException
 
 
-router = APIRouter(prefix="/api/quotas", tags=["配额管理"])
+router = APIRouter(tags=["配额管理"])
 
 
 # ==================== Pydantic模型 ====================
@@ -163,7 +163,7 @@ async def list_quotas(
     )
 
     return {
-        "code": 0,
+        "code": 200,
         "message": "查询成功",
         "data": {
             "items": [quota.to_dict() for quota in quotas],
@@ -210,7 +210,7 @@ async def get_quota(
                 raise HTTPException(status_code=403, detail="权限不足")
 
     return {
-        "code": 0,
+        "code": 200,
         "message": "查询成功",
         "data": quota.to_dict()
     }
@@ -266,7 +266,7 @@ async def create_quota(
         )
 
         return {
-            "code": 0,
+            "code": 200,
             "message": "创建成功",
             "data": quota.to_dict()
         }
@@ -301,7 +301,7 @@ async def update_quota(
         raise HTTPException(status_code=404, detail="配额不存在")
 
     return {
-        "code": 0,
+        "code": 200,
         "message": "更新成功",
         "data": quota.to_dict()
     }
@@ -326,7 +326,7 @@ async def delete_quota(
         raise HTTPException(status_code=404, detail="配额不存在")
 
     return {
-        "code": 0,
+        "code": 200,
         "message": "删除成功"
     }
 
@@ -350,7 +350,7 @@ async def reset_quota(
         raise HTTPException(status_code=404, detail="配额不存在")
 
     return {
-        "code": 0,
+        "code": 200,
         "message": "重置成功"
     }
 
@@ -419,7 +419,7 @@ async def get_quota_usage(
     )
 
     return {
-        "code": 0,
+        "code": 200,
         "message": "查询成功",
         "data": {
             "items": [record.to_dict() for record in records],
@@ -469,7 +469,7 @@ async def get_quota_statistics(
     )
 
     return {
-        "code": 0,
+        "code": 200,
         "message": "查询成功",
         "data": statistics
     }
@@ -491,6 +491,6 @@ async def batch_reset_expired_quotas(
     count = service.reset_expired_quotas()
 
     return {
-        "code": 0,
+        "code": 200,
         "message": f"批量重置成功，共重置 {count} 个配额"
     }

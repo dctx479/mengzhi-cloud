@@ -1,6 +1,8 @@
 """监控配置模块"""
+
 from pydantic_settings import BaseSettings
 from typing import List, Dict
+
 
 class MonitoringConfig(BaseSettings):
     """监控系统配置"""
@@ -59,5 +61,7 @@ class MonitoringConfig(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
+
 
 monitoring_config = MonitoringConfig()

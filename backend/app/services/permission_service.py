@@ -144,10 +144,11 @@ class PermissionService:
 
         # 关键词搜索
         if keyword:
+            safe_keyword = keyword.replace("%", "\\%").replace("_", "\\_")
             query = query.filter(
                 or_(
-                    Role.name.like(f"%{keyword}%"),
-                    Role.code.like(f"%{keyword}%")
+                    Role.name.like(f"%{safe_keyword}%"),
+                    Role.code.like(f"%{safe_keyword}%")
                 )
             )
 

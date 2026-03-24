@@ -151,7 +151,7 @@ async def export_products(
     """
     try:
         # 权限验证：记录导出操作
-        logger.info(f"用户 {current_user.get('username', 'unknown')} 开始导出产品，格式: {format}")
+        logger.info(f"用户 {current_user.get('user_id', 'unknown')} 开始导出产品，格式: {format}")
 
         # 构建查询
         query = db.query(Product).filter(Product.deleted_at.is_(None))
@@ -237,7 +237,7 @@ async def download_import_template(
         CSV或Excel模板文件
     """
     try:
-        logger.info(f"管理员 {current_user.get('username', 'unknown')} 下载导入模板，格式: {format}")
+        logger.info(f"管理员 {current_user.get('user_id', 'unknown')} 下载导入模板，格式: {format}")
 
         template_data = {
             "产品名称": ["示例产品"],

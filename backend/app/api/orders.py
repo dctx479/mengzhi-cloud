@@ -16,16 +16,12 @@ from sqlalchemy.orm import Session
 from loguru import logger
 from typing import Optional
 
-from app.schemas.orders import (
-    OrderCreateRequest,
-    OrderDetailResponse,
-    OrderListItemResponse
-)
+from app.schemas.orders import OrderCreateRequest, OrderDetailResponse, OrderListItemResponse
 from app.schemas.payments import (
     PaymentCreateRequest,
     PaymentDetailResponse,
     PaymentStatusResponse,
-    PaymentCallbackRequest
+    PaymentCallbackRequest,
 )
 from app.services.order_service import OrderService
 from app.services.payment_service import PaymentService
@@ -42,9 +38,7 @@ router = APIRouter()
 
 @router.post("/orders", response_model=dict, tags=["订单"])
 async def create_order(
-    request: OrderCreateRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    request: OrderCreateRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ) -> dict:
     """创建订单
 
@@ -59,7 +53,10 @@ async def create_order(
     """
     # P1-10: 移除重复的异常处理，由全局异常处理器统一处理
     service = OrderService(db)
-    order = service.create_order(request, current_user.id)
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="用户不存在")
+    order = service.create_order(request, current_user_obj.id)
 
     # 转换为响应对象
     response_data = {
@@ -76,23 +73,20 @@ async def create_order(
             "chat": order.chat_quota,
             "generation": order.generation_quota,
             "token": order.token_quota,
-            "storage_mb": order.storage_quota_mb
+            "storage_mb": order.storage_quota_mb,
         },
         "validity_days": order.validity_days,
-        "status": order.status.value if hasattr(order.status, 'value') else order.status,
+        "status": order.status.value if hasattr(order.status, "value") else order.status,
         "remark": order.remark,
         "paid_at": order.paid_at,
         "completed_at": order.completed_at,
         "cancelled_at": order.cancelled_at,
         "expired_at": order.expired_at,
         "created_at": order.created_at,
-        "updated_at": order.updated_at
+        "updated_at": order.updated_at,
     }
 
-    return success_response(
-        data=response_data,
-        message="订单创建成功"
-    ).dict()
+    return success_response(data=response_data, message="订单创建成功").dict()
 
 
 @router.get("/orders", response_model=dict, tags=["订单"])
@@ -101,7 +95,7 @@ async def list_orders(
     page: int = Query(1, ge=1, description="页码"),
     size: int = Query(10, ge=1, le=100, description="每页数量"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     """获取用户订单列表
 
@@ -118,12 +112,10 @@ async def list_orders(
     """
     # P1-10: 移除重复的异常处理
     service = OrderService(db)
-    orders, total = service.get_user_orders(
-        user_id=current_user.id,
-        status=status_filter,
-        page=page,
-        size=size
-    )
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="用户不存在")
+    orders, total = service.get_user_orders(user_id=current_user_obj.id, status=status_filter, page=page, size=size)
 
     # 转换为响应对象
     items = []
@@ -133,27 +125,19 @@ async def list_orders(
             "order_no": order.order_no,
             "package_name": order.package_name,
             "amount": float(order.amount) if order.amount else 0,
-            "status": order.status.value if hasattr(order.status, 'value') else order.status,
-            "created_at": order.created_at
+            "status": order.status.value if hasattr(order.status, "value") else order.status,
+            "created_at": order.created_at,
         }
         items.append(item_dict)
 
     return success_response(
-        data={
-            "items": items,
-            "total": total,
-            "page": page,
-            "size": size
-        },
-        message="获取订单列表成功"
+        data={"items": items, "total": total, "page": page, "size": size}, message="获取订单列表成功"
     ).dict()
 
 
 @router.get("/orders/{order_id}", response_model=dict, tags=["订单"])
 async def get_order(
-    order_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    order_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ) -> dict:
     """获取订单详情
 
@@ -171,11 +155,9 @@ async def get_order(
     order = service.get_order_by_id(order_id)
 
     # 验证订单所有权
-    if order.user_id != current_user.id:
-        raise BusinessException(
-            code=ErrorCode.PERMISSION_DENIED,
-            message="无权访问此订单"
-        )
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj or order.user_id != current_user_obj.id:
+        raise BusinessException(code=ErrorCode.PERMISSION_DENIED, message="无权访问此订单")
 
     # 转换为响应对象
     response_data = {
@@ -192,23 +174,20 @@ async def get_order(
             "chat": order.chat_quota,
             "generation": order.generation_quota,
             "token": order.token_quota,
-            "storage_mb": order.storage_quota_mb
+            "storage_mb": order.storage_quota_mb,
         },
         "validity_days": order.validity_days,
-        "status": order.status.value if hasattr(order.status, 'value') else order.status,
+        "status": order.status.value if hasattr(order.status, "value") else order.status,
         "remark": order.remark,
         "paid_at": order.paid_at,
         "completed_at": order.completed_at,
         "cancelled_at": order.cancelled_at,
         "expired_at": order.expired_at,
         "created_at": order.created_at,
-        "updated_at": order.updated_at
+        "updated_at": order.updated_at,
     }
 
-    return success_response(
-        data=response_data,
-        message="获取订单详情成功"
-    ).dict()
+    return success_response(data=response_data, message="获取订单详情成功").dict()
 
 
 @router.post("/orders/{order_id}/pay", response_model=dict, tags=["支付"])
@@ -216,7 +195,7 @@ async def create_payment(
     order_id: int,
     request: PaymentCreateRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     """创建支付
 
@@ -232,11 +211,10 @@ async def create_payment(
     """
     # P1-10: 移除重复的异常处理
     service = PaymentService(db)
-    payment = service.create_payment(
-        order_id=order_id,
-        payment_method=request.payment_method,
-        user_id=current_user.id
-    )
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="用户不存在")
+    payment = service.create_payment(order_id=order_id, payment_method=request.payment_method, user_id=current_user_obj.id)
 
     # 转换为响应对象
     response_data = {
@@ -244,28 +222,25 @@ async def create_payment(
         "payment_no": payment.payment_no,
         "order_id": payment.order_id,
         "amount": float(payment.amount) if payment.amount else 0,
-        "payment_method": payment.payment_method.value if hasattr(payment.payment_method, 'value') else payment.payment_method,
-        "status": payment.status.value if hasattr(payment.status, 'value') else payment.status,
+        "payment_method": (
+            payment.payment_method.value if hasattr(payment.payment_method, "value") else payment.payment_method
+        ),
+        "status": payment.status.value if hasattr(payment.status, "value") else payment.status,
         "transaction_id": payment.transaction_id,
         "paid_at": payment.paid_at,
         "failed_at": payment.failed_at,
         "failure_reason": payment.failure_reason,
         "created_at": payment.created_at,
         "qr_code": None,  # TODO: 生产环境返回真实二维码
-        "pay_url": None   # TODO: 生产环境返回真实跳转URL
+        "pay_url": None,  # TODO: 生产环境返回真实跳转URL
     }
 
-    return success_response(
-        data=response_data,
-        message="支付创建成功"
-    ).dict()
+    return success_response(data=response_data, message="支付创建成功").dict()
 
 
 @router.get("/orders/{order_id}/payment-status", response_model=dict, tags=["支付"])
 async def get_payment_status(
-    order_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    order_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ) -> dict:
     """查询支付状态
 
@@ -280,20 +255,17 @@ async def get_payment_status(
     """
     # P1-10: 移除重复的异常处理
     service = PaymentService(db)
-    payment_status = service.get_payment_status(order_id, current_user.id)
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="用户不存在")
+    payment_status = service.get_payment_status(order_id, current_user_obj.id)
 
-    return success_response(
-        data=payment_status,
-        message="查询支付状态成功"
-    ).dict()
+    return success_response(data=payment_status, message="查询支付状态成功").dict()
 
 
 @router.post("/orders/{order_id}/payment-callback", response_model=dict, tags=["支付"])
 async def payment_callback(
-    order_id: int,
-    request: PaymentCallbackRequest,
-    http_request: Request,
-    db: Session = Depends(get_db)
+    order_id: int, request: PaymentCallbackRequest, http_request: Request, db: Session = Depends(get_db)
 ) -> dict:
     """支付回调
 
@@ -322,28 +294,62 @@ async def payment_callback(
 
     if not verify_callback_ip(http_request, allowed_ips):
         logger.error(f"支付回调IP验证失败: ip={client_ip}, order_id={order_id}")
-        raise BusinessException(
-            code=ErrorCode.PERMISSION_DENIED,
-            message="IP地址未授权"
-        )
+        raise BusinessException(code=ErrorCode.PERMISSION_DENIED, message="IP地址未授权")
 
     # 处理支付回调
     service = PaymentService(db)
-    success = service.handle_payment_callback(
-        payment_no=request.payment_no,
-        callback_data=request.callback_data
-    )
+    success = service.handle_payment_callback(payment_no=request.payment_no, callback_data=request.callback_data)
 
     if success:
         logger.info(f"支付回调处理成功: payment_no={request.payment_no}")
-        return success_response(
-            data={"processed": True},
-            message="回调处理成功"
-        ).dict()
+        return success_response(data={"processed": True}, message="回调处理成功").dict()
     else:
         logger.warning(f"支付回调处理失败: payment_no={request.payment_no}")
-        raise BusinessException(
-            code=ErrorCode.INVALID_OPERATION,
-            message="回调处理失败"
-        )
+        raise BusinessException(code=ErrorCode.INVALID_OPERATION, message="回调处理失败")
 
+
+@router.post("/orders/{order_id}/cancel", response_model=dict, tags=["订单"])
+async def cancel_order(
+    order_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+) -> dict:
+    """取消订单
+
+    路径: POST /api/v1/orders/{order_id}/cancel
+
+    参数:
+        order_id: 订单ID
+        current_user: 当前登录用户
+
+    返回:
+        取消结果
+
+    注意:
+        只有待支付(pending)状态的订单才能取消
+    """
+    from app.models.order import Order, OrderStatus
+    from datetime import datetime
+
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="用户不存在")
+
+    order = (
+        db.query(Order)
+        .filter(Order.id == order_id, Order.user_id == current_user_obj.id, Order.deleted_at.is_(None))
+        .first()
+    )
+
+    if not order:
+        raise BusinessException(code=ErrorCode.RECORD_NOT_FOUND, message="订单不存在")
+
+    order_status = order.status.value if hasattr(order.status, "value") else order.status
+    if order_status != "pending":
+        raise BusinessException(code=ErrorCode.INVALID_OPERATION, message="只有待支付订单才能取消")
+
+    order.status = OrderStatus.CANCELLED
+    order.cancelled_at = datetime.utcnow()
+    db.commit()
+    db.refresh(order)
+
+    logger.info(f"订单已取消: order_id={order_id}, user_id={current_user_obj.id}")
+    return success_response(data={"order_id": order_id, "status": "cancelled"}, message="订单已取消").dict()

@@ -35,7 +35,7 @@
 
             <!-- 价格范围 -->
             <el-form-item label="价格范围">
-              <div class="price-input-group">
+              <div v-if="filters.priceRange" class="price-input-group">
                 <el-input-number
                   v-model="filters.priceRange[0]"
                   :min="0"
@@ -242,7 +242,7 @@ const hasActiveFilters = computed(() => activeFilterTags.value.length > 0)
 
 const formatPriceTooltip = (val: number) => `¥${val}`
 
-const handleCategoryChange = (data: any, checked: boolean, node: any) => {
+const handleCategoryChange = (_data: any, _checked: boolean, _node: any) => {
   if (treeRef.value) {
     selectedCategories.value = treeRef.value.getCheckedKeys() as string[]
     filters.category = selectedCategories.value

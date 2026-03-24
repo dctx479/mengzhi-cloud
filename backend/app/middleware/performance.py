@@ -19,6 +19,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.orm import Session
 
+from loguru import logger
 from app.models.sla import PerformanceLog
 from app.core.database import SessionLocal
 
@@ -175,7 +176,7 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
 
         except Exception as e:
             # 记录日志失败不应该影响请求处理
-            print(f"Failed to log performance: {str(e)}")
+            logger.warning(f"Failed to log performance: {str(e)}")
             if db:
                 db.rollback()
 
@@ -221,7 +222,7 @@ class PerformanceMonitor:
             db.commit()
 
         except Exception as e:
-            print(f"Failed to record metric: {str(e)}")
+            logger.warning(f"Failed to record metric: {str(e)}")
             db.rollback()
 
     @staticmethod
@@ -234,6 +235,7 @@ class PerformanceMonitor:
             def my_function():
                 pass
         """
+
         def wrapper(*args, **kwargs):
             start_time = time.time()
             try:
@@ -241,7 +243,8 @@ class PerformanceMonitor:
                 return result
             finally:
                 duration = (time.time() - start_time) * 1000
-                print(f"{func.__name__} took {duration:.2f}ms")
+                logger.debug(f"{func.__name__} took {duration:.2f}ms")
+
         return wrapper
 
 

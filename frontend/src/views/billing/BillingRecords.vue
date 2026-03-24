@@ -203,7 +203,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import http from '@/utils/http'
 
 const router = useRouter()
 
@@ -284,11 +284,11 @@ const loadRecords = async () => {
     if (filters.end_date) params.end_date = filters.end_date
     if (filters.billing_mode) params.billing_mode = filters.billing_mode
 
-    const response = await axios.get('/api/v1/billing/records', { params })
+    const res = await http.get('/v1/billing/records', { params })
 
-    if (response.data.code === 200) {
-      records.value = response.data.data.records
-      pagination.total = response.data.data.pagination.total
+    if (res.code === 200) {
+      records.value = res.data.records
+      pagination.total = res.data.pagination.total
     }
   } catch (error) {
     console.error('加载计费记录失败:', error)

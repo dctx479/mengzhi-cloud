@@ -6,6 +6,7 @@
 """
 
 from jose import jwt
+from jose.exceptions import ExpiredSignatureError, JWTError
 import bcrypt
 import redis
 import uuid
@@ -180,9 +181,9 @@ class AuthService:
 
             return payload
 
-        except jwt.ExpiredSignatureError:
+        except ExpiredSignatureError:
             raise TokenExpiredError()
-        except jwt.InvalidTokenError as e:
+        except JWTError as e:
             raise BusinessException(
                 code=ErrorCode.TOKEN_INVALID,
                 message="无效的Token"
@@ -281,9 +282,9 @@ class AuthService:
             # 5. 生成新Token对
             new_access_token = self.create_access_token(
                 user_id=user.user_uuid,
-                user_type=user.user_type,
-                role=user.role,
-                tenant_id=user.enterprise_id
+                user_type=user.user_type.value,
+                role=user.role.value,
+                tenant_id=str(user.enterprise_id) if user.enterprise_id else None
             )
             new_refresh_token = self.create_refresh_token(
                 user_id=user.user_uuid,
@@ -297,12 +298,12 @@ class AuthService:
 
             return new_access_token, new_refresh_token
 
-        except jwt.ExpiredSignatureError:
+        except ExpiredSignatureError:
             raise BusinessException(
                 code=ErrorCode.REFRESH_TOKEN_EXPIRED,
                 message="刷新令牌已过期"
             )
-        except jwt.InvalidTokenError:
+        except JWTError:
             raise BusinessException(
                 code=ErrorCode.REFRESH_TOKEN_INVALID,
                 message="无效的刷新令牌"
@@ -325,7 +326,8 @@ class AuthService:
         result = self.db.execute(
             text("""
                 SELECT id, user_uuid, username, email, phone, password_hash,
-                       user_type, status, role, enterprise_id, last_login_at
+                       user_type, status, role, enterprise_id, last_login_at,
+                       created_at
                 FROM users
                 WHERE user_uuid = :user_id AND deleted_at IS NULL
             """),
@@ -373,7 +375,8 @@ class AuthService:
                     "status": user.status,
                     "role": user.role,
                     "enterprise_id": user.enterprise_id,
-                    "last_login_at": str(user.last_login_at) if user.last_login_at else None
+                    "last_login_at": str(user.last_login_at) if user.last_login_at else None,
+                    "created_at": str(user.created_at) if user.created_at else None
                 }
                 cache.set(cache_key, user_dict, ttl_seconds=ttl_seconds)
                 logger.debug(f"用户信息已缓存: {user_id}, TTL={ttl_seconds}秒")
@@ -464,7 +467,8 @@ class AuthService:
             AccountDisabledError: 账号已禁用
             AccountLockedError: 账号已锁定
         """
-        if user.status == "banned":
+        status_val = user.status.value if hasattr(user.status, 'value') else str(user.status).lower()
+        if status_val == "banned":
             raise AccountDisabledError()
 
         if user.locked_until:
@@ -475,13 +479,18 @@ class AuthService:
                 elif isinstance(user.locked_until, datetime):
                     locked_time = user.locked_until
                 else:
-                    return
+                    # 安全原则：未知类型视为锁定
+                    logger.warning(f"locked_until类型未知: {type(user.locked_until)}")
+                    raise AccountLockedError()
 
                 if locked_time > datetime.utcnow():
                     raise AccountLockedError()
+            except AccountLockedError:
+                raise
             except (ValueError, AttributeError) as e:
-                logger.warning(f"解析locked_until失败: {e}")
-                # 解析失败时不锁定账号
+                # 安全原则：解析失败视为锁定，防止绕过
+                logger.warning(f"解析locked_until失败，账号视为锁定: {e}")
+                raise AccountLockedError()
 
     def check_and_update_login_attempts(self, user_id: int, success: bool = False) -> None:
         """
@@ -492,14 +501,15 @@ class AuthService:
             success: 是否登录成功
         """
         if success:
+            now = datetime.utcnow()
             # 登录成功，重置尝试次数
             self.db.execute(
                 text("""
                     UPDATE users
-                    SET login_attempts = 0, locked_until = NULL, last_login_at = NOW()
+                    SET login_attempts = 0, locked_until = NULL, last_login_at = :now
                     WHERE id = :user_id
                 """),
-                {"user_id": user_id}
+                {"user_id": user_id, "now": now}
             )
         else:
             # 登录失败，增加尝试次数
@@ -784,6 +794,7 @@ class AuthService:
 
         # 创建企业
         enterprise_uuid = str(uuid.uuid4())
+        now = datetime.utcnow()
         self.db.execute(
             text("""
                 INSERT INTO enterprises (
@@ -791,7 +802,7 @@ class AuthService:
                     plan_type, created_at, updated_at
                 ) VALUES (
                     :enterprise_uuid, :name, :license_no, :verify_status,
-                    :plan_type, NOW(), NOW()
+                    :plan_type, :now, :now
                 )
             """),
             {
@@ -799,7 +810,8 @@ class AuthService:
                 "name": request.enterprise_name,
                 "license_no": request.enterprise_license,
                 "verify_status": "pending",
-                "plan_type": "free"
+                "plan_type": "free",
+                "now": now
             }
         )
 
@@ -824,15 +836,18 @@ class AuthService:
         """
         user_uuid = str(uuid.uuid4())
         password_hash = self.hash_password(request.password)
+        now = datetime.utcnow()
 
         self.db.execute(
             text("""
                 INSERT INTO users (
                     user_uuid, username, email, phone, password_hash,
-                    user_type, status, role, enterprise_id, created_at, updated_at
+                    user_type, status, role, enterprise_id, is_admin,
+                    created_at, updated_at
                 ) VALUES (
                     :user_uuid, :username, :email, :phone, :password_hash,
-                    :user_type, :status, :role, :enterprise_id, NOW(), NOW()
+                    :user_type, :status, :role, :enterprise_id, :is_admin,
+                    :now, :now
                 )
             """),
             {
@@ -844,7 +859,9 @@ class AuthService:
                 "user_type": request.user_type,
                 "status": "active",
                 "role": "enterprise_admin" if request.user_type == "enterprise" else "user",
-                "enterprise_id": enterprise_id
+                "enterprise_id": enterprise_id,
+                "is_admin": False,
+                "now": now
             }
         )
 
@@ -902,11 +919,13 @@ class AuthService:
         Returns:
             (access_token, refresh_token)
         """
+        user_type_val = user.user_type.value if hasattr(user.user_type, 'value') else str(user.user_type).lower()
+        role_val = user.role.value if hasattr(user.role, 'value') else str(user.role).lower()
         access_token = self.create_access_token(
             user_id=user.user_uuid,
-            user_type=user.user_type,
-            role=user.role,
-            tenant_id=user.enterprise_id
+            user_type=user_type_val,
+            role=role_val,
+            tenant_id=str(user.enterprise_id) if user.enterprise_id else None
         )
         refresh_token = self.create_refresh_token(
             user_id=user.user_uuid,

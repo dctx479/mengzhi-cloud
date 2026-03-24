@@ -22,7 +22,7 @@ from app.models.enterprise import Enterprise, IsolationMode, PlanType
 from app.services.tenant_db_manager import get_tenant_db_manager
 from app.core.tenant_database import get_tenant_router
 
-router = APIRouter(prefix="/api/admin/tenants", tags=["租户管理"])
+router = APIRouter(tags=["租户管理"])
 
 
 # ==================== Schemas ====================
@@ -119,7 +119,7 @@ async def create_tenant(
     权限：系统管理员
     """
     # 验证权限
-    if not current_user.get("is_admin"):
+    if current_user.get("role") != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="需要系统管理员权限"
@@ -186,7 +186,7 @@ async def delete_tenant(
     权限：系统管理员
     """
     # 验证权限
-    if not current_user.get("is_admin"):
+    if current_user.get("role") != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="需要系统管理员权限"
@@ -238,7 +238,7 @@ async def migrate_tenant(
     权限：系统管理员
     """
     # 验证权限
-    if not current_user.get("is_admin"):
+    if current_user.get("role") != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="需要系统管理员权限"
@@ -302,7 +302,7 @@ async def backup_tenant(
     权限：系统管理员或企业管理员
     """
     # 验证权限
-    if not current_user.get("is_admin"):
+    if current_user.get("role") != "admin":
         # 检查是否为企业管理员
         from app.models import User
         user = db.query(User).filter(
@@ -350,50 +350,45 @@ async def backup_tenant(
     )
 
 
-@router.get("/{enterprise_id}", response_model=TenantInfoResponse)
-async def get_tenant_info(
-    enterprise_id: int,
+@router.get("/stats", response_model=TenantStatsResponse)
+async def get_tenant_stats(
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     """
-    获取租户信息
+    获取租户统计信息
 
-    权限：系统管理员或企业管理员
+    权限：系统管理员
     """
     # 验证权限
-    if not current_user.get("is_admin"):
-        # 检查是否为企业管理员
-        from app.models import User
-        user = db.query(User).filter(
-            User.user_uuid == current_user["user_id"]
-        ).first()
-
-        if not user or user.enterprise_id != enterprise_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="需要系统管理员或企业管理员权限"
-            )
-
-    # 获取企业信息
-    enterprise = db.query(Enterprise).filter(
-        Enterprise.id == enterprise_id
-    ).first()
-
-    if not enterprise:
+    if current_user.get("role") != "admin":
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="企业不存在"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="需要系统管理员权限"
         )
 
-    return TenantInfoResponse(
-        enterprise_id=enterprise.id,
-        enterprise_name=enterprise.name,
-        isolation_mode=enterprise.isolation_mode.value,
-        database_name=enterprise.database_name,
-        database_created_at=enterprise.database_created_at.isoformat() if enterprise.database_created_at else None,
-        plan_type=enterprise.plan_type.value,
-        verify_status=enterprise.verify_status.value
+    # 统计租户数量
+    total_tenants = db.query(Enterprise).count()
+    isolated_tenants = db.query(Enterprise).filter(
+        Enterprise.isolation_mode == IsolationMode.ISOLATED
+    ).count()
+    shared_tenants = total_tenants - isolated_tenants
+
+    # 统计数据库数量
+    total_databases = db.query(Enterprise).filter(
+        Enterprise.database_name.isnot(None)
+    ).count()
+
+    # 获取连接统计
+    router = get_tenant_router()
+    connection_stats = router.get_connection_stats()
+
+    return TenantStatsResponse(
+        total_tenants=total_tenants,
+        isolated_tenants=isolated_tenants,
+        shared_tenants=shared_tenants,
+        total_databases=total_databases,
+        connection_stats=connection_stats
     )
 
 
@@ -412,7 +407,7 @@ async def list_tenants(
     权限：系统管理员
     """
     # 验证权限
-    if not current_user.get("is_admin"):
+    if current_user.get("role") != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="需要系统管理员权限"
@@ -444,45 +439,50 @@ async def list_tenants(
     ]
 
 
-@router.get("/stats", response_model=TenantStatsResponse)
-async def get_tenant_stats(
+@router.get("/{enterprise_id}", response_model=TenantInfoResponse)
+async def get_tenant_info(
+    enterprise_id: int,
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     """
-    获取租户统计信息
+    获取租户信息
 
-    权限：系统管理员
+    权限：系统管理员或企业管理员
     """
     # 验证权限
-    if not current_user.get("is_admin"):
+    if current_user.get("role") != "admin":
+        # 检查是否为企业管理员
+        from app.models import User
+        user = db.query(User).filter(
+            User.user_uuid == current_user["user_id"]
+        ).first()
+
+        if not user or user.enterprise_id != enterprise_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="需要系统管理员或企业管理员权限"
+            )
+
+    # 获取企业信息
+    enterprise = db.query(Enterprise).filter(
+        Enterprise.id == enterprise_id
+    ).first()
+
+    if not enterprise:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="需要系统管理员权限"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="企业不存在"
         )
 
-    # 统计租户数量
-    total_tenants = db.query(Enterprise).count()
-    isolated_tenants = db.query(Enterprise).filter(
-        Enterprise.isolation_mode == IsolationMode.ISOLATED
-    ).count()
-    shared_tenants = total_tenants - isolated_tenants
-
-    # 统计数据库数量
-    total_databases = db.query(Enterprise).filter(
-        Enterprise.database_name.isnot(None)
-    ).count()
-
-    # 获取连接统计
-    router = get_tenant_router()
-    connection_stats = router.get_connection_stats()
-
-    return TenantStatsResponse(
-        total_tenants=total_tenants,
-        isolated_tenants=isolated_tenants,
-        shared_tenants=shared_tenants,
-        total_databases=total_databases,
-        connection_stats=connection_stats
+    return TenantInfoResponse(
+        enterprise_id=enterprise.id,
+        enterprise_name=enterprise.name,
+        isolation_mode=enterprise.isolation_mode.value,
+        database_name=enterprise.database_name,
+        database_created_at=enterprise.database_created_at.isoformat() if enterprise.database_created_at else None,
+        plan_type=enterprise.plan_type.value,
+        verify_status=enterprise.verify_status.value
     )
 
 

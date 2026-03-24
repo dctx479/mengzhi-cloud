@@ -23,7 +23,7 @@ from app.core.errors import BusinessException, RecordNotFoundError, ErrorCode
 from app.core.responses import success_response, error_response
 
 
-router = APIRouter(prefix="/api/reconciliation", tags=["对账系统"])
+router = APIRouter(tags=["对账系统"])
 
 
 # ==================== 请求模型 ====================
@@ -71,8 +71,8 @@ class ReconciliationRecordResponse(BaseModel):
     reconciliation_date: str
     reconciliation_type: str
     status: str
-    start_time: str
-    end_time: str
+    start_time: Optional[str]
+    end_time: Optional[str]
     statistics: dict
     execution: dict
     error_message: Optional[str]
@@ -159,14 +159,12 @@ async def start_reconciliation(
     except BusinessException as e:
         return error_response(
             code=e.code,
-            message=e.message,
-            status_code=status.HTTP_400_BAD_REQUEST
+            message=e.message
         )
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"启动对账失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"启动对账失败: {str(e)}"
         )
 
 
@@ -224,8 +222,7 @@ async def get_reconciliation_records(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"查询对账记录失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"查询对账记录失败: {str(e)}"
         )
 
 
@@ -254,8 +251,7 @@ async def get_reconciliation_record(
         if not record:
             return error_response(
                 code=ErrorCode.RECORD_NOT_FOUND,
-                message="对账记录不存在",
-                status_code=status.HTTP_404_NOT_FOUND
+                message="对账记录不存在"
             )
 
         return success_response(
@@ -265,8 +261,7 @@ async def get_reconciliation_record(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取对账记录失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"获取对账记录失败: {str(e)}"
         )
 
 
@@ -324,8 +319,7 @@ async def get_reconciliation_differences(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"查询差异记录失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"查询差异记录失败: {str(e)}"
         )
 
 
@@ -354,8 +348,7 @@ async def get_reconciliation_difference(
         if not difference:
             return error_response(
                 code=ErrorCode.RECORD_NOT_FOUND,
-                message="差异记录不存在",
-                status_code=status.HTTP_404_NOT_FOUND
+                message="差异记录不存在"
             )
 
         return success_response(
@@ -365,8 +358,7 @@ async def get_reconciliation_difference(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取差异记录失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"获取差异记录失败: {str(e)}"
         )
 
 
@@ -395,7 +387,7 @@ async def fix_difference(
         difference = service.fix_difference(
             difference_id=difference_id,
             action=request.action,
-            processed_by=current_user.username,
+            processed_by=current_user.get("user_id", "unknown"),
             remark=request.remark
         )
 
@@ -407,20 +399,17 @@ async def fix_difference(
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
-            message=str(e),
-            status_code=status.HTTP_404_NOT_FOUND
+            message=str(e)
         )
     except BusinessException as e:
         return error_response(
             code=e.code,
-            message=e.message,
-            status_code=status.HTTP_400_BAD_REQUEST
+            message=e.message
         )
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"修复差异失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"修复差异失败: {str(e)}"
         )
 
 
@@ -458,14 +447,12 @@ async def generate_reconciliation_report(
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
-            message=str(e),
-            status_code=status.HTTP_404_NOT_FOUND
+            message=str(e)
         )
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"生成对账报告失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"生成对账报告失败: {str(e)}"
         )
 
 
@@ -503,8 +490,7 @@ async def get_daily_reconciliation_status(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取对账状态失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"获取对账状态失败: {str(e)}"
         )
 
 
@@ -537,20 +523,17 @@ async def retry_failed_reconciliation(
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
-            message=str(e),
-            status_code=status.HTTP_404_NOT_FOUND
+            message=str(e)
         )
     except BusinessException as e:
         return error_response(
             code=e.code,
-            message=e.message,
-            status_code=status.HTTP_400_BAD_REQUEST
+            message=e.message
         )
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"重试对账失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"重试对账失败: {str(e)}"
         )
 
 
@@ -610,6 +593,5 @@ async def get_reconciliation_statistics(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取统计信息失败: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message=f"获取统计信息失败: {str(e)}"
         )

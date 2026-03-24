@@ -12,44 +12,63 @@
 
 import os
 from typing import Generator
-from sqlalchemy import create_engine, event, inspect
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import sessionmaker, Session, scoped_session
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.exc import SQLAlchemyError
+from loguru import logger
 
 # 导入所有模型和基类
 from ..models.base import Base
 from ..models import (
-    User, UserType, UserStatus, UserRole, Gender,
-    Enterprise, EnterpriseScale, VerifyStatus, PlanType,
-    Product, ProductStatus,
-    Conversation, AgentType, ConversationStatus,
-    Message, MessageRole, ContentType,
-    ContentRecord, Platform, Style, LengthType, RecordStatus,
-    GenerationTemplate, TemplateContentType, TemplatePlatform,
-    UserQuota, QuotaType,
+    User,
+    UserType,
+    UserStatus,
+    UserRole,
+    Gender,
+    Enterprise,
+    EnterpriseScale,
+    VerifyStatus,
+    PlanType,
+    Product,
+    ProductStatus,
+    Conversation,
+    AgentType,
+    ConversationStatus,
+    Message,
+    MessageRole,
+    ContentType,
+    ContentRecord,
+    Platform,
+    Style,
+    LengthType,
+    RecordStatus,
+    GenerationTemplate,
+    TemplateContentType,
+    TemplatePlatform,
+    UserQuota,
+    QuotaType,
 )
 
 # 数据库URL配置
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "mysql+pymysql://root:password@localhost:3306/ai_marketing_platform?charset=utf8mb4"
+    "DATABASE_URL", "mysql+pymysql://root:password@localhost:3306/ai_marketing_platform?charset=utf8mb4"
 )
 
 # 创建引擎
 engine = create_engine(
     DATABASE_URL,
     poolclass=QueuePool,
-    pool_size=20,  # 连接池大小（优化：增加到20）
-    max_overflow=40,  # 最大溢出连接数（优化：增加到40）
-    pool_pre_ping=True,  # 连接前进行ping检查
-    pool_recycle=3600,  # 连接回收时间（秒）
-    pool_timeout=30,  # 连接超时（秒）
-    echo=False,  # 是否打印SQL语句
+    pool_size=20,
+    max_overflow=40,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+    pool_timeout=30,
+    echo=False,
+    isolation_level="READ COMMITTED",
     connect_args={
         "charset": "utf8mb4",
-        "isolation_level": "READ COMMITTED",
-    }
+    },
 )
 
 # 创建会话工厂
@@ -87,21 +106,21 @@ def init_db() -> None:
     try:
         # 创建所有表
         Base.metadata.create_all(bind=engine)
-        print("✓ 数据库表创建成功")
+        logger.info("✓ 数据库表创建成功")
 
         # 初始化系统配置
         session = SessionLocal()
         try:
             # 检查是否已初始化
             if session.query(User).filter_by(username="admin").first() is None:
-                print("✓ 首次初始化，创建默认数据...")
+                logger.info("✓ 首次初始化，创建默认数据...")
                 _init_default_data(session)
-            print("✓ 数据库初始化完成")
+            logger.info("✓ 数据库初始化完成")
         finally:
             session.close()
 
     except SQLAlchemyError as e:
-        print(f"✗ 数据库初始化失败: {str(e)}")
+        logger.error(f"✗ 数据库初始化失败: {str(e)}")
         raise
 
 
@@ -109,9 +128,9 @@ def drop_db() -> None:
     """删除所有表 - 用于测试和重置"""
     try:
         Base.metadata.drop_all(bind=engine)
-        print("✓ 所有表已删除")
+        logger.info("✓ 所有表已删除")
     except SQLAlchemyError as e:
-        print(f"✗ 删除表失败: {str(e)}")
+        logger.error(f"✗ 删除表失败: {str(e)}")
         raise
 
 
@@ -146,11 +165,11 @@ def check_db_connection() -> bool:
     """
     try:
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
-        print("✓ 数据库连接成功")
+            conn.execute(text("SELECT 1"))
+        logger.info("✓ 数据库连接成功")
         return True
     except Exception as e:
-        print(f"✗ 数据库连接失败: {str(e)}")
+        logger.error(f"✗ 数据库连接失败: {str(e)}")
         return False
 
 

@@ -41,16 +41,19 @@ const loadData = async () => {
       adminApi.getStats(),
       adminApi.getAIUsage()
     ])
-    statsData.value = statsRes.data
-    usageData.value = usageRes.data
-    renderChart()
+    statsData.value = statsRes
+    usageData.value = Array.isArray(usageRes) ? usageRes : []
+    if (usageData.value.length > 0) {
+      renderChart()
+    }
   } catch (error) {
     console.error('加载数据失败:', error)
+    usageData.value = []
   }
 }
 
 const renderChart = () => {
-  if (!chartRef.value) return
+  if (!chartRef.value || !Array.isArray(usageData.value) || usageData.value.length === 0) return
   const chart = echarts.init(chartRef.value)
   chart.setOption({
     xAxis: { type: 'category', data: usageData.value.map(d => d.date) },

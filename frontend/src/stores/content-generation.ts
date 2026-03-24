@@ -53,11 +53,6 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
 
   // Computed
   const selectedCategory = computed(() => {
-    const filtered = templates.value.filter((t) =>
-      templates.value
-        .filter((template) => template.category === (selectedTemplate.value?.category || ''))
-        .some((template) => template.id === selectedTemplate.value?.id)
-    )
     return selectedTemplate.value?.category || ''
   })
 

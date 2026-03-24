@@ -122,7 +122,7 @@ describe('Quota Component', () => {
     const mockHistory = [
       {
         id: '1',
-        type: 'chat',
+        type: 'chat' as const,
         amount: 10,
         created_at: '2024-01-01T00:00:00Z',
         description: '使用对话功能',

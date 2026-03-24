@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { ElMessage } from 'element-plus'
@@ -99,7 +99,7 @@ const viewMode = ref<'list' | 'map'>('list')
 const advancedFilters = ref<AdvancedFiltersType>({})
 const compareList = ref<Product[]>([])
 const showQuickView = ref(false)
-const selectedQuickViewProduct = ref<Product | null>(null)
+const selectedQuickViewProduct = ref<Product | undefined>(undefined)
 
 // 文化标签数据
 const culturalTags = [

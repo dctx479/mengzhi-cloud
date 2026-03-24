@@ -348,7 +348,7 @@ const handleCancel = async (order: Order) => {
       }
     )
 
-    await cancelOrder(order.id)
+    await cancelOrder(String(order.id))
     ElMessage.success('订单已取消')
     await loadOrders()
   } catch (error) {

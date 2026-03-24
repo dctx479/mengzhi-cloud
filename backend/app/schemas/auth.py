@@ -291,8 +291,8 @@ class UserResponse(BaseModel):
         ...,
         description="用户角色"
     )
-    created_at: datetime = Field(
-        ...,
+    created_at: Optional[datetime] = Field(
+        default=None,
         description="创建时间"
     )
     last_login_at: Optional[datetime] = Field(

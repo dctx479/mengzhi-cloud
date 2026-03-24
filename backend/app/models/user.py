@@ -206,6 +206,7 @@ class User(BaseModel):
     is_admin = Column(
         sa.Boolean,
         default=False,
+        server_default=sa.text("0"),
         nullable=False,
         comment="是否为系统管理员"
     )

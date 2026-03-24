@@ -275,7 +275,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import http from '@/utils/http'
 
 const router = useRouter()
 
@@ -353,7 +353,8 @@ const getPlanPriceText = (plan) => {
 
 const getDaysInMonth = () => {
   const date = new Date(selectedMonth.value)
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+  const days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+  return Math.max(days, 1)  // 确保最小值为1，防止除以0
 }
 
 const getModeStatsData = () => {
@@ -367,18 +368,17 @@ const getModeStatsData = () => {
 const loadCurrentPlan = async () => {
   try {
     plansLoading.value = true
-    const response = await axios.get('/api/v1/billing/plans', {
+    const res = await http.get('/v1/billing/plans', {
       params: { is_active: true }
     })
 
-    if (response.data.code === 200) {
-      const plans = response.data.data
+    if (res.code === 200) {
+      const plans = res.data
       // 获取默认方案作为当前方案
       currentPlan.value = plans.find(p => p.is_default) || plans[0]
     }
   } catch (error) {
     console.error('加载计费方案失败:', error)
-    ElMessage.error('加载计费方案失败')
   } finally {
     plansLoading.value = false
   }
@@ -388,16 +388,15 @@ const loadCurrentPlan = async () => {
 const loadAvailablePlans = async () => {
   try {
     plansLoading.value = true
-    const response = await axios.get('/api/v1/billing/plans', {
+    const res = await http.get('/v1/billing/plans', {
       params: { is_active: true }
     })
 
-    if (response.data.code === 200) {
-      availablePlans.value = response.data.data
+    if (res.code === 200) {
+      availablePlans.value = res.data
     }
   } catch (error) {
     console.error('加载计费方案失败:', error)
-    ElMessage.error('加载计费方案失败')
   } finally {
     plansLoading.value = false
   }
@@ -411,19 +410,18 @@ const loadStatistics = async () => {
     const startDate = new Date(date.getFullYear(), date.getMonth(), 1)
     const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
 
-    const response = await axios.get('/api/v1/billing/records/statistics', {
+    const res = await http.get('/v1/billing/records/statistics', {
       params: {
         start_date: startDate.toISOString().split('T')[0],
         end_date: endDate.toISOString().split('T')[0]
       }
     })
 
-    if (response.data.code === 200) {
-      Object.assign(statistics, response.data.data)
+    if (res.code === 200 && res.data) {
+      Object.assign(statistics, res.data)
     }
   } catch (error) {
     console.error('加载统计数据失败:', error)
-    ElMessage.error('加载统计数据失败')
   } finally {
     statisticsLoading.value = false
   }
@@ -433,19 +431,18 @@ const loadStatistics = async () => {
 const loadRecentInvoices = async () => {
   try {
     invoicesLoading.value = true
-    const response = await axios.get('/api/v1/billing/invoices', {
+    const res = await http.get('/v1/billing/invoices', {
       params: {
         page: 1,
         page_size: 5
       }
     })
 
-    if (response.data.code === 200) {
-      recentInvoices.value = response.data.data.invoices
+    if (res.code === 200 && res.data) {
+      recentInvoices.value = res.data.invoices || []
     }
   } catch (error) {
     console.error('加载账单失败:', error)
-    ElMessage.error('加载账单失败')
   } finally {
     invoicesLoading.value = false
   }

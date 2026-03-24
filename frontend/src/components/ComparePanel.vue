@@ -134,7 +134,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Operation, Picture, InfoFilled } from '@element-plus/icons-vue'
+import { Picture, InfoFilled } from '@element-plus/icons-vue'
 import type { Product } from '@/types/product'
 
 interface Props {

@@ -1,13 +1,22 @@
 /**
  * AI 对话 API 服务
+ *
+ * 后端路由（注册于 /api/v1/chat）：
+ *   GET    /conversations             → 对话列表
+ *   POST   /conversations             → 创建对话
+ *   GET    /conversations/:id         → 对话详情（含消息）
+ *   DELETE /conversations/:id         → 删除对话
+ *   PATCH  /conversations/:id         → 更新对话（改名/收藏）
+ *   POST   /message                   → 发送消息（非流式）
+ *   POST   /stream                    → 发送消息（流式 SSE）
  */
 import axios from 'axios'
-import type { Chat, Message, ChatListResponse, SendMessageRequest, SendMessageResponse, StreamMessage, FileUploadResponse, ConversationExport } from '@/types/chat'
+import type { Chat, Message, ChatListResponse, StreamMessage, FileUploadResponse, ConversationExport } from '@/types/chat'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const chatAPI = axios.create({
-  baseURL: `${API_BASE}/chat`,
+  baseURL: `${API_BASE}/v1/chat`,
   timeout: 30000,
 })
 
@@ -20,44 +29,101 @@ chatAPI.interceptors.request.use((config) => {
   return config
 })
 
+// ==================== 类型映射辅助 ====================
+
+interface BackendConversation {
+  id: number
+  title: string
+  status: string
+  user_id: string
+  message_count?: number
+  created_at: string
+  updated_at: string
+  messages?: BackendMessage[]
+}
+
+interface BackendMessage {
+  id: number
+  role: string
+  content: string
+  created_at: string
+  updated_at?: string
+}
+
+function mapConversation(conv: BackendConversation): Chat {
+  return {
+    id: String(conv.id),
+    title: conv.title || '新对话',
+    messages: (conv.messages || []).map(mapMessage),
+    createdAt: conv.created_at,
+    updatedAt: conv.updated_at,
+    userId: conv.user_id,
+  }
+}
+
+function mapMessage(m: BackendMessage): Message {
+  return {
+    id: String(m.id),
+    content: m.content,
+    role: m.role as 'user' | 'assistant',
+    timestamp: m.created_at,
+    status: 'sent',
+  }
+}
+
+// ==================== API 函数 ====================
+
 /**
- * 获取对话列表
+ * 获取对话列表 — GET /conversations
  */
 export async function getChatList(page = 1, pageSize = 20): Promise<ChatListResponse> {
-  const response = await chatAPI.get<ChatListResponse>('/', {
-    params: { page, pageSize },
-  })
-  return response.data
+  const response = await chatAPI.get<{
+    total: number
+    page: number
+    page_size: number
+    items: BackendConversation[]
+  }>('/conversations', { params: { page, page_size: pageSize } })
+  const body = response.data
+  return {
+    data: (body.items || []).map(mapConversation),
+    total: body.total,
+  }
 }
 
 /**
- * 获取对话详情
+ * 获取对话详情（含消息历史）— GET /conversations/:id
  */
 export async function getChatDetail(chatId: string): Promise<Chat> {
-  const response = await chatAPI.get<Chat>(`/${chatId}`)
-  return response.data
+  const response = await chatAPI.get<BackendConversation>(`/conversations/${chatId}`)
+  return mapConversation(response.data)
 }
 
 /**
- * 创建新对话
+ * 创建新对话 — POST /conversations
  */
 export async function createChat(title?: string): Promise<Chat> {
-  const response = await chatAPI.post<Chat>('/', { title })
-  return response.data
+  const response = await chatAPI.post<BackendConversation>('/conversations', { title })
+  return mapConversation(response.data)
 }
 
 /**
- * 发送消息
+ * 发送消息（非流式）— POST /message
  */
 export async function sendMessage(chatId: string, content: string): Promise<Message> {
-  const response = await chatAPI.post<Message>(`/${chatId}/messages`, {
+  const response = await chatAPI.post<{
+    id: string
+    conversation_id: number
+    message: BackendMessage
+    usage: Record<string, number>
+  }>('/message', {
     content,
+    conversation_id: chatId ? Number(chatId) : undefined,
   })
-  return response.data
+  return mapMessage(response.data.message)
 }
 
 /**
- * 流式发送消息 (SSE)
+ * 流式发送消息 — POST /stream（使用 fetch 支持 POST + Auth headers）
  */
 export async function sendMessageStream(
   chatId: string,
@@ -65,37 +131,80 @@ export async function sendMessageStream(
   onChunk: (chunk: StreamMessage) => void,
   onError?: (error: Error) => void
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const eventSource = new EventSource(
-      `${API_BASE}/chat/${chatId}/messages/stream?message=${encodeURIComponent(content)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      } as any
-    )
+  const token = localStorage.getItem('token')
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE}/v1/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        content,
+        conversation_id: chatId ? Number(chatId) : undefined,
+      }),
+    })
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error('Stream request failed')
+    if (onError) onError(error)
+    throw error
+  }
 
-    eventSource.addEventListener('chunk', (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data) as StreamMessage
-        onChunk(data)
-      } catch (e) {
-        console.error('Parse stream chunk error:', e)
+  if (!response.ok) {
+    const error = new Error(`Stream request failed: ${response.status}`)
+    if (onError) onError(error)
+    throw error
+  }
+
+  const reader = response.body?.getReader()
+  if (!reader) {
+    const error = new Error('No response body')
+    if (onError) onError(error)
+    throw error
+  }
+
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const data = line.slice(6).trim()
+        if (!data) continue
+
+        try {
+          const parsed = JSON.parse(data)
+          if (parsed.status === 'completed') {
+            onChunk({ type: 'done' })
+          } else if (parsed.error) {
+            onChunk({ type: 'error', error: parsed.message || 'Stream error' })
+          } else {
+            // parsed 是后端返回的 JSON 对象，提取实际文本内容
+            const text = parsed.content || parsed.text || parsed.delta?.content || data
+            onChunk({ type: 'chunk', content: typeof text === 'string' ? text : JSON.stringify(text) })
+          }
+        } catch {
+          // 非 JSON 的纯文本块
+          onChunk({ type: 'chunk', content: data })
+        }
       }
-    })
-
-    eventSource.addEventListener('done', () => {
-      eventSource.close()
-      resolve()
-    })
-
-    eventSource.addEventListener('error', (event: Event) => {
-      eventSource.close()
-      const error = new Error('Stream connection error')
-      if (onError) onError(error)
-      reject(error)
-    })
-  })
+    }
+    onChunk({ type: 'done' })
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error('Stream read error')
+    if (onError) onError(error)
+    throw error
+  } finally {
+    reader.releaseLock()
+  }
 }
 
 /**
@@ -104,11 +213,8 @@ export async function sendMessageStream(
 export async function uploadFile(chatId: string, file: File): Promise<FileUploadResponse> {
   const formData = new FormData()
   formData.append('file', file)
-
   const response = await chatAPI.post<FileUploadResponse>(`/${chatId}/uploads`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+    headers: { 'Content-Type': 'multipart/form-data' },
   })
   return response.data
 }
@@ -119,94 +225,95 @@ export async function uploadFile(chatId: string, file: File): Promise<FileUpload
 export async function uploadFiles(chatId: string, files: File[]): Promise<FileUploadResponse[]> {
   const formData = new FormData()
   files.forEach((file) => formData.append('files', file))
-
-  const response = await chatAPI.post<FileUploadResponse[]>(
-    `/${chatId}/uploads/batch`,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }
-  )
+  const response = await chatAPI.post<FileUploadResponse[]>(`/${chatId}/uploads/batch`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
   return response.data
 }
 
 /**
- * 获取对话历史
+ * 获取对话历史消息
  */
 export async function getChatHistory(
   chatId: string,
   page = 1,
   pageSize = 50
 ): Promise<{ data: Message[]; total: number }> {
-  const response = await chatAPI.get(`/${chatId}/messages`, {
-    params: { page, pageSize },
+  const response = await chatAPI.get(`/conversations/${chatId}`, {
+    params: { page, page_size: pageSize },
   })
-  return response.data
+  const conv = response.data as BackendConversation
+  return {
+    data: (conv.messages || []).map(mapMessage),
+    total: conv.messages?.length || 0,
+  }
 }
 
 /**
- * 删除对话
+ * 删除对话 — DELETE /conversations/:id
  */
 export async function deleteChat(chatId: string): Promise<void> {
-  await chatAPI.delete(`/${chatId}`)
+  await chatAPI.delete(`/conversations/${chatId}`)
 }
 
 /**
- * 清空对话
+ * 清空对话消息（后端暂未实现，预留接口）
  */
 export async function clearChat(chatId: string): Promise<void> {
-  await chatAPI.post(`/${chatId}/clear`)
+  await chatAPI.post(`/conversations/${chatId}/clear`)
 }
 
 /**
- * 删除单条消息
+ * 删除单条消息（后端暂未实现，预留接口）
  */
 export async function deleteMessage(chatId: string, messageId: string): Promise<void> {
-  await chatAPI.delete(`/${chatId}/messages/${messageId}`)
+  await chatAPI.delete(`/conversations/${chatId}/messages/${messageId}`)
 }
 
 /**
- * 重新生成消息
+ * 重新生成消息（后端暂未实现，预留接口）
  */
 export async function regenerateMessage(chatId: string, messageId: string): Promise<Message> {
-  const response = await chatAPI.post<Message>(`/${chatId}/messages/${messageId}/regenerate`)
-  return response.data
+  const response = await chatAPI.post<BackendMessage>(
+    `/conversations/${chatId}/messages/${messageId}/regenerate`
+  )
+  return mapMessage(response.data)
 }
 
 /**
- * 导出对话为JSON
+ * 导出对话为JSON（后端暂未实现，预留接口）
  */
 export async function exportConversation(chatId: string): Promise<ConversationExport> {
-  const response = await chatAPI.get<ConversationExport>(`/${chatId}/export`)
+  const response = await chatAPI.get<ConversationExport>(`/conversations/${chatId}/export`)
   return response.data
 }
 
 /**
- * 导出对话为Markdown
+ * 导出对话为Markdown（后端暂未实现，预留接口）
  */
 export async function exportConversationMarkdown(chatId: string): Promise<string> {
-  const response = await chatAPI.get(`/${chatId}/export/markdown`, {
+  const response = await chatAPI.get(`/conversations/${chatId}/export/markdown`, {
     responseType: 'text',
   })
   return response.data
 }
 
 /**
- * 收藏/取消收藏消息
+ * 收藏/取消收藏消息（后端暂未实现，预留接口）
  */
 export async function toggleMessageFavorite(chatId: string, messageId: string): Promise<Message> {
-  const response = await chatAPI.post<Message>(`/${chatId}/messages/${messageId}/favorite`)
-  return response.data
+  const response = await chatAPI.post<BackendMessage>(
+    `/conversations/${chatId}/messages/${messageId}/favorite`
+  )
+  return mapMessage(response.data)
 }
 
 /**
- * 重命名对话
+ * 重命名对话 — PATCH /conversations/:id
  */
 export async function renameChat(chatId: string, title: string): Promise<Chat> {
-  const response = await chatAPI.patch<Chat>(`/${chatId}`, { title })
-  return response.data
+  const response = await chatAPI.patch<BackendConversation>(`/conversations/${chatId}`, { title })
+  return mapConversation(response.data)
 }
 
 export default chatAPI

@@ -19,6 +19,7 @@ from datetime import datetime
 from typing import Optional, Tuple
 from fastapi import UploadFile, HTTPException
 from sqlalchemy.orm import Session
+from loguru import logger
 
 from app.core.config import settings
 from app.models.media import Media, MediaType, MediaCategory
@@ -57,7 +58,7 @@ class UploadService:
         if file.content_type not in settings.ALLOWED_IMAGE_TYPES:
             raise HTTPException(
                 status_code=400,
-                detail=f"不支持的图片类型: {file.content_type}。支持的类型: {', '.join(settings.ALLOWED_IMAGE_TYPES)}"
+                detail=f"不支持的图片类型: {file.content_type}。支持的类型: {', '.join(settings.ALLOWED_IMAGE_TYPES)}",
             )
 
         # 验证文件大小
@@ -68,7 +69,7 @@ class UploadService:
         if file_size > settings.MAX_FILE_SIZE:
             raise HTTPException(
                 status_code=400,
-                detail=f"文件过大: {file_size / (1024*1024):.2f}MB > {settings.MAX_FILE_SIZE / (1024*1024)}MB"
+                detail=f"文件过大: {file_size / (1024*1024):.2f}MB > {settings.MAX_FILE_SIZE / (1024*1024)}MB",
             )
 
     def validate_video(self, file: UploadFile) -> None:
@@ -85,7 +86,7 @@ class UploadService:
         if file.content_type not in settings.ALLOWED_VIDEO_TYPES:
             raise HTTPException(
                 status_code=400,
-                detail=f"不支持的视频类型: {file.content_type}。支持的类型: {', '.join(settings.ALLOWED_VIDEO_TYPES)}"
+                detail=f"不支持的视频类型: {file.content_type}。支持的类型: {', '.join(settings.ALLOWED_VIDEO_TYPES)}",
             )
 
         # 验证文件大小
@@ -96,14 +97,10 @@ class UploadService:
         if file_size > settings.MAX_VIDEO_SIZE:
             raise HTTPException(
                 status_code=400,
-                detail=f"视频文件过大: {file_size / (1024*1024):.2f}MB > {settings.MAX_VIDEO_SIZE / (1024*1024)}MB"
+                detail=f"视频文件过大: {file_size / (1024*1024):.2f}MB > {settings.MAX_VIDEO_SIZE / (1024*1024)}MB",
             )
 
-    async def save_file_to_local(
-        self,
-        file: UploadFile,
-        category: MediaCategory
-    ) -> Tuple[str, str, int]:
+    async def save_file_to_local(self, file: UploadFile, category: MediaCategory) -> Tuple[str, str, int]:
         """
         保存文件到本地存储
 
@@ -140,11 +137,7 @@ class UploadService:
 
         return str(file_path), file_url, file_size
 
-    async def save_file_to_oss(
-        self,
-        file: UploadFile,
-        category: MediaCategory
-    ) -> Tuple[str, str, int]:
+    async def save_file_to_oss(self, file: UploadFile, category: MediaCategory) -> Tuple[str, str, int]:
         """
         保存文件到对象存储（OSS/COS/S3）
 
@@ -156,8 +149,7 @@ class UploadService:
             tuple: (object_key, file_url, file_size)
         """
         # 检查OSS配置
-        if not all([settings.OSS_ENDPOINT, settings.OSS_ACCESS_KEY,
-                    settings.OSS_SECRET_KEY, settings.OSS_BUCKET]):
+        if not all([settings.OSS_ENDPOINT, settings.OSS_ACCESS_KEY, settings.OSS_SECRET_KEY, settings.OSS_BUCKET]):
             # OSS未配置，fallback到本地存储
             return await self.save_file_to_local(file, category)
 
@@ -186,7 +178,11 @@ class UploadService:
         bucket.put_object(object_key, content)
 
         # 生成访问URL
-        file_url = f"{settings.OSS_DOMAIN}/{object_key}" if settings.OSS_DOMAIN else bucket.sign_url('GET', object_key, 3600*24*365)
+        file_url = (
+            f"{settings.OSS_DOMAIN}/{object_key}"
+            if settings.OSS_DOMAIN
+            else bucket.sign_url("GET", object_key, 3600 * 24 * 365)
+        )
 
         return object_key, file_url, file_size
 
@@ -198,7 +194,7 @@ class UploadService:
         product_id: Optional[int] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        alt_text: Optional[str] = None
+        alt_text: Optional[str] = None,
     ) -> Media:
         """
         上传图片
@@ -231,16 +227,14 @@ class UploadService:
         thumbnail_url = None
         try:
             thumbnail_path = ImageProcessor.generate_thumbnail(
-                file_path,
-                size=settings.IMAGE_THUMBNAIL_SIZE,
-                quality=settings.IMAGE_QUALITY
+                file_path, size=settings.IMAGE_THUMBNAIL_SIZE, quality=settings.IMAGE_QUALITY
             )
             # 生成缩略图URL
             thumbnail_filename = Path(thumbnail_path).name
             date_path = datetime.now().strftime("%Y/%m/%d")
             thumbnail_url = f"/{settings.UPLOAD_DIR}/{category.value}/{date_path}/{thumbnail_filename}"
         except Exception as e:
-            print(f"缩略图生成失败: {e}")
+            logger.warning(f"缩略图生成失败: {e}")
 
         # 创建媒体记录
         media = Media(
@@ -259,7 +253,7 @@ class UploadService:
             title=title,
             description=description,
             alt_text=alt_text,
-            is_processed=True  # 已处理（压缩、缩略图）
+            is_processed=True,  # 已处理（压缩、缩略图）
         )
 
         self.db.add(media)
@@ -275,7 +269,7 @@ class UploadService:
         user_id: int,
         product_id: Optional[int] = None,
         title: Optional[str] = None,
-        description: Optional[str] = None
+        description: Optional[str] = None,
     ) -> Media:
         """
         上传视频
@@ -322,7 +316,7 @@ class UploadService:
             product_id=product_id,
             title=title,
             description=description,
-            is_processed=False  # 视频处理需要异步进行
+            is_processed=False,  # 视频处理需要异步进行
         )
 
         self.db.add(media)
@@ -348,28 +342,29 @@ class UploadService:
                 try:
                     os.remove(media.file_path)
                 except Exception as e:
-                    print(f"删除文件失败: {e}")
+                    logger.warning(f"删除文件失败: {e}")
 
             # 删除缩略图
             if media.thumbnail_url:
-                thumbnail_path = Path(settings.UPLOAD_DIR) / media.thumbnail_url.lstrip('/')
+                thumbnail_path = Path(settings.UPLOAD_DIR) / media.thumbnail_url.lstrip("/")
                 if thumbnail_path.exists():
                     try:
                         thumbnail_path.unlink()
                     except Exception as e:
-                        print(f"删除缩略图失败: {e}")
+                        logger.warning(f"删除缩略图失败: {e}")
         else:
             # OSS存储
             try:
                 import oss2
+
                 auth = oss2.Auth(settings.OSS_ACCESS_KEY, settings.OSS_SECRET_KEY)
                 bucket = oss2.Bucket(auth, settings.OSS_ENDPOINT, settings.OSS_BUCKET)
                 bucket.delete_object(media.file_path)
                 if media.thumbnail_url:
-                    thumbnail_key = media.thumbnail_url.lstrip('/')
+                    thumbnail_key = media.thumbnail_url.lstrip("/")
                     bucket.delete_object(thumbnail_key)
             except Exception as e:
-                print(f"删除OSS文件失败: {e}")
+                logger.warning(f"删除OSS文件失败: {e}")
 
         # 删除数据库记录
         self.db.delete(media)
@@ -415,21 +410,23 @@ class UploadService:
             func.count(Media.id).label("total_count"),
             func.sum(Media.file_size).label("total_size"),
             func.count(func.nullif(Media.media_type != MediaType.IMAGE, True)).label("image_count"),
-            func.count(func.nullif(Media.media_type != MediaType.VIDEO, True)).label("video_count")
+            func.count(func.nullif(Media.media_type != MediaType.VIDEO, True)).label("video_count"),
         ).filter(Media.user_id == user_id)
 
         result = query.first()
 
         # 按分类统计
-        category_stats = self.db.query(
-            Media.category,
-            func.count(Media.id).label("count")
-        ).filter(Media.user_id == user_id).group_by(Media.category).all()
+        category_stats = (
+            self.db.query(Media.category, func.count(Media.id).label("count"))
+            .filter(Media.user_id == user_id)
+            .group_by(Media.category)
+            .all()
+        )
 
         return {
             "total_count": result.total_count or 0,
             "total_size": result.total_size or 0,
             "image_count": result.image_count or 0,
             "video_count": result.video_count or 0,
-            "by_category": {cat.value: count for cat, count in category_stats}
+            "by_category": {cat.value: count for cat, count in category_stats},
         }

@@ -12,7 +12,7 @@
 
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { createPayment, getPaymentStatus, type Payment, type PaymentStatus } from '@/api/payment'
+import { createPayment, getPaymentStatus, type Payment } from '@/api/payment'
 import type { Order } from '@/types/user'
 
 // P2-13: 定义常量

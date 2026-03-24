@@ -133,7 +133,9 @@
           </template>
         </el-table-column>
         <el-table-column label="IP地址" width="150">
-          {{ row.ip_address }}
+          <template #default="{ row }">
+            {{ row.ip_address }}
+          </template>
         </el-table-column>
         <el-table-column label="设备" min-width="200">
           <template #default="{ row }">
@@ -310,6 +312,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, ElForm } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import {
   Lock,
   PhoneFilled,
@@ -335,7 +338,7 @@ const passwordForm = ref({
   confirm_password: '',
 })
 
-const passwordRules = {
+const passwordRules: FormRules = {
   old_password: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
   new_password: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
@@ -348,7 +351,7 @@ const passwordRules = {
   confirm_password: [
     { required: true, message: '请确认密码', trigger: 'blur' },
     {
-      validator: (rule, value, callback) => {
+      validator: (_rule, value, callback) => {
         if (value !== passwordForm.value.new_password) {
           callback(new Error('两次密码输入不一致'))
         } else {
@@ -367,7 +370,7 @@ const phoneForm = ref({
   verification_code: '',
 })
 
-const phoneRules = {
+const phoneRules: FormRules = {
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     {
@@ -386,7 +389,7 @@ const emailForm = ref({
   verification_code: '',
 })
 
-const emailRules = {
+const emailRules: FormRules = {
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入有效的邮箱', trigger: 'blur' },

@@ -1,7 +1,13 @@
 /**
  * 用户中心 API 服务
+ *
+ * 所有请求通过统一 http 实例（baseURL = /api），与后端路由保持一致：
+ *   订单   → /v1/orders
+ *   配额   → /v1/quotas
+ *   密码   → /v1/auth/change-password
+ *   验证码 → /v1/auth/send-code
  */
-import axios from 'axios'
+import http from '@/utils/http'
 import type {
   Order,
   OrdersResponse,
@@ -12,28 +18,6 @@ import type {
   ChangePasswordRequest,
   SecurityLog,
 } from '@/types/user'
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
-
-// 创建 axios 实例
-const userAPI = axios.create({
-  baseURL: `${API_BASE}/user`,
-  timeout: 10000,
-})
-
-// 请求拦截器 - 添加 token
-userAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
 
 /**
  * 获取订单列表
@@ -46,42 +30,69 @@ export async function getOrders(params: {
   end_date?: string
   keyword?: string
 }): Promise<OrdersResponse> {
-  const response = await userAPI.get<OrdersResponse>('/orders', { params })
-  return response.data
+  const res = await http.get<{
+    code: number
+    data: { items: Order[]; total: number; page: number; size: number }
+    message: string
+  }>('/v1/orders', {
+    params: {
+      page: params.page,
+      size: params.page_size,   // 后端参数名为 size
+      status: params.status,
+    },
+  })
+  const inner = (res as unknown as { data: { items: Order[]; total: number; page: number; size: number } }).data ?? {}
+  return {
+    items: inner.items || [],
+    total: inner.total || 0,
+    page: inner.page || 1,
+    page_size: params.page_size || 10,
+  }
 }
 
 /**
  * 获取订单详情
  */
 export async function getOrderDetail(orderId: string): Promise<Order> {
-  const response = await userAPI.get<Order>(`/orders/${orderId}`)
-  return response.data
+  return http.get<Order>(`/v1/orders/${orderId}`)
 }
 
 /**
- * 创建订单
+ * 创建订单（从套餐购买）
  */
-export async function createOrder(data: {
-  product_ids: string[]
-  quantities: number[]
-}): Promise<Order> {
-  const response = await userAPI.post<Order>('/orders', data)
-  return response.data
+export async function createOrderFromPackage(packageId: number): Promise<Order> {
+  const res = await http.post<{ code: number; data: Order }>('/v1/orders', { package_id: packageId })
+  return (res as unknown as { data: Order }).data ?? (res as unknown as Order)
 }
 
 /**
  * 取消订单
  */
 export async function cancelOrder(orderId: string): Promise<void> {
-  await userAPI.post(`/orders/${orderId}/cancel`)
+  await http.post(`/v1/orders/${orderId}/cancel`)
 }
 
 /**
- * 获取配额信息
+ * 获取配额信息（汇总）
+ * 后端返回 by_resource_type: { message, generation, storage, ... }
+ * 需要映射为前端 QuotaData 格式
  */
 export async function getQuota(): Promise<QuotaData> {
-  const response = await userAPI.get<QuotaData>('/quota')
-  return response.data
+  const res = await http.get<{ code: number; data: any }>('/v1/quotas/statistics/summary')
+  const inner = (res as unknown as { data: any }).data ?? {}
+  // 后端 resource_type: message→chat, generation→content, storage→storage
+  const byType = inner?.by_resource_type || {}
+  const message = byType.message || {}
+  const generation = byType.generation || {}
+  const storage = byType.storage || {}
+  return {
+    chat_used: message.used ?? 0,
+    chat_total: message.limit ?? 100,
+    content_used: generation.used ?? 0,
+    content_total: generation.limit ?? 50,
+    storage_used: storage.used ?? 0,
+    storage_total: storage.limit ?? (1024 * 1024 * 1024),
+  }
 }
 
 /**
@@ -92,55 +103,76 @@ export async function getQuotaHistory(params: {
   page_size?: number
   type?: string
 }): Promise<QuotaHistoryResponse> {
-  const response = await userAPI.get<QuotaHistoryResponse>('/quota/history', { params })
-  return response.data
-}
-
-/**
- * 购买配额
- */
-export async function purchaseQuota(data: {
-  type: string
-  amount: number
-  price: number
-}): Promise<void> {
-  await userAPI.post('/quota/purchase', data)
+  const res = await http.get<{
+    code: number
+    data: { items: QuotaHistory[]; total: number; page: number; page_size: number }
+    message: string
+  }>('/v1/quotas/', { params })
+  const inner = (res as unknown as { data: { items: QuotaHistory[]; total: number; page: number; page_size: number } }).data ?? {}
+  return {
+    items: inner.items || [],
+    total: inner.total || 0,
+    page: inner.page || 1,
+    page_size: inner.page_size || params.page_size || 20,
+  }
 }
 
 /**
  * 获取用户设置
  */
 export async function getSettings(): Promise<UserSettings> {
-  const response = await userAPI.get<UserSettings>('/settings')
-  return response.data
+  try {
+    const res = await http.get<{ code: number; data: UserSettings; message: string }>('/v1/users/settings')
+    return (res as unknown as { data: UserSettings }).data ?? (res as unknown as UserSettings)
+  } catch {
+    return {
+      email_notifications: true,
+      sms_notifications: false,
+      profile_public: false,
+      language: 'zh-CN',
+      theme: 'light',
+    }
+  }
 }
 
 /**
  * 更新用户设置
  */
 export async function updateSettings(data: Partial<UserSettings>): Promise<UserSettings> {
-  const response = await userAPI.put<UserSettings>('/settings', data)
-  return response.data
+  const res = await http.put<{ code: number; data: UserSettings; message: string }>('/v1/users/settings', data)
+  return (res as unknown as { data: UserSettings }).data ?? (res as unknown as UserSettings)
 }
 
 /**
- * 修改密码
+ * 修改密码 — 对应 POST /api/v1/auth/change-password
  */
 export async function changePassword(data: ChangePasswordRequest): Promise<void> {
-  await userAPI.post('/security/change-password', data)
+  await http.post('/v1/auth/change-password', {
+    old_password: data.old_password,
+    new_password: data.new_password,
+  })
 }
 
 /**
  * 获取登录日志
+ * 注意：后端参数 page_size 的别名为 pageSize
  */
 export async function getSecurityLogs(params: {
   page?: number
   page_size?: number
 }): Promise<{ items: SecurityLog[]; total: number }> {
-  const response = await userAPI.get<{ items: SecurityLog[]; total: number }>('/security/logs', {
-    params,
+  const res = await http.get<{
+    code: number
+    data: { items: SecurityLog[]; total: number }
+    message: string
+  }>('/v1/users/security/logs', {
+    params: {
+      page: params.page,
+      pageSize: params.page_size,   // 后端参数别名为 pageSize
+    },
   })
-  return response.data
+  const inner = (res as unknown as { data: { items: SecurityLog[]; total: number } }).data ?? (res as unknown as { items: SecurityLog[]; total: number })
+  return { items: inner.items || [], total: inner.total || 0 }
 }
 
 /**
@@ -150,7 +182,7 @@ export async function bindPhone(data: {
   phone: string
   verification_code: string
 }): Promise<void> {
-  await userAPI.post('/security/bind-phone', data)
+  await http.post('/v1/users/security/bind-phone', data)
 }
 
 /**
@@ -160,17 +192,22 @@ export async function bindEmail(data: {
   email: string
   verification_code: string
 }): Promise<void> {
-  await userAPI.post('/security/bind-email', data)
+  await http.post('/v1/users/security/bind-email', data)
 }
 
 /**
- * 发送验证码
+ * 发送验证码 — 对应 POST /api/v1/auth/send-code
  */
 export async function sendVerificationCode(data: {
   type: 'email' | 'phone'
   target: string
 }): Promise<void> {
-  await userAPI.post('/security/send-verification-code', data)
+  await http.post('/v1/auth/send-code', null, {
+    params: {
+      identifier: data.target,
+      code_type: data.type === 'email' ? 'bind_email' : 'bind_phone',
+    },
+  })
 }
 
 /**
@@ -184,31 +221,20 @@ export async function getDevices(): Promise<Array<{
   last_login: string
   is_current: boolean
 }>> {
-  const response = await userAPI.get('/security/devices')
-  return response.data
+  const res = await http.get<{ code: number; data: Array<unknown>; message: string }>('/v1/users/security/devices')
+  return ((res as unknown as { data: Array<unknown> }).data ?? (res as unknown as Array<unknown>) ?? []) as Array<{
+    id: string
+    device_name: string
+    device_type: string
+    ip_address: string
+    last_login: string
+    is_current: boolean
+  }>
 }
 
 /**
  * 删除设备
  */
 export async function removeDevice(deviceId: string): Promise<void> {
-  await userAPI.delete(`/security/devices/${deviceId}`)
+  await http.delete(`/v1/users/security/devices/${deviceId}`)
 }
-
-/**
- * 创建订单（从套餐购买）
- */
-export async function createOrderFromPackage(packageId: number): Promise<any> {
-  const response = await axios.post(
-    `${API_BASE}/v1/orders`,
-    { package_id: packageId },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    }
-  )
-  return response.data.data
-}
-
-export default userAPI

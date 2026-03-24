@@ -112,7 +112,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Document, ZoomIn, DocumentCopy, Refresh, Star, StarFilled, Delete } from '@element-plus/icons-vue'
+import { Document, ZoomIn } from '@element-plus/icons-vue'
 import type { Message, ImageAttachment } from '@/types/chat'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 

@@ -17,65 +17,32 @@ Prometheus监控中间件
 import time
 from typing import Callable
 from fastapi import FastAPI, Request, Response
-from prometheus_client import Counter, Histogram, Gauge, make_asgi_app
-from prometheus_client import CollectorRegistry, REGISTRY
+from loguru import logger
+from prometheus_client import Counter, Gauge, make_asgi_app
 
-
-# 创建指标
-http_requests_total = Counter(
-    'http_requests_total',
-    'Total HTTP requests',
-    ['method', 'endpoint', 'status']
-)
-
-http_request_duration_seconds = Histogram(
-    'http_request_duration_seconds',
-    'HTTP request duration in seconds',
-    ['method', 'endpoint'],
-    buckets=(0.01, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0)
+# 从中央 metrics 模块导入共享指标，避免重复注册
+from app.core.metrics import (
+    http_requests_total,
+    http_request_duration as http_request_duration_seconds,
 )
 
 http_requests_in_progress = Gauge(
-    'http_requests_in_progress',
-    'Number of HTTP requests in progress',
-    ['method', 'endpoint']
+    "http_requests_in_progress", "Number of HTTP requests in progress", ["method", "endpoint"]
 )
 
 # 业务指标
-active_users = Gauge(
-    'active_users',
-    'Number of active users'
-)
+active_users = Gauge("active_users", "Number of active users")
 
-api_calls_by_user = Counter(
-    'api_calls_by_user_total',
-    'Total API calls by user',
-    ['user_id']
-)
+api_calls_by_user = Counter("api_calls_by_user_total", "Total API calls by user", ["user_id"])
 
-tokens_consumed = Counter(
-    'tokens_consumed_total',
-    'Total tokens consumed',
-    ['user_id', 'model']
-)
+tokens_consumed = Counter("tokens_consumed_total", "Total tokens consumed", ["user_id", "model"])
 
-billing_amount = Counter(
-    'billing_amount_total',
-    'Total billing amount in CNY',
-    ['user_id']
-)
+billing_amount = Counter("billing_amount_total", "Total billing amount in CNY", ["user_id"])
 
-risk_events = Counter(
-    'risk_events_total',
-    'Total risk events',
-    ['risk_level', 'action']
-)
+risk_events = Counter("risk_events_total", "Total risk events", ["risk_level", "action"])
 
 # 健康检查指标
-health_check_status = Gauge(
-    'health_check_status',
-    'Health check status (1=healthy, 0=unhealthy)'
-)
+health_check_status = Gauge("health_check_status", "Health check status (1=healthy, 0=unhealthy)")
 
 
 async def prometheus_middleware(request: Request, call_next: Callable) -> Response:
@@ -112,16 +79,9 @@ async def prometheus_middleware(request: Request, call_next: Callable) -> Respon
         duration = time.time() - start_time
 
         # 记录指标
-        http_requests_total.labels(
-            method=method,
-            endpoint=endpoint,
-            status=status_code
-        ).inc()
+        http_requests_total.labels(method=method, endpoint=endpoint, status=status_code).inc()
 
-        http_request_duration_seconds.labels(
-            method=method,
-            endpoint=endpoint
-        ).observe(duration)
+        http_request_duration_seconds.labels(method=method, endpoint=endpoint).observe(duration)
 
         # 减少进行中的请求数
         http_requests_in_progress.labels(method=method, endpoint=endpoint).dec()
@@ -147,7 +107,7 @@ def setup_prometheus_metrics(app: FastAPI):
     metrics_app = make_asgi_app()
     app.mount("/metrics", metrics_app)
 
-    print("✅ Prometheus metrics enabled at /metrics")
+    logger.info("✅ Prometheus metrics enabled at /metrics")
 
 
 # 业务指标记录函数

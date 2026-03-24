@@ -34,10 +34,7 @@ from .generation_template import GenerationTemplate, TemplateContentType, Templa
 
 # 配额模型
 from .user_quota import UserQuota, QuotaType
-from .quota import (
-    TenantQuota, QuotaUsage,
-    QuotaResourceType, QuotaPeriodType, QuotaAlertLevel
-)
+from .quota import TenantQuota, QuotaUsage, QuotaResourceType, QuotaPeriodType, QuotaAlertLevel
 
 # 配额支付系统模型
 from .quota_package import QuotaPackage, PackageType, PackagePeriod
@@ -51,56 +48,63 @@ from .permission import Permission
 from .associations import role_permissions, user_roles
 
 # SLA保障系统模型
-from .sla import (
-    SLAAgreement, SLAMetric, SLAViolation, PerformanceLog,
-    SLALevel, MetricType, ViolationSeverity
-)
+from .sla import SLAAgreement, SLAMetric, SLAViolation, PerformanceLog, SLALevel, MetricType, ViolationSeverity
 
 # 对账系统模型
 from .reconciliation import (
-    ReconciliationRecord, ReconciliationDifference,
-    ReconciliationStatus, ReconciliationType,
-    DifferenceType, DifferenceStatus
+    ReconciliationRecord,
+    ReconciliationDifference,
+    ReconciliationStatus,
+    ReconciliationType,
+    DifferenceType,
+    DifferenceStatus,
 )
 
 # 风控系统模型
 from .risk_control import (
-    RiskRule, RiskEvent, RiskBlacklist, RiskStatistics,
-    RiskLevel, RiskAction, RuleType, EventType, BlacklistType
+    RiskRule,
+    RiskEvent,
+    RiskBlacklist,
+    RiskStatistics,
+    RiskLevel,
+    RiskAction,
+    RuleType,
+    EventType,
+    BlacklistType,
 )
+
+# 租户AI配置模型
+from .tenant_ai_config import TenantAIConfig, HealthStatus
+
+# 系统配置模型
+from .system_config import SystemConfig
 
 # 导出所有模型
 __all__ = [
     # 基类
     "BaseModel",
     "generate_uuid",
-
     # 用户相关
     "User",
     "UserType",
     "UserStatus",
     "UserRole",
     "Gender",
-
     # 企业
     "Enterprise",
     "EnterpriseScale",
     "VerifyStatus",
     "PlanType",
-
     # 产品
     "Product",
     "ProductStatus",
-
     # 文化标签
     "CulturalTag",
     "product_tags",
-
     # 媒体素材
     "Media",
     "MediaType",
     "MediaCategory",
-
     # 对话和消息
     "Conversation",
     "AgentType",
@@ -108,7 +112,6 @@ __all__ = [
     "ContentType",
     "Message",
     "MessageRole",
-
     # 内容生成
     "ContentRecord",
     "Platform",
@@ -118,7 +121,6 @@ __all__ = [
     "GenerationTemplate",
     "TemplateContentType",
     "TemplatePlatform",
-
     # 配额
     "UserQuota",
     "QuotaType",
@@ -127,7 +129,6 @@ __all__ = [
     "QuotaResourceType",
     "QuotaPeriodType",
     "QuotaAlertLevel",
-
     # 配额支付系统
     "QuotaPackage",
     "PackageType",
@@ -140,13 +141,11 @@ __all__ = [
     "QuotaLog",
     "QuotaLogType",
     "QuotaLogStatus",
-
     # RBAC权限管理
     "Role",
     "Permission",
     "role_permissions",
     "user_roles",
-
     # SLA保障系统
     "SLAAgreement",
     "SLAMetric",
@@ -155,7 +154,6 @@ __all__ = [
     "SLALevel",
     "MetricType",
     "ViolationSeverity",
-
     # 对账系统
     "ReconciliationRecord",
     "ReconciliationDifference",
@@ -163,7 +161,6 @@ __all__ = [
     "ReconciliationType",
     "DifferenceType",
     "DifferenceStatus",
-
     # 风控系统
     "RiskRule",
     "RiskEvent",
@@ -174,4 +171,9 @@ __all__ = [
     "RuleType",
     "EventType",
     "BlacklistType",
+    # 租户AI配置
+    "TenantAIConfig",
+    "HealthStatus",
+    # 系统配置
+    "SystemConfig",
 ]

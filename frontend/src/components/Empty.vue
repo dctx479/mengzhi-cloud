@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { DataAnalysis, Search, FolderOpened, ShoppingCart } from '@element-plus/icons-vue'
+import { DataAnalysis, Search, ShoppingCart, Box } from '@element-plus/icons-vue'
 
 interface Props {
   title?: string
@@ -41,12 +41,12 @@ const emit = defineEmits<Emits>()
 
 const icon = computed(() => {
   const icons: Record<string, any> = {
-    empty: NoData,
+    empty: Box,
     search: Search,
     error: DataAnalysis,
     cart: ShoppingCart,
   }
-  return icons[props.type] || NoData
+  return icons[props.type] || Box
 })
 
 const handleClick = () => {

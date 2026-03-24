@@ -1,5 +1,5 @@
 <template>
-  <div class="message-list" ref="listContainer">
+  <div class="message-list" ref="listContainer" @scroll.passive="handleScroll">
     <!-- 空状态 -->
     <div v-if="messages.length === 0" class="empty-state">
       <el-empty description="暂无消息，开始对话吧" />
@@ -16,7 +16,7 @@
 
       <!-- 消息项 -->
       <div
-        v-for="(message, idx) in displayMessages"
+        v-for="message in displayMessages"
         :key="message.id"
         class="message-item"
       >
@@ -57,7 +57,6 @@ import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import type { Message } from '@/types/chat'
-import { useChatStore } from '@/stores/chat'
 import MessageBubble from './MessageBubble.vue'
 
 interface Props {
@@ -86,9 +85,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-const chatStore = useChatStore()
 const listContainer = ref<HTMLElement>()
-const scrollLoadThreshold = 3 // 加载更多的阈值（从顶部开始的消息数）
 const hasMoreMessages = ref(false)
 const failedMessageId = ref<string | null>(null)
 const currentScrollPosition = ref(0)
@@ -126,7 +123,7 @@ const scrollToMessage = (messageId: string) => {
 const handleScroll = () => {
   if (!listContainer.value) return
 
-  const { scrollTop, scrollHeight, clientHeight } = listContainer.value
+  const { scrollTop, scrollHeight } = listContainer.value
   currentScrollPosition.value = scrollTop
 
   // 检查是否滚动到顶部，加载更多消息

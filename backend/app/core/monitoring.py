@@ -1,21 +1,27 @@
 """监控核心模块"""
+
 import time
 import psutil
 from typing import Dict, Any
 from datetime import datetime
 from loguru import logger
-from prometheus_client import Counter, Histogram, Gauge, generate_latest
+from prometheus_client import Gauge, generate_latest
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
-# Prometheus指标
-request_count = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
-request_duration = Histogram('http_request_duration_seconds', 'HTTP request duration', ['method', 'endpoint'])
-db_query_duration = Histogram('db_query_duration_seconds', 'Database query duration', ['query_type'])
-active_connections = Gauge('db_active_connections', 'Active database connections')
-cpu_usage = Gauge('system_cpu_usage_percent', 'CPU usage percentage')
-memory_usage = Gauge('system_memory_usage_percent', 'Memory usage percentage')
-disk_usage = Gauge('system_disk_usage_percent', 'Disk usage percentage')
+# 从中央 metrics 模块导入共享指标，避免重复注册
+from app.core.metrics import (
+    http_requests_total as request_count,
+    http_request_duration as request_duration,
+    db_query_duration,
+)
+
+# 本模块独有的系统级指标
+active_connections = Gauge("db_active_connections", "Active database connections")
+cpu_usage = Gauge("system_cpu_usage_percent", "CPU usage percentage")
+memory_usage = Gauge("system_memory_usage_percent", "Memory usage percentage")
+disk_usage = Gauge("system_disk_usage_percent", "Disk usage percentage")
+
 
 class PerformanceMonitor:
     """性能监控器"""
@@ -31,36 +37,36 @@ class PerformanceMonitor:
 
     def record_db_query(self, query_type: str, duration: float, query: str = ""):
         """记录数据库查询"""
-        db_query_duration.labels(query_type=query_type).observe(duration)
+        db_query_duration.labels(operation=query_type).observe(duration)
 
         from config.monitoring import monitoring_config
+
         if duration > monitoring_config.DB_SLOW_QUERY_THRESHOLD:
-            self.slow_queries.append({
-                'query': query[:200],
-                'duration': duration,
-                'timestamp': datetime.now()
-            })
+            self.slow_queries.append({"query": query[:200], "duration": duration, "timestamp": datetime.now()})
             logger.warning(f"Slow query detected: {duration:.2f}s - {query[:100]}")
 
     def update_system_metrics(self):
         """更新系统指标"""
         cpu_usage.set(psutil.cpu_percent(interval=1))
         memory_usage.set(psutil.virtual_memory().percent)
-        disk_usage.set(psutil.disk_usage('/').percent)
+        disk_usage.set(psutil.disk_usage("/").percent)
 
     def get_metrics(self) -> bytes:
         """获取Prometheus指标"""
         return generate_latest()
 
+
 performance_monitor = PerformanceMonitor()
+
 
 # SQLAlchemy事件监听
 @event.listens_for(Engine, "before_cursor_execute")
 def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
-    conn.info.setdefault('query_start_time', []).append(time.time())
+    conn.info.setdefault("query_start_time", []).append(time.time())
+
 
 @event.listens_for(Engine, "after_cursor_execute")
 def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
-    total = time.time() - conn.info['query_start_time'].pop(-1)
+    total = time.time() - conn.info["query_start_time"].pop(-1)
     query_type = statement.split()[0].upper() if statement else "UNKNOWN"
     performance_monitor.record_db_query(query_type, total, statement)

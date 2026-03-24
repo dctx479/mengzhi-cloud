@@ -314,7 +314,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import http from '@/utils/http'
 
 const router = useRouter()
 
@@ -407,11 +407,11 @@ const loadInvoices = async () => {
 
     if (filters.status) params.status = filters.status
 
-    const response = await axios.get('/api/v1/billing/invoices', { params })
+    const res = await http.get('/v1/billing/invoices', { params })
 
-    if (response.data.code === 200) {
-      invoices.value = response.data.data.invoices
-      pagination.total = response.data.data.pagination.total
+    if (res.code === 200) {
+      invoices.value = res.data.invoices
+      pagination.total = res.data.pagination.total
 
       // 更新状态统计
       updateStatusCounts()
@@ -453,10 +453,10 @@ const resetFilters = () => {
 // 查看账单详情
 const viewInvoiceDetail = async (invoiceId) => {
   try {
-    const response = await axios.get(`/api/v1/billing/invoices/${invoiceId}`)
+    const res = await http.get(`/v1/billing/invoices/${invoiceId}`)
 
-    if (response.data.code === 200) {
-      const invoice = response.data.data
+    if (res.code === 200) {
+      const invoice = res.data
 
       // 显示详情对话框
       ElMessageBox.alert(
@@ -512,15 +512,15 @@ const confirmPayment = async () => {
 
     paymentLoading.value = true
 
-    const response = await axios.post(
-      `/api/v1/billing/invoices/${selectedInvoice.value.id}/pay`,
+    const res = await http.post(
+      `/v1/billing/invoices/${selectedInvoice.value.id}/pay`,
       {
         payment_method: paymentForm.payment_method,
         transaction_id: paymentForm.transaction_id || undefined
       }
     )
 
-    if (response.data.code === 200) {
+    if (res.code === 200) {
       ElMessage.success('支付成功')
       showPaymentDialog.value = false
       loadInvoices()

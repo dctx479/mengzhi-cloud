@@ -20,20 +20,20 @@
         </el-col>
         <el-col :xs="24" :sm="12" :md="6">
           <div class="metric-card">
-            <div class="metric-icon">✅</div>
-            <el-statistic title="成功率" :value="`${stats.success_rate}%`" />
+            <div class="metric-icon">📅</div>
+            <el-statistic title="今日生成" :value="stats.today_generated" />
           </div>
         </el-col>
         <el-col :xs="24" :sm="12" :md="6">
           <div class="metric-card">
-            <div class="metric-icon">⏱️</div>
-            <el-statistic title="平均耗时" :value="`${stats.avg_time}s`" />
+            <div class="metric-icon">🔤</div>
+            <el-statistic title="消耗Token" :value="stats.total_tokens" />
           </div>
         </el-col>
         <el-col :xs="24" :sm="12" :md="6">
           <div class="metric-card">
-            <div class="metric-icon">⭐</div>
-            <el-statistic title="平均评分" :value="stats.avg_rating.toFixed(1)" />
+            <div class="metric-icon">📊</div>
+            <el-statistic title="内容类型" :value="stats.type_count" />
           </div>
         </el-col>
       </el-row>
@@ -67,57 +67,26 @@
         </el-col>
       </el-row>
 
-      <!-- Top Templates -->
+      <!-- Content Type Distribution -->
       <el-row :gutter="20" class="top-row">
         <el-col :xs="24" :md="12">
           <div class="top-card">
-            <h4>热门模板</h4>
-            <el-table :data="stats.top_templates" stripe size="small" style="width: 100%">
-              <el-table-column prop="name" label="模板名称" />
-              <el-table-column prop="count" label="使用次数" width="80" align="center" />
-              <el-table-column prop="avg_rating" label="平均评分" width="80" align="center">
-                <template #default="{ row }">
-                  {{ row.avg_rating.toFixed(1) }}
-                </template>
-              </el-table-column>
+            <h4>按内容类型</h4>
+            <el-empty v-if="Object.keys(stats.by_type).length === 0" description="暂无数据" :image-size="60" />
+            <el-table v-else :data="typeTableData" stripe size="small" style="width: 100%">
+              <el-table-column prop="name" label="类型" />
+              <el-table-column prop="count" label="次数" width="80" align="center" />
             </el-table>
           </div>
         </el-col>
 
         <el-col :xs="24" :md="12">
           <div class="top-card">
-            <h4>高评分结果</h4>
-            <el-table :data="stats.top_results" stripe size="small" style="width: 100%">
-              <el-table-column label="内容预览" min-width="120">
-                <template #default="{ row }">
-                  {{ row.content.substring(0, 30) }}...
-                </template>
-              </el-table-column>
-              <el-table-column prop="rating" label="评分" width="50" align="center">
-                <template #default="{ row }">
-                  <el-rate :model-value="row.rating" disabled size="small" />
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </el-col>
-      </el-row>
-
-      <!-- Daily Stats -->
-      <el-row :gutter="20" class="daily-row">
-        <el-col :xs="24">
-          <div class="top-card">
-            <h4>每日统计</h4>
-            <el-table :data="stats.daily_stats" stripe size="small" style="width: 100%">
-              <el-table-column prop="date" label="日期" width="120" />
-              <el-table-column prop="count" label="生成数" width="80" align="center" />
-              <el-table-column prop="success" label="成功数" width="80" align="center" />
-              <el-table-column prop="avg_rating" label="平均评分" width="100" align="center">
-                <template #default="{ row }">
-                  {{ row.avg_rating.toFixed(1) }}
-                </template>
-              </el-table-column>
-              <el-table-column prop="total_words" label="总字数" width="80" align="center" />
+            <h4>按平台</h4>
+            <el-empty v-if="Object.keys(stats.by_platform).length === 0" description="暂无数据" :image-size="60" />
+            <el-table v-else :data="platformTableData" stripe size="small" style="width: 100%">
+              <el-table-column prop="name" label="平台" />
+              <el-table-column prop="count" label="次数" width="80" align="center" />
             </el-table>
           </div>
         </el-col>
@@ -127,42 +96,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 
 interface Statistics {
   total_generated: number
-  success_rate: number
-  avg_time: number
-  avg_rating: number
-  top_templates: Array<{
-    name: string
-    count: number
-    avg_rating: number
-  }>
-  top_results: Array<{
-    content: string
-    rating: number
-  }>
-  daily_stats: Array<{
-    date: string
-    count: number
-    success: number
-    avg_rating: number
-    total_words: number
-  }>
+  today_generated: number
+  total_tokens: number
+  type_count: number
+  by_type: Record<string, number>
+  by_platform: Record<string, number>
+  recent_trend: Array<{ date: string; count: number }>
 }
 
 const loading = ref(false)
 const stats = ref<Statistics>({
   total_generated: 0,
-  success_rate: 0,
-  avg_time: 0,
-  avg_rating: 0,
-  top_templates: [],
-  top_results: [],
-  daily_stats: [],
+  today_generated: 0,
+  total_tokens: 0,
+  type_count: 0,
+  by_type: {},
+  by_platform: {},
+  recent_trend: [],
 })
+
+const typeTableData = computed(() =>
+  Object.entries(stats.value.by_type).map(([name, count]) => ({ name, count }))
+)
+
+const platformTableData = computed(() =>
+  Object.entries(stats.value.by_platform).map(([name, count]) => ({ name, count }))
+)
 
 const refreshStatistics = async () => {
   loading.value = true
@@ -170,19 +134,23 @@ const refreshStatistics = async () => {
     const response = await import('@/api/content-generation').then((mod) =>
       mod.getStatistics()
     )
-    stats.value = response.data || response
-    renderCharts()
+    // Backend returns success_response wrapper: {code, data: {...}, message}
+    // contentAPI uses separate axios, response.data = HTTP body = {code, data, message}
+    const raw = response?.data ?? response
+    stats.value = {
+      total_generated: raw.total_generations ?? 0,
+      today_generated: raw.today_generations ?? 0,
+      total_tokens: raw.total_tokens_used ?? 0,
+      type_count: Object.keys(raw.by_type ?? {}).length,
+      by_type: raw.by_type ?? {},
+      by_platform: raw.by_platform ?? {},
+      recent_trend: raw.recent_trend ?? [],
+    }
   } catch (err) {
     ElMessage.error('加载统计数据失败')
   } finally {
     loading.value = false
   }
-}
-
-const renderCharts = () => {
-  // This is a placeholder for chart rendering
-  // In a real implementation, you would use ECharts or similar
-  console.log('Charts would be rendered here with stats:', stats.value)
 }
 
 onMounted(() => {

@@ -1,8 +1,8 @@
 """
 租户数据库管理服务
 
-版本: 1.0
-更新日期: 2026-01-22
+版本: 1.1
+更新日期: 2026-02-10
 
 功能：
 - 创建租户数据库
@@ -10,6 +10,10 @@
 - 数据迁移（共享<->独立）
 - 数据库备份和恢复
 - 数据库删除
+
+安全说明：
+- S-P0-002: 所有 subprocess 调用均使用白名单验证
+- 数据库名称和文件路径经过严格验证
 """
 
 from typing import Dict, List, Optional
@@ -19,14 +23,85 @@ from sqlalchemy.orm import Session
 import logging
 import subprocess
 import os
+import re
+import shutil
 
 from app.core.config import settings
 from app.core.tenant_database import get_tenant_router, TenantDatabaseRouter
 from app.models.base import Base
 from app.models.enterprise import Enterprise, IsolationMode
-from app.database import get_db
 
 logger = logging.getLogger(__name__)
+
+
+# S-P0-002: 安全验证函数
+def _validate_database_name(db_name: str) -> bool:
+    """验证数据库名称是否安全（防止注入）
+
+    只允许字母、数字、下划线，长度 1-64
+    """
+    if not db_name:
+        return False
+    pattern = r'^[a-zA-Z][a-zA-Z0-9_]{0,63}$'
+    return bool(re.match(pattern, db_name))
+
+
+def _validate_backup_path(file_path: str, base_dir: str) -> bool:
+    """验证备份文件路径是否在允许的目录内（防止路径遍历）
+
+    Args:
+        file_path: 要验证的文件路径
+        base_dir: 允许的基础目录
+
+    Returns:
+        bool: 路径是否安全
+    """
+    try:
+        # 解析绝对路径
+        abs_path = os.path.abspath(file_path)
+        abs_base = os.path.abspath(base_dir)
+
+        # 检查是否在基础目录内
+        return abs_path.startswith(abs_base + os.sep) or abs_path == abs_base
+    except Exception:
+        return False
+
+
+def _get_mysql_binary(binary_name: str) -> str:
+    """获取 MySQL 二进制文件的安全路径
+
+    Args:
+        binary_name: 二进制名称 (mysql 或 mysqldump)
+
+    Returns:
+        str: 二进制文件的完整路径
+
+    Raises:
+        FileNotFoundError: 找不到二进制文件
+    """
+    # 白名单：只允许特定的 MySQL 命令
+    allowed_binaries = {'mysql', 'mysqldump'}
+    if binary_name not in allowed_binaries:
+        raise ValueError(f"不允许的命令: {binary_name}")
+
+    # 尝试从系统路径查找
+    binary_path = shutil.which(binary_name)
+    if binary_path:
+        return binary_path
+
+    # Windows 上尝试常见路径
+    if os.name == 'nt':
+        common_paths = [
+            r"C:\Program Files\MySQL\MySQL Server 8.0\bin",
+            r"C:\Program Files\MySQL\MySQL Server 5.7\bin",
+            r"C:\xampp\mysql\bin",
+        ]
+        for path in common_paths:
+            full_path = os.path.join(path, f"{binary_name}.exe")
+            if os.path.exists(full_path):
+                return full_path
+
+    raise FileNotFoundError(f"找不到 {binary_name} 命令，请确保 MySQL 客户端已安装")
 
 
 class TenantDatabaseManager:
@@ -232,8 +307,8 @@ class TenantDatabaseManager:
             # 清理已创建的数据库
             try:
                 self.router.drop_tenant_database(enterprise_id)
-            except:
-                pass
+            except Exception as cleanup_err:
+                logger.warning(f"Failed to cleanup tenant database for enterprise {enterprise_id}: {cleanup_err}")
             raise
 
     def migrate_to_shared(
@@ -340,6 +415,10 @@ class TenantDatabaseManager:
             if not enterprise.database_name:
                 raise ValueError(f"No database found for enterprise {enterprise_id}")
 
+            # S-P0-002: 验证数据库名称安全性
+            if not _validate_database_name(enterprise.database_name):
+                raise ValueError(f"Invalid database name: {enterprise.database_name}")
+
             # 设置输出目录
             if output_dir is None:
                 output_dir = os.path.join(settings.UPLOAD_DIR, "backups")
@@ -353,11 +432,18 @@ class TenantDatabaseManager:
                 f"backup_{enterprise_id}_{timestamp}.sql"
             )
 
+            # S-P0-002: 验证备份路径安全性（防止路径遍历）
+            if not _validate_backup_path(backup_file, output_dir):
+                raise ValueError(f"Invalid backup path: {backup_file}")
+
             # 执行备份
             logger.info(f"Backing up database for enterprise {enterprise_id} to {backup_file}")
 
+            # S-P0-002: 使用安全的二进制路径
+            mysqldump_path = _get_mysql_binary("mysqldump")
+
             cmd = [
-                "mysqldump",
+                mysqldump_path,
                 "-h", settings.TENANT_DB_HOST,
                 "-P", str(settings.TENANT_DB_PORT),
                 "-u", settings.TENANT_DB_USER,
@@ -366,7 +452,8 @@ class TenantDatabaseManager:
                 "--result-file", backup_file
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            # S-P0-002: 禁用 shell=True，使用列表参数防止命令注入
+            result = subprocess.run(cmd, capture_output=True, text=True, shell=False)
 
             if result.returncode != 0:
                 raise RuntimeError(f"Backup failed: {result.stderr}")
@@ -415,14 +502,30 @@ class TenantDatabaseManager:
             if not enterprise.database_name:
                 raise ValueError(f"No database found for enterprise {enterprise_id}")
 
+            # S-P0-002: 验证数据库名称安全性
+            if not _validate_database_name(enterprise.database_name):
+                raise ValueError(f"Invalid database name: {enterprise.database_name}")
+
             if not os.path.exists(backup_file):
                 raise ValueError(f"Backup file not found: {backup_file}")
+
+            # S-P0-002: 验证备份文件路径安全性
+            backup_base_dir = os.path.join(settings.UPLOAD_DIR, "backups")
+            if not _validate_backup_path(backup_file, backup_base_dir):
+                raise ValueError(f"Backup file must be in the backups directory: {backup_file}")
+
+            # S-P0-002: 验证备份文件扩展名
+            if not backup_file.endswith('.sql'):
+                raise ValueError(f"Invalid backup file extension: {backup_file}")
 
             # 执行恢复
             logger.info(f"Restoring database for enterprise {enterprise_id} from {backup_file}")
 
+            # S-P0-002: 使用安全的二进制路径
+            mysql_path = _get_mysql_binary("mysql")
+
             cmd = [
-                "mysql",
+                mysql_path,
                 "-h", settings.TENANT_DB_HOST,
                 "-P", str(settings.TENANT_DB_PORT),
                 "-u", settings.TENANT_DB_USER,
@@ -431,7 +534,8 @@ class TenantDatabaseManager:
             ]
 
             with open(backup_file, 'r') as f:
-                result = subprocess.run(cmd, stdin=f, capture_output=True, text=True)
+                # S-P0-002: 禁用 shell=True，使用列表参数防止命令注入
+                result = subprocess.run(cmd, stdin=f, capture_output=True, text=True, shell=False)
 
             if result.returncode != 0:
                 raise RuntimeError(f"Restore failed: {result.stderr}")

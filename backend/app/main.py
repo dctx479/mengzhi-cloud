@@ -10,7 +10,10 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from app.core.errors import BusinessException, ERROR_HTTP_STATUS, ERROR_MESSAGES
 from app.core.responses import error_response
-from app.api import auth_router
+
+# P1-架构修复: 使用集中化路由管理
+from app.api.v1.router import api_router
+from app.api.admin_router import admin_router
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -112,167 +115,11 @@ async def metrics():
 
 # ==================== 路由注册 ====================
 
-# 注册认证路由
-app.include_router(
-    auth_router,
-    prefix="/api/v1/auth",
-    tags=["认证 - Authentication"]
-)
+# P1-架构修复: 使用集中化路由管理，统一 /api/v1 前缀
+app.include_router(api_router, prefix="/api/v1")
 
-# 注册产品路由
-from app.api import products
-app.include_router(
-    products.router,
-    prefix="/api/v1",
-    tags=["产品 - Products"]
-)
-
-# 注册AI对话路由
-from app.api import chat
-app.include_router(
-    chat.router,
-    prefix="/api/v1/chat",
-    tags=["AI对话 - Chat"]
-)
-
-# 注册用户路由 (BUG-022: 头像上传)
-from app.api import users
-app.include_router(
-    users.router,
-    prefix="/api/v1/users",
-    tags=["用户 - Users"]
-)
-
-# 注册导出路由 (BUG-026: 导出功能)
-from app.api import exports
-app.include_router(
-    exports.router,
-    prefix="/api/v1/export",
-    tags=["导出 - Export"]
-)
-
-# 注册配额套餐路由
-from app.api.quota_packages import router as quota_packages_router
-app.include_router(
-    quota_packages_router,
-    prefix="/api/v1",
-    tags=["配额套餐 - Quota Packages"]
-)
-
-# 注册订单路由
-from app.api.orders import router as orders_router
-app.include_router(
-    orders_router,
-    prefix="/api/v1",
-    tags=["订单 - Orders"]
-)
-
-# 注册AI配置路由
-from app.api import ai_configs
-app.include_router(
-    ai_configs.router,
-    prefix="/api",
-    tags=["AI配置 - AI Configs"]
-)
-
-# 注册媒体路由 (BE-008: 多模态素材管理)
-from app.api import media
-app.include_router(
-    media.router,
-    prefix="/api/v1",
-    tags=["媒体素材 - Media"]
-)
-
-# 注册文化标签路由 (BE-007: 文化标签管理)
-from app.api import cultural_tags
-app.include_router(
-    cultural_tags.router,
-    prefix="/api/v1",
-    tags=["文化标签 - Cultural Tags"]
-)
-
-# 注册权限管理路由 (BE-005: RBAC权限系统)
-from app.api import roles, permissions, user_roles
-app.include_router(
-    roles.router,
-    prefix="/api/v1/rbac",
-    tags=["权限管理 - RBAC"]
-)
-
-# 注册管理员路由
-from app.api import admin
-app.include_router(
-    admin.router,
-    prefix="/api/admin",
-    tags=["管理员 - Admin"]
-)
-
-# 注册审计日志路由
-from app.api import audit_logs
-app.include_router(
-    audit_logs.router,
-    prefix="/api",
-    tags=["审计日志 - Audit Logs"]
-)
-
-# 注册配额管理路由
-from app.api import quotas
-app.include_router(
-    quotas.router,
-    prefix="/api",
-    tags=["配额管理 - Quotas"]
-)
-
-# 注册计费路由
-from app.api import billing
-app.include_router(
-    billing.router,
-    prefix="/api",
-    tags=["计费管理 - Billing"]
-)
-
-# 注册风控路由
-from app.api import risk_control
-app.include_router(
-    risk_control.router,
-    prefix="/api/v1",
-    tags=["风控系统 - Risk Control"]
-)
-
-# 注册对账路由
-from app.api import reconciliation
-app.include_router(
-    reconciliation.router,
-    prefix="/api/v1",
-    tags=["对账系统 - Reconciliation"]
-)
-
-# 注册SLA路由
-from app.api import sla
-app.include_router(
-    sla.router,
-    prefix="/api/v1",
-    tags=["SLA保障 - SLA"]
-)
-
-# 注册租户管理路由
-from app.api import tenant_management
-app.include_router(
-    tenant_management.router,
-    prefix="/api/v1",
-    tags=["租户管理 - Tenant Management"]
-)
-
-app.include_router(
-    permissions.router,
-    prefix="/api/v1/rbac",
-    tags=["权限管理 - RBAC"]
-)
-app.include_router(
-    user_roles.router,
-    prefix="/api/v1/rbac",
-    tags=["权限管理 - RBAC"]
-)
+# 管理员路由使用 /api/admin 前缀
+app.include_router(admin_router, prefix="/api/admin")
 
 # 挂载静态文件目录（用于访问上传的媒体文件）
 upload_dir = Path(settings.UPLOAD_DIR)

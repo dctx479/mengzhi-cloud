@@ -4,7 +4,7 @@ from app.core.monitoring import performance_monitor
 from app.core.alerts import alert_manager
 from typing import Dict, Any
 
-router = APIRouter(prefix="/monitoring", tags=["监控"])
+router = APIRouter(tags=["监控"])
 
 @router.get("/metrics")
 async def get_metrics():

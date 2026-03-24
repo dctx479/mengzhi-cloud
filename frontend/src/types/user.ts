@@ -59,10 +59,10 @@ export interface UpdateProfileRequest {
 
 // 订单相关类型
 export interface OrderItem {
-  id: string
-  product_id: string
+  id: number
+  product_id: number
   product: {
-    id: string
+    id: number
     name: string
     image: string
     price: number
@@ -73,9 +73,15 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id: string
+  id: number
   order_no: string
   user_id: string
+  package_id?: number
+  package_name?: string
+  package_type?: string
+  amount?: number
+  original_amount?: number
+  discount_amount?: number
   items: OrderItem[]
   status: 'pending' | 'completed' | 'cancelled' | 'shipped'
   total_amount: number

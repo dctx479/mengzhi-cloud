@@ -12,11 +12,40 @@ import type {
 } from '@/types/user'
 
 export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const response = await http.post<LoginResponse>('/v1/auth/login', data)
-  if (response.token) {
-    localStorage.setItem('token', response.token)
+  // 后端返回 APIResponse 结构: { code, message, data: { user, tokens } }
+  const res = await http.post<{ code: number; message: string; data: { user: Record<string, unknown>; tokens: { access_token: string; refresh_token: string; expires_in: number } } | null }>('/v1/auth/login', data)
+
+  // 检查业务状态码（后端错误也返回HTTP 200）
+  if (res.code !== 200 || !res.data) {
+    throw new Error(res.message || '登录失败')
   }
-  return response
+
+  const inner = res.data
+  const token = inner.tokens?.access_token ?? ''
+  if (!token) {
+    throw new Error('登录响应中缺少有效token')
+  }
+  localStorage.setItem('token', token)
+
+  // 归一化为前端 LoginResponse 格式
+  const backendUser = inner.user ?? {}
+  const user: User = {
+    id: (backendUser.user_id as string) ?? '',
+    username: (backendUser.username as string) ?? '',
+    email: (backendUser.email as string) ?? '',
+    phone: backendUser.phone as string | undefined,
+    nickname: backendUser.nickname as string | undefined,
+    avatar: backendUser.avatar_url as string | undefined,
+    status: (backendUser.status as User['status']) ?? 'active',
+    role: (backendUser.role as User['role']) ?? 'user',
+    createdAt: (backendUser.created_at as string) ?? '',
+    updatedAt: '',
+  }
+  return {
+    token,
+    user,
+    expiresIn: inner.tokens?.expires_in ?? 1800,
+  }
 }
 
 export const register = (data: RegisterRequest): Promise<RegisterResponse> =>
@@ -28,13 +57,30 @@ export async function logout(): Promise<void> {
 }
 
 export const getCurrentUser = (): Promise<User> =>
-  http.get('/v1/auth/me')
+  http.get<{ code: number; message: string; data: Record<string, unknown> | null }>('/v1/auth/me').then((res) => {
+    if (res.code !== 200 || !res.data) {
+      throw new Error(res.message || '获取用户信息失败')
+    }
+    const u = res.data
+    return {
+      id: (u.user_id as string) ?? '',
+      username: (u.username as string) ?? '',
+      email: (u.email as string) ?? '',
+      phone: u.phone as string | undefined,
+      nickname: u.nickname as string | undefined,
+      avatar: u.avatar_url as string | undefined,
+      status: (u.status as User['status']) ?? 'active',
+      role: (u.role as User['role']) ?? 'user',
+      createdAt: (u.created_at as string) ?? '',
+      updatedAt: '',
+    } as User
+  })
 
 export const updateProfile = (data: UpdateProfileRequest): Promise<User> =>
-  http.put('/v1/auth/profile', data)
+  http.put('/v1/auth/me', data)
 
 export const changePassword = (oldPassword: string, newPassword: string): Promise<void> =>
-  http.post('/v1/auth/change-password', { oldPassword, newPassword })
+  http.post('/v1/auth/change-password', { old_password: oldPassword, new_password: newPassword })
 
 export async function verifyToken(): Promise<boolean> {
   try {
@@ -48,8 +94,10 @@ export async function verifyToken(): Promise<boolean> {
 }
 
 export const checkAvailability = async (field: 'username' | 'email', value: string): Promise<boolean> => {
-  const response = await http.get<{ available: boolean }>('/v1/auth/check-availability', {
+  const res = await http.get<{ code: number; data: { available: boolean } }>('/v1/auth/check-availability', {
     params: { field, value }
   })
-  return response.available
+  const inner = (res as unknown as { data: { available: boolean } }).data ?? (res as unknown as { available: boolean })
+  return inner.available ?? false
 }
+

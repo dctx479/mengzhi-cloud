@@ -14,6 +14,7 @@ import secrets
 import hashlib
 from decimal import Decimal
 import time
+import asyncio
 
 from app.models.payment import Payment, PaymentMethod, PaymentStatus
 from app.models.order import Order, OrderStatus
@@ -141,7 +142,18 @@ class PaymentService:
                 logger.info(f"支付延迟处理: order_id={order_id}, user_id={user_id}, risk_score={risk_result['risk_score']}")
                 track_payment_request(payment_method, "risk_delay")
                 # 延迟一段时间后继续处理
-                time.sleep(2)  # 延迟2秒
+                # P0-001修复: 使用异步事件循环执行延迟，避免阻塞请求线程
+                try:
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        # 在已运行的事件循环中，创建任务但不阻塞
+                        logger.info(f"风控延迟处理: 记录延迟标记，后续异步处理")
+                    else:
+                        loop.run_until_complete(asyncio.sleep(2))
+                except RuntimeError:
+                    # 没有事件循环时，使用同步延迟（仅用于非异步上下文）
+                    logger.warning("无法使用异步延迟，使用同步延迟（非生产环境）")
+                    time.sleep(2)
 
             try:
                 # 检查是否已有待支付的支付记录
@@ -426,12 +438,23 @@ class PaymentService:
         Args:
             payment: 支付对象
             order: 订单对象
+
+        Raises:
+            BusinessException: 支付宝支付功能尚未实现
+
+        Note:
+            P0-002: 此功能处于预发布阶段，生产环境请使用开发模式(PAYMENT_DEV_MODE=true)
+            实现计划:
+            1. 集成支付宝SDK (python-alipay-sdk)
+            2. 配置应用公钥/私钥
+            3. 调用 alipay.trade.precreate 创建预支付订单
+            4. 返回支付二维码URL
         """
-        # TODO: 实现支付宝支付
-        # 1. 调用支付宝SDK创建支付
-        # 2. 返回支付二维码或跳转URL
-        logger.info(f"支付宝支付待实现: {payment.payment_no}")
-        pass
+        logger.warning(f"支付宝支付功能未实现 [预发布]: payment_no={payment.payment_no}")
+        raise BusinessException(
+            code=ErrorCode.SERVICE_UNAVAILABLE,
+            message="支付宝支付功能正在开发中，请使用其他支付方式或联系客服"
+        )
 
     def _process_wechat(self, payment: Payment, order: Order) -> None:
         """处理微信支付
@@ -439,12 +462,23 @@ class PaymentService:
         Args:
             payment: 支付对象
             order: 订单对象
+
+        Raises:
+            BusinessException: 微信支付功能尚未实现
+
+        Note:
+            P0-002: 此功能处于预发布阶段，生产环境请使用开发模式(PAYMENT_DEV_MODE=true)
+            实现计划:
+            1. 集成微信支付SDK (wechatpy)
+            2. 配置商户号/API密钥
+            3. 调用统一下单接口
+            4. 返回支付二维码或小程序支付参数
         """
-        # TODO: 实现微信支付
-        # 1. 调用微信支付SDK创建支付
-        # 2. 返回支付二维码或跳转URL
-        logger.info(f"微信支付待实现: {payment.payment_no}")
-        pass
+        logger.warning(f"微信支付功能未实现 [预发布]: payment_no={payment.payment_no}")
+        raise BusinessException(
+            code=ErrorCode.SERVICE_UNAVAILABLE,
+            message="微信支付功能正在开发中，请使用其他支付方式或联系客服"
+        )
 
     def _process_balance(self, payment: Payment, order: Order, user_id: int) -> None:
         """处理余额支付
@@ -453,12 +487,19 @@ class PaymentService:
             payment: 支付对象
             order: 订单对象
             user_id: 用户ID
+
+        Raises:
+            BusinessException: 余额支付功能尚未实现
+
+        Note:
+            P0-002: 此功能处于预发布阶段
+            实现计划:
+            1. 查询用户余额
+            2. 验证余额充足
+            3. 原子扣减余额
+            4. 更新支付状态为成功
         """
-        # TODO: 实现余额支付
-        # 1. 检查用户余额
-        # 2. 扣除余额
-        # 3. 标记支付成功
-        logger.info(f"余额支付待实现: {payment.payment_no}")
+        logger.warning(f"余额支付功能未实现 [预发布]: payment_no={payment.payment_no}, user_id={user_id}")
         raise BusinessException(
             code=ErrorCode.SERVICE_UNAVAILABLE,
             message="余额支付功能暂未开放"

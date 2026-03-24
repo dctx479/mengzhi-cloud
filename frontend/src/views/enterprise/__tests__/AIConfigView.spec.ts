@@ -19,7 +19,7 @@ vi.mock('element-plus', () => ({
   ElMessage: {
     success: vi.fn(),
     error: vi.fn(),
-    info: vi.fn((options: any) => ({
+    info: vi.fn((_options: any) => ({
       close: vi.fn()
     }))
   },
@@ -453,7 +453,7 @@ describe('AIConfigView.vue', () => {
     })
 
     it('should not submit if validation fails', async () => {
-      const { ElMessage } = await import('element-plus')
+      const { ElMessage: _ElMessage } = await import('element-plus')
       wrapper = createWrapper()
       await flushPromises()
 

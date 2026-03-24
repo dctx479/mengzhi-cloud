@@ -11,10 +11,10 @@ import type {
   SavedConfig,
 } from '@/types/content-generation'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const contentAPI = axios.create({
-  baseURL: `${API_BASE}/content-generation`,
+  baseURL: `${API_BASE}/v1/content-generation`,
   timeout: 30000,
 })
 
@@ -27,38 +27,56 @@ contentAPI.interceptors.request.use((config) => {
   return config
 })
 
+/** 从 success_response 包装中提取 data 字段 */
+function unwrap<T>(responseData: any): T {
+  if (responseData && typeof responseData === 'object' && 'code' in responseData && 'data' in responseData) {
+    return responseData.data as T
+  }
+  return responseData as T
+}
+
 /**
  * 获取所有模板
  */
 export async function getTemplates(): Promise<ContentTemplate[]> {
-  const response = await contentAPI.get<ContentTemplate[]>('/templates')
-  return response.data
+  const response = await contentAPI.get('/templates')
+  const data = unwrap<ContentTemplate[]>(response.data)
+  return Array.isArray(data) ? data : []
 }
 
 /**
  * 获取指定类别的模板
  */
 export async function getTemplatesByCategory(category: string): Promise<ContentTemplate[]> {
-  const response = await contentAPI.get<ContentTemplate[]>('/templates', {
-    params: { category },
-  })
-  return response.data
+  const response = await contentAPI.get('/templates', { params: { category } })
+  const data = unwrap<ContentTemplate[]>(response.data)
+  return Array.isArray(data) ? data : []
 }
 
 /**
  * 获取单个模板详情
  */
 export async function getTemplateDetail(templateId: string): Promise<ContentTemplate> {
-  const response = await contentAPI.get<ContentTemplate>(`/templates/${templateId}`)
-  return response.data
+  const response = await contentAPI.get(`/templates/${templateId}`)
+  return unwrap<ContentTemplate>(response.data)
 }
 
 /**
  * 生成内容
  */
 export async function generateContent(request: GenerationRequest): Promise<GenerationResponse[]> {
-  const response = await contentAPI.post<GenerationResponse[]>('/generate', request)
-  return response.data
+  const response = await contentAPI.post('/generate', request)
+  const inner = unwrap<any>(response.data)
+  return [{
+    id: `gen-${Date.now()}`,
+    content: inner?.content ?? '',
+    metadata: {
+      length: inner?.length,
+      content_type: inner?.content_type,
+      style: inner?.style,
+      platform: inner?.platform,
+    }
+  }]
 }
 
 /**
@@ -74,16 +92,17 @@ export function createGenerationWebSocket(taskId: string): WebSocket {
  * 获取批量任务状态
  */
 export async function getBatchTaskStatus(taskId: string): Promise<BatchTask> {
-  const response = await contentAPI.get<BatchTask>(`/tasks/${taskId}`)
-  return response.data
+  const response = await contentAPI.get(`/tasks/${taskId}`)
+  return unwrap<BatchTask>(response.data)
 }
 
 /**
  * 获取所有批量任务
  */
 export async function getBatchTasks(): Promise<BatchTask[]> {
-  const response = await contentAPI.get<BatchTask[]>('/tasks')
-  return response.data
+  const response = await contentAPI.get('/tasks')
+  const data = unwrap<BatchTask[]>(response.data)
+  return Array.isArray(data) ? data : []
 }
 
 /**
@@ -97,9 +116,7 @@ export async function cancelBatchTask(taskId: string): Promise<void> {
  * 导出结果为 TXT
  */
 export async function exportResultsAsText(taskId: string): Promise<string> {
-  const response = await contentAPI.get(`/tasks/${taskId}/export/txt`, {
-    responseType: 'text',
-  })
+  const response = await contentAPI.get(`/tasks/${taskId}/export/txt`, { responseType: 'text' })
   return response.data
 }
 
@@ -107,9 +124,7 @@ export async function exportResultsAsText(taskId: string): Promise<string> {
  * 导出结果为 DOCX
  */
 export async function exportResultsAsDocx(taskId: string): Promise<Blob> {
-  const response = await contentAPI.get(`/tasks/${taskId}/export/docx`, {
-    responseType: 'blob',
-  })
+  const response = await contentAPI.get(`/tasks/${taskId}/export/docx`, { responseType: 'blob' })
   return response.data
 }
 
@@ -117,9 +132,7 @@ export async function exportResultsAsDocx(taskId: string): Promise<Blob> {
  * 导出结果为 PDF
  */
 export async function exportResultsAsPdf(taskId: string): Promise<Blob> {
-  const response = await contentAPI.get(`/tasks/${taskId}/export/pdf`, {
-    responseType: 'blob',
-  })
+  const response = await contentAPI.get(`/tasks/${taskId}/export/pdf`, { responseType: 'blob' })
   return response.data
 }
 
@@ -127,24 +140,25 @@ export async function exportResultsAsPdf(taskId: string): Promise<Blob> {
  * 保存配置
  */
 export async function saveConfig(name: string, config: GenerationConfig): Promise<SavedConfig> {
-  const response = await contentAPI.post<SavedConfig>('/configs', { name, config })
-  return response.data
+  const response = await contentAPI.post('/configs', { name, config })
+  return unwrap<SavedConfig>(response.data)
 }
 
 /**
  * 获取已保存的配置列表
  */
 export async function getSavedConfigs(): Promise<SavedConfig[]> {
-  const response = await contentAPI.get<SavedConfig[]>('/configs')
-  return response.data
+  const response = await contentAPI.get('/configs')
+  const data = unwrap<SavedConfig[]>(response.data)
+  return Array.isArray(data) ? data : []
 }
 
 /**
  * 获取单个已保存的配置
  */
 export async function getSavedConfig(configId: string): Promise<SavedConfig> {
-  const response = await contentAPI.get<SavedConfig>(`/configs/${configId}`)
-  return response.data
+  const response = await contentAPI.get(`/configs/${configId}`)
+  return unwrap<SavedConfig>(response.data)
 }
 
 /**
@@ -158,10 +172,8 @@ export async function deleteSavedConfig(configId: string): Promise<void> {
  * 获取历史记录
  */
 export async function getHistory(limit = 20, offset = 0): Promise<any> {
-  const response = await contentAPI.get('/history', {
-    params: { limit, offset },
-  })
-  return response.data
+  const response = await contentAPI.get('/history', { params: { limit, offset } })
+  return unwrap<any>(response.data) ?? { items: [], total: 0 }
 }
 
 /**

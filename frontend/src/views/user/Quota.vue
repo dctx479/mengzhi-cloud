@@ -357,7 +357,12 @@ const formatDateTime = (dateStr: string): string => {
 const loadQuota = async () => {
   try {
     const data = await getQuota()
-    quotaData.value = data
+    if (data && typeof data === 'object' && data.chat_total !== undefined) {
+      quotaData.value = data
+    } else {
+      ElMessage.warning('配额数据无效')
+      // 保持默认值
+    }
   } catch (error) {
     ElMessage.error('加载配额信息失败')
     console.error(error)
@@ -390,7 +395,6 @@ const showUpgradeDialog = () => {
 }
 
 const handleUpgrade = async () => {
-  const planName = upgradePlans.find((p) => p.id === selectedPlan.value)?.name || ''
   try {
     const loading = ElLoading.service({
       lock: true,

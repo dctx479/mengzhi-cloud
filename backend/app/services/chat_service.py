@@ -22,19 +22,19 @@ class ChatService:
 
     async def send_message(
         self,
-        user_id: str,
+        user_id: int,
         content: str,
         conversation_id: Optional[int] = None,
         temperature: float = 0.7
     ) -> Tuple[int, str, int, int, float]:
         """发送消息（非流式）"""
         # 检查配额
-        quota = self._get_or_create_quota(int(user_id))
+        quota = self._get_or_create_quota(user_id)
         if not quota.can_chat():
             raise BusinessException("对话次数已用完")
 
         # 获取或创建对话
-        conv = self._get_or_create_conversation(int(user_id), conversation_id)
+        conv = self._get_or_create_conversation(user_id, conversation_id)
 
         # 保存用户消息
         user_msg = Message(
@@ -95,19 +95,19 @@ class ChatService:
 
     async def send_message_stream(
         self,
-        user_id: str,
+        user_id: int,
         content: str,
         conversation_id: Optional[int] = None,
         temperature: float = 0.7
     ) -> AsyncGenerator[str, None]:
         """发送消息（流式）"""
         # 检查配额
-        quota = self._get_or_create_quota(int(user_id))
+        quota = self._get_or_create_quota(user_id)
         if not quota.can_chat():
             raise BusinessException("对话次数已用完")
 
         # 获取或创建对话
-        conv = self._get_or_create_conversation(int(user_id), conversation_id)
+        conv = self._get_or_create_conversation(user_id, conversation_id)
 
         # 保存用户消息
         user_msg = Message(
@@ -177,14 +177,14 @@ class ChatService:
 
     def get_conversations(
         self,
-        user_id: str,
+        user_id: int,
         page: int = 1,
         page_size: int = 20,
         status: str = "active"
     ) -> Tuple[int, List[Any]]:
         """获取对话列表"""
         query = self.db.query(Conversation).filter(
-            Conversation.user_id == int(user_id)
+            Conversation.user_id == user_id
         )
 
         if status:
@@ -200,7 +200,7 @@ class ChatService:
     def get_conversation_detail(
         self,
         conversation_id: str,
-        user_id: str
+        user_id: int
     ) -> Dict[str, Any]:
         """获取对话详情"""
         # 修复 N+1 查询：预加载消息关系
@@ -208,7 +208,7 @@ class ChatService:
             joinedload(Conversation.messages)
         ).filter(
             Conversation.conversation_uuid == conversation_id,
-            Conversation.user_id == int(user_id)
+            Conversation.user_id == user_id
         ).first()
 
         if not conv:
@@ -221,12 +221,12 @@ class ChatService:
     def delete_conversation(
         self,
         conversation_id: str,
-        user_id: str
+        user_id: int
     ) -> None:
         """删除对话"""
         conv = self.db.query(Conversation).filter(
             Conversation.conversation_uuid == conversation_id,
-            Conversation.user_id == int(user_id)
+            Conversation.user_id == user_id
         ).first()
 
         if not conv:
@@ -238,14 +238,14 @@ class ChatService:
     def update_conversation(
         self,
         conversation_id: str,
-        user_id: str,
+        user_id: int,
         title: Optional[str] = None,
         is_favorited: Optional[bool] = None
     ) -> Dict[str, Any]:
         """更新对话"""
         conv = self.db.query(Conversation).filter(
             Conversation.conversation_uuid == conversation_id,
-            Conversation.user_id == int(user_id)
+            Conversation.user_id == user_id
         ).first()
 
         if not conv:
@@ -264,7 +264,7 @@ class ChatService:
         self,
         message_id: int,
         conversation_id: int,
-        user_id: str,
+        user_id: int,
         rating: int,
         feedback: Optional[str] = None
     ) -> Dict[str, Any]:
@@ -272,7 +272,7 @@ class ChatService:
         msg = self.db.query(Message).join(Conversation).filter(
             Message.id == message_id,
             Message.conversation_id == conversation_id,
-            Conversation.user_id == int(user_id)
+            Conversation.user_id == user_id
         ).first()
 
         if not msg:

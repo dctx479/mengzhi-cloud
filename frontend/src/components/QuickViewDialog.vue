@@ -146,9 +146,6 @@ import { useRouter } from 'vue-router'
 import {
   DocumentCopy,
   ShoppingCart,
-  Operation,
-  ZoomIn,
-  Download,
 } from '@element-plus/icons-vue'
 import type { Product } from '@/types/product'
 

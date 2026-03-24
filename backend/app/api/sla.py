@@ -26,7 +26,15 @@ from app.services.sla_monitor import SLAMonitor
 from app.services.sla_report import SLAReportService
 
 
-router = APIRouter(prefix="/api/sla", tags=["SLA"])
+def _get_user_obj(current_user: dict, db: Session) -> User:
+    """从current_user dict获取User ORM对象（含enterprise_id等字段）"""
+    user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="用户不存在")
+    return user
+
+
+router = APIRouter(tags=["SLA"])
 
 
 # ==================== Pydantic模型 ====================
@@ -97,13 +105,16 @@ async def create_agreement(
     权限：管理员或企业管理员
     """
     # 检查权限
-    if current_user.role.value not in ["ADMIN", "ENTERPRISE_ADMIN"]:
+    if current_user["role"] not in ["admin", "enterprise_admin"]:
         raise HTTPException(status_code=403, detail="权限不足")
+
+    # 查询用户ORM对象以获取enterprise_id和id
+    user_obj = _get_user_obj(current_user, db)
 
     # 创建协议
     new_agreement = SLAAgreement(
-        enterprise_id=current_user.enterprise_id if current_user.user_type.value == "ENTERPRISE" else None,
-        user_id=current_user.id if current_user.user_type.value == "PERSONAL" else None,
+        enterprise_id=user_obj.enterprise_id if current_user["user_type"] == "enterprise" else None,
+        user_id=user_obj.id if current_user["user_type"] == "personal" else None,
         name=agreement.name,
         level=agreement.level,
         description=agreement.description,
@@ -141,15 +152,17 @@ async def list_agreements(
     query = db.query(SLAAgreement).filter(SLAAgreement.deleted_at.is_(None))
 
     # 根据用户类型过滤
-    if current_user.role.value == "ADMIN":
+    if current_user["role"] == "admin":
         # 管理员可以看到所有协议
         pass
-    elif current_user.user_type.value == "ENTERPRISE":
+    elif current_user["user_type"] == "enterprise":
         # 企业用户只能看到自己企业的协议
-        query = query.filter(SLAAgreement.enterprise_id == current_user.enterprise_id)
+        user_obj = _get_user_obj(current_user, db)
+        query = query.filter(SLAAgreement.enterprise_id == user_obj.enterprise_id)
     else:
         # 个人用户只能看到自己的协议
-        query = query.filter(SLAAgreement.user_id == current_user.id)
+        user_obj = _get_user_obj(current_user, db)
+        query = query.filter(SLAAgreement.user_id == user_obj.id)
 
     # 应用过滤条件
     if level:
@@ -183,12 +196,13 @@ async def get_agreement(
         raise HTTPException(status_code=404, detail="协议不存在")
 
     # 检查权限
-    if current_user.role.value != "ADMIN":
-        if current_user.user_type.value == "ENTERPRISE":
-            if agreement.enterprise_id != current_user.enterprise_id:
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
                 raise HTTPException(status_code=403, detail="权限不足")
         else:
-            if agreement.user_id != current_user.id:
+            if agreement.user_id != user_obj.id:
                 raise HTTPException(status_code=403, detail="权限不足")
 
     return agreement
@@ -215,7 +229,7 @@ async def update_agreement(
         raise HTTPException(status_code=404, detail="协议不存在")
 
     # 检查权限
-    if current_user.role.value not in ["ADMIN", "ENTERPRISE_ADMIN"]:
+    if current_user["role"] not in ["admin", "enterprise_admin"]:
         raise HTTPException(status_code=403, detail="权限不足")
 
     # 更新字段
@@ -240,7 +254,7 @@ async def delete_agreement(
 
     权限：管理员
     """
-    if current_user.role.value != "ADMIN":
+    if current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="权限不足")
 
     agreement = db.query(SLAAgreement).filter(
@@ -282,12 +296,13 @@ async def get_realtime_metrics(
         raise HTTPException(status_code=404, detail="协议不存在")
 
     # 检查权限
-    if current_user.role.value != "ADMIN":
-        if current_user.user_type.value == "ENTERPRISE":
-            if agreement.enterprise_id != current_user.enterprise_id:
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
                 raise HTTPException(status_code=403, detail="权限不足")
         else:
-            if agreement.user_id != current_user.id:
+            if agreement.user_id != user_obj.id:
                 raise HTTPException(status_code=403, detail="权限不足")
 
     # 获取实时指标
@@ -320,12 +335,13 @@ async def get_metrics_history(
         raise HTTPException(status_code=404, detail="协议不存在")
 
     # 检查权限
-    if current_user.role.value != "ADMIN":
-        if current_user.user_type.value == "ENTERPRISE":
-            if agreement.enterprise_id != current_user.enterprise_id:
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
                 raise HTTPException(status_code=403, detail="权限不足")
         else:
-            if agreement.user_id != current_user.id:
+            if agreement.user_id != user_obj.id:
                 raise HTTPException(status_code=403, detail="权限不足")
 
     # 查询历史指标
@@ -372,12 +388,13 @@ async def get_violations(
         raise HTTPException(status_code=404, detail="协议不存在")
 
     # 检查权限
-    if current_user.role.value != "ADMIN":
-        if current_user.user_type.value == "ENTERPRISE":
-            if agreement.enterprise_id != current_user.enterprise_id:
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
                 raise HTTPException(status_code=403, detail="权限不足")
         else:
-            if agreement.user_id != current_user.id:
+            if agreement.user_id != user_obj.id:
                 raise HTTPException(status_code=403, detail="权限不足")
 
     # 查询违约记录
@@ -481,7 +498,7 @@ async def run_monitor(
 
     权限：管理员
     """
-    if current_user.role.value != "ADMIN":
+    if current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="权限不足")
 
     monitor = SLAMonitor(db)
@@ -506,11 +523,13 @@ async def get_dashboard_overview(
         SLAAgreement.deleted_at.is_(None)
     )
 
-    if current_user.role.value != "ADMIN":
-        if current_user.user_type.value == "ENTERPRISE":
-            query = query.filter(SLAAgreement.enterprise_id == current_user.enterprise_id)
+    if current_user["role"] != "admin":
+        if current_user["user_type"] == "enterprise":
+            user_obj = _get_user_obj(current_user, db)
+            query = query.filter(SLAAgreement.enterprise_id == user_obj.enterprise_id)
         else:
-            query = query.filter(SLAAgreement.user_id == current_user.id)
+            user_obj = _get_user_obj(current_user, db)
+            query = query.filter(SLAAgreement.user_id == user_obj.id)
 
     agreements = query.all()
 

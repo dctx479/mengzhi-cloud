@@ -70,7 +70,7 @@
             <el-button size="small" icon="Refresh" @click="handleRegenerate(result)">
               重新生成
             </el-button>
-            <el-dropdown size="small" @command="(cmd) => handleExportSingle(result, cmd)">
+            <el-dropdown size="small" @command="(cmd: 'txt' | 'docx' | 'pdf') => handleExportSingle(result, cmd)">
               <el-button size="small" icon="Download">
                 导出
                 <el-icon class="is-icon">

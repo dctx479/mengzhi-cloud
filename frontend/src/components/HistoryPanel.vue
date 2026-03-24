@@ -50,7 +50,7 @@
             :key="result.id"
             class="result-preview"
           >
-            <span class="result-number">#{{ idx + 1 }}</span>
+            <span class="result-number">#{{ (idx as number) + 1 }}</span>
             <span class="result-text">{{ result.content.substring(0, 100) }}...</span>
           </div>
           <div v-if="record.results.length > 2" class="more-results">
@@ -115,7 +115,7 @@
               :key="result.id"
               class="result-item"
             >
-              <div class="result-title">#{{ idx + 1 }}</div>
+              <div class="result-title">#{{ (idx as number) + 1 }}</div>
               <div class="result-content">{{ result.content }}</div>
               <div class="result-info">
                 {{ result.word_count }} 字 | 评分: {{ result.rating || '-' }}

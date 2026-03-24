@@ -15,10 +15,16 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
+from loguru import logger
 
 from app.models.sla import (
-    SLAAgreement, SLAMetric, SLAViolation, PerformanceLog,
-    MetricType, ViolationSeverity, SLALevel
+    SLAAgreement,
+    SLAMetric,
+    SLAViolation,
+    PerformanceLog,
+    MetricType,
+    ViolationSeverity,
+    SLALevel,
 )
 from app.services.notification_service import NotificationService
 
@@ -44,17 +50,11 @@ class SLAMonitor:
             Dict: 监控结果
         """
         # 获取所有活跃的协议
-        agreements = self.db.query(SLAAgreement).filter(
-            SLAAgreement.is_active == True,
-            SLAAgreement.deleted_at.is_(None)
-        ).all()
+        agreements = (
+            self.db.query(SLAAgreement).filter(SLAAgreement.is_active == True, SLAAgreement.deleted_at.is_(None)).all()
+        )
 
-        results = {
-            "total_agreements": len(agreements),
-            "compliant": 0,
-            "violations": 0,
-            "details": []
-        }
+        results = {"total_agreements": len(agreements), "compliant": 0, "violations": 0, "details": []}
 
         for agreement in agreements:
             # 监控单个协议
@@ -79,9 +79,7 @@ class SLAMonitor:
             Dict: 监控结果
         """
         # 获取协议
-        agreement = self.db.query(SLAAgreement).filter(
-            SLAAgreement.id == agreement_id
-        ).first()
+        agreement = self.db.query(SLAAgreement).filter(SLAAgreement.id == agreement_id).first()
 
         if not agreement:
             return {"error": "Agreement not found"}
@@ -102,44 +100,44 @@ class SLAMonitor:
 
         # 检查可用性
         if availability["actual"] < agreement.availability_target:
-            violations.append({
-                "metric": "availability",
-                "target": agreement.availability_target,
-                "actual": availability["actual"],
-                "severity": self._calculate_severity(
-                    agreement.availability_target,
-                    availability["actual"],
-                    "availability"
-                )
-            })
+            violations.append(
+                {
+                    "metric": "availability",
+                    "target": agreement.availability_target,
+                    "actual": availability["actual"],
+                    "severity": self._calculate_severity(
+                        agreement.availability_target, availability["actual"], "availability"
+                    ),
+                }
+            )
             is_compliant = False
 
         # 检查响应时间
         if response_time["avg"] > agreement.response_time_target:
-            violations.append({
-                "metric": "response_time",
-                "target": agreement.response_time_target,
-                "actual": response_time["avg"],
-                "severity": self._calculate_severity(
-                    agreement.response_time_target,
-                    response_time["avg"],
-                    "response_time"
-                )
-            })
+            violations.append(
+                {
+                    "metric": "response_time",
+                    "target": agreement.response_time_target,
+                    "actual": response_time["avg"],
+                    "severity": self._calculate_severity(
+                        agreement.response_time_target, response_time["avg"], "response_time"
+                    ),
+                }
+            )
             is_compliant = False
 
         # 检查错误率
         if error_rate["actual"] > agreement.error_rate_target:
-            violations.append({
-                "metric": "error_rate",
-                "target": agreement.error_rate_target,
-                "actual": error_rate["actual"],
-                "severity": self._calculate_severity(
-                    agreement.error_rate_target,
-                    error_rate["actual"],
-                    "error_rate"
-                )
-            })
+            violations.append(
+                {
+                    "metric": "error_rate",
+                    "target": agreement.error_rate_target,
+                    "actual": error_rate["actual"],
+                    "severity": self._calculate_severity(
+                        agreement.error_rate_target, error_rate["actual"], "error_rate"
+                    ),
+                }
+            )
             is_compliant = False
 
         # 记录违约
@@ -149,14 +147,7 @@ class SLAMonitor:
 
         # 记录指标
         self._record_metrics(
-            agreement,
-            start_time,
-            end_time,
-            availability,
-            response_time,
-            error_rate,
-            throughput,
-            is_compliant
+            agreement, start_time, end_time, availability, response_time, error_rate, throughput, is_compliant
         )
 
         return {
@@ -172,12 +163,7 @@ class SLAMonitor:
             "violations": violations,
         }
 
-    def _calculate_availability(
-        self,
-        start_time: datetime,
-        end_time: datetime,
-        agreement: SLAAgreement
-    ) -> Dict:
+    def _calculate_availability(self, start_time: datetime, end_time: datetime, agreement: SLAAgreement) -> Dict:
         """
         计算可用性
 
@@ -193,7 +179,7 @@ class SLAMonitor:
         query = self.db.query(PerformanceLog).filter(
             PerformanceLog.timestamp >= start_time.isoformat(),
             PerformanceLog.timestamp <= end_time.isoformat(),
-            PerformanceLog.deleted_at.is_(None)
+            PerformanceLog.deleted_at.is_(None),
         )
 
         # 如果协议关联了企业或用户，过滤数据
@@ -218,12 +204,7 @@ class SLAMonitor:
             "is_compliant": availability >= agreement.availability_target,
         }
 
-    def _calculate_response_time(
-        self,
-        start_time: datetime,
-        end_time: datetime,
-        agreement: SLAAgreement
-    ) -> Dict:
+    def _calculate_response_time(self, start_time: datetime, end_time: datetime, agreement: SLAAgreement) -> Dict:
         """
         计算响应时间
 
@@ -240,7 +221,7 @@ class SLAMonitor:
             PerformanceLog.timestamp >= start_time.isoformat(),
             PerformanceLog.timestamp <= end_time.isoformat(),
             PerformanceLog.is_success == True,
-            PerformanceLog.deleted_at.is_(None)
+            PerformanceLog.deleted_at.is_(None),
         )
 
         # 如果协议关联了企业或用户，过滤数据
@@ -284,12 +265,7 @@ class SLAMonitor:
             "is_compliant": avg_time <= agreement.response_time_target,
         }
 
-    def _calculate_error_rate(
-        self,
-        start_time: datetime,
-        end_time: datetime,
-        agreement: SLAAgreement
-    ) -> Dict:
+    def _calculate_error_rate(self, start_time: datetime, end_time: datetime, agreement: SLAAgreement) -> Dict:
         """
         计算错误率
 
@@ -305,7 +281,7 @@ class SLAMonitor:
         query = self.db.query(PerformanceLog).filter(
             PerformanceLog.timestamp >= start_time.isoformat(),
             PerformanceLog.timestamp <= end_time.isoformat(),
-            PerformanceLog.deleted_at.is_(None)
+            PerformanceLog.deleted_at.is_(None),
         )
 
         # 如果协议关联了企业或用户，过滤数据
@@ -330,12 +306,7 @@ class SLAMonitor:
             "is_compliant": error_rate <= agreement.error_rate_target,
         }
 
-    def _calculate_throughput(
-        self,
-        start_time: datetime,
-        end_time: datetime,
-        agreement: SLAAgreement
-    ) -> Dict:
+    def _calculate_throughput(self, start_time: datetime, end_time: datetime, agreement: SLAAgreement) -> Dict:
         """
         计算吞吐量
 
@@ -351,7 +322,7 @@ class SLAMonitor:
         query = self.db.query(PerformanceLog).filter(
             PerformanceLog.timestamp >= start_time.isoformat(),
             PerformanceLog.timestamp <= end_time.isoformat(),
-            PerformanceLog.deleted_at.is_(None)
+            PerformanceLog.deleted_at.is_(None),
         )
 
         # 如果协议关联了企业或用户，过滤数据
@@ -377,12 +348,7 @@ class SLAMonitor:
             "is_compliant": throughput >= agreement.throughput_target,
         }
 
-    def _calculate_severity(
-        self,
-        target: float,
-        actual: float,
-        metric_type: str
-    ) -> ViolationSeverity:
+    def _calculate_severity(self, target: float, actual: float, metric_type: str) -> ViolationSeverity:
         """
         计算违约严重程度
 
@@ -412,13 +378,7 @@ class SLAMonitor:
         else:
             return ViolationSeverity.LOW
 
-    def _record_violation(
-        self,
-        agreement: SLAAgreement,
-        violation: Dict,
-        start_time: datetime,
-        end_time: datetime
-    ):
+    def _record_violation(self, agreement: SLAAgreement, violation: Dict, start_time: datetime, end_time: datetime):
         """
         记录违约
 
@@ -469,7 +429,7 @@ class SLAMonitor:
         response_time: Dict,
         error_rate: Dict,
         throughput: Dict,
-        is_compliant: bool
+        is_compliant: bool,
     ):
         """
         记录SLA指标
@@ -565,7 +525,7 @@ SLA违约告警
             """.strip()
 
             # 发送通知（这里可以集成邮件、短信、钉钉等）
-            print(f"[SLA ALERT] {message}")
+            logger.warning(f"[SLA ALERT] {message}")
 
             # TODO: 集成实际的通知服务
             # self.notification_service.send_alert(
@@ -576,7 +536,7 @@ SLA违约告警
             # )
 
         except Exception as e:
-            print(f"Failed to send alert: {str(e)}")
+            logger.error(f"Failed to send alert: {str(e)}")
 
     @staticmethod
     def _percentile(values: List[float], percentile: int) -> float:
@@ -609,11 +569,7 @@ SLA违约告警
         """
         return self.monitor_agreement(agreement_id)
 
-    def get_violation_history(
-        self,
-        agreement_id: int,
-        days: int = 7
-    ) -> List[Dict]:
+    def get_violation_history(self, agreement_id: int, days: int = 7) -> List[Dict]:
         """
         获取违约历史
 
@@ -626,10 +582,15 @@ SLA违约告警
         """
         start_time = datetime.utcnow() - timedelta(days=days)
 
-        violations = self.db.query(SLAViolation).filter(
-            SLAViolation.agreement_id == agreement_id,
-            SLAViolation.violation_time >= start_time.isoformat(),
-            SLAViolation.deleted_at.is_(None)
-        ).order_by(SLAViolation.violation_time.desc()).all()
+        violations = (
+            self.db.query(SLAViolation)
+            .filter(
+                SLAViolation.agreement_id == agreement_id,
+                SLAViolation.violation_time >= start_time.isoformat(),
+                SLAViolation.deleted_at.is_(None),
+            )
+            .order_by(SLAViolation.violation_time.desc())
+            .all()
+        )
 
         return [v.to_dict() for v in violations]

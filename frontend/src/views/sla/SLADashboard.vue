@@ -268,7 +268,7 @@
 <script>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import http from '@/utils/http'
 
 export default {
   name: 'SLADashboard',
@@ -307,8 +307,9 @@ export default {
     // 方法
     const loadOverview = async () => {
       try {
-        const response = await axios.get('/api/sla/dashboard/overview')
-        Object.assign(overview, response.data)
+        const res = await http.get('/v1/sla/dashboard/overview')
+        const data = res.data ?? res
+        Object.assign(overview, data)
       } catch (error) {
         console.error('Failed to load overview:', error)
       }
@@ -317,8 +318,9 @@ export default {
     const loadAgreements = async () => {
       loading.value = true
       try {
-        const response = await axios.get('/api/sla/agreements')
-        agreements.value = response.data
+        const res = await http.get('/v1/sla/agreements')
+        const rawData = res.data ?? res
+        agreements.value = Array.isArray(rawData) ? rawData : []
         if (agreements.value.length > 0 && !selectedAgreement.value) {
           selectedAgreement.value = agreements.value[0]
           await loadMetrics()
@@ -334,8 +336,9 @@ export default {
     const loadMetrics = async () => {
       if (!selectedAgreement.value) return
       try {
-        const response = await axios.get(`/api/sla/metrics/realtime/${selectedAgreement.value.id}`)
-        metrics.value = response.data.metrics || {}
+        const res = await http.get(`/v1/sla/metrics/realtime/${selectedAgreement.value.id}`)
+        const data = res.data ?? res
+        metrics.value = data.metrics || {}
       } catch (error) {
         ElMessage.error('加载指标数据失败')
       }
@@ -344,8 +347,9 @@ export default {
     const loadViolations = async () => {
       if (!selectedAgreement.value) return
       try {
-        const response = await axios.get(`/api/sla/violations/${selectedAgreement.value.id}?days=7`)
-        violations.value = response.data
+        const res = await http.get(`/v1/sla/violations/${selectedAgreement.value.id}?days=7`)
+        const rawViolations = res.data ?? res
+        violations.value = Array.isArray(rawViolations) ? rawViolations : []
       } catch (error) {
         ElMessage.error('加载违约记录失败')
       }
@@ -361,9 +365,9 @@ export default {
 
     const viewReport = async (agreement) => {
       try {
-        const response = await axios.get(`/api/sla/reports/daily/${agreement.id}`)
+        const res = await http.get(`/v1/sla/reports/daily/${agreement.id}`)
         // TODO: 显示报告详情
-        console.log('Report:', response.data)
+        console.log('Report:', res.data ?? res)
         ElMessage.success('报告生成成功')
       } catch (error) {
         ElMessage.error('生成报告失败')
@@ -383,7 +387,7 @@ export default {
           start_date: newAgreement.start_date ? new Date(newAgreement.start_date).toISOString().split('T')[0] : '',
           end_date: newAgreement.end_date ? new Date(newAgreement.end_date).toISOString().split('T')[0] : ''
         }
-        await axios.post('/api/sla/agreements', data)
+        await http.post('/v1/sla/agreements', data)
         ElMessage.success('协议创建成功')
         showCreateDialog.value = false
         await loadAgreements()

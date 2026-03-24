@@ -115,15 +115,25 @@
 
           <!-- Temperature -->
           <el-form-item label="创意温度">
-            <div style="display: flex; gap: 12px; align-items: center">
+            <div style="display: flex; gap: 12px; align-items: center; width: 100%">
               <el-slider
                 v-model="contentStore.config.temperature"
                 :min="0"
                 :max="1"
                 :step="0.1"
-                style="flex: 1"
+                :show-tooltip="true"
+                style="flex: 1; min-width: 200px"
               />
-              <span style="min-width: 40px">{{ contentStore.config.temperature }}</span>
+              <el-input-number
+                v-model="contentStore.config.temperature"
+                :min="0"
+                :max="1"
+                :step="0.1"
+                :precision="1"
+                :controls="true"
+                size="small"
+                style="width: 120px"
+              />
             </div>
             <span class="form-hint">数值越高，创意性越强；越低，越严谨</span>
           </el-form-item>

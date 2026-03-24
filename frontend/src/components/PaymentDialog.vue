@@ -128,13 +128,11 @@ const visible = computed({
 const {
   loading,
   payment,
-  paymentStatus,
   failureReason,
   selectedMethod,
   isPaymentCreated,
   isPaymentSuccess,
   isPaymentFailed,
-  isPaymentPending,
   getMethodName,
   createPaymentRequest,
   checkPaymentStatus,

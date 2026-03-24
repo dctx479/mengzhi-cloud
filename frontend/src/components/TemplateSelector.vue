@@ -17,7 +17,7 @@
 
     <!-- Template List -->
     <div class="template-list">
-      <el-empty v-if="contentStore.templates.length === 0" description="No templates available" />
+      <el-empty v-if="contentStore.templates.length === 0" description="暂无可用模板" />
 
       <div v-else class="template-cards">
         <div

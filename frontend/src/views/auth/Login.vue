@@ -12,15 +12,14 @@
           @keyup.enter="handleSubmit"
           class="login-form"
         >
-          <el-form-item prop="email">
+          <el-form-item prop="username">
             <el-input
-              v-model="formData.email"
-              type="email"
-              placeholder="邮箱地址"
+              v-model="formData.username"
+              placeholder="用户名 / 邮箱"
               clearable
             >
               <template #prefix>
-                <el-icon><Message /></el-icon>
+                <el-icon><User /></el-icon>
               </template>
             </el-input>
           </el-form-item>
@@ -77,7 +76,9 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElForm } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { Message, Lock } from '@element-plus/icons-vue'
+import { User } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
@@ -86,14 +87,13 @@ const formRef = ref<InstanceType<typeof ElForm>>()
 const loading = ref(false)
 
 const formData = reactive({
-  email: '',
+  username: '',
   password: '',
 })
 
-const rules = {
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '邮箱格式不正确', trigger: 'blur' },
+const rules: FormRules = {
+  username: [
+    { required: true, message: '请输入用户名或邮箱', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -106,7 +106,7 @@ const handleSubmit = async () => {
     await formRef.value?.validate()
     loading.value = true
 
-    await userStore.login(formData.email, formData.password)
+    await userStore.login(formData.username, formData.password)
     ElMessage.success('登录成功')
     router.push('/')
   } catch (error) {
