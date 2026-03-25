@@ -7,7 +7,7 @@
 更新日期: 2026-01-17
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import Optional, List, Any, Dict
@@ -401,7 +401,7 @@ async def get_saved_configs():
 
 
 @router.post("/configs")
-async def save_config(body: dict = None):
+async def save_config(body: Optional[Dict[str, Any]] = Body(None)):
     """保存配置（stub）"""
     return success_response(
         data={"id": f"config-{__import__('time').time_ns()}", "name": (body or {}).get("name", ""), "config": (body or {}).get("config", {})},

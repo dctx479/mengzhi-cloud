@@ -44,7 +44,7 @@ class ErrorResponse(BaseModel):
 
     code: int = Field(..., description="错误码")
     message: str = Field(..., description="错误消息")
-    data: None = Field(default=None, description="数据为空")
+    data: Optional[Any] = Field(default=None, description="数据为空")
     errors: Optional[List[FieldError]] = Field(default=None, description="字段错误详情")
     timestamp: datetime = Field(default_factory=datetime.utcnow, description="响应时间戳")
     request_id: Optional[str] = Field(default=None, description="请求ID")

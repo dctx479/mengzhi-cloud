@@ -10,7 +10,7 @@ import hashlib
 from typing import List
 from fastapi import Request
 from loguru import logger
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 from app.core.config import settings
 
@@ -109,12 +109,31 @@ def decrypt_api_key(encrypted: str) -> str:
 
     Returns:
         解密后的API密钥
+        
+    Raises:
+        ValueError: 输入为空或无效格式
+        InvalidToken: 解密失败
     """
+    # 安全修复：验证输入有效性
+    if not encrypted:
+        raise ValueError("加密的API密钥不能为空")
+    
+    if not isinstance(encrypted, str):
+        raise ValueError("加密的API密钥必须是字符串类型")
+    
+    # 验证Fernet token格式（应该以"gAAAAAA"开头）
+    if not encrypted.startswith("gAAAAAA"):
+        logger.warning("API密钥解密：输入格式无效（不是有效的Fernet token）")
+        raise ValueError("无效的加密API密钥格式")
+    
     try:
         return _cipher.decrypt(encrypted.encode()).decode()
+    except InvalidToken as e:
+        logger.error(f"API密钥解密失败：无效的token或已损坏")
+        raise ValueError("API密钥解密失败：token无效或已过期") from e
     except Exception as e:
         logger.error(f"API密钥解密失败: {str(e)}")
-        raise
+        raise ValueError(f"API密钥解密失败: {type(e).__name__}") from e
 
 
 __all__ = ["get_client_ip", "verify_callback_ip", "decrypt_api_key"]

@@ -62,12 +62,7 @@ class CulturalTagService:
 
         # 如果指定了父标签，验证父标签存在
         if tag_data.parent_id:
-            parent_tag = self.get_tag_by_id(tag_data.parent_id)
-            if not parent_tag:
-                raise BusinessException(
-                    code=ErrorCode.RECORD_NOT_FOUND,
-                    message=f"父标签ID {tag_data.parent_id} 不存在"
-                )
+            self.get_tag_by_id(tag_data.parent_id)  # Verify parent exists (raises if not)
 
         # 创建标签
         tag = CulturalTag(**tag_data.dict())
@@ -183,12 +178,7 @@ class CulturalTagService:
                     message="标签不能将自己设为父标签"
                 )
 
-            parent_tag = self.get_tag_by_id(tag_data.parent_id)
-            if not parent_tag:
-                raise BusinessException(
-                    code=ErrorCode.RECORD_NOT_FOUND,
-                    message=f"父标签ID {tag_data.parent_id} 不存在"
-                )
+            self.get_tag_by_id(tag_data.parent_id)  # Verify parent exists (raises if not)
 
         # 更新字段
         update_data = tag_data.dict(exclude_unset=True)
@@ -519,12 +509,12 @@ class CulturalTagService:
             统计数据字典
         """
         # 总标签数
-        total_tags = self.db.query(func.count(CulturalTag.id)).scalar()
+        total_tags = self.db.query(func.count(CulturalTag.id)).scalar() or 0
 
         # 启用标签数
         active_tags = self.db.query(func.count(CulturalTag.id)).filter(
             CulturalTag.is_active == True
-        ).scalar()
+        ).scalar() or 0
 
         # 分类分布
         category_distribution = {}
@@ -533,7 +523,7 @@ class CulturalTagService:
             count = self.db.query(func.count(CulturalTag.id)).filter(
                 CulturalTag.category == code,
                 CulturalTag.is_active == True
-            ).scalar()
+            ).scalar() or 0
             category_distribution[code] = {
                 "name": category_info['name'],
                 "count": count

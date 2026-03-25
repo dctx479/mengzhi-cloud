@@ -61,15 +61,23 @@ class UploadService:
                 detail=f"不支持的图片类型: {file.content_type}。支持的类型: {', '.join(settings.ALLOWED_IMAGE_TYPES)}",
             )
 
+        
+        # 验证文件扩展名 - 防止绕过MIME检查
+        ext = os.path.splitext(file.filename or "")[1].lower()
+        if ext not in settings.ALLOWED_IMAGE_EXTENSIONS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"不支持的图片扩展名: {ext}。支持的扩展名: {', '.join(settings.ALLOWED_IMAGE_EXTENSIONS)}",
+            )
         # 验证文件大小
         file.file.seek(0, 2)  # 移动到文件末尾
         file_size = file.file.tell()
         file.file.seek(0)  # 回到开头
 
-        if file_size > settings.MAX_FILE_SIZE:
+        if file_size > settings.MAX_IMAGE_SIZE:
             raise HTTPException(
                 status_code=400,
-                detail=f"文件过大: {file_size / (1024*1024):.2f}MB > {settings.MAX_FILE_SIZE / (1024*1024)}MB",
+                detail=f"文件过大: {file_size / (1024*1024):.2f}MB > {settings.MAX_IMAGE_SIZE / (1024*1024)}MB",
             )
 
     def validate_video(self, file: UploadFile) -> None:
@@ -89,6 +97,14 @@ class UploadService:
                 detail=f"不支持的视频类型: {file.content_type}。支持的类型: {', '.join(settings.ALLOWED_VIDEO_TYPES)}",
             )
 
+        
+        # 验证文件扩展名 - 防止绕过MIME检查
+        ext = os.path.splitext(file.filename or "")[1].lower()
+        if ext not in settings.ALLOWED_VIDEO_EXTENSIONS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"不支持的视频扩展名: {ext}。支持的扩展名: {', '.join(settings.ALLOWED_VIDEO_EXTENSIONS)}",
+            )
         # 验证文件大小
         file.file.seek(0, 2)
         file_size = file.file.tell()
@@ -113,6 +129,10 @@ class UploadService:
         """
         # 生成唯一文件名
         ext = Path(file.filename).suffix
+        # 安全检查：防止路径遍历攻击
+        if "/" in ext or "\\" in ext or ".." in ext:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=400, detail="文件扩展名包含非法字符")
         unique_filename = f"{uuid.uuid4()}{ext}"
 
         # 按分类和日期组织目录

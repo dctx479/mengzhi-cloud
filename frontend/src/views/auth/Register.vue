@@ -37,7 +37,7 @@
               :fetch-suggestions="(_queryString: string, cb: (suggestions: { value: string }[]) => void) => cb(emailSuggestions.map(s => ({ value: s })))"
               placeholder="邮箱地址"
               clearable
-              @input="() => { debouncedCheckEmail(); validateEmailField(); }"
+              @input="() => { debouncedCheckEmail(); validateEmailField(); }" @blur="() => { debouncedCheckEmail(); validateEmailField() }"
             >
               <template #prefix>
                 <el-icon><Message /></el-icon>

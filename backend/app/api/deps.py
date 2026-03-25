@@ -176,7 +176,8 @@ def get_optional_user(
             "user_id": payload.get("sub"),
             "user_type": payload.get("user_type"),
             "role": payload.get("role"),
-            "tenant_id": payload.get("tenant_id")
+            "tenant_id": payload.get("tenant_id"),
+            "jti": payload.get("jti"),
         }
     except (TokenExpiredError, BusinessException, JWTError):
         return None

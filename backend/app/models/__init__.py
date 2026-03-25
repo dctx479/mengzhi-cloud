@@ -80,6 +80,15 @@ from .tenant_ai_config import TenantAIConfig, HealthStatus
 # 系统配置模型
 from .system_config import SystemConfig
 
+# 审计日志模型
+from .audit_log import AuditLog
+
+# 使用统计模型
+from .usage_stats import UsageStatistics, StatType
+
+# 计费模型
+from .billing import BillingPlan, BillingRecord, Invoice, BillingMode, PricingType, InvoiceStatus
+
 # 导出所有模型
 __all__ = [
     # 基类
@@ -179,4 +188,16 @@ __all__ = [
     "HealthStatus",
     # 系统配置
     "SystemConfig",
+    # 审计日志
+    "AuditLog",
+    # 使用统计
+    "UsageStatistics",
+    "StatType",
+    # 计费
+    "BillingPlan",
+    "BillingRecord",
+    "Invoice",
+    "BillingMode",
+    "PricingType",
+    "InvoiceStatus",
 ]

@@ -115,6 +115,7 @@ class ReconciliationScheduler:
             logger.info("对账任务调度器已停止")
         except Exception as e:
             logger.error(f"停止调度器失败: {str(e)}")
+            raise
 
     def get_job_status(self) -> Dict[str, Any]:
         """获取任务状态

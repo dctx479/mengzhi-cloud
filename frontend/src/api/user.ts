@@ -20,6 +20,24 @@ import type {
 } from '@/types/user'
 
 /**
+ * 标准 API 响应格式
+ * 由响应拦截器返回给调用者
+ */
+interface ApiResponse<T> {
+  code: number
+  data: T
+  message: string
+}
+
+/**
+ * 安全提取 API 响应数据
+ * 处理 http.get/post 返回的 {code, data, message} 格式
+ */
+function extractData<T>(response: ApiResponse<T>): T {
+  return (response as any)?.data
+}
+
+/**
  * 获取订单列表
  */
 export async function getOrders(params: {
@@ -30,18 +48,17 @@ export async function getOrders(params: {
   end_date?: string
   keyword?: string
 }): Promise<OrdersResponse> {
-  const res = await http.get<{
-    code: number
-    data: { items: Order[]; total: number; page: number; size: number }
-    message: string
-  }>('/v1/orders', {
-    params: {
-      page: params.page,
-      size: params.page_size,   // 后端参数名为 size
-      status: params.status,
-    },
-  })
-  const inner = (res as unknown as { data: { items: Order[]; total: number; page: number; size: number } }).data ?? {}
+  const res = await http.get<ApiResponse<{ items: Order[]; total: number; page: number; size: number }>>(
+    '/v1/orders',
+    {
+      params: {
+        page: params.page,
+        size: params.page_size, // 后端参数名为 size
+        status: params.status,
+      },
+    }
+  )
+  const inner = extractData(res) ?? {}
   return {
     items: inner.items || [],
     total: inner.total || 0,
@@ -61,8 +78,8 @@ export async function getOrderDetail(orderId: string): Promise<Order> {
  * 创建订单（从套餐购买）
  */
 export async function createOrderFromPackage(packageId: number): Promise<Order> {
-  const res = await http.post<{ code: number; data: Order }>('/v1/orders', { package_id: packageId })
-  return (res as unknown as { data: Order }).data ?? (res as unknown as Order)
+  const res = await http.post<ApiResponse<Order>>('/v1/orders', { package_id: packageId })
+  return extractData(res) ?? ({} as Order)
 }
 
 /**
@@ -78,8 +95,10 @@ export async function cancelOrder(orderId: string): Promise<void> {
  * 需要映射为前端 QuotaData 格式
  */
 export async function getQuota(): Promise<QuotaData> {
-  const res = await http.get<{ code: number; data: any }>('/v1/quotas/statistics/summary')
-  const inner = (res as unknown as { data: any }).data ?? {}
+  const res = await http.get<ApiResponse<{ by_resource_type: Record<string, { used: number; limit: number }> }>>(
+    '/v1/quotas/statistics/summary'
+  )
+  const inner = extractData(res) ?? {}
   // 后端 resource_type: message→chat, generation→content, storage→storage
   const byType = inner?.by_resource_type || {}
   const message = byType.message || {}
@@ -91,7 +110,7 @@ export async function getQuota(): Promise<QuotaData> {
     content_used: generation.used ?? 0,
     content_total: generation.limit ?? 50,
     storage_used: storage.used ?? 0,
-    storage_total: storage.limit ?? (1024 * 1024 * 1024),
+    storage_total: storage.limit ?? 1024 * 1024 * 1024,
   }
 }
 
@@ -103,12 +122,11 @@ export async function getQuotaHistory(params: {
   page_size?: number
   type?: string
 }): Promise<QuotaHistoryResponse> {
-  const res = await http.get<{
-    code: number
-    data: { items: QuotaHistory[]; total: number; page: number; page_size: number }
-    message: string
-  }>('/v1/quotas/', { params })
-  const inner = (res as unknown as { data: { items: QuotaHistory[]; total: number; page: number; page_size: number } }).data ?? {}
+  const res = await http.get<ApiResponse<{ items: QuotaHistory[]; total: number; page: number; page_size: number }>>(
+    '/v1/quotas/',
+    { params }
+  )
+  const inner = extractData(res) ?? {}
   return {
     items: inner.items || [],
     total: inner.total || 0,
@@ -122,16 +140,10 @@ export async function getQuotaHistory(params: {
  */
 export async function getSettings(): Promise<UserSettings> {
   try {
-    const res = await http.get<{ code: number; data: UserSettings; message: string }>('/v1/users/settings')
-    return (res as unknown as { data: UserSettings }).data ?? (res as unknown as UserSettings)
+    const res = await http.get<ApiResponse<UserSettings>>('/v1/users/settings')
+    return extractData(res) ?? getDefaultSettings()
   } catch {
-    return {
-      email_notifications: true,
-      sms_notifications: false,
-      profile_public: false,
-      language: 'zh-CN',
-      theme: 'light',
-    }
+    return getDefaultSettings()
   }
 }
 
@@ -139,8 +151,8 @@ export async function getSettings(): Promise<UserSettings> {
  * 更新用户设置
  */
 export async function updateSettings(data: Partial<UserSettings>): Promise<UserSettings> {
-  const res = await http.put<{ code: number; data: UserSettings; message: string }>('/v1/users/settings', data)
-  return (res as unknown as { data: UserSettings }).data ?? (res as unknown as UserSettings)
+  const res = await http.put<ApiResponse<UserSettings>>('/v1/users/settings', data)
+  return extractData(res) ?? getDefaultSettings()
 }
 
 /**
@@ -161,37 +173,27 @@ export async function getSecurityLogs(params: {
   page?: number
   page_size?: number
 }): Promise<{ items: SecurityLog[]; total: number }> {
-  const res = await http.get<{
-    code: number
-    data: { items: SecurityLog[]; total: number }
-    message: string
-  }>('/v1/users/security/logs', {
+  const res = await http.get<ApiResponse<{ items: SecurityLog[]; total: number }>>('/v1/users/security/logs', {
     params: {
       page: params.page,
-      pageSize: params.page_size,   // 后端参数别名为 pageSize
+      pageSize: params.page_size, // 后端参数别名为 pageSize
     },
   })
-  const inner = (res as unknown as { data: { items: SecurityLog[]; total: number } }).data ?? (res as unknown as { items: SecurityLog[]; total: number })
+  const inner = extractData(res) ?? {}
   return { items: inner.items || [], total: inner.total || 0 }
 }
 
 /**
  * 绑定手机号
  */
-export async function bindPhone(data: {
-  phone: string
-  verification_code: string
-}): Promise<void> {
+export async function bindPhone(data: { phone: string; verification_code: string }): Promise<void> {
   await http.post('/v1/users/security/bind-phone', data)
 }
 
 /**
  * 绑定邮箱
  */
-export async function bindEmail(data: {
-  email: string
-  verification_code: string
-}): Promise<void> {
+export async function bindEmail(data: { email: string; verification_code: string }): Promise<void> {
   await http.post('/v1/users/security/bind-email', data)
 }
 
@@ -213,16 +215,8 @@ export async function sendVerificationCode(data: {
 /**
  * 获取设备列表
  */
-export async function getDevices(): Promise<Array<{
-  id: string
-  device_name: string
-  device_type: string
-  ip_address: string
-  last_login: string
-  is_current: boolean
-}>> {
-  const res = await http.get<{ code: number; data: Array<unknown>; message: string }>('/v1/users/security/devices')
-  return ((res as unknown as { data: Array<unknown> }).data ?? (res as unknown as Array<unknown>) ?? []) as Array<{
+export async function getDevices(): Promise<
+  Array<{
     id: string
     device_name: string
     device_type: string
@@ -230,6 +224,20 @@ export async function getDevices(): Promise<Array<{
     last_login: string
     is_current: boolean
   }>
+> {
+  const res = await http.get<
+    ApiResponse<
+      Array<{
+        id: string
+        device_name: string
+        device_type: string
+        ip_address: string
+        last_login: string
+        is_current: boolean
+      }>
+    >
+  >('/v1/users/security/devices')
+  return extractData(res) ?? []
 }
 
 /**
@@ -237,4 +245,17 @@ export async function getDevices(): Promise<Array<{
  */
 export async function removeDevice(deviceId: string): Promise<void> {
   await http.delete(`/v1/users/security/devices/${deviceId}`)
+}
+
+/**
+ * 获取默认设置
+ */
+function getDefaultSettings(): UserSettings {
+  return {
+    email_notifications: true,
+    sms_notifications: false,
+    profile_public: false,
+    language: 'zh-CN',
+    theme: 'light',
+  }
 }

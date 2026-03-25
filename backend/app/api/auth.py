@@ -20,6 +20,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
 import uuid
+from loguru import logger
 
 from app.core.responses import APIResponse, success_response, error_response
 from app.core.errors import (
@@ -599,8 +600,10 @@ async def update_profile(
             "avatar_url",
             "gender",
             "updated_at",
+            "bio",
+            "location",
+            "website",
         }
-
         # 构建更新字段
         update_fields = []
         params = {"user_id": current_user["user_id"]}
@@ -614,6 +617,14 @@ async def update_profile(
         if request.gender is not None:
             update_fields.append(("gender", request.gender))
 
+        if request.bio is not None:
+            update_fields.append(("bio", request.bio))
+
+        if request.location is not None:
+            update_fields.append(("location", request.location))
+
+        if request.website is not None:
+            update_fields.append(("website", request.website))
         # 如果没有字段要更新
         if not update_fields:
             auth_service = AuthService(db)
@@ -653,8 +664,17 @@ async def update_profile(
             data={"updated": True}
         )
 
+    except ValueError as e:
+        db.rollback()
+        logger.warning(f"SQL injection validation failed in update_profile: {str(e)}")
+        return APIResponse(
+            code=400,
+            message="Invalid field in update request",
+            data=None
+        )
     except Exception as e:
         db.rollback()
+        logger.error(f"Unexpected error in update_profile: {str(e)}", exc_info=True)
         return error_response(
             code=ErrorCode.SYSTEM_ERROR,
             message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
@@ -767,6 +787,7 @@ async def change_password(
         raise
     except Exception as e:
         db.rollback()
+        logger.error(f"Unexpected error in change_password: {str(e)}", exc_info=True)
         return error_response(
             code=ErrorCode.SYSTEM_ERROR,
             message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
@@ -887,6 +908,7 @@ async def reset_password(
         raise
     except Exception as e:
         db.rollback()
+        logger.error(f"Unexpected error in reset_password: {str(e)}", exc_info=True)
         return error_response(
             code=ErrorCode.SYSTEM_ERROR,
             message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
@@ -1098,6 +1120,7 @@ async def check_availability(
         )
 
     except Exception as e:
+        logger.error(f"Unexpected error in check_availability: {str(e)}", exc_info=True)
         return APIResponse(
             code=ErrorCode.SYSTEM_ERROR,
             message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
@@ -1105,4 +1128,3 @@ async def check_availability(
         )
 
 
-__all__ = ["router"]

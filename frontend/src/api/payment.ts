@@ -45,8 +45,13 @@ export async function createPayment(data: {
   const res = await http.post<{ code: number; data: Payment; message: string }>(`/v1/orders/${data.order_id}/pay`, {
     payment_method: data.payment_method,
   })
-  const unwrapped = res as unknown as { data: Payment; code?: number }
-  return unwrapped.data || (res as unknown as Payment)
+  // 后端响应格式: {code: 200, data: Payment, message: "..."}
+  // http.get/post 已通过响应拦截器自动解包 response.data，返回 {code, data, message}
+  const response = res as unknown as { code?: number; data?: Payment; message?: string }
+  if (response.data) {
+    return response.data
+  }
+  throw new Error(`Invalid payment response: missing data field`)
 }
 
 /**
@@ -54,8 +59,12 @@ export async function createPayment(data: {
  */
 export async function getPaymentStatus(orderId: number): Promise<PaymentStatus> {
   const res = await http.get<{ code: number; data: PaymentStatus; message: string }>(`/v1/orders/${orderId}/payment-status`)
-  const unwrapped = res as unknown as { data: PaymentStatus; code?: number }
-  return unwrapped.data || (res as unknown as PaymentStatus)
+  // 后端响应格式: {code: 200, data: PaymentStatus, message: "..."}
+  const response = res as unknown as { code?: number; data?: PaymentStatus; message?: string }
+  if (response.data) {
+    return response.data
+  }
+  throw new Error(`Invalid payment status response: missing data field`)
 }
 
 /**
@@ -72,6 +81,10 @@ export async function paymentCallback(data: {
     transaction_id: data.transaction_id,
     callback_data: data.callback_data,
   })
-  const unwrapped = res as unknown as { data: { processed: boolean }; code?: number }
-  return unwrapped.data || (res as unknown as { processed: boolean })
+  // 后端响应格式: {code: 200, data: {processed: boolean}, message: "..."}
+  const response = res as unknown as { code?: number; data?: { processed: boolean }; message?: string }
+  if (response.data) {
+    return response.data
+  }
+  throw new Error(`Invalid payment callback response: missing data field`)
 }

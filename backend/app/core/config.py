@@ -304,13 +304,19 @@ class Settings(BaseSettings):
 
     # 文件上传配置
     UPLOAD_DIR: str = "uploads"  # 本地上传目录
-    MAX_FILE_SIZE: int = 50 * 1024 * 1024  # 50MB
-    MAX_VIDEO_SIZE: int = 200 * 1024 * 1024  # 200MB
+    MAX_IMAGE_SIZE: int = 50 * 1024 * 1024  # 50MB for images
+    MAX_VIDEO_SIZE: int = 200 * 1024 * 1024  # 200MB for videos
     ALLOWED_IMAGE_TYPES: List[str] = Field(
         default=["image/jpeg", "image/png", "image/webp", "image/gif"]
     )
+    ALLOWED_IMAGE_EXTENSIONS: List[str] = Field(
+        default=[".jpg", ".jpeg", ".png", ".gif", ".webp"]
+    )
     ALLOWED_VIDEO_TYPES: List[str] = Field(
         default=["video/mp4", "video/mpeg", "video/quicktime"]
+    )
+    ALLOWED_VIDEO_EXTENSIONS: List[str] = Field(
+        default=[".mp4", ".mpeg", ".mpg", ".mov"]
     )
 
     # OSS配置（阿里云OSS、腾讯云COS等）

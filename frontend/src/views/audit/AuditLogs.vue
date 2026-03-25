@@ -154,10 +154,10 @@
         <el-table-column label="状态" width="80">
           <template #default="{ row }">
             <el-tag
-              :type="row.is_success ? 'success' : 'danger'"
+              :type="row.status === 'success' ? 'success' : 'danger'"
               size="small"
             >
-              {{ row.is_success ? '成功' : '失败' }}
+              {{ row.status === 'success' ? '成功' : '失败' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -503,7 +503,7 @@ const viewDetail = async (log: AuditLog) => {
       resourceId: log.resourceId,
       pageSize: 10
     })
-    relatedLogs.value = relatedRes.data.data.filter(item => item.id !== log.id)
+    relatedLogs.value = (relatedRes.data.data || []).filter(item => item.id !== log.id)
 
     showDetailDialog.value = true
   } catch (error) {

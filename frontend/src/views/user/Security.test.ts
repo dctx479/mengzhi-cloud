@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, VueWrapper } from '@vue/test-utils'
 import Security from '@/views/user/Security.vue'
+import type { ComponentPublicInstance } from 'vue'
 import * as userAPI from '@/api/user'
 
 vi.mock('@/api/user', () => ({
@@ -25,41 +26,43 @@ vi.mock('@/stores/user', () => ({
 }))
 
 describe('Security Component', () => {
+  let wrapper: VueWrapper<ComponentPublicInstance>
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('renders security page', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     expect(wrapper.find('.security-page').exists()).toBe(true)
   })
 
   it('should display password management section', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     expect(wrapper.text()).toContain('密码管理')
     expect(wrapper.text()).toContain('当前密码')
     expect(wrapper.text()).toContain('新密码')
   })
 
   it('should display contact methods section', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     expect(wrapper.text()).toContain('联系方式')
     expect(wrapper.text()).toContain('邮箱地址')
     expect(wrapper.text()).toContain('手机号')
   })
 
   it('should display login history section', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     expect(wrapper.text()).toContain('登录历史')
   })
 
   it('should display device management section', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     expect(wrapper.text()).toContain('设备管理')
   })
 
   it('should get event text correctly', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.getEventText('login')).toBe('登录')
@@ -70,7 +73,7 @@ describe('Security Component', () => {
   })
 
   it('should parse user agent correctly', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.parseUserAgent('Windows NT')).toBe('Windows')
@@ -82,7 +85,7 @@ describe('Security Component', () => {
   })
 
   it('should format date time correctly', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     const dateStr = '2024-01-01T12:00:00Z'
@@ -105,9 +108,9 @@ describe('Security Component', () => {
     vi.mocked(userAPI.getSecurityLogs).mockResolvedValue({
       items: mockLogs,
       total: 1,
-    })
+    } as any)
 
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     await wrapper.vm.$nextTick()
 
     expect(userAPI.getSecurityLogs).toHaveBeenCalled()
@@ -125,16 +128,16 @@ describe('Security Component', () => {
       },
     ]
 
-    vi.mocked(userAPI.getDevices).mockResolvedValue(mockDevices)
+    vi.mocked(userAPI.getDevices).mockResolvedValue(mockDevices as any)
 
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     await wrapper.vm.$nextTick()
 
     expect(userAPI.getDevices).toHaveBeenCalled()
   })
 
   it('should initialize password form with empty values', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.passwordForm).toEqual({
@@ -145,7 +148,7 @@ describe('Security Component', () => {
   })
 
   it('should have password validation rules', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.passwordRules).toBeDefined()
@@ -155,7 +158,7 @@ describe('Security Component', () => {
   })
 
   it('should initialize phone form with empty values', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.phoneForm).toEqual({
@@ -165,7 +168,7 @@ describe('Security Component', () => {
   })
 
   it('should have phone validation rules', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.phoneRules).toBeDefined()
@@ -174,7 +177,7 @@ describe('Security Component', () => {
   })
 
   it('should initialize email form with empty values', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.emailForm).toEqual({
@@ -184,7 +187,7 @@ describe('Security Component', () => {
   })
 
   it('should have email validation rules', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.emailRules).toBeDefined()
@@ -193,7 +196,7 @@ describe('Security Component', () => {
   })
 
   it('should show bind phone dialog', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.bindPhoneDialogVisible).toBe(false)
@@ -202,7 +205,7 @@ describe('Security Component', () => {
   })
 
   it('should show change email dialog', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.changeEmailDialogVisible).toBe(false)
@@ -211,7 +214,7 @@ describe('Security Component', () => {
   })
 
   it('should have empty security logs initially', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.securityLogs).toEqual([])
@@ -219,21 +222,21 @@ describe('Security Component', () => {
   })
 
   it('should have empty devices initially', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.devices).toEqual([])
   })
 
   it('should initialize countdown to 0', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.countDown).toBe(0)
   })
 
   it('should have loading flags set to false initially', () => {
-    const wrapper = mount(Security)
+    wrapper = mount(Security)
     const vm = wrapper.vm as any
 
     expect(vm.loadingLogs).toBe(false)

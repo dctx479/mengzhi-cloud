@@ -255,6 +255,8 @@ async def assign_permissions(
     except BusinessException as e:
         if e.code == ErrorCode.RESOURCE_NOT_FOUND:
             raise HTTPException(status_code=404, detail=e.message)
+        elif e.code == ErrorCode.OPERATION_FORBIDDEN:
+            raise HTTPException(status_code=403, detail=e.message)
         raise HTTPException(status_code=400, detail=e.message)
     except Exception as e:
         logger.error(f"Failed to assign permissions to role {role_id}: {str(e)}")

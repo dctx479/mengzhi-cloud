@@ -65,7 +65,7 @@
               </el-table-column>
               <el-table-column label="单价">
                 <template #default="{ row }">
-                  {{ row.unit_price }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                  {{ row.unit_price?.toFixed(2) || '0.00' }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
                 </template>
               </el-table-column>
             </el-table>
@@ -73,10 +73,10 @@
           <div v-else class="simple-pricing">
             <el-descriptions :column="2" border size="small">
               <el-descriptions-item v-if="currentPlan.pricing_rules?.unit_price" label="单价">
-                {{ currentPlan.pricing_rules?.unit_price }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                {{ currentPlan.pricing_rules?.unit_price?.toFixed(2) || '0.00' }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
               </el-descriptions-item>
               <el-descriptions-item v-if="currentPlan.pricing_rules?.monthly_fee" label="月费">
-                {{ currentPlan.pricing_rules?.monthly_fee }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                {{ currentPlan.pricing_rules?.monthly_fee?.toFixed(2) || '0.00' }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
               </el-descriptions-item>
               <el-descriptions-item v-if="currentPlan.pricing_rules?.included_tokens" label="包含Token">
                 {{ currentPlan.pricing_rules?.included_tokens }}
@@ -344,9 +344,9 @@ const getPlanPriceText = (plan) => {
   if (!rules) return '-'
 
   if (rules.monthly_fee) {
-    return `¥${rules.monthly_fee}/月`
+    return `¥${Number(rules.monthly_fee).toFixed(2)}/月`
   } else if (rules.unit_price) {
-    return `¥${rules.unit_price}/单位`
+    return `¥${Number(rules.unit_price).toFixed(2)}/单位`
   }
   return '阶梯定价'
 }

@@ -282,8 +282,8 @@ async def test_ai_config(
     except Exception as e:
         db.rollback()
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content=error_response(ErrorCode.PARAM_VALIDATION_FAILED, f"配置测试失败: {str(e)}").dict(),
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=error_response(ErrorCode.SYSTEM_ERROR, f"配置测试失败: {str(e)}").dict(),
         )
 
 
@@ -322,7 +322,11 @@ async def get_available_providers(current_user: dict = Depends(get_current_user)
     config = db.query(SystemConfig).filter(SystemConfig.config_key == "enabled_providers").first()
 
     if config and config.config_value:
-        enabled_ids = set(config.config_value)
+        try:
+            enabled_ids = set(config.config_value) if isinstance(config.config_value, list) else set()
+        except (TypeError, ValueError):
+            # config_value format invalid, fallback to all
+            enabled_ids = {p["id"] for p in all_providers}
     else:
         # 默认全部启用
         enabled_ids = {p["id"] for p in all_providers}

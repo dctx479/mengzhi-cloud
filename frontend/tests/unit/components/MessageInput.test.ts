@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, VueWrapper } from '@vue/test-utils'
 import MessageInput from '@/components/chat/MessageInput.vue'
 import FileUpload from '@/components/chat/FileUpload.vue'
 import ElementPlus from 'element-plus'
 
 describe('MessageInput.vue', () => {
-  let wrapper: any
+  let wrapper: VueWrapper<InstanceType<typeof MessageInput>>
 
   beforeEach(() => {
     wrapper = mount(MessageInput, {

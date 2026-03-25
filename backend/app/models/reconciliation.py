@@ -93,6 +93,7 @@ class ReconciliationRecord(BaseModel):
         Enum(ReconciliationType),
         nullable=False,
         default=ReconciliationType.DAILY,
+        index=True,
         comment="对账类型"
     )
 

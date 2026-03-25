@@ -54,10 +54,25 @@ class RedisCache:
             logger.error(f"Redis连接失败: {str(e)}")
             RedisCache._client = None
 
+    def _safe_json_encode(self, value: Any) -> str:
+        """安全的JSON编码，处理不可序列化的对象"""
+        try:
+            return json.dumps(value)
+        except (TypeError, ValueError):
+            logger.warning(f"JSON编码失败，使用str()降级: {type(value).__name__}")
+            return json.dumps(str(value))
+
     def get_client(self) -> Optional[redis.Redis]:
-        """获取Redis客户端"""
+        """获取Redis客户端，支持重连"""
         if RedisCache._client is None:
             self._initialize()
+        elif RedisCache._client is not None:
+            try:
+                RedisCache._client.ping()
+            except Exception as e:
+                logger.warning(f"Redis连接检测失败，尝试重新连接: {str(e)}")
+                RedisCache._client = None
+                self._initialize()
         return RedisCache._client
 
     def set(self, key: str, value: Any, ttl_seconds: int = 300) -> bool:
@@ -78,7 +93,10 @@ class RedisCache:
                 return False
 
             # 序列化值
-            serialized_value = json.dumps(value) if not isinstance(value, str) else value
+            if isinstance(value, str):
+                serialized_value = value
+            else:
+                serialized_value = self._safe_json_encode(value)
             
             # 设置缓存
             result = client.setex(
@@ -207,7 +225,10 @@ class RedisCache:
             pipeline.delete(key)  # 先删除旧值
             
             for value in values:
-                serialized = json.dumps(value) if not isinstance(value, str) else value
+                if isinstance(value, str):
+                    serialized = value
+                else:
+                    serialized = self._safe_json_encode(value)
                 pipeline.rpush(key, serialized)
             
             pipeline.expire(key, ttl_seconds)  # expire expects integer seconds, not timedelta
@@ -252,7 +273,16 @@ class RedisCache:
                 return [None] * len(keys)
 
             values = client.mget(keys)
-            return [json.loads(v) if v else None for v in values]
+            result = []
+            for v in values:
+                if v is None:
+                    result.append(None)
+                else:
+                    try:
+                        result.append(json.loads(v))
+                    except (json.JSONDecodeError, TypeError):
+                        result.append(v)
+            return result
         except Exception as e:
             logger.error(f"批量获取缓存失败: {str(e)}")
             return [None] * len(keys)
@@ -266,7 +296,10 @@ class RedisCache:
 
             pipeline = client.pipeline()
             for key, value in mapping.items():
-                serialized = json.dumps(value) if not isinstance(value, str) else value
+                if isinstance(value, str):
+                    serialized = value
+                else:
+                    serialized = self._safe_json_encode(value)
                 pipeline.setex(key, ttl_seconds, serialized)  # setex expects integer seconds, not timedelta
             pipeline.execute()
             return True

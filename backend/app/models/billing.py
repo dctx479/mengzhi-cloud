@@ -703,7 +703,7 @@ class Invoice(BaseModel):
         """计算账单总额"""
         # 计算小计
         self.subtotal = sum(
-            float(record.amount) for record in self.records
+            float(record.amount or 0) for record in self.records
         )
 
         # 计算总额

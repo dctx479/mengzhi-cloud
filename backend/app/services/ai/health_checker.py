@@ -66,11 +66,33 @@ class HealthChecker:
                 return False
 
             # 创建Provider实例
-            provider = AIProviderFactory.create(
-                provider_type=config.provider,
-                api_key=api_key,
-                base_url=config.base_url
-            )
+            try:
+                provider = AIProviderFactory.create(
+                    provider_type=config.provider,
+                    api_key=api_key,
+                    base_url=config.base_url
+                )
+            except Exception as e:
+                error_msg = f"Failed to create provider: {str(e)}"
+                config.record_failure(error_msg)
+                config.update_health_status()
+                
+                if config.error_count >= self.config.CONSECUTIVE_ERROR_THRESHOLD:
+                    config.open_circuit_breaker(self.config.CIRCUIT_BREAKER_DURATION)
+                    logger.error(
+                        f"Provider {config.provider} (ID: {config.id}) "
+                        f"circuit breaker opened due to consecutive errors"
+                    )
+                
+                config.last_check_time = datetime.utcnow()
+                self.db.commit()
+                
+                logger.error(
+                    f"Provider {config.provider} (ID: {config.id}) "
+                    f"health check failed: {error_msg}"
+                )
+                return False
+
 
             # 执行健康检查请求
             start_time = datetime.utcnow()
@@ -195,9 +217,10 @@ class HealthChecker:
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
+            # BUG FIX: Only count True results, not Exception objects
             healthy_count = sum(1 for r in results if r is True)
             logger.info(
-                f"Health check completed: {healthy_count}/{len(configs)} providers healthy"
+                f"Health check completed: {healthy_count}/{len(tasks)} providers healthy"
             )
 
         except Exception as e:
@@ -255,6 +278,8 @@ class HealthChecker:
                 is_healthy = await self.check_provider_health(config, api_key)
 
                 if is_healthy:
+                    # BUG FIX: Add missing commit after successful recovery
+                    self.db.commit()
                     logger.info(
                         f"Provider {config.provider} (ID: {config.id}) recovered"
                     )

@@ -14,23 +14,30 @@ interface APIResponseWrapper<T = unknown> {
   message?: string
 }
 
+interface ListResponse<T> {
+  items?: T[]
+  total?: number
+  page?: number
+  page_size?: number
+}
+
 interface StatsInner {
-  users?: { total?: number; active?: number }
-  enterprises?: { total?: number }
-  total_ai_usage?: number
+  users?: { total?: number; active?: number; new_today?: number }
+  enterprises?: { total?: number; verified?: number }
 }
 
 interface AIUsageInner {
-  chat?: { message_count?: number }
-  content_generation?: { record_count?: number }
-  items?: AIUsageData[]
+  chat?: { message_count?: number; total_tokens?: number }
+  content_generation?: { record_count?: number; total_tokens?: number }
+  total_tokens?: number
+  period_days?: number
 }
 
 const _api = axios.create({
   baseURL: '/api/admin',
 })
 
-// 请求拦截器 — 附加认证 token
+// Request interceptor — attach auth token
 _api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) {
@@ -39,7 +46,7 @@ _api.interceptors.request.use((config) => {
   return config
 })
 
-// 响应拦截器 — 自动解包 response.data (HTTP body = APIResponse)
+// Response interceptor — auto-unwrap response.data (HTTP body = APIResponse)
 _api.interceptors.response.use(
   (response: AxiosResponse) => response.data,
   (error) => Promise.reject(error)
@@ -47,7 +54,7 @@ _api.interceptors.response.use(
 
 const api = _api as unknown as TypedAdminApi
 
-/** 从后端 APIResponse 包装中提取 data 字段 */
+/** Extract data field from backend APIResponse wrapper */
 function unwrapAdmin<T>(res: unknown): T {
   const r = res as APIResponseWrapper<T>
   return r.data !== undefined ? r.data : res as T
@@ -69,13 +76,13 @@ export const adminApi = {
       totalEnterprises: inner?.enterprises?.total || 0,
       totalAIUsage,
       activeUsers: inner?.users?.active || 0,
-    } as AdminStats
+    }
   },
 
   getUsers: async (params?: { search?: string }): Promise<User[]> => {
-    const res = await api.get<APIResponseWrapper<{ items?: User[] } | User[]>>('/users', { params })
-    const inner = unwrapAdmin<{ items?: User[] } | User[]>(res)
-    return (Array.isArray(inner) ? inner : (inner as { items?: User[] })?.items || []) as User[]
+    const res = await api.get<APIResponseWrapper<ListResponse<User>>>('/users', { params })
+    const inner = unwrapAdmin<ListResponse<User>>(res)
+    return inner?.items || []
   },
   updateUser: async (id: number, data: Partial<User>) => {
     const res = await api.patch<APIResponseWrapper<User>>(`/users/${id}`, data)
@@ -84,9 +91,9 @@ export const adminApi = {
   deleteUser: (id: number) => api.delete(`/users/${id}`),
 
   getEnterprises: async (params?: { search?: string }): Promise<Enterprise[]> => {
-    const res = await api.get<APIResponseWrapper<{ items?: Enterprise[] } | Enterprise[]>>('/enterprises', { params })
-    const inner = unwrapAdmin<{ items?: Enterprise[] } | Enterprise[]>(res)
-    return (Array.isArray(inner) ? inner : (inner as { items?: Enterprise[] })?.items || []) as Enterprise[]
+    const res = await api.get<APIResponseWrapper<ListResponse<Enterprise>>>('/enterprises', { params })
+    const inner = unwrapAdmin<ListResponse<Enterprise>>(res)
+    return inner?.items || []
   },
   updateEnterprise: async (id: number, data: Partial<Enterprise>) => {
     const res = await api.patch<APIResponseWrapper<Enterprise>>(`/enterprises/${id}`, data)
@@ -95,16 +102,11 @@ export const adminApi = {
   deleteEnterprise: (id: number) => api.delete(`/enterprises/${id}`),
 
   getAIUsage: async (): Promise<AIUsageData[]> => {
-    const res = await api.get<APIResponseWrapper<AIUsageInner | AIUsageData[]>>('/ai-usage')
-    const inner = unwrapAdmin<AIUsageInner | AIUsageData[]>(res)
-    // Backend returns array directly
-    if (Array.isArray(inner)) return inner
+    const res = await api.get<APIResponseWrapper<AIUsageInner>>('/ai-usage')
+    const inner = unwrapAdmin<AIUsageInner>(res)
     // Backend returns aggregate stats — synthesize a single chart point
-    const typed = inner as AIUsageInner
-    const items = typed?.items
-    if (Array.isArray(items)) return items
     const today = new Date().toISOString().split('T')[0]
-    const count = (typed?.chat?.message_count || 0) + (typed?.content_generation?.record_count || 0)
+    const count = (inner?.chat?.message_count || 0) + (inner?.content_generation?.record_count || 0)
     return count > 0 ? [{ date: today, count }] : []
   },
 }

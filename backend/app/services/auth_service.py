@@ -221,8 +221,14 @@ class AuthService:
         Returns:
             是否在黑名单中
         """
-        if not jti or self.redis_client is None:
-            # Redis不可用或jti为空时，不检查黑名单
+        if not jti:
+            return False
+        
+        if self.redis_client is None:
+            logger.warning(
+                "SECURITY WARNING: Redis unavailable - cannot verify token blacklist. "
+                "Revoked tokens may still be accepted. Check Redis connectivity immediately!"
+            )
             return False
 
         try:
@@ -294,7 +300,7 @@ class AuthService:
             )
 
             # 6. 将旧Refresh Token加入黑名单
-            ttl = payload.get("exp") - int(datetime.utcnow().timestamp())
+            ttl = int(payload.get("exp").timestamp()) - int(datetime.utcnow().timestamp())
             if ttl > 0:
                 self.add_token_to_blacklist(jti, ttl)
 

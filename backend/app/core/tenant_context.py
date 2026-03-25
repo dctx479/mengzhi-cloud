@@ -52,6 +52,11 @@ def get_current_tenant(
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if user and user.enterprise_id:
             tenant_id = user.enterprise_id
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="用户未关联任何企业"
+            )
 
     if not tenant_id:
         raise HTTPException(
@@ -101,11 +106,8 @@ def get_tenant_database(
 
     try:
         yield db
-    except Exception:
-        # 确保异常时也能关闭连接
-        db.close()
-        raise
     finally:
+        # BUG FIX: Only close once in finally block (removed redundant except Exception close)
         db.close()
 
 

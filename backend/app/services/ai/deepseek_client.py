@@ -124,7 +124,11 @@ class DeepSeekClient:
                     json=payload
                 )
                 response.raise_for_status()
-                result = response.json()
+                try:
+                    result = response.json()
+                except json.JSONDecodeError as je:
+                    logger.error(f"Failed to decode JSON response: {je}, response text: {response.text[:200]}")
+                    raise ValueError(f"Invalid JSON in API response: {je}") from je
                 logger.debug(f"Chat completion response: {result.get('id')}")
                 return result
             except httpx.HTTPError as e:
@@ -133,7 +137,6 @@ class DeepSeekClient:
             except Exception as e:
                 logger.error(f"Unexpected error in chat completion: {str(e)}")
                 raise
-
     async def chat_completion_stream(
         self,
         messages: List[Dict[str, str]],

@@ -17,6 +17,7 @@ import io
 from typing import Optional, List
 from datetime import datetime
 import uuid
+import urllib.parse
 
 from app.api.deps import get_db, get_current_user, require_admin
 from app.models.product import Product
@@ -30,6 +31,20 @@ router = APIRouter()
 BATCH_SIZE = 1000  # 分批处理大小
 MAX_SYNC_EXPORT = 5000  # 同步导出最大记录数
 
+
+
+def _encode_filename_header(filename: str) -> str:
+    """RFC 5987编码文件名，支持中文字符
+    
+    Args:
+        filename: 原始文件名（可包含中文）
+    
+    Returns:
+        RFC 5987格式的Content-Disposition值，兼容所有浏览器
+    """
+    encoded = urllib.parse.quote(filename.encode('utf-8'))
+    header_value = 'attachment; filename="' + filename + '"; filename*=UTF-8''' + encoded
+    return header_value
 
 def _build_product_dict(product: Product, fields: Optional[List[str]] = None) -> dict:
     """构建产品字典，支持自定义字段"""
@@ -56,16 +71,25 @@ def _build_product_dict(product: Product, fields: Optional[List[str]] = None) ->
 
 
 def _export_to_csv(df: pd.DataFrame, filename: str) -> StreamingResponse:
-    """导出为CSV格式"""
+    """导出为CSV格式
+    
+    使用生成器函数处理CSV内容，确保正确的流式传输。
+    BUG FIX: 使用生成器函数而不是iter([string])来正确流式传输数据
+    """
     output = io.StringIO()
     df.to_csv(output, index=False, encoding='utf-8-sig')
     output.seek(0)
+    csv_content = output.getvalue()
+
+    def iter_csv():
+        """生成器：yield CSV内容"""
+        yield csv_content
 
     return StreamingResponse(
-        iter([output.getvalue()]),
+        iter_csv(),
         media_type="text/csv; charset=utf-8",
         headers={
-            "Content-Disposition": f"attachment; filename={filename}",
+            "Content-Disposition": _encode_filename_header(filename),
             "Content-Type": "text/csv; charset=utf-8"
         }
     )
@@ -106,10 +130,21 @@ def _export_to_excel(df: pd.DataFrame, filename: str) -> StreamingResponse:
 
     output.seek(0)
 
+    def iter_bytes():
+        """生成器：逐块读取BytesIO内容
+        
+        以8KB块的形式流式传输二进制数据，避免一次性加载整个文件到内存。
+        """
+        while True:
+            chunk = output.read(8192)  # 8KB chunks
+            if not chunk:
+                break
+            yield chunk
+
     return StreamingResponse(
-        output,
+        iter_bytes(),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": _encode_filename_header(filename)}
     )
 
 

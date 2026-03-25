@@ -167,7 +167,7 @@ const loadProviderSettings = async () => {
     if (result?.providers) {
       allProviders.value = result.providers.map((p: ProviderInfo) => ({
         ...p,
-        enabled: (p as any).enabled ?? true
+        enabled: p.enabled ?? true
       }));
     }
   } catch {

@@ -156,9 +156,9 @@ describe('Quota Component', () => {
     const vm = wrapper.vm as any
 
     expect(vm.upgradePlans).toHaveLength(3)
-    expect(vm.upgradePlans[0].id).toBe('pro')
-    expect(vm.upgradePlans[1].id).toBe('business')
-    expect(vm.upgradePlans[2].id).toBe('enterprise')
+    expect(vm.upgradePlans[0].id).toBe(1)
+    expect(vm.upgradePlans[1].id).toBe(2)
+    expect(vm.upgradePlans[2].id).toBe(3)
   })
 
   it('should format date time correctly', () => {

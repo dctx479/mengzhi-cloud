@@ -6,7 +6,7 @@
 """
 
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
+from fastapi import APIRouter, Body, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
@@ -195,6 +195,7 @@ async def start_reconciliation(
             code=e.code,
             message=e.message
         ).dict()
+    except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"启动对账失败: {str(e)}"
@@ -404,7 +405,7 @@ async def get_reconciliation_difference(
 @router.post("/differences/{difference_id}/fix", summary="修复差异")
 async def fix_difference(
     difference_id: int = Path(..., description="差异记录ID"),
-    request: FixDifferenceRequest = ...,
+    request: FixDifferenceRequest = Body(...),
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):

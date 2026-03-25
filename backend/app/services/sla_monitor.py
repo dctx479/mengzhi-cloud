@@ -484,7 +484,7 @@ class SLAMonitor:
             period_end=end_ts,
             target_value=availability["target"],
             actual_value=availability["actual"],
-            achievement_rate=(availability["actual"] / availability["target"]) * 100,
+            achievement_rate=(availability["actual"] / max(availability["target"], 0.01)) * 100,
             total_requests=availability["total_requests"],
             successful_requests=availability["successful_requests"],
             failed_requests=availability["total_requests"] - availability["successful_requests"],
@@ -501,7 +501,7 @@ class SLAMonitor:
             period_end=end_ts,
             target_value=response_time["target"],
             actual_value=response_time["avg"],
-            achievement_rate=(response_time["target"] / max(response_time["avg"], 1)) * 100,
+            achievement_rate=min((response_time["target"] / max(response_time["avg"], 0.01)) * 100, 100),
             avg_response_time=response_time["avg"],
             min_response_time=response_time["min"],
             max_response_time=response_time["max"],
@@ -521,14 +521,14 @@ class SLAMonitor:
             period_end=end_ts,
             target_value=error_rate["target"],
             actual_value=error_rate["actual"],
-            achievement_rate=(error_rate["target"] / max(error_rate["actual"], 0.01)) * 100,
+            achievement_rate=min((error_rate["target"] / max(error_rate["actual"], 0.01)) * 100, 100),
             total_requests=error_rate["total_requests"],
             failed_requests=error_rate["failed_requests"],
             is_compliant=error_rate["is_compliant"],
         )
         self.db.add(error_rate_metric)
 
-        self.db.commit()
+        self.db.flush()  # Do not commit here; outer transaction handles it
 
     def _send_alert(self, agreement: SLAAgreement, violation: SLAViolation):
         """

@@ -106,9 +106,13 @@ class OrderService:
             expired_at=expired_at
         )
 
-        self.db.add(order)
-        self.db.commit()
-        self.db.refresh(order)
+        try:
+            self.db.add(order)
+            self.db.commit()
+            self.db.refresh(order)
+        except Exception:
+            self.db.rollback()
+            raise
 
         logger.info(f"订单创建成功: {order.order_no} (user_id={user_id}, package_id={package.id})")
         return order

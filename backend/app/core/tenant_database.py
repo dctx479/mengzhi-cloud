@@ -17,6 +17,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
 import logging
+import threading
 
 from app.core.config import settings
 from app.models.base import Base
@@ -36,6 +37,8 @@ class TenantDatabaseRouter:
         self._session_factories: Dict[str, sessionmaker] = {}  # 会话工厂缓存
         self._last_used: Dict[str, datetime] = {}  # 最后使用时间
         self._cleanup_interval = timedelta(hours=1)  # 清理间隔
+        # BUG FIX #2: Add thread lock to prevent race conditions during database creation
+        self._creation_lock = threading.Lock()
         self._max_idle_time = timedelta(hours=2)  # 最大空闲时间
 
     def get_database_url(self, tenant_id: int) -> str:
@@ -102,7 +105,11 @@ class TenantDatabaseRouter:
         except Exception as e:
             if create_if_not_exists and "Unknown database" in str(e):
                 logger.info(f"Database for tenant {tenant_id} not found, creating...")
-                self._create_tenant_database(tenant_id)
+                # BUG FIX #2: Use lock to prevent race condition when multiple threads try to create same DB
+                with self._creation_lock:
+                    # Double-check pattern: ensure database was not created by another thread
+                    if cache_key not in self._engines:
+                        self._create_tenant_database(tenant_id)
                 return self.get_engine(tenant_id, create_if_not_exists=False)
             else:
                 logger.error(f"Failed to create engine for tenant {tenant_id}: {e}")

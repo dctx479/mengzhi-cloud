@@ -29,6 +29,15 @@ vi.mock('@/stores/user', () => ({
   }),
 }))
 
+interface UserCenterInstance {
+  getRoleName(role?: string): string
+  getCurrentPageTitle(): string
+  handleMenuSelect(index: string): void
+  handleLogout(): Promise<void>
+  activeMenu: string
+  pageTitles: Record<string, string>
+}
+
 describe('UserCenter Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -117,7 +126,7 @@ describe('UserCenter Component', () => {
       },
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as UserCenterInstance
 
     expect(vm.getRoleName('user')).toBe('普通用户')
     expect(vm.getRoleName('admin')).toBe('管理员')
@@ -142,7 +151,7 @@ describe('UserCenter Component', () => {
       },
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as UserCenterInstance
 
     expect(vm.getCurrentPageTitle()).toBeDefined()
   })
@@ -164,7 +173,7 @@ describe('UserCenter Component', () => {
       },
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as UserCenterInstance
 
     expect(vm.pageTitles['/user/profile']).toBe('个人资料')
     expect(vm.pageTitles['/user/orders']).toBe('订单历史')
@@ -195,7 +204,7 @@ describe('UserCenter Component', () => {
       },
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as UserCenterInstance
     vm.handleMenuSelect('/user/orders')
 
     // Check if push was called
@@ -219,7 +228,7 @@ describe('UserCenter Component', () => {
       },
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as UserCenterInstance
 
     // Check if logout method exists
     expect(vm.handleLogout).toBeDefined()
@@ -242,7 +251,7 @@ describe('UserCenter Component', () => {
       },
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as UserCenterInstance
 
     expect(vm.activeMenu).toBeDefined()
   })

@@ -74,8 +74,12 @@ class ReconciliationTasks:
 
         except Exception as e:
             logger.error(f"每日对账任务失败: {str(e)}")
-            # 发送失败通知
-            await self._send_failure_notification(target_date, str(e))
+            # 发送失败通知，即使失败也继续抛出原始异常
+            try:
+                await self._send_failure_notification(target_date, str(e))
+            except Exception as notify_err:
+                logger.error(f"发送失败通知也失败了: {str(notify_err)}")
+            raise
         finally:
             db.close()
 
@@ -206,6 +210,7 @@ class ReconciliationTasks:
 
         except Exception as e:
             logger.error(f"检查待处理差异失败: {str(e)}")
+            raise
         finally:
             db.close()
 
@@ -290,6 +295,7 @@ class ReconciliationTasks:
 
         except Exception as e:
             logger.error(f"健康检查失败: {str(e)}")
+            raise
         finally:
             db.close()
 

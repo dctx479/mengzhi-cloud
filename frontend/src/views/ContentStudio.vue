@@ -66,13 +66,25 @@ const contentStore = useContentGenerationStore()
 const activeTab = ref('generation')
 
 onMounted(async () => {
-  // Fetch initial data
-  await Promise.all([
-    productStore.fetchProducts(),
-    contentStore.fetchTemplates(),
-    contentStore.fetchBatchTasks(),
-    contentStore.fetchSavedConfigs(),
-  ])
+  // Fetch initial data with error handling
+  try {
+    await Promise.all([
+      productStore.fetchProducts().catch((err) => {
+        console.error('Failed to fetch products:', err)
+      }),
+      contentStore.fetchTemplates().catch((err) => {
+        console.error('Failed to fetch templates:', err)
+      }),
+      contentStore.fetchBatchTasks().catch((err) => {
+        console.error('Failed to fetch batch tasks:', err)
+      }),
+      contentStore.fetchSavedConfigs().catch((err) => {
+        console.error('Failed to fetch saved configs:', err)
+      }),
+    ])
+  } catch (err) {
+    console.error('Error during component initialization:', err)
+  }
 })
 </script>
 

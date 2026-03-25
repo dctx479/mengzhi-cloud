@@ -44,7 +44,11 @@ class QuotaService:
 
     if current + amount <= limit then
         redis.call('INCRBY', KEYS[1], amount)
-        redis.call('EXPIRE', KEYS[1], ttl)
+        local exp_result = redis.call('EXPIRE', KEYS[1], ttl)
+        if exp_result == 0 then
+            redis.call('DEL', KEYS[1])
+            return 2
+        end
         return 1
     else
         return 0
@@ -368,6 +372,10 @@ class QuotaService:
                 remaining = quota_limit - used
                 logger.info(f"Redis 配额扣减成功: {resource_type.value}, 数量: {amount}, 剩余: {remaining}")
                 return True, f"配额扣减成功，剩余: {remaining}"
+            elif result == 2:
+                # Redis EXPIRE failed (OOM?), quota may not reset
+                logger.error(f"Redis EXPIRE失败(OOM?), 配额可能无法重置: {resource_type.value}")
+                return False, "Redis OOM - quota expiry failed, aborting deduction"
             else:
                 used = int(self.redis.get(cache_key) or 0)
                 remaining = max(0, quota_limit - used)
@@ -462,9 +470,13 @@ class QuotaService:
 
                 logger.debug(f"配额使用记录: quota_id={quota.id}, amount={amount}")
         except Exception as e:
-            self.db.rollback()
-            logger.error(f"记录配额使用失败: {e}")
-
+            try:
+                self.db.rollback()
+            except Exception as rollback_err:
+                logger.error(f"DB配额记录失败且回滚异常(会话可能已损坏): 原错误={e}, 回滚错误={rollback_err}")
+                raise
+            logger.error(f"DB配额使用记录失败，已回滚: {e}")
+            raise
     def sync_redis_to_db(self) -> int:
         """
         将 Redis 配额数据同步到数据库（定时任务调用）
@@ -520,8 +532,12 @@ class QuotaService:
                         logger.debug(f"同步配额: {key}, used={used}")
 
                 except Exception as e:
-                    self.db.rollback()
-                    logger.warning(f"同步配额 {key} 失败: {e}")
+                    try:
+                        self.db.rollback()
+                    except Exception as rollback_err:
+                        logger.error(f"同步配额 {key} 失败且会话可能已损坏: 原错误={e}, 回滚错误={rollback_err}")
+                        break  # Session corrupted, stop sync
+                    logger.warning(f"同步单个配额 {key} 失败: {e}")
                     continue
 
             logger.info(f"配额同步完成: {synced_count} 条记录")

@@ -7,6 +7,22 @@ import type {
   ExportAuditLogsParams
 } from '@/types/auditLog'
 
+// Backend response wrapper format
+interface ApiResponse<T> {
+  code?: number
+  data?: T
+  message?: string
+}
+
+// Backend list response format
+interface BackendListResponse {
+  logs?: AuditLog[]
+  data?: AuditLog[]
+  total?: number
+  page?: number
+  page_size?: number
+}
+
 const _api = axios.create({
   baseURL: '/api/v1/audit-logs'
 })
@@ -20,9 +36,13 @@ _api.interceptors.request.use((config) => {
 })
 
 /** 从后端 success_response 包装中提取内层 data */
-function unwrapInner<T>(res: { data: { code?: number; data?: T; message?: string } }): T {
+function unwrapInner<T>(res: { data: ApiResponse<T> }): T {
   const body = res.data  // HTTP body = {code, data: inner, message}
-  return body?.data !== undefined ? body.data : body as unknown as T
+  if (body?.data !== undefined) {
+    return body.data
+  }
+  // Fallback: if backend returns data without wrapper, return the body itself
+  throw new Error(`Invalid response format: missing 'data' field in ${JSON.stringify(body)}`)
 }
 
 export const auditLogsApi = {
@@ -31,8 +51,8 @@ export const auditLogsApi = {
    * 返回 { data: AuditLogListResponse } 以供调用方 const { data } = await ... 使用
    */
   getAuditLogs: async (params: AuditLogQuery): Promise<{ data: AuditLogListResponse }> => {
-    const res = await _api.get<any>('/', { params })
-    const inner = unwrapInner<{ logs?: AuditLog[]; data?: AuditLog[]; total?: number; page?: number; page_size?: number }>(res)
+    const res = await _api.get<ApiResponse<BackendListResponse>>('/', { params })
+    const inner = unwrapInner<BackendListResponse>(res)
     return {
       data: {
         data: inner.logs || inner.data || [],
@@ -48,7 +68,7 @@ export const auditLogsApi = {
    * 返回 { data: AuditLog } 以供调用方 const { data } = await ... 使用
    */
   getAuditLogDetail: async (id: number): Promise<{ data: AuditLog }> => {
-    const res = await _api.get<any>(`/${id}`)
+    const res = await _api.get<ApiResponse<AuditLog>>(`/${id}`)
     return { data: unwrapInner<AuditLog>(res) }
   },
 
@@ -57,7 +77,7 @@ export const auditLogsApi = {
    * 返回 { data: AuditStats } 以供调用方 const { data } = await ... 使用
    */
   getAuditStats: async (params?: { startTime?: string; endTime?: string }): Promise<{ data: AuditStats }> => {
-    const res = await _api.get<any>('/stats', { params })
+    const res = await _api.get<ApiResponse<AuditStats>>('/stats', { params })
     return { data: unwrapInner<AuditStats>(res) }
   },
 
@@ -83,9 +103,12 @@ export const auditLogsApi = {
    * 返回 { data: string[] } 以供调用方 actionsRes.data 使用
    */
   getActionTypes: async (): Promise<{ data: string[] }> => {
-    const res = await _api.get<any>('/action-types')
-    const inner = unwrapInner<string[] | { items?: string[] }>(res)
-    const arr = Array.isArray(inner) ? inner : (inner as any).items || []
+    interface ActionTypesResponse {
+      items?: string[]
+    }
+    const res = await _api.get<ApiResponse<ActionTypesResponse | string[]>>('/action-types')
+    const inner = unwrapInner<ActionTypesResponse | string[]>(res)
+    const arr = Array.isArray(inner) ? inner : inner.items || []
     return { data: arr as string[] }
   },
 
@@ -94,9 +117,12 @@ export const auditLogsApi = {
    * 返回 { data: string[] } 以供调用方 resourcesRes.data 使用
    */
   getResourceTypes: async (): Promise<{ data: string[] }> => {
-    const res = await _api.get<any>('/resource-types')
-    const inner = unwrapInner<string[] | { items?: string[] }>(res)
-    const arr = Array.isArray(inner) ? inner : (inner as any).items || []
+    interface ResourceTypesResponse {
+      items?: string[]
+    }
+    const res = await _api.get<ApiResponse<ResourceTypesResponse | string[]>>('/resource-types')
+    const inner = unwrapInner<ResourceTypesResponse | string[]>(res)
+    const arr = Array.isArray(inner) ? inner : inner.items || []
     return { data: arr as string[] }
   },
 }

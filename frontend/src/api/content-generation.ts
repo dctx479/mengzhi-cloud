@@ -73,17 +73,17 @@ export async function generateContent(request: GenerationRequest): Promise<Gener
   const response = await contentAPI.post('/generate', request)
   const inner = response.data
 
-  // Backend returns single GenerationResult or array of results
+  // Backend returns {content, length, content_type, style, platform}
   // Map to GenerationResponse format expected by caller
   if (Array.isArray(inner)) {
-    return inner.map((item: any) => ({
-      id: item.id || `gen-${Date.now()}`,
-      content: item.content ?? '',
+    return inner.map((item: Record<string, unknown>) => ({
+      id: (item.id as string) || `gen-${Date.now()}`,
+      content: (item.content as string) ?? '',
       metadata: {
-        length: item.word_count,
-        content_type: item.template_id,
-        style: item.style,
-        platform: item.platform,
+        length: item.length as number,
+        content_type: item.content_type as string,
+        style: item.style as string,
+        platform: item.platform as string,
       }
     }))
   }
@@ -93,8 +93,8 @@ export async function generateContent(request: GenerationRequest): Promise<Gener
     id: inner?.id || `gen-${Date.now()}`,
     content: inner?.content ?? '',
     metadata: {
-      length: inner?.word_count,
-      content_type: inner?.template_id,
+      length: inner?.length,
+      content_type: inner?.content_type,
       style: inner?.style,
       platform: inner?.platform,
     }

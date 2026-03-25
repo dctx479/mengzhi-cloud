@@ -298,6 +298,10 @@ class TenantDatabaseManager:
                     "validation": validation_result
                 }
 
+            except Exception as e:
+                # BUG FIX #3: Rollback tenant_db on migration failure
+                tenant_db.rollback()
+                raise
             finally:
                 tenant_db.close()
 
@@ -616,6 +620,8 @@ class TenantDatabaseManager:
 
             except Exception as e:
                 logger.error(f"Failed to migrate table {table_name}: {e}")
+                # BUG FIX #4: Rollback target_db before raising on table migration failure
+                target_db.rollback()
                 raise
 
         return migrated_tables

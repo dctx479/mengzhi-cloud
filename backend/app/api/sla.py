@@ -228,9 +228,15 @@ async def update_agreement(
     if not agreement:
         raise HTTPException(status_code=404, detail="协议不存在")
 
-    # 检查权限
-    if current_user["role"] not in ["admin", "enterprise_admin"]:
-        raise HTTPException(status_code=403, detail="权限不足")
+    # 检查权限：管理员可以更新所有协议，非管理员必须是协议所有者
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
+                raise HTTPException(status_code=403, detail="权限不足")
+        else:
+            if agreement.user_id != user_obj.id:
+                raise HTTPException(status_code=403, detail="权限不足")
 
     # 更新字段
     update_data = agreement_update.dict(exclude_unset=True)
@@ -424,7 +430,21 @@ async def get_daily_report(
 
     权限：协议所有者或管理员
     """
-    # 检查权限（简化版）
+    agreement = db.query(SLAAgreement).filter(
+        SLAAgreement.id == agreement_id,
+        SLAAgreement.deleted_at.is_(None)
+    ).first()
+    if not agreement:
+        raise HTTPException(status_code=404, detail="协议不存在")
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
+                raise HTTPException(status_code=403, detail="权限不足")
+        else:
+            if agreement.user_id != user_obj.id:
+                raise HTTPException(status_code=403, detail="权限不足")
+
     report_service = SLAReportService(db)
     report = report_service.generate_daily_report(agreement_id, date)
 
@@ -443,6 +463,21 @@ async def get_weekly_report(
 
     权限：协议所有者或管理员
     """
+    agreement = db.query(SLAAgreement).filter(
+        SLAAgreement.id == agreement_id,
+        SLAAgreement.deleted_at.is_(None)
+    ).first()
+    if not agreement:
+        raise HTTPException(status_code=404, detail="协议不存在")
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
+                raise HTTPException(status_code=403, detail="权限不足")
+        else:
+            if agreement.user_id != user_obj.id:
+                raise HTTPException(status_code=403, detail="权限不足")
+
     report_service = SLAReportService(db)
     report = report_service.generate_weekly_report(agreement_id, week_start)
 
@@ -462,6 +497,21 @@ async def get_monthly_report(
 
     权限：协议所有者或管理员
     """
+    agreement = db.query(SLAAgreement).filter(
+        SLAAgreement.id == agreement_id,
+        SLAAgreement.deleted_at.is_(None)
+    ).first()
+    if not agreement:
+        raise HTTPException(status_code=404, detail="协议不存在")
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
+                raise HTTPException(status_code=403, detail="权限不足")
+        else:
+            if agreement.user_id != user_obj.id:
+                raise HTTPException(status_code=403, detail="权限不足")
+
     report_service = SLAReportService(db)
     report = report_service.generate_monthly_report(agreement_id, year, month)
 
@@ -480,6 +530,21 @@ async def get_achievement_summary(
 
     权限：协议所有者或管理员
     """
+    agreement = db.query(SLAAgreement).filter(
+        SLAAgreement.id == agreement_id,
+        SLAAgreement.deleted_at.is_(None)
+    ).first()
+    if not agreement:
+        raise HTTPException(status_code=404, detail="协议不存在")
+    if current_user["role"] != "admin":
+        user_obj = _get_user_obj(current_user, db)
+        if current_user["user_type"] == "enterprise":
+            if agreement.enterprise_id != user_obj.enterprise_id:
+                raise HTTPException(status_code=403, detail="权限不足")
+        else:
+            if agreement.user_id != user_obj.id:
+                raise HTTPException(status_code=403, detail="权限不足")
+
     report_service = SLAReportService(db)
     summary = report_service.get_achievement_summary(agreement_id, days)
 

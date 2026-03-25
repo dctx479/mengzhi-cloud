@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FileUploadResponse } from '@/types/chat'
 import FileUpload from './FileUpload.vue'
@@ -190,6 +190,7 @@ const showFileUpload = ref(false)
 const settingsVisible = ref(false)
 const inputRef = ref<any>()
 const imageInputRef = ref<HTMLInputElement>()
+const activeReaders = ref<Set<FileReader>>(new Set())
 
 const settings = ref<ChatSettings>({
   streamEnabled: true,
@@ -211,7 +212,6 @@ const handleKeyDown = (event: KeyboardEvent) => {
 }
 
 const handleInput = () => {
-  // 自动调整输入框高度
   if (inputRef.value) {
     const textarea = inputRef.value.$el.querySelector('textarea')
     if (textarea) {
@@ -235,7 +235,6 @@ const handleSend = () => {
   selectedFiles.value = []
   showFileUpload.value = false
 
-  // 重置输入框高度
   if (inputRef.value) {
     const textarea = inputRef.value.$el.querySelector('textarea')
     if (textarea) {
@@ -265,13 +264,19 @@ const handleImageSelect = (event: Event) => {
   const target = event.target as HTMLInputElement
   const files = Array.from(target.files || [])
 
-  if (files.length === 0) return
+  if (files.length === 0) {
+    target.value = ''
+    return
+  }
 
-  // 这里可以直接处理图片上传或将其加入到已选择文件中
   files.forEach((file) => {
     const reader = new FileReader()
+    activeReaders.value.add(reader)
+
     reader.onload = () => {
-      // 创建模拟的 FileUploadResponse
+      if (!activeReaders.value.has(reader)) {
+        return
+      }
       const imageUpload: FileUploadResponse = {
         id: `img-${Date.now()}-${Math.random()}`,
         name: file.name,
@@ -281,15 +286,16 @@ const handleImageSelect = (event: Event) => {
         uploadedAt: new Date().toISOString(),
       }
       selectedFiles.value.push(imageUpload)
+      activeReaders.value.delete(reader)
     }
     reader.onerror = () => {
       console.error('Failed to read file:', file.name, reader.error)
       ElMessage.error(`读取图片失败: ${file.name}`)
+      activeReaders.value.delete(reader)
     }
     reader.readAsDataURL(file)
   })
 
-  // 重置输入
   target.value = ''
 }
 
@@ -306,8 +312,14 @@ const saveSettings = () => {
   settingsVisible.value = false
   ElMessage.success('设置已保存')
 }
-</script>
 
+onBeforeUnmount(() => {
+  activeReaders.value.forEach(reader => {
+    reader.abort?.()
+  })
+  activeReaders.value.clear()
+})
+</script>
 <style scoped lang="scss">
 .message-input-wrapper {
   padding: 16px 20px;

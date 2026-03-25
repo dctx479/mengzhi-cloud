@@ -290,7 +290,7 @@ class DiversityController:
 
         except Exception as e:
             logger.error(f"相似度检查失败: {str(e)}")
-            return False
+            return True  # CRITICAL: Skip on error to prevent duplicates
 
     async def _has_opening_diversity(
         self,
@@ -358,7 +358,7 @@ class DiversityController:
             return [r.generated_content for r in records]
 
         except Exception as e:
-            logger.error(f"获取最近内容失败: {str(e)}")
+            logger.warning(f"DB查询失败，多样性检查将不完整: {str(e)}")
             return []
 
     def calculate_content_similarity(

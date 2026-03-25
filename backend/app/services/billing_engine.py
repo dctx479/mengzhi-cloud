@@ -169,7 +169,7 @@ class BillingEngine:
             tiers = plan.pricing_rules.get("tiers", [])
             for tier in sorted(tiers, key=lambda x: x["min"]):
                 if tier["min"] <= quantity:
-                    if tier.get("max") is None or quantity <= tier["max"]:
+                    if tier.get("max") is None or quantity < tier.get("max", float("inf")):
                         return tier["unit_price"]
             return 0.0
         else:
@@ -218,21 +218,26 @@ class BillingEngine:
             status=InvoiceStatus.PENDING,
         )
 
-        self.db.add(invoice)
-        self.db.flush()  # 获取invoice.id
+        try:
+            self.db.add(invoice)
+            self.db.flush()  # 获取invoice.id
 
-        # 关联计费记录到账单
-        for record in records:
-            record.invoice_id = invoice.id
+            # 关联计费记录到账单
+            for record in records:
+                record.invoice_id = invoice.id
 
-        # 计算账单总额
-        invoice.calculate_totals()
+            # 计算账单总额
+            invoice.calculate_totals()
 
-        # 生成使用量汇总
-        invoice.usage_summary = self._generate_usage_summary(records)
+            # 生成使用量汇总
+            invoice.usage_summary = self._generate_usage_summary(records)
 
-        # 单次提交保证原子性：invoice和所有records关联同时成功或同时失败
-        self.db.commit()
+            # 单次提交保证原子性：invoice和所有records关联同时成功或同时失败
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            raise ValueError(f"Failed to generate invoice: {e}")
+
         self.db.refresh(invoice)
 
         return invoice
@@ -374,7 +379,7 @@ class BillingEngine:
         records = query.all()
 
         # 统计总费用
-        total_amount = sum(float(record.amount) for record in records)
+        total_amount = sum(float(record.amount or 0) for record in records)
 
         # 按计费模式统计
         by_mode = {}
@@ -385,7 +390,7 @@ class BillingEngine:
 
             by_mode[mode]["count"] += 1
             by_mode[mode]["quantity"] += record.quantity
-            by_mode[mode]["amount"] += float(record.amount)
+            by_mode[mode]["amount"] += float(record.amount or 0)
 
         # 按日期统计
         by_date = {}
@@ -395,7 +400,7 @@ class BillingEngine:
                 by_date[date_str] = {"count": 0, "amount": 0.0}
 
             by_date[date_str]["count"] += 1
-            by_date[date_str]["amount"] += float(record.amount)
+            by_date[date_str]["amount"] += float(record.amount or 0)
 
         # 按月份统计
         by_month = {}
@@ -405,7 +410,7 @@ class BillingEngine:
                 by_month[month] = {"count": 0, "amount": 0.0}
 
             by_month[month]["count"] += 1
-            by_month[month]["amount"] += float(record.amount)
+            by_month[month]["amount"] += float(record.amount or 0)
 
         return {
             "total_records": len(records),

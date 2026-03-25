@@ -51,9 +51,9 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
 export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
   const res = await http.post<{ code: number; message: string; data: RegisterResponse }>('/v1/auth/register', data)
   if (res.code !== 200 || !res.data) {
-    throw new Error((res as any).message || '注册失败')
+    throw new Error(res.message || '注册失败')
   }
-  return (res as unknown as { data: RegisterResponse }).data ?? (res as unknown as RegisterResponse)
+  return res.data
 }
 
 export async function logout(): Promise<void> {
@@ -82,12 +82,25 @@ export const getCurrentUser = (): Promise<User> =>
   })
 
 export const updateProfile = async (data: UpdateProfileRequest): Promise<User> => {
-  const res = await http.put<{ code: number; message: string; data: any }>('/v1/auth/me', data)
+  const res = await http.put<{ code: number; message: string; data: Record<string, unknown> | null }>('/v1/auth/me', data)
   // PUT /auth/me may return {updated: true} or user data; re-fetch to ensure fresh user
-  const inner = (res as unknown as { data: any }).data ?? res
-  if (inner && inner.id) return inner as User
-  // Fallback: re-fetch user profile
-  return getCurrentUser()
+  if (res.code !== 200 || !res.data || !res.data.id) {
+    // Fallback: re-fetch user profile
+    return getCurrentUser()
+  }
+  const u = res.data
+  return {
+    id: (u.user_id as string) ?? '',
+    username: (u.username as string) ?? '',
+    email: (u.email as string) ?? '',
+    phone: u.phone as string | undefined,
+    nickname: u.nickname as string | undefined,
+    avatar: u.avatar_url as string | undefined,
+    status: (u.status as User['status']) ?? 'active',
+    role: (u.role as User['role']) ?? 'user',
+    createdAt: (u.created_at as string) ?? '',
+    updatedAt: '',
+  } as User
 }
 
 export const changePassword = (oldPassword: string, newPassword: string): Promise<void> =>
@@ -105,10 +118,11 @@ export async function verifyToken(): Promise<boolean> {
 }
 
 export const checkAvailability = async (field: 'username' | 'email', value: string): Promise<boolean> => {
-  const res = await http.get<{ code: number; data: { available: boolean } }>('/v1/auth/check-availability', {
+  const res = await http.get<{ code: number; message: string; data: { available: boolean } }>('/v1/auth/check-availability', {
     params: { field, value }
   })
-  const inner = (res as unknown as { data: { available: boolean } }).data ?? res
-  return inner.available ?? false
+  if (res.code !== 200 || !res.data) {
+    return false
+  }
+  return res.data.available ?? false
 }
-

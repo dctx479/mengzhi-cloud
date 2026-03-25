@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
+import { mount, flushPromises, VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import AIConfigView from '../AIConfigView.vue'
 import * as aiConfigApi from '@/api/aiConfig'
@@ -15,11 +15,16 @@ vi.mock('@/api/aiConfig', () => ({
 }))
 
 // Mock Element Plus components
+interface ElMessageOptions {
+  message: string
+  duration?: number
+}
+
 vi.mock('element-plus', () => ({
   ElMessage: {
     success: vi.fn(),
     error: vi.fn(),
-    info: vi.fn((_options: any) => ({
+    info: vi.fn((_options: ElMessageOptions) => ({
       close: vi.fn()
     }))
   },
@@ -29,7 +34,7 @@ vi.mock('element-plus', () => ({
 }))
 
 describe('AIConfigView.vue', () => {
-  let wrapper: any
+  let wrapper: VueWrapper<any>
 
   const mockConfigs: AIConfig[] = [
     {
@@ -112,7 +117,7 @@ describe('AIConfigView.vue', () => {
 
       expect(wrapper.html()).toContain('AI配置管理')
       const buttons = wrapper.findAll('button')
-      expect(buttons.some((btn: any) => btn.text().includes('添加配置'))).toBe(true)
+      expect(buttons.some((btn) => btn.text().includes('添加配置'))).toBe(true)
     })
 
     it('should render table with configs', async () => {
@@ -143,11 +148,11 @@ describe('AIConfigView.vue', () => {
     })
 
     it('should set loading state during data fetch', async () => {
-      let resolvePromise: any
-      const promise = new Promise((resolve) => {
+      let resolvePromise!: (value: AIConfig[]) => void
+      const promise = new Promise<AIConfig[]>((resolve) => {
         resolvePromise = resolve
       })
-      vi.mocked(aiConfigApi.getAIConfigs).mockReturnValue(promise as any)
+      vi.mocked(aiConfigApi.getAIConfigs).mockReturnValue(promise)
 
       wrapper = createWrapper()
       expect(wrapper.vm.loading).toBe(true)
@@ -164,10 +169,10 @@ describe('AIConfigView.vue', () => {
       wrapper = createWrapper()
       await flushPromises()
 
-      const addButton = wrapper.findAll('button').find((btn: any) =>
+      const addButton = wrapper.findAll('button').find((btn) =>
         btn.text().includes('添加配置')
       )
-      await addButton.trigger('click')
+      await addButton?.trigger('click')
       await nextTick()
 
       expect(wrapper.vm.dialogVisible).toBe(true)
@@ -298,7 +303,7 @@ describe('AIConfigView.vue', () => {
     it('should delete config after confirmation', async () => {
       const { ElMessage, ElMessageBox } = await import('element-plus')
       vi.mocked(ElMessageBox.confirm).mockResolvedValue('confirm' as any)
-      vi.mocked(aiConfigApi.deleteAIConfig).mockResolvedValue(undefined as any)
+      vi.mocked(aiConfigApi.deleteAIConfig).mockResolvedValue(undefined)
 
       wrapper = createWrapper()
       await flushPromises()
@@ -376,11 +381,11 @@ describe('AIConfigView.vue', () => {
 
     it('should show loading message during test', async () => {
       const { ElMessage } = await import('element-plus')
-      let resolvePromise: any
-      const promise = new Promise((resolve) => {
+      let resolvePromise!: (value: {success: boolean, message: string}) => void
+      const promise = new Promise<{success: boolean, message: string}>((resolve) => {
         resolvePromise = resolve
       })
-      vi.mocked(aiConfigApi.testAIConfig).mockReturnValue(promise as any)
+      vi.mocked(aiConfigApi.testAIConfig).mockReturnValue(promise)
 
       wrapper = createWrapper()
       await flushPromises()

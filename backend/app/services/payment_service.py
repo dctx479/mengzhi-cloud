@@ -281,7 +281,7 @@ class PaymentService:
 
         payment = self.db.query(Payment).filter(
             Payment.payment_no == payment_no
-        ).first()
+        ).with_for_update().first()
 
         if not payment:
             # P2-14: 支付记录不存在是正常的查询结果，使用info级别
@@ -344,12 +344,29 @@ class PaymentService:
                 # 更新订单状态
                 order.mark_as_paid()
 
-                # 发放配额
-                self._grant_quota(order)
+                # 创建保存点保护配额发放
+                savepoint = self.db.begin_nested()
+                try:
+                    # 发放配额
+                    self._grant_quota(order)
 
-                # 标记订单完成
-                order.mark_as_completed()
-                track_order_completion(order.product_type if hasattr(order, 'product_type') else 'unknown')
+                    # 标记订单完成
+                    order.mark_as_completed()
+                    track_order_completion(order.package_type if order.package_type else 'unknown')
+
+                    # 提交嵌套事务
+                    savepoint.commit()
+                except Exception as quota_error:
+                    # 配额发放失败，回滚保存点
+                    savepoint.rollback()
+                    logger.error(f"支付回调: 配额发放失败，订单未完成 payment_no={payment_no}, error={str(quota_error)}")
+                    # 标记支付失败并回滚
+                    payment.mark_as_failed(f"配额发放失败: {str(quota_error)}")
+                    self.db.commit()
+                    track_payment_failure(payment_method, "quota_grant_failed")
+                    duration = time.time() - start_time
+                    track_payment_callback(payment_method, "quota_failed", duration)
+                    return False
 
             self.db.commit()
             logger.info(f"支付回调处理成功: {payment_no}")

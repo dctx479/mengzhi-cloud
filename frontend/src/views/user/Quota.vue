@@ -402,7 +402,7 @@ const handleUpgrade = async () => {
     const loading = ElLoading.service({
       lock: true,
       text: '创建订单中...',
-      background: 'rgba(0, 0,0, 0.7)',
+      background: 'rgba(0, 0, 0, 0.7)',
     })
 
     // 创建订单

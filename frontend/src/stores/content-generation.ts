@@ -170,8 +170,8 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
         id: `result-${Date.now()}-${index}`,
         template_id: config.value.template_id,
         product_id: config.value.product_ids[index % config.value.product_ids.length],
-        content: r.content,
-        word_count: r.content.split(/\s+/).length,
+        content: String(r.content ?? ''),
+        word_count: Math.max(0, (String(r.content ?? '') || '').split(/s+/).filter(Boolean).length),
         rating: 0,
         edited: false,
         created_at: new Date().toISOString(),
@@ -181,6 +181,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
       progress.value = 100
     } catch (err) {
       generationError.value = err instanceof Error ? err.message : 'Failed to generate content'
+      results.value = []
     } finally {
       generating.value = false
     }
@@ -195,15 +196,17 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
         config: config.value,
       })
 
-      if (response.length > 0) {
+      if (Array.isArray(response) && response.length > 0 && response[0] && typeof response[0] === 'object' && 'content' in response[0]) {
         const newResult = response[0]
         results.value[index] = {
           ...result,
-          content: newResult.content,
-          word_count: newResult.content.split(/\s+/).length,
+          content: String(newResult.content ?? ''),
+          word_count: Math.max(0, (String(newResult.content ?? '') || '').split(/s+/).filter(Boolean).length),
           edited: false,
           updated_at: new Date().toISOString(),
         }
+      } else {
+        generationError.value = 'Invalid response format from API'
       }
     } catch (err) {
       generationError.value = err instanceof Error ? err.message : 'Failed to regenerate content'
@@ -214,7 +217,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     const result = results.value.find((r) => r.id === resultId)
     if (result) {
       result.content = content
-      result.word_count = content.split(/\s+/).length
+      result.word_count = Math.max(0, (content || '').split(/s+/).filter(Boolean).length)
       result.edited = true
       result.updated_at = new Date().toISOString()
     }
@@ -223,7 +226,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   const rateResult = (resultId: string, rating: number) => {
     const result = results.value.find((r) => r.id === resultId)
     if (result) {
-      result.rating = rating
+      result.rating = Math.min(5, Math.max(0, rating))
     }
   }
 

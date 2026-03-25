@@ -175,6 +175,22 @@ class User(BaseModel):
         comment="性别：0未知/1男/2女"
     )
 
+    # 个人资料扩展字段
+    bio = Column(
+        TEXT,
+        nullable=True,
+        comment="个人简介"
+    )
+    location = Column(
+        VARCHAR(200),
+        nullable=True,
+        comment="所在地"
+    )
+    website = Column(
+        VARCHAR(500),
+        nullable=True,
+        comment="个人网站"
+    )
     # 安全相关
     login_attempts = Column(
         Integer,
@@ -305,6 +321,9 @@ class User(BaseModel):
             "avatar_url": self.avatar_url,
             "gender": self.gender,
             "is_admin": self.is_admin,
+            "bio": self.bio,
+            "location": self.location,
+            "website": self.website,
             "last_login_at": self.last_login_at.isoformat() if self.last_login_at else None,
             "last_login_ip": self.last_login_ip,
             "created_at": self.created_at.isoformat() if self.created_at else None,

@@ -8,6 +8,16 @@ vi.mock('@/api/user', () => ({
   cancelOrder: vi.fn(),
 }))
 
+interface OrdersInstance {
+  getStatusText(status: string): string
+  getStatusType(status: string): string
+  formatDate(dateStr: string): string
+  handleCancel(order: any): Promise<void>
+  handleSizeChange(): Promise<void>
+  pageSize: number
+  currentPage: number
+}
+
 describe('Orders Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -76,7 +86,7 @@ describe('Orders Component', () => {
 
   it('should get status text correctly', () => {
     const wrapper = mount(Orders)
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as OrdersInstance
 
     expect(vm.getStatusText('pending')).toBe('待支付')
     expect(vm.getStatusText('completed')).toBe('已完成')
@@ -86,7 +96,7 @@ describe('Orders Component', () => {
 
   it('should get status type correctly', () => {
     const wrapper = mount(Orders)
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as OrdersInstance
 
     expect(vm.getStatusType('pending')).toBe('warning')
     expect(vm.getStatusType('completed')).toBe('success')
@@ -95,7 +105,7 @@ describe('Orders Component', () => {
 
   it('should format date correctly', () => {
     const wrapper = mount(Orders)
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as OrdersInstance
 
     const dateStr = '2024-01-01T00:00:00Z'
     const formatted = vm.formatDate(dateStr)
@@ -117,7 +127,7 @@ describe('Orders Component', () => {
     vi.mocked(userAPI.cancelOrder).mockResolvedValue()
 
     const wrapper = mount(Orders)
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as OrdersInstance
 
     // Mock ElMessageBox.confirm to return resolved promise
     await vm.handleCancel(mockOrder)
@@ -135,7 +145,7 @@ describe('Orders Component', () => {
     })
 
     const wrapper = mount(Orders)
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as OrdersInstance
 
     vm.pageSize = 20
     await vm.handleSizeChange()

@@ -44,19 +44,27 @@ class DeepSeekProvider(BaseAIProvider):
                 }
             )
             response.raise_for_status()
-            data = response.json()
+            try:
+                data = response.json()
+            except json.JSONDecodeError as je:
+                logger.error(f"Failed to decode JSON response: {je}")
+                raise ValueError(f"Invalid JSON in API response: {je}") from je
 
-            return ChatCompletionResponse(
-                id=data["id"],
-                content=data["choices"][0]["message"]["content"],
-                model=data["model"],
-                usage=Usage(
-                    prompt_tokens=data["usage"]["prompt_tokens"],
-                    completion_tokens=data["usage"]["completion_tokens"],
-                    total_tokens=data["usage"]["total_tokens"],
-                ),
-                finish_reason=data["choices"][0]["finish_reason"],
-            )
+            try:
+                return ChatCompletionResponse(
+                    id=data["id"],
+                    content=data["choices"][0]["message"]["content"],
+                    model=data["model"],
+                    usage=Usage(
+                        prompt_tokens=data["usage"]["prompt_tokens"],
+                        completion_tokens=data["usage"]["completion_tokens"],
+                        total_tokens=data["usage"]["total_tokens"],
+                    ),
+                    finish_reason=data["choices"][0]["finish_reason"],
+                )
+            except (KeyError, IndexError, TypeError) as e:
+                logger.error(f"Failed to extract fields from response: {e}")
+                raise ValueError(f"Missing required fields in API response: {e}") from e
 
     async def chat_stream(self, request: ChatCompletionRequest) -> AsyncGenerator[str, None]:
         """流式对话"""
@@ -89,7 +97,14 @@ class DeepSeekProvider(BaseAIProvider):
 
                         try:
                             chunk = json.loads(data_str)
-                            if chunk["choices"][0]["delta"].get("content"):
-                                yield chunk["choices"][0]["delta"]["content"]
-                        except json.JSONDecodeError:
+                            try:
+                                if chunk.get("choices") and len(chunk["choices"]) > 0:
+                                    delta = chunk["choices"][0].get("delta", {})
+                                    if delta.get("content"):
+                                        yield delta["content"]
+                            except (KeyError, IndexError, TypeError) as e:
+                                logger.error(f"Failed to extract content from chunk: {e}")
+                                continue
+                        except json.JSONDecodeError as e:
+                            logger.error(f"Failed to parse JSON chunk: {e}")
                             continue

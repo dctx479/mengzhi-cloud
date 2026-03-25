@@ -28,7 +28,7 @@ from app.core.errors import BusinessException, RecordNotFoundError
 class TestReconciliationModels:
     """测试对账数据模型"""
 
-    def test_reconciliation_record_creation(self, test_db: Session):
+    def test_reconciliation_record_creation(self, test_db_session: Session):
         """测试对账记录创建"""
         record = ReconciliationRecord(
             reconciliation_date="2026-01-22",
@@ -37,9 +37,9 @@ class TestReconciliationModels:
             end_time=datetime(2026, 1, 22, 23, 59, 59)
         )
 
-        test_db.add(record)
-        test_db.commit()
-        test_db.refresh(record)
+        test_db_session.add(record)
+        test_db_session.commit()
+        test_db_session.refresh(record)
 
         assert record.id is not None
         assert record.batch_no is not None
@@ -47,7 +47,7 @@ class TestReconciliationModels:
         assert record.status == ReconciliationStatus.PENDING
         assert record.is_pending()
 
-    def test_reconciliation_record_status_methods(self, test_db: Session):
+    def test_reconciliation_record_status_methods(self, test_db_session: Session):
         """测试对账记录状态方法"""
         record = ReconciliationRecord(
             reconciliation_date="2026-01-22",
@@ -72,7 +72,7 @@ class TestReconciliationModels:
         assert record.is_failed()
         assert record.error_message == "测试错误"
 
-    def test_reconciliation_difference_creation(self, test_db: Session):
+    def test_reconciliation_difference_creation(self, test_db_session: Session):
         """测试差异记录创建"""
         # 先创建对账记录
         reconciliation_record = ReconciliationRecord(
@@ -81,8 +81,8 @@ class TestReconciliationModels:
             start_time=datetime(2026, 1, 22, 0, 0, 0),
             end_time=datetime(2026, 1, 22, 23, 59, 59)
         )
-        test_db.add(reconciliation_record)
-        test_db.commit()
+        test_db_session.add(reconciliation_record)
+        test_db_session.commit()
 
         # 创建差异记录
         difference = ReconciliationDifference(
@@ -93,15 +93,15 @@ class TestReconciliationModels:
             description="本地缺失交易记录"
         )
 
-        test_db.add(difference)
-        test_db.commit()
-        test_db.refresh(difference)
+        test_db_session.add(difference)
+        test_db_session.commit()
+        test_db_session.refresh(difference)
 
         assert difference.id is not None
         assert difference.is_pending()
         assert difference.difference_type == DifferenceType.MISSING_LOCAL
 
-    def test_reconciliation_difference_data_methods(self, test_db: Session):
+    def test_reconciliation_difference_data_methods(self, test_db_session: Session):
         """测试差异记录数据方法"""
         reconciliation_record = ReconciliationRecord(
             reconciliation_date="2026-01-22",
@@ -109,8 +109,8 @@ class TestReconciliationModels:
             start_time=datetime(2026, 1, 22, 0, 0, 0),
             end_time=datetime(2026, 1, 22, 23, 59, 59)
         )
-        test_db.add(reconciliation_record)
-        test_db.commit()
+        test_db_session.add(reconciliation_record)
+        test_db_session.commit()
 
         difference = ReconciliationDifference(
             reconciliation_id=reconciliation_record.id,
@@ -125,7 +125,7 @@ class TestReconciliationModels:
         assert difference.get_local_data() == test_data
         assert difference.get_remote_data() == test_data
 
-    def test_reconciliation_difference_status_methods(self, test_db: Session):
+    def test_reconciliation_difference_status_methods(self, test_db_session: Session):
         """测试差异记录状态方法"""
         reconciliation_record = ReconciliationRecord(
             reconciliation_date="2026-01-22",
@@ -133,8 +133,8 @@ class TestReconciliationModels:
             start_time=datetime(2026, 1, 22, 0, 0, 0),
             end_time=datetime(2026, 1, 22, 23, 59, 59)
         )
-        test_db.add(reconciliation_record)
-        test_db.commit()
+        test_db_session.add(reconciliation_record)
+        test_db_session.commit()
 
         difference = ReconciliationDifference(
             reconciliation_id=reconciliation_record.id,
@@ -161,12 +161,12 @@ class TestReconciliationService:
     """测试对账服务"""
 
     @pytest.fixture
-    def reconciliation_service(self, test_db: Session):
+    def reconciliation_service(self, test_db_session: Session):
         """创建对账服务实例"""
         return ReconciliationService(test_db)
 
     @pytest.fixture
-    def sample_user(self, test_db: Session):
+    def sample_user(self, test_db_session: Session):
         """创建测试用户"""
         user = User(
             username="testuser",
@@ -174,13 +174,13 @@ class TestReconciliationService:
             user_type=UserType.INDIVIDUAL,
             status=UserStatus.ACTIVE
         )
-        test_db.add(user)
-        test_db.commit()
-        test_db.refresh(user)
+        test_db_session.add(user)
+        test_db_session.commit()
+        test_db_session.refresh(user)
         return user
 
     @pytest.fixture
-    def sample_order(self, test_db: Session, sample_user):
+    def sample_order(self, test_db_session: Session, sample_user):
         """创建测试订单"""
         order = Order(
             user_id=sample_user.id,
@@ -193,13 +193,13 @@ class TestReconciliationService:
             storage_quota_mb=1024,
             status=OrderStatus.PAID
         )
-        test_db.add(order)
-        test_db.commit()
-        test_db.refresh(order)
+        test_db_session.add(order)
+        test_db_session.commit()
+        test_db_session.refresh(order)
         return order
 
     @pytest.fixture
-    def sample_payment(self, test_db: Session, sample_order):
+    def sample_payment(self, test_db_session: Session, sample_order):
         """创建测试支付记录"""
         payment = Payment(
             order_id=sample_order.id,
@@ -209,12 +209,12 @@ class TestReconciliationService:
             transaction_id="test_transaction_123",
             paid_at=datetime.utcnow()
         )
-        test_db.add(payment)
-        test_db.commit()
-        test_db.refresh(payment)
+        test_db_session.add(payment)
+        test_db_session.commit()
+        test_db_session.refresh(payment)
         return payment
 
-    def test_start_reconciliation_success(self, reconciliation_service, test_db: Session):
+    def test_start_reconciliation_success(self, reconciliation_service, test_db_session: Session):
         """测试启动对账成功"""
         target_date = "2026-01-22"
 
@@ -235,7 +235,7 @@ class TestReconciliationService:
 
         assert "对账日期格式无效" in str(exc_info.value.message)
 
-    def test_start_reconciliation_duplicate(self, reconciliation_service, test_db: Session):
+    def test_start_reconciliation_duplicate(self, reconciliation_service, test_db_session: Session):
         """测试启动对账 - 重复对账"""
         target_date = "2026-01-22"
 
@@ -247,8 +247,8 @@ class TestReconciliationService:
             end_time=datetime(2026, 1, 22, 23, 59, 59),
             status=ReconciliationStatus.SUCCESS
         )
-        test_db.add(existing_record)
-        test_db.commit()
+        test_db_session.add(existing_record)
+        test_db_session.commit()
 
         # 尝试重复对账
         with pytest.raises(BusinessException) as exc_info:
@@ -256,14 +256,14 @@ class TestReconciliationService:
 
         assert "对账记录已存在" in str(exc_info.value.message)
 
-    def test_get_local_payments(self, reconciliation_service, test_db: Session, sample_payment):
+    def test_get_local_payments(self, reconciliation_service, test_db_session: Session, sample_payment):
         """测试获取本地支付记录"""
         start_time = datetime(2026, 1, 22, 0, 0, 0)
         end_time = datetime(2026, 1, 22, 23, 59, 59)
 
         # 更新支付时间到测试范围内
         sample_payment.paid_at = datetime(2026, 1, 22, 12, 0, 0)
-        test_db.commit()
+        test_db_session.commit()
 
         payments = reconciliation_service._get_local_payments(start_time, end_time)
 
@@ -355,7 +355,7 @@ class TestReconciliationService:
         assert len(differences) == 1
         assert differences[0]['type'] == DifferenceType.AMOUNT_MISMATCH
 
-    def test_get_reconciliation_records(self, reconciliation_service, test_db: Session):
+    def test_get_reconciliation_records(self, reconciliation_service, test_db_session: Session):
         """测试查询对账记录"""
         # 创建测试数据
         record1 = ReconciliationRecord(
@@ -373,8 +373,8 @@ class TestReconciliationService:
             status=ReconciliationStatus.FAILED
         )
 
-        test_db.add_all([record1, record2])
-        test_db.commit()
+        test_db_session.add_all([record1, record2])
+        test_db_session.commit()
 
         # 测试查询所有记录
         records, total = reconciliation_service.get_reconciliation_records()
@@ -388,7 +388,7 @@ class TestReconciliationService:
         assert total == 1
         assert records[0].status == ReconciliationStatus.SUCCESS
 
-    def test_fix_difference_auto_supplement(self, reconciliation_service, test_db: Session):
+    def test_fix_difference_auto_supplement(self, reconciliation_service, test_db_session: Session):
         """测试修复差异 - 自动补单"""
         # 创建对账记录和差异记录
         reconciliation_record = ReconciliationRecord(
@@ -397,16 +397,16 @@ class TestReconciliationService:
             start_time=datetime(2026, 1, 22, 0, 0, 0),
             end_time=datetime(2026, 1, 22, 23, 59, 59)
         )
-        test_db.add(reconciliation_record)
-        test_db.commit()
+        test_db_session.add(reconciliation_record)
+        test_db_session.commit()
 
         difference = ReconciliationDifference(
             reconciliation_id=reconciliation_record.id,
             difference_type=DifferenceType.MISSING_LOCAL,
             remote_transaction_id="remote_123"
         )
-        test_db.add(difference)
-        test_db.commit()
+        test_db_session.add(difference)
+        test_db_session.commit()
 
         # Mock自动补单方法
         with patch.object(reconciliation_service, '_auto_supplement_transaction', return_value="补单成功"):
@@ -419,7 +419,7 @@ class TestReconciliationService:
             assert result.is_resolved()
             assert result.resolution_action == "auto_supplement"
 
-    def test_fix_difference_ignore(self, reconciliation_service, test_db: Session):
+    def test_fix_difference_ignore(self, reconciliation_service, test_db_session: Session):
         """测试修复差异 - 忽略"""
         # 创建对账记录和差异记录
         reconciliation_record = ReconciliationRecord(
@@ -428,15 +428,15 @@ class TestReconciliationService:
             start_time=datetime(2026, 1, 22, 0, 0, 0),
             end_time=datetime(2026, 1, 22, 23, 59, 59)
         )
-        test_db.add(reconciliation_record)
-        test_db.commit()
+        test_db_session.add(reconciliation_record)
+        test_db_session.commit()
 
         difference = ReconciliationDifference(
             reconciliation_id=reconciliation_record.id,
             difference_type=DifferenceType.AMOUNT_MISMATCH
         )
-        test_db.add(difference)
-        test_db.commit()
+        test_db_session.add(difference)
+        test_db_session.commit()
 
         result = reconciliation_service.fix_difference(
             difference_id=difference.id,
@@ -457,7 +457,7 @@ class TestReconciliationService:
                 processed_by="admin"
             )
 
-    def test_generate_reconciliation_report(self, reconciliation_service, test_db: Session):
+    def test_generate_reconciliation_report(self, reconciliation_service, test_db_session: Session):
         """测试生成对账报告"""
         # 创建对账记录
         record = ReconciliationRecord(
@@ -473,8 +473,8 @@ class TestReconciliationService:
             matched_amount=Decimal("800.00"),
             difference_amount=Decimal("200.00")
         )
-        test_db.add(record)
-        test_db.commit()
+        test_db_session.add(record)
+        test_db_session.commit()
 
         # 创建差异记录
         difference = ReconciliationDifference(
@@ -482,8 +482,8 @@ class TestReconciliationService:
             difference_type=DifferenceType.MISSING_LOCAL,
             status=DifferenceStatus.PENDING
         )
-        test_db.add(difference)
-        test_db.commit()
+        test_db_session.add(difference)
+        test_db_session.commit()
 
         # 生成报告
         report = reconciliation_service.generate_reconciliation_report(record.id)
@@ -499,7 +499,7 @@ class TestReconciliationService:
         assert summary["matched_count"] == 8
         assert summary["match_rate"] == 80.0
 
-    def test_retry_failed_reconciliation(self, reconciliation_service, test_db: Session):
+    def test_retry_failed_reconciliation(self, reconciliation_service, test_db_session: Session):
         """测试重试失败的对账"""
         # 创建失败的对账记录
         failed_record = ReconciliationRecord(
@@ -509,8 +509,8 @@ class TestReconciliationService:
             end_time=datetime(2026, 1, 22, 23, 59, 59),
             status=ReconciliationStatus.FAILED
         )
-        test_db.add(failed_record)
-        test_db.commit()
+        test_db_session.add(failed_record)
+        test_db_session.commit()
 
         with patch.object(reconciliation_service, '_execute_reconciliation'):
             new_record = reconciliation_service.retry_failed_reconciliation(failed_record.id)
@@ -524,11 +524,11 @@ class TestReconciliationIntegration:
     """对账系统集成测试"""
 
     @pytest.fixture
-    def reconciliation_service(self, test_db: Session):
+    def reconciliation_service(self, test_db_session: Session):
         """创建对账服务实例"""
         return ReconciliationService(test_db)
 
-    def test_full_reconciliation_workflow(self, reconciliation_service, test_db: Session):
+    def test_full_reconciliation_workflow(self, reconciliation_service, test_db_session: Session):
         """测试完整的对账工作流程"""
         target_date = "2026-01-22"
 

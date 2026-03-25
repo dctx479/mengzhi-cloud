@@ -9,6 +9,7 @@
 
 from functools import wraps
 from typing import Optional, Callable, Any
+import inspect
 from sqlalchemy.orm import Session
 from loguru import logger
 
@@ -130,9 +131,10 @@ def require_quota(
             # 如果有 user_id 字符串，转换为数据库 ID
             if user_id and isinstance(user_id, str):
                 user = db.query(User).filter(User.user_uuid == user_id).first()
-                if user:
-                    user_id = user.id
-                    enterprise_id = user.enterprise_id
+                if not user:
+                    raise ValueError(f"User with UUID {user_id} not found")
+                user_id = user.id
+                enterprise_id = user.enterprise_id
 
             # 创建配额中间件
             middleware = QuotaMiddleware(db)
@@ -163,9 +165,10 @@ def require_quota(
             # 如果有 user_id 字符串，转换为数据库 ID
             if user_id and isinstance(user_id, str):
                 user = db.query(User).filter(User.user_uuid == user_id).first()
-                if user:
-                    user_id = user.id
-                    enterprise_id = user.enterprise_id
+                if not user:
+                    raise ValueError(f"User with UUID {user_id} not found")
+                user_id = user.id
+                enterprise_id = user.enterprise_id
 
             # 创建配额中间件
             middleware = QuotaMiddleware(db)
@@ -184,7 +187,6 @@ def require_quota(
             return func(*args, **kwargs)
 
         # 根据函数类型返回对应的包装器
-        import inspect
         if inspect.iscoroutinefunction(func):
             return async_wrapper
         else:

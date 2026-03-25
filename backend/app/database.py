@@ -3,10 +3,14 @@
 
 版本: 1.0
 更新日期: 2026-01-17
+
+NOTE: 本文件是 app/core/database.py 的包装器，为向后兼容性而保留。
+新代码应直接从 app.core.database 导入。
 """
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 from app.core.config import settings
 from app.models.base import Base
 
@@ -19,12 +23,20 @@ if settings.DATABASE_URL.startswith('sqlite'):
         connect_args={"check_same_thread": False}  # SQLite特定配置
     )
 else:
+    # MySQL生产配置（与app/core/database.py保持一致）
     engine = create_engine(
         settings.DATABASE_URL,
+        poolclass=QueuePool,
         echo=settings.DEBUG,
-        pool_size=10,
-        max_overflow=20,
-        pool_pre_ping=True
+        pool_size=20,
+        max_overflow=40,
+        pool_pre_ping=True,
+        pool_recycle=3600,  # 重要: 回收连接防止MySQL 8小时超时
+        pool_timeout=30,    # 连接池等待超时（秒）
+        isolation_level="READ COMMITTED",  # 事务隔离级别
+        connect_args={
+            "charset": "utf8mb4",
+        },
     )
 
 # 创建会话工厂

@@ -156,7 +156,7 @@ class SLAReportService:
         metrics = self.db.query(SLAMetric).filter(
             SLAMetric.agreement_id == agreement_id,
             SLAMetric.period_start >= start_ts,
-            SLAMetric.period_end <= end_ts,
+            SLAMetric.period_end >= start_ts,
             SLAMetric.deleted_at.is_(None)
         ).all()
 
@@ -449,10 +449,12 @@ class SLAReportService:
         end_time = datetime.utcnow()
         start_time = end_time - timedelta(days=days)
         start_ts = start_time.isoformat()
+        end_ts = end_time.isoformat()
 
         metrics = self.db.query(SLAMetric).filter(
             SLAMetric.agreement_id == agreement_id,
             SLAMetric.period_start >= start_ts,
+            SLAMetric.period_start < end_ts,
             SLAMetric.deleted_at.is_(None)
         ).all()
 

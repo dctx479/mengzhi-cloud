@@ -45,13 +45,13 @@ class UpdateSettingsRequest(BaseModel):
 class BindPhoneRequest(BaseModel):
     """绑定手机请求"""
     phone: str
-    code: str
+    verification_code: str
 
 
 class BindEmailRequest(BaseModel):
     """绑定邮箱请求"""
     email: str
-    code: str
+    verification_code: str
 
 
 @router.post("/avatar", response_model=dict, tags=["用户"])
@@ -232,7 +232,7 @@ async def bind_phone(
     路径: POST /api/v1/users/security/bind-phone
     """
     phone = request.phone
-    code = request.code
+    code = request.verification_code
     if not phone or not code:
         raise BusinessException(code=ErrorCode.PARAM_ERROR, message="手机号和验证码不能为空")
 
@@ -257,7 +257,7 @@ async def bind_email(
     路径: POST /api/v1/users/security/bind-email
     """
     email = request.email
-    code = request.code
+    code = request.verification_code
     if not email or not code:
         raise BusinessException(code=ErrorCode.PARAM_ERROR, message="邮箱和验证码不能为空")
 

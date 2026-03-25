@@ -503,6 +503,7 @@ class RiskControlService:
 
         except Exception as e:
             self.logger.error(f"行为分析失败: {str(e)}")
+            raise
 
         return {"score": score}
 
@@ -577,7 +578,7 @@ class RiskControlService:
         except Exception as e:
             self.logger.error(f"记录风险事件失败: {str(e)}")
             self.db.rollback()
-            return ""
+            raise
 
     def _generate_recommendations(self, risk_result: Dict[str, Any]) -> List[str]:
         """生成风险处理建议"""

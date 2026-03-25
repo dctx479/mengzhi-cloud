@@ -1,19 +1,27 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import axios from 'axios'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import axios, { AxiosInstance } from 'axios'
 import * as authAPI from '@/api/auth'
 import { testDataGenerators } from '../utils/test-utils'
-
-/**
- * Auth API 测试
- * 测试认证相关API调用
- */
 
 vi.mock('axios')
 
 describe('Auth API', () => {
+  let mockAxiosInstance: Partial<AxiosInstance>
+
   beforeEach(() => {
     vi.clearAllMocks()
     localStorage.clear()
+    mockAxiosInstance = {
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      defaults: {
+        headers: {
+          common: {},
+        },
+      },
+    }
+    vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as AxiosInstance)
   })
 
   afterEach(() => {
@@ -25,22 +33,14 @@ describe('Auth API', () => {
       const user = testDataGenerators.createUser()
       const token = 'test-token'
 
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: {
-            user,
-            token,
-            expiresIn: 3600,
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
+      vi.mocked(mockAxiosInstance.post).mockResolvedValueOnce({
+        data: {
+          user,
+          token,
+          expiresIn: 3600,
         },
-      } as any)
+      })
 
-      // Re-import to get mocked version
       const module = await import('@/api/auth')
       const result = await module.login({
         email: 'test@example.com',
@@ -55,20 +55,13 @@ describe('Auth API', () => {
       const user = testDataGenerators.createUser()
       const token = 'test-token-123'
 
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: {
-            user,
-            token,
-            expiresIn: 3600,
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
+      vi.mocked(mockAxiosInstance.post).mockResolvedValueOnce({
+        data: {
+          user,
+          token,
+          expiresIn: 3600,
         },
-      } as any)
+      })
 
       const module = await import('@/api/auth')
       await module.login({
@@ -84,19 +77,12 @@ describe('Auth API', () => {
     it('sends register request with correct data', async () => {
       const user = testDataGenerators.createUser()
 
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: {
-            user,
-            message: 'Registration successful',
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
+      vi.mocked(mockAxiosInstance.post).mockResolvedValueOnce({
+        data: {
+          user,
+          message: 'Registration successful',
         },
-      } as any)
+      })
 
       const module = await import('@/api/auth')
       const result = await module.register({
@@ -127,16 +113,9 @@ describe('Auth API', () => {
       const user = testDataGenerators.createUser()
       localStorage.setItem('token', 'test-token')
 
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: user,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.get).mockResolvedValueOnce({
+        data: user,
+      })
 
       const module = await import('@/api/auth')
       const result = await module.getCurrentUser()
@@ -163,16 +142,9 @@ describe('Auth API', () => {
         username: 'newusername',
       })
 
-      vi.mocked(axios.create).mockReturnValue({
-        put: vi.fn().mockResolvedValueOnce({
-          data: updatedUser,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.put).mockResolvedValueOnce({
+        data: updatedUser,
+      })
 
       const module = await import('@/api/auth')
       const result = await module.updateProfile({
@@ -188,16 +160,9 @@ describe('Auth API', () => {
       const user = testDataGenerators.createUser()
       localStorage.setItem('token', 'valid-token')
 
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: user,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.get).mockResolvedValueOnce({
+        data: user,
+      })
 
       const module = await import('@/api/auth')
       const result = await module.verifyToken()
@@ -217,14 +182,9 @@ describe('Auth API', () => {
     it('returns false on API error', async () => {
       localStorage.setItem('token', 'invalid-token')
 
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockRejectedValueOnce(new Error('Invalid token')),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.get).mockRejectedValueOnce(
+        new Error('Invalid token')
+      )
 
       const module = await import('@/api/auth')
       const result = await module.verifyToken()
@@ -235,16 +195,9 @@ describe('Auth API', () => {
 
   describe('changePassword', () => {
     it('sends password change request', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: { message: 'Password changed' },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.post).mockResolvedValueOnce({
+        data: { message: 'Password changed' },
+      })
 
       const module = await import('@/api/auth')
       await expect(
@@ -253,40 +206,11 @@ describe('Auth API', () => {
     })
   })
 
-  describe('API Configuration', () => {
-    it('uses correct API base URL', () => {
-      const axiosCreateSpy = vi.mocked(axios.create)
-      expect(axiosCreateSpy).toBeDefined()
-    })
-
-    it('sets correct timeout', () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn(),
-        get: vi.fn(),
-        put: vi.fn(),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
-    })
-  })
-
   describe('Error Handling', () => {
     it('handles network errors', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi
-          .fn()
-          .mockRejectedValueOnce(new Error('Network error')),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.post).mockRejectedValueOnce(
+        new Error('Network error')
+      )
 
       const module = await import('@/api/auth')
       try {
@@ -301,21 +225,14 @@ describe('Auth API', () => {
     })
 
     it('handles validation errors', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockRejectedValueOnce({
-          response: {
-            status: 400,
-            data: {
-              message: 'Invalid email format',
-            },
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
+      vi.mocked(mockAxiosInstance.post).mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            message: 'Invalid email format',
           },
         },
-      } as any)
+      })
 
       expect(axios.create).toBeDefined()
     })

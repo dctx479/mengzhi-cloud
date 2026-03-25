@@ -291,8 +291,7 @@ class FailoverManager:
             if config.avg_response_time:
                 # 响应时间越短得分越高
                 response_score = max(0, 100 - (config.avg_response_time / 50))
-                # 响应时间越短得分越高
-                response_score = max(0, 100 - (config.avg_response_time / 50))
+
                 score += response_score * 0.1
 
             return score
@@ -374,8 +373,9 @@ class FailoverManager:
             )
             return None
 
-        # 根据策略选择备用Provider
+        # 根据策略选择备用Provider（从已过滤的列表中选择）
         for attempt in range(max_retries):
+            # Avoid infinite loop by verifying backup is from filtered list
             backup = self.select_provider(enterprise_id, strategy)
 
             if backup and backup.id != failed_config_id:
@@ -384,6 +384,10 @@ class FailoverManager:
                     f"for enterprise {enterprise_id}, attempt {attempt + 1}"
                 )
                 return backup
+            
+            # If backup is None or is the same failed provider, log and continue
+            if not backup:
+                logger.debug(f"No provider selected in failover attempt {attempt + 1}")
 
         logger.error(
             f"Failed to find backup provider after {max_retries} attempts "
@@ -454,6 +458,10 @@ class FailoverManager:
                 ]
             }
 
-        except Exception as e:
-            logger.error(f"Error getting failover statistics: {e}")
+        except (ValueError, AttributeError) as e:
+            logger.error(f"Error calculating failover statistics: {e}")
             return {}
+        except Exception as e:
+            # Re-raise unexpected exceptions for debugging
+            logger.critical(f"Unexpected error in get_failover_statistics: {e}")
+            raise

@@ -2,11 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Settings from '@/views/user/Settings.vue'
 import * as userAPI from '@/api/user'
-
-vi.mock('@/api/user', () => ({
-  getSettings: vi.fn(),
-  updateSettings: vi.fn(),
-}))
+import type { UserSettings } from '@/types/user'
 
 describe('Settings Component', () => {
   beforeEach(() => {
@@ -60,19 +56,19 @@ describe('Settings Component', () => {
   })
 
   it('should save settings when handleSaveSettings is called', async () => {
-    const mockSettings = {
+    const mockSettings: UserSettings = {
       email_notifications: true,
       sms_notifications: false,
       profile_public: false,
       language: 'zh-CN',
-      theme: 'light' as const,
+      theme: 'light',
     }
 
     vi.mocked(userAPI.getSettings).mockResolvedValue(mockSettings)
     vi.mocked(userAPI.updateSettings).mockResolvedValue(mockSettings)
 
-    const wrapper = mount(Settings)
-    const vm = wrapper.vm as any
+    const wrapper = mount(Settings) as any
+    const vm = wrapper.vm
 
     vm.settings = mockSettings
     await vm.handleSaveSettings()
@@ -81,8 +77,8 @@ describe('Settings Component', () => {
   })
 
   it('should have default settings', () => {
-    const wrapper = mount(Settings)
-    const vm = wrapper.vm as any
+    const wrapper = mount(Settings) as any
+    const vm = wrapper.vm
 
     expect(vm.defaultSettings).toEqual({
       email_notifications: true,
@@ -94,8 +90,8 @@ describe('Settings Component', () => {
   })
 
   it('should reset settings to default', async () => {
-    const wrapper = mount(Settings)
-    const vm = wrapper.vm as any
+    const wrapper = mount(Settings) as any
+    const vm = wrapper.vm
 
     vm.settings = {
       email_notifications: false,
@@ -129,8 +125,8 @@ describe('Settings Component', () => {
   })
 
   it('should apply theme when applyTheme is called', () => {
-    const wrapper = mount(Settings)
-    const vm = wrapper.vm as any
+    const wrapper = mount(Settings) as any
+    const vm = wrapper.vm
 
     // Mock document.documentElement
     const mockElement = {
@@ -153,8 +149,8 @@ describe('Settings Component', () => {
   })
 
   it('should handle export data action', async () => {
-    const wrapper = mount(Settings)
-    const vm = wrapper.vm as any
+    const wrapper = mount(Settings) as any
+    const vm = wrapper.vm
 
     // Mock ElMessage
     const mockMessage = { info: vi.fn() }
@@ -167,7 +163,8 @@ describe('Settings Component', () => {
   })
 
   it('should clear cache when handleClearCache is called', async () => {
-    const wrapper = mount(Settings)
+    const wrapper = mount(Settings) as any
+    const vm = wrapper.vm
 
     // Mock localStorage
     const mockLocalStorage = {
@@ -180,13 +177,14 @@ describe('Settings Component', () => {
 
     // We can't fully test this without mocking the confirmation dialog
     // But we can check the method exists
-    expect((wrapper.vm as any).handleClearCache).toBeDefined()
+    expect(vm.handleClearCache).toBeDefined()
   })
 
   it('should handle delete account action', async () => {
-    const wrapper = mount(Settings)
+    const wrapper = mount(Settings) as any
+    const vm = wrapper.vm
 
     // Check method exists
-    expect((wrapper.vm as any).handleDeleteAccount).toBeDefined()
+    expect(vm.handleDeleteAccount).toBeDefined()
   })
 })

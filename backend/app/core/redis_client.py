@@ -22,7 +22,7 @@ class RedisClient:
     
     @classmethod
     def get_instance(cls) -> Optional[Redis]:
-        """获取Redis客户端实例
+        """获取Redis客户端实例，支持重连
         
         Returns:
             Redis客户端实例，如果连接失败返回None
@@ -39,8 +39,6 @@ class RedisClient:
                     socket_connect_timeout=3,
                     socket_timeout=3,
                     max_connections=50,
-                    retry_on_timeout=True,
-                    retry_on_error=[redis.ConnectionError, redis.TimeoutError],
                     socket_keepalive=True,
                     health_check_interval=30
                 )
@@ -60,6 +58,16 @@ class RedisClient:
                 logger.error(f"Redis初始化异常: {e}")
                 cls._instance = None
                 cls._pool = None
+        
+        # Health check: verify existing connection
+        if cls._instance is not None:
+            try:
+                cls._instance.ping()
+            except Exception as e:
+                logger.warning(f"Redis连接已断开，重新初始化: {e}")
+                cls._instance = None
+                cls._pool = None
+                return cls.get_instance()  # Recursive retry
                 
         return cls._instance
     

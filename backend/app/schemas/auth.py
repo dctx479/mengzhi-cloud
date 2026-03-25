@@ -225,6 +225,21 @@ class UpdateProfileRequest(BaseModel):
         le=2,
         description="性别：0未知/1男/2女"
     )
+    bio: Optional[str] = Field(
+        default=None,
+        max_length=500,
+        description="个人简介"
+    )
+    location: Optional[str] = Field(
+        default=None,
+        max_length=200,
+        description="所在地"
+    )
+    website: Optional[str] = Field(
+        default=None,
+        max_length=500,
+        description="个人网站"
+    )
 
 
 class TokenResponse(BaseModel):
@@ -298,6 +313,18 @@ class UserResponse(BaseModel):
     last_login_at: Optional[datetime] = Field(
         default=None,
         description="最后登录时间"
+    )
+    bio: Optional[str] = Field(
+        default=None,
+        description="个人简介"
+    )
+    location: Optional[str] = Field(
+        default=None,
+        description="所在地"
+    )
+    website: Optional[str] = Field(
+        default=None,
+        description="个人网站"
     )
 
     class Config:

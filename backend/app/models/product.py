@@ -231,7 +231,7 @@ class Product(BaseModel):
     )
     created_by = Column(
         BIGINT,
-        ForeignKey("users.id", ondelete="RESTRICT"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
         comment="创建人用户ID"

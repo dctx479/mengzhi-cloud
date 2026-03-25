@@ -167,7 +167,19 @@ export async function sendMessageStream(
   }
 
   if (!response.ok) {
-    const error = new Error(`Stream request failed: ${response.status}`)
+    // Attempt to read error details from response body
+    let errorMessage = `Stream request failed: ${response.status}`
+    try {
+      const errorBody = await response.json()
+      if (errorBody.message) {
+        errorMessage = errorBody.message
+      } else if (errorBody.detail) {
+        errorMessage = errorBody.detail
+      }
+    } catch {
+      // If response body is not JSON, keep HTTP status message
+    }
+    const error = new Error(errorMessage)
     if (onError) onError(error)
     throw error
   }
@@ -202,13 +214,22 @@ export async function sendMessageStream(
           } else if (parsed.error) {
             onChunk({ type: 'error', error: parsed.message || 'Stream error' })
           } else {
-            // parsed 是后端返回的 JSON 对象，提取实际文本内容
-            const text = parsed.content || parsed.text || parsed.delta?.content || data
-            onChunk({ type: 'chunk', content: typeof text === 'string' ? text : JSON.stringify(text) })
+            // parsed is backend return JSON object, extract actual text content
+            const text = parsed.content || parsed.text || parsed.delta?.content
+            // Only emit if we have valid content text (avoid emitting raw SSE strings)
+            if (typeof text === 'string' && text) {
+              onChunk({ type: 'chunk', content: text })
+            } else if (text) {
+              onChunk({ type: 'chunk', content: JSON.stringify(text) })
+            }
+            // If no content field found, skip this frame (don't fall back to raw 'data')
           }
         } catch {
-          // 非 JSON 的纯文本块
-          onChunk({ type: 'chunk', content: data })
+          // Non-JSON plain text chunk - only emit if line looks like raw content
+          // Only emit if data doesn't look like a malformed JSON (avoid garbage data)
+          if (data && !data.startsWith('{') && !data.startsWith('[')) {
+            onChunk({ type: 'chunk', content: data })
+          }
         }
       }
     }
@@ -262,12 +283,15 @@ export async function getChatHistory(
     params: { page, page_size: pageSize },
   })
   const conv = response.data as BackendConversation
-  // Note: Backend may not always return total count; use server response if available
-  // Otherwise fallback to current page message count
-  return {
-    data: (conv.messages || []).map(mapMessage),
-    total: (conv as unknown as { total?: number }).total ?? conv.messages?.length ?? 0,
+  
+  // Type-safe extraction of total: prefer backend total field if it exists
+  let total = conv.messages?.length ?? 0
+  if (response.data && typeof response.data === 'object' && 'total' in response.data) {
+    const backendTotal = (response.data as any).total
+    if (typeof backendTotal === 'number') total = backendTotal
   }
+  
+  return { data: (conv.messages || []).map(mapMessage), total }
 }
 
 /**

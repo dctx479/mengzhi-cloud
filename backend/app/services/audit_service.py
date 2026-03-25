@@ -511,32 +511,37 @@ class AuditService:
             failure_count = query.filter(AuditLog.is_success == 0).count()
 
             # 按操作类型统计
-            action_stats = db.query(
+            action_query = db.query(
                 AuditLog.action,
                 func.count(AuditLog.id).label('count')
-            ).filter(
-                AuditLog.created_at >= start_date if start_date else True,
-                AuditLog.created_at <= end_date if end_date else True
-            ).group_by(AuditLog.action).all()
+            )
+            if start_date:
+                action_query = action_query.filter(AuditLog.created_at >= start_date)
+            if end_date:
+                action_query = action_query.filter(AuditLog.created_at <= end_date)
+            action_stats = action_query.group_by(AuditLog.action).all()
 
             # 按资源类型统计
-            resource_stats = db.query(
+            resource_query = db.query(
                 AuditLog.resource,
                 func.count(AuditLog.id).label('count')
-            ).filter(
-                AuditLog.created_at >= start_date if start_date else True,
-                AuditLog.created_at <= end_date if end_date else True
-            ).group_by(AuditLog.resource).all()
+            )
+            if start_date:
+                resource_query = resource_query.filter(AuditLog.created_at >= start_date)
+            if end_date:
+                resource_query = resource_query.filter(AuditLog.created_at <= end_date)
+            resource_stats = resource_query.group_by(AuditLog.resource).all()
 
             # 活跃用户统计
-            active_users = db.query(
+            active_query = db.query(
                 AuditLog.username,
                 func.count(AuditLog.id).label('count')
-            ).filter(
-                AuditLog.created_at >= start_date if start_date else True,
-                AuditLog.created_at <= end_date if end_date else True,
-                AuditLog.username.isnot(None)
-            ).group_by(AuditLog.username).order_by(func.count(AuditLog.id).desc()).limit(10).all()
+            ).filter(AuditLog.username.isnot(None))
+            if start_date:
+                active_query = active_query.filter(AuditLog.created_at >= start_date)
+            if end_date:
+                active_query = active_query.filter(AuditLog.created_at <= end_date)
+            active_users = active_query.group_by(AuditLog.username).order_by(func.count(AuditLog.id).desc()).limit(10).all()
 
             return {
                 "total_operations": total_operations,

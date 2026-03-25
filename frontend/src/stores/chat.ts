@@ -155,17 +155,12 @@ export const useChatStore = defineStore('chat', () => {
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to send message'
-      // Mark messages as failed
-      const failedUserIndex = messages.value.findIndex(
-        (m) => m.status === 'sending' && m.role === 'user'
-      )
+      // Mark messages as failed using findIndex (variables from try are out of scope)
+      const failedUserIndex = messages.value.findIndex((m) => m.status === 'sending' && m.role === 'user')
       if (failedUserIndex !== -1) {
         messages.value[failedUserIndex].status = 'failed'
       }
-
-      const failedAiIndex = messages.value.findIndex(
-        (m) => m.status === 'sending' && m.role === 'assistant'
-      )
+      const failedAiIndex = messages.value.findIndex((m) => m.status === 'sending' && m.role === 'assistant')
       if (failedAiIndex !== -1) {
         messages.value[failedAiIndex].status = 'failed'
       }
@@ -197,6 +192,7 @@ export const useChatStore = defineStore('chat', () => {
       error.value = 'No chat selected'
       return
     }
+    messageLoading.value = true
     error.value = null
     try {
       await chatAPI.clearChat(currentChat.value.id)

@@ -433,7 +433,7 @@ async def update_conversation(
             conversation_id=conversation_id, user_id=user_id, title=request.title, is_favorited=request.is_favorited
         )
 
-        return conversation
+        return ConversationResponse.model_validate(conversation)
 
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")

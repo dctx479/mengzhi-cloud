@@ -268,24 +268,68 @@ class Order(BaseModel):
         return self.status in [OrderStatus.PENDING, OrderStatus.FAILED]
 
     def mark_as_paid(self) -> None:
-        """标记为已支付"""
+        """标记为已支付
+        
+        只允许从 PENDING 状态转换到 PAID
+        
+        Raises:
+            ValueError: 如果当前状态不是 PENDING
+        """
+        if self.status != OrderStatus.PENDING:
+            raise ValueError(
+                f"Cannot mark order as paid: order is in {self.status.value} status, "
+                f"only {OrderStatus.PENDING.value} orders can be paid"
+            )
         self.status = OrderStatus.PAID
         self.paid_at = datetime.utcnow()
 
     def mark_as_completed(self) -> None:
-        """标记为已完成"""
+        """标记为已完成
+        
+        只允许从 PAID 状态转换到 COMPLETED
+        
+        Raises:
+            ValueError: 如果当前状态不是 PAID
+        """
+        if self.status != OrderStatus.PAID:
+            raise ValueError(
+                f"Cannot mark order as completed: order is in {self.status.value} status, "
+                f"only {OrderStatus.PAID.value} orders can be completed"
+            )
         self.status = OrderStatus.COMPLETED
         self.completed_at = datetime.utcnow()
 
     def mark_as_cancelled(self, remark: Optional[str] = None) -> None:
-        """标记为已取消"""
+        """标记为已取消
+        
+        只允许从 PENDING、FAILED 状态转换到 CANCELLED
+        
+        Raises:
+            ValueError: 如果当前状态不允许取消
+        """
+        if not self.can_cancel():
+            raise ValueError(
+                f"Cannot mark order as cancelled: order is in {self.status.value} status, "
+                f"only {OrderStatus.PENDING.value} or {OrderStatus.FAILED.value} orders can be cancelled"
+            )
         self.status = OrderStatus.CANCELLED
         self.cancelled_at = datetime.utcnow()
         if remark:
             self.remark = remark
 
     def mark_as_failed(self, remark: Optional[str] = None) -> None:
-        """标记为失败"""
+        """标记为失败
+        
+        只允许从 PENDING 状态转换到 FAILED
+        
+        Raises:
+            ValueError: 如果当前状态不是 PENDING
+        """
+        if self.status != OrderStatus.PENDING:
+            raise ValueError(
+                f"Cannot mark order as failed: order is in {self.status.value} status, "
+                f"only {OrderStatus.PENDING.value} orders can fail"
+            )
         self.status = OrderStatus.FAILED
         if remark:
             self.remark = remark

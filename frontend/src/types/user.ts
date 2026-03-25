@@ -9,6 +9,9 @@ export interface User {
   avatar?: string
   phone?: string
   nickname?: string
+  bio?: string
+  location?: string
+  website?: string
   status: 'active' | 'inactive' | 'banned'
   role: 'user' | 'admin' | 'manager'
   createdAt: string
@@ -16,9 +19,6 @@ export interface User {
 }
 
 export interface UserProfile extends User {
-  bio?: string
-  location?: string
-  website?: string
   totalChats?: number
   totalProducts?: number
 }

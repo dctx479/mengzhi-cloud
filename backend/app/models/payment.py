@@ -202,20 +202,53 @@ class Payment(BaseModel):
         return self.status == PaymentStatus.FAILED
 
     def mark_as_success(self, transaction_id: Optional[str] = None) -> None:
-        """标记为支付成功"""
+        """标记为支付成功
+        
+        只允许从 PENDING 或 PROCESSING 状态转换到 SUCCESS
+        
+        Raises:
+            ValueError: 如果当前状态不是 PENDING 或 PROCESSING
+        """
+        if self.status not in [PaymentStatus.PENDING, PaymentStatus.PROCESSING]:
+            raise ValueError(
+                f"Cannot mark payment as success: payment is in {self.status.value} status, "
+                f"only {PaymentStatus.PENDING.value} or {PaymentStatus.PROCESSING.value} payments can succeed"
+            )
         self.status = PaymentStatus.SUCCESS
         self.paid_at = datetime.utcnow()
         if transaction_id:
             self.transaction_id = transaction_id
 
     def mark_as_failed(self, reason: Optional[str] = None) -> None:
-        """标记为支付失败"""
+        """标记为支付失败
+        
+        只允许从 PENDING、PROCESSING 状态转换到 FAILED
+        
+        Raises:
+            ValueError: 如果当前状态不允许失败
+        """
+        if self.status not in [PaymentStatus.PENDING, PaymentStatus.PROCESSING]:
+            raise ValueError(
+                f"Cannot mark payment as failed: payment is in {self.status.value} status, "
+                f"only {PaymentStatus.PENDING.value} or {PaymentStatus.PROCESSING.value} payments can fail"
+            )
         self.status = PaymentStatus.FAILED
         self.failed_at = datetime.utcnow()
         if reason:
             self.failure_reason = reason
 
     def mark_as_refunded(self) -> None:
-        """标记为已退款"""
+        """标记为已退款
+        
+        只允许从 SUCCESS 状态转换到 REFUNDED
+        
+        Raises:
+            ValueError: 如果当前状态不是 SUCCESS
+        """
+        if self.status != PaymentStatus.SUCCESS:
+            raise ValueError(
+                f"Cannot mark payment as refunded: payment is in {self.status.value} status, "
+                f"only {PaymentStatus.SUCCESS.value} payments can be refunded"
+            )
         self.status = PaymentStatus.REFUNDED
         self.refunded_at = datetime.utcnow()

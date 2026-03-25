@@ -15,7 +15,7 @@ import time
 import uuid
 import asyncio
 from datetime import datetime
-from typing import Callable
+from typing import Callable, Optional
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.orm import Session
@@ -68,7 +68,7 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
 
         # 初始化变量
-        response = None
+        response: Optional[Response] = None
         status_code = 500
         error_message = None
 
@@ -114,6 +114,9 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
                 )
             )
 
+        # response is guaranteed non-None because:
+        # - If call_next() succeeds, response is assigned
+        # - If call_next() raises, exception is re-raised (never reach here)
         return response
 
     def _should_exclude(self, path: str) -> bool:
@@ -136,8 +139,8 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
         request_id: str,
         endpoint: str,
         method: str,
-        user_id: int,
-        enterprise_id: int,
+        user_id: Optional[int],
+        enterprise_id: Optional[int],
         response_time: float,
         status_code: int,
         is_success: bool,

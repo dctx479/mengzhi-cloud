@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
+import { mount, flushPromises, VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import DashboardView from '../DashboardView.vue'
 import type { AdminStats, AIUsageData } from '@/types/admin'
@@ -31,8 +31,9 @@ vi.mock('@/api/admin', () => ({
   }
 }))
 
+
 describe('DashboardView.vue', () => {
-  let wrapper: any
+  let wrapper: VueWrapper<any>
 
   const mockStats: AdminStats = {
     totalUsers: 150,
@@ -203,7 +204,7 @@ describe('DashboardView.vue', () => {
       await flushPromises()
 
       const statValues = wrapper.findAll('.stat-value')
-      statValues.forEach((value: any) => {
+      statValues.forEach((value) => {
         expect(value.text()).toBe('0')
       })
     })
@@ -344,7 +345,7 @@ describe('DashboardView.vue', () => {
       await flushPromises()
 
       const statValues = wrapper.findAll('.stat-value')
-      statValues.forEach((value: any) => {
+      statValues.forEach((value) => {
         expect(value.text()).toBe('0')
       })
       consoleError.mockRestore()

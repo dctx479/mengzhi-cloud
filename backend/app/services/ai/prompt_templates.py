@@ -144,6 +144,34 @@ class PromptTemplates:
 请返回分类结果和置信度（0-1）。"""
 
     @staticmethod
+    def _sanitize_input(text: str, max_length: int = 1000) -> str:
+        """
+        SECURITY FIX: Sanitize user input to prevent prompt injection.
+        
+        Prevents attackers from breaking out of template placeholders by:
+        1. Truncating overly long inputs
+        2. Escaping special characters that could break template formatting
+        
+        Args:
+            text: Input text to sanitize
+            max_length: Maximum allowed length (default 1000 chars)
+            
+        Returns:
+            Sanitized text safe for template insertion
+        """
+        if not isinstance(text, str):
+            text = str(text)
+        
+        # Truncate to max length to prevent injection attacks
+        text = text[:max_length]
+        
+        # Escape curly braces which can be used for prompt injection
+        # by breaking out of format placeholders
+        text = text.replace('{', '{{').replace('}', '}}')
+        
+        return text
+
+    @staticmethod
     def get_system_prompt(role: str = "assistant") -> str:
         """
         获取系统提示词
@@ -171,10 +199,11 @@ class PromptTemplates:
         Returns:
             包含知识的完整提示词
         """
+        # SECURITY FIX: Sanitize all user inputs before template formatting
         return PromptTemplates.KNOWLEDGE_INJECT.format(
-            product_info=product_info,
-            market_data=market_data or "暂无具体数据",
-            industry_trends=industry_trends or "暂无具体数据"
+            product_info=PromptTemplates._sanitize_input(product_info),
+            market_data=PromptTemplates._sanitize_input(market_data or "暂无具体数据"),
+            industry_trends=PromptTemplates._sanitize_input(industry_trends or "暂无具体数据")
         )
 
     @staticmethod
@@ -190,10 +219,11 @@ class PromptTemplates:
         Returns:
             上下文感知的提示词
         """
+        # SECURITY FIX: Sanitize all user inputs before template formatting
         return PromptTemplates.CONTEXT_TEMPLATE.format(
-            user_id=user_id,
-            topic=topic or "营销咨询",
-            summary=summary or "这是第一条消息"
+            user_id=PromptTemplates._sanitize_input(user_id),
+            topic=PromptTemplates._sanitize_input(topic or "营销咨询"),
+            summary=PromptTemplates._sanitize_input(summary or "这是第一条消息")
         )
 
     @staticmethod
@@ -209,11 +239,12 @@ class PromptTemplates:
         advantages: str
     ) -> str:
         """生成品牌定位咨询提示词"""
+        # SECURITY FIX: Sanitize all user inputs before template formatting
         return PromptTemplates.BRAND_POSITIONING.format(
-            company_name=company_name,
-            product_type=product_type,
-            target_market=target_market,
-            advantages=advantages
+            company_name=PromptTemplates._sanitize_input(company_name),
+            product_type=PromptTemplates._sanitize_input(product_type),
+            target_market=PromptTemplates._sanitize_input(target_market),
+            advantages=PromptTemplates._sanitize_input(advantages)
         )
 
     @staticmethod
@@ -224,11 +255,12 @@ class PromptTemplates:
         budget: str
     ) -> str:
         """生成渠道推荐提示词"""
+        # SECURITY FIX: Sanitize all user inputs before template formatting
         return PromptTemplates.CHANNEL_RECOMMENDATION.format(
-            product_name=product_name,
-            product_features=product_features,
-            target_customers=target_customers,
-            budget=budget
+            product_name=PromptTemplates._sanitize_input(product_name),
+            product_features=PromptTemplates._sanitize_input(product_features),
+            target_customers=PromptTemplates._sanitize_input(target_customers),
+            budget=PromptTemplates._sanitize_input(budget)
         )
 
     @staticmethod
@@ -240,10 +272,11 @@ class PromptTemplates:
         timeline: str
     ) -> str:
         """生成营销策略提示词"""
+        # SECURITY FIX: Sanitize all user inputs before template formatting
         return PromptTemplates.MARKETING_STRATEGY.format(
-            company_status=company_status,
-            product_advantages=product_advantages,
-            competition=competition,
-            target_revenue=target_revenue,
-            timeline=timeline
+            company_status=PromptTemplates._sanitize_input(company_status),
+            product_advantages=PromptTemplates._sanitize_input(product_advantages),
+            competition=PromptTemplates._sanitize_input(competition),
+            target_revenue=PromptTemplates._sanitize_input(target_revenue),
+            timeline=PromptTemplates._sanitize_input(timeline)
         )

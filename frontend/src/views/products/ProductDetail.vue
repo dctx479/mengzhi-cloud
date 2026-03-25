@@ -228,7 +228,8 @@ onMounted(async () => {
   try {
     await productStore.fetchProductDetail(route.params.id as string)
     if (productStore.currentProduct) {
-      mainImage.value = productStore.currentProduct.image
+      const p = productStore.currentProduct
+      mainImage.value = p?.image || p?.images?.[0] || ''
       await loadReviews()
     }
   } catch (error) {

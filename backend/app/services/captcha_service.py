@@ -159,6 +159,19 @@ class CaptchaService:
         """
         return ''.join(random.choices(string.digits, k=length))
 
+    def _get_code_hash(self, code: str) -> str:
+        """生成验证码的哈希值用于日志记录
+        
+        Args:
+            code: 验证码
+            
+        Returns:
+            哈希值（掩码形式：**...** ）
+        """
+        if len(code) <= 4:
+            return "*" * len(code)
+        return f"{code[:2]}...{code[-2:]}"
+
     def send_email_code(self, email: str, code_type: str = "register") -> str:
         """
         发送邮箱验证码
@@ -187,7 +200,9 @@ class CaptchaService:
             from app.services.notification_service import email_service
             email_service.send_verification_email(email, code)
 
-            logger.info(f"邮箱验证码已发送: {email} -> {code}")
+            # 安全日志：不记录完整验证码 (Security: never log full verification codes)
+            code_masked = self._get_code_hash(code)
+            logger.info(f"邮箱验证码已发送: {email} (code: {code_masked})")
             return code
         except Exception as e:
             logger.error(f"发送邮箱验证码失败: {e}")
@@ -224,7 +239,9 @@ class CaptchaService:
             from app.services.notification_service import sms_service
             sms_service.send_verification_sms(phone, code)
 
-            logger.info(f"短信验证码已发送: {phone} -> {code}")
+            # 安全日志：不记录完整验证码 (Security: never log full verification codes)
+            code_masked = self._get_code_hash(code)
+            logger.info(f"短信验证码已发送: {phone} (code: {code_masked})")
             return code
         except Exception as e:
             logger.error(f"发送短信验证码失败: {e}")

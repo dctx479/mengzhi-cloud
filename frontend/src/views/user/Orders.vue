@@ -352,7 +352,7 @@ const handleCancel = async (order: Order) => {
     ElMessage.success('订单已取消')
     await loadOrders()
   } catch (error) {
-    if (error !== 'cancel') {
+    if (error?.message !== 'cancel') {
       ElMessage.error('取消订单失败，请重试')
     }
   }

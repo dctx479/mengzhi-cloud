@@ -10,7 +10,7 @@
  * - 支付状态管理
  */
 
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import { createPayment, getPaymentStatus, type Payment } from '@/api/payment'
 import type { Order } from '@/types/user'
@@ -49,6 +49,7 @@ export function usePayment(options: UsePaymentOptions = {}) {
   // 轮询相关
   let statusCheckTimer: ReturnType<typeof setTimeout> | null = null
   let pollAttempts = 0
+  let isCheckingStatus = false  // 防止并发检查
 
   // 计算属性
   const isPaymentCreated = computed(() => payment.value !== null)
@@ -88,10 +89,11 @@ export function usePayment(options: UsePaymentOptions = {}) {
       startStatusCheck(order.id)
 
       ElMessage.success('支付创建成功')
-    } catch (error: any) {
+    } catch (error) {
       // P2-16: 改进错误提示
-      const errorMessage = error.response?.data?.message || error.message || '创建支付失败'
-      const errorDetail = error.response?.data?.detail
+      const axiosError = error as any
+      const errorMessage = axiosError?.response?.data?.message || axiosError?.message || '创建支付失败'
+      const errorDetail = axiosError?.response?.data?.detail
 
       if (errorDetail) {
         // 显示详细错误信息
@@ -108,6 +110,10 @@ export function usePayment(options: UsePaymentOptions = {}) {
    * 查询支付状态
    */
   const checkPaymentStatus = async (orderId: number): Promise<void> => {
+    // 防止并发请求
+    if (isCheckingStatus) return
+    isCheckingStatus = true
+
     try {
       const status = await getPaymentStatus(orderId)
       paymentStatus.value = status.payment_status || 'pending'
@@ -124,13 +130,16 @@ export function usePayment(options: UsePaymentOptions = {}) {
         stopStatusCheck()
         options.onFailed?.(failureReason.value)
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('查询支付状态失败:', error)
       // P2-16: 改进错误提示
-      const errorMessage = error.response?.data?.message || error.message
+      const axiosError = error as any
+      const errorMessage = axiosError?.response?.data?.message || axiosError?.message
       if (errorMessage) {
         ElMessage.warning(`查询支付状态失败: ${errorMessage}`)
       }
+    } finally {
+      isCheckingStatus = false
     }
   }
 
@@ -139,6 +148,7 @@ export function usePayment(options: UsePaymentOptions = {}) {
    */
   const startStatusCheck = (orderId: number): void => {
     pollAttempts = 0
+    stopStatusCheck()  // 清除之前的轮询（防止重复）
 
     const scheduleNextCheck = () => {
       if (pollAttempts >= POLL_CONFIG.MAX_ATTEMPTS) {
@@ -168,18 +178,20 @@ export function usePayment(options: UsePaymentOptions = {}) {
     }
 
     // 立即执行第一次检查
-    checkPaymentStatus(orderId).then(() => {
-      // 如果第一次检查后还是pending，开始轮询
-      if (paymentStatus.value === 'pending') {
-        scheduleNextCheck()
-      }
-    }).catch((error) => {
-      console.error('首次支付状态检查失败:', error)
-      // 首次检查失败时也应该尝试轮询（可能是临时网络问题）
-      if (paymentStatus.value === 'pending') {
-        scheduleNextCheck()
-      }
-    })
+    checkPaymentStatus(orderId)
+      .then(() => {
+        // 如果第一次检查后还是pending，开始轮询
+        if (paymentStatus.value === 'pending') {
+          scheduleNextCheck()
+        }
+      })
+      .catch((error) => {
+        console.error('首次支付状态检查失败:', error)
+        // 首次检查失败时也应该尝试轮询（可能是临时网络问题）
+        if (paymentStatus.value === 'pending') {
+          scheduleNextCheck()
+        }
+      })
   }
 
   /**
@@ -203,6 +215,7 @@ export function usePayment(options: UsePaymentOptions = {}) {
     failureReason.value = ''
     selectedMethod.value = 'alipay'
     pollAttempts = 0
+    isCheckingStatus = false
   }
 
   /**
@@ -213,6 +226,11 @@ export function usePayment(options: UsePaymentOptions = {}) {
     paymentStatus.value = 'pending'
     failureReason.value = ''
   }
+
+  // 组件卸载时清理资源（防止内存泄漏）
+  onBeforeUnmount(() => {
+    stopStatusCheck()
+  })
 
   return {
     // 状态

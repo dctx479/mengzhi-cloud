@@ -215,14 +215,14 @@ const handleClearCache = async () => {
 
 const handleDeleteAccount = async () => {
   try {
-    await ElMessageBox.confirm(
-      '注销账户是一项严肃的决定。您的所有数据将被永久删除，此操作无法撤销。请输入您的用户名以确认。',
+    await ElMessageBox.prompt(
+      '注销账户是一项严肃的决定。您的所有数据将被永久删除，此操作无法撤销。',
       '注销账户',
       {
         confirmButtonText: '注销',
         cancelButtonText: '取消',
         type: 'warning',
-        inputType: 'text',
+        
         inputPlaceholder: '请输入您的用户名',
       }
     )

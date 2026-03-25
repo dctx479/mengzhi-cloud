@@ -90,15 +90,15 @@
               </el-descriptions-item>
 
               <el-descriptions-item label="个人简介" :span="2">
-                {{ (userStore.user as any)?.bio || '-' }}
+                {{ userStore.user?.bio || '-' }}
               </el-descriptions-item>
 
               <el-descriptions-item label="所在地">
-                {{ (userStore.user as any)?.location || '-' }}
+                {{ userStore.user?.location || '-' }}
               </el-descriptions-item>
 
               <el-descriptions-item label="个人网站">
-                {{ (userStore.user as any)?.website || '-' }}
+                {{ userStore.user?.website || '-' }}
               </el-descriptions-item>
 
               <el-descriptions-item label="注册时间" :span="2">
@@ -122,7 +122,7 @@
       <el-col :xs="24" :sm="8">
         <el-card class="stat-card">
           <div class="stat-content">
-            <div class="stat-value">{{ (userStore.user as any)?.totalChats || 0 }}</div>
+            <div class="stat-value">{{ userStore.user?.totalChats || 0 }}</div>
             <div class="stat-label">AI对话次数</div>
           </div>
         </el-card>
@@ -131,7 +131,7 @@
       <el-col :xs="24" :sm="8">
         <el-card class="stat-card">
           <div class="stat-content">
-            <div class="stat-value">{{ (userStore.user as any)?.totalProducts || 0 }}</div>
+            <div class="stat-value">{{ userStore.user?.totalProducts || 0 }}</div>
             <div class="stat-label">浏览产品</div>
           </div>
         </el-card>
@@ -214,9 +214,9 @@ const handleEdit = () => {
     editForm.nickname = userStore.user.nickname || ''
     editForm.email = userStore.user.email
     editForm.phone = userStore.user.phone || ''
-    editForm.bio = (userStore.user as any).bio || ''
-    editForm.location = (userStore.user as any).location || ''
-    editForm.website = (userStore.user as any).website || ''
+    editForm.bio = userStore.user?.bio || ''
+    editForm.location = userStore.user?.location || ''
+    editForm.website = userStore.user?.website || ''
   }
   isEditing.value = true
 }

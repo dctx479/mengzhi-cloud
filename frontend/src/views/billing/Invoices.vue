@@ -410,8 +410,8 @@ const loadInvoices = async () => {
     const res = await http.get('/v1/billing/invoices', { params })
 
     if (res.code === 200) {
-      invoices.value = res.data.invoices
-      pagination.total = res.data.pagination.total
+      invoices.value = res.data?.invoices || []
+      pagination.total = res.data?.pagination?.total || 0
 
       // 更新状态统计
       updateStatusCounts()
@@ -462,17 +462,17 @@ const viewInvoiceDetail = async (invoiceId) => {
       ElMessageBox.alert(
         `<div style="max-height: 500px; overflow-y: auto;">
           <h3>账单详情</h3>
-          <p><strong>账单编号:</strong> ${invoice.invoice_number}</p>
-          <p><strong>账单周期:</strong> ${invoice.billing_period.start} ~ ${invoice.billing_period.end}</p>
-          <p><strong>总金额:</strong> ¥${invoice.amounts.total.toFixed(2)}</p>
+          <p><strong>账单编号:</strong> ${invoice.invoice_number || '-'}</p>
+          <p><strong>账单周期:</strong> ${invoice.billing_period?.start || '-'} ~ ${invoice.billing_period?.end || '-'}</p>
+          <p><strong>总金额:</strong> ¥${invoice.amounts?.total?.toFixed(2) || '0.00'}</p>
           <p><strong>状态:</strong> ${getInvoiceStatusText(invoice.status)}</p>
           <h4>计费记录 (${invoice.records?.length || 0}条)</h4>
           ${invoice.records?.map(record => `
             <div style="border: 1px solid #eee; padding: 8px; margin: 4px 0; border-radius: 4px;">
-              <p><strong>日期:</strong> ${record.billing_date}</p>
+              <p><strong>日期:</strong> ${record.billing_date || '-'}</p>
               <p><strong>模式:</strong> ${getBillingModeText(record.billing_mode)}</p>
               <p><strong>数量:</strong> ${record.quantity}</p>
-              <p><strong>金额:</strong> ¥${record.amount}</p>
+              <p><strong>金额:</strong> ¥${record.amount || '0.00'}</p>
             </div>
           `).join('') || '<p>暂无记录</p>'}
         </div>`,

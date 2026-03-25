@@ -45,6 +45,7 @@ class OptimizedContentGenerationService:
 
     def __init__(self, db: Session):
         """初始化"""
+        self.knowledge_base_initialized = False
         self.db = db
         self.deepseek_client = None
         self.knowledge_base = CulturalKnowledgeBase()
@@ -62,6 +63,7 @@ class OptimizedContentGenerationService:
         # 构建知识库索引
         try:
             await self.knowledge_base.build_index(self.db)
+            self.knowledge_base_initialized = True
         except Exception as e:
             logger.warning(f"知识库初始化失败，将使用备用检索: {str(e)}")
 
@@ -430,7 +432,7 @@ class OptimizedContentGenerationService:
 
             return None
         except Exception as e:
-            logger.error(f"缓存读取失败: {str(e)}")
+            logger.warning(f"缓存读取异常，将跳过缓存: {str(e)}")
             return None
 
     def _save_to_cache(self, key: str, content: str) -> None:
@@ -453,7 +455,7 @@ class OptimizedContentGenerationService:
                 del self._memory_cache[oldest_key]
 
         except Exception as e:
-            logger.error(f"缓存保存失败: {str(e)}")
+            logger.warning(f"缓存保存异常，可能导致内存膨胀: {str(e)}")
 
 
 class ContentGenerationServiceFactory:

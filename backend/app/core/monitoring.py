@@ -39,9 +39,8 @@ class PerformanceMonitor:
         """记录数据库查询"""
         db_query_duration.labels(operation=query_type).observe(duration)
 
-        from app.config.monitoring import monitoring_config
 
-        if duration > monitoring_config.DB_SLOW_QUERY_THRESHOLD:
+        if duration > 1.0:  # Default slow query threshold
             self.slow_queries.append({"query": query[:200], "duration": duration, "timestamp": datetime.now()})
             logger.warning(f"Slow query detected: {duration:.2f}s - {query[:100]}")
 

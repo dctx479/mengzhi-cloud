@@ -12,7 +12,7 @@
 
 from sqlalchemy import (
     Column, BIGINT, Enum, Integer, DATE, TIMESTAMP, Index,
-    UniqueConstraint, ForeignKey, String, VARCHAR, Float, TEXT
+    UniqueConstraint, ForeignKey, String, VARCHAR, Float, TEXT, CheckConstraint
 )
 from sqlalchemy.orm import relationship
 from datetime import date, datetime, timedelta
@@ -174,7 +174,8 @@ class TenantQuota(BaseModel):
     )
     transactions = relationship(
         "BillingTransaction",
-        back_populates="quota"
+        back_populates="quota",
+        cascade="all, delete-orphan"
     )
 
     # 索引定义
@@ -187,6 +188,11 @@ class TenantQuota(BaseModel):
         UniqueConstraint(
             "user_id", "resource_type", "period_type", "period_start",
             name="uk_user_quota_period"
+        ),
+        # 确保企业ID和用户ID至少有一个不为NULL
+        CheckConstraint(
+            "(enterprise_id IS NOT NULL) OR (user_id IS NOT NULL)",
+            name="ck_quota_tenant_not_null"
         ),
         Index("idx_enterprise_id", "enterprise_id"),
         Index("idx_user_id", "user_id"),

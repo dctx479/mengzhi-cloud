@@ -12,7 +12,7 @@ from datetime import datetime
 from decimal import Decimal
 from sqlalchemy import (
     Column, String, Integer, Text, Boolean, DateTime,
-    Numeric, ForeignKey, Index, JSON
+    Numeric, ForeignKey, Index, JSON, Enum
 )
 from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.orm import relationship
@@ -73,12 +73,12 @@ class RiskRule(BaseModel):
     id = Column(BIGINT, primary_key=True, autoincrement=True, comment="规则ID")
     name = Column(String(100), nullable=False, comment="规则名称")
     description = Column(Text, comment="规则描述")
-    rule_type = Column(String(20), nullable=False, comment="规则类型")
+    rule_type = Column(Enum(RuleType), nullable=False, comment="规则类型")
 
     # 规则配置
     conditions = Column(JSON, nullable=False, comment="规则条件配置")
-    risk_level = Column(String(20), nullable=False, comment="风险等级")
-    action = Column(String(20), nullable=False, comment="处理动作")
+    risk_level = Column(Enum(RiskLevel), nullable=False, comment="风险等级")
+    action = Column(Enum(RiskAction), nullable=False, comment="处理动作")
 
     # 规则参数
     threshold_value = Column(Numeric(15, 2), comment="阈值")
@@ -104,10 +104,10 @@ class RiskRule(BaseModel):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "rule_type": self.rule_type,
+            "rule_type": self.rule_type.value if hasattr(self.rule_type, "value") else self.rule_type,
             "conditions": self.conditions,
-            "risk_level": self.risk_level,
-            "action": self.action,
+            "risk_level": self.risk_level.value if hasattr(self.risk_level, "value") else self.risk_level,
+            "action": self.action.value if hasattr(self.action, "value") else self.action,
             "threshold_value": float(self.threshold_value) if self.threshold_value else None,
             "time_window": self.time_window,
             "max_count": self.max_count,
@@ -127,7 +127,7 @@ class RiskEvent(BaseModel):
     __tablename__ = "risk_events"
 
     id = Column(BIGINT, primary_key=True, autoincrement=True, comment="事件ID")
-    event_type = Column(String(20), nullable=False, comment="事件类型")
+    event_type = Column(Enum(EventType), nullable=False, comment="事件类型")
 
     # 关联信息
     user_id = Column(BIGINT, ForeignKey("users.id"), nullable=True, comment="用户ID")
@@ -137,11 +137,11 @@ class RiskEvent(BaseModel):
     # 事件详情
     event_data = Column(JSON, nullable=False, comment="事件数据")
     risk_score = Column(Integer, default=0, nullable=False, comment="风险评分")
-    risk_level = Column(String(20), nullable=False, comment="风险等级")
+    risk_level = Column(Enum(RiskLevel), nullable=False, comment="风险等级")
 
     # 触发的规则
     triggered_rules = Column(JSON, comment="触发的规则列表")
-    final_action = Column(String(20), nullable=False, comment="最终处理动作")
+    final_action = Column(Enum(RiskAction), nullable=False, comment="最终处理动作")
 
     # 处理状态
     is_processed = Column(Boolean, default=False, nullable=False, comment="是否已处理")
@@ -161,15 +161,15 @@ class RiskEvent(BaseModel):
     def to_dict(self):
         return {
             "id": self.id,
-            "event_type": self.event_type,
+            "event_type": self.event_type.value if hasattr(self.event_type, "value") else self.event_type,
             "user_id": self.user_id,
             "order_id": self.order_id,
             "payment_id": self.payment_id,
             "event_data": self.event_data,
             "risk_score": self.risk_score,
-            "risk_level": self.risk_level,
+            "risk_level": self.risk_level.value if hasattr(self.risk_level, "value") else self.risk_level,
             "triggered_rules": self.triggered_rules,
-            "final_action": self.final_action,
+            "final_action": self.final_action.value if hasattr(self.final_action, "value") else self.final_action,
             "is_processed": self.is_processed,
             "processed_at": self.processed_at.isoformat() if self.processed_at else None,
             "processed_by": self.processed_by,
@@ -189,12 +189,12 @@ class RiskBlacklist(BaseModel):
     __tablename__ = "risk_blacklist"
 
     id = Column(BIGINT, primary_key=True, autoincrement=True, comment="黑名单ID")
-    blacklist_type = Column(String(20), nullable=False, comment="黑名单类型")
+    blacklist_type = Column(Enum(BlacklistType), nullable=False, comment="黑名单类型")
     value = Column(String(200), nullable=False, comment="黑名单值")
 
     # 黑名单信息
     reason = Column(Text, comment="加入黑名单原因")
-    risk_level = Column(String(20), nullable=False, comment="风险等级")
+    risk_level = Column(Enum(RiskLevel), nullable=False, comment="风险等级")
 
     # 状态控制
     is_active = Column(Boolean, default=True, nullable=False, comment="是否启用")
@@ -220,10 +220,10 @@ class RiskBlacklist(BaseModel):
     def to_dict(self):
         return {
             "id": self.id,
-            "blacklist_type": self.blacklist_type,
+            "blacklist_type": self.blacklist_type.value if hasattr(self.blacklist_type, "value") else self.blacklist_type,
             "value": self.value,
             "reason": self.reason,
-            "risk_level": self.risk_level,
+            "risk_level": self.risk_level.value if hasattr(self.risk_level, "value") else self.risk_level,
             "is_active": self.is_active,
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
             "hit_count": self.hit_count,

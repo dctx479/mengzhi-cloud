@@ -362,8 +362,14 @@ class PermissionService:
             BusinessException: 角色不存在或权限不存在
         """
         role = self.get_role(role_id)
+        if not permission_ids:
+            raise BusinessException(ErrorCode.INVALID_REQUEST, "权限列表不能为空")
+
         if not role:
             raise BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "角色不存在")
+        # SECURITY FIX: 系统角色不可修改权限
+        if role.is_system:
+            raise BusinessException(ErrorCode.OPERATION_FORBIDDEN, "系统角色的权限不可修改")
 
         # 获取权限
         permissions = self.db.query(Permission).filter(
@@ -403,6 +409,9 @@ class PermissionService:
         异常:
             BusinessException: 用户不存在或角色不存在
         """
+        if not role_ids:
+            raise BusinessException(ErrorCode.INVALID_REQUEST, "角色列表不能为空")
+
         user = self.db.query(User).filter(User.id == user_id).first()
         if not user:
             raise BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "用户不存在")
@@ -539,7 +548,8 @@ class PermissionService:
             db.add(perm)
 
         db.commit()  # 先提交权限以获取ID
-        db.refresh(permissions[0])  # 刷新以验证ID已生成
+        for perm in permissions:  # 刷新所有权限以确保ID已生成
+            db.refresh(perm)
 
         # 创建系统角色
         # 1. 超级管理员 - 拥有所有权限

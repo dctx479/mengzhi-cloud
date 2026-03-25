@@ -14,14 +14,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.requests_per_minute = requests_per_minute
         self.requests: dict[str, deque] = {}
         self._last_global_cleanup = time.monotonic()
-        # FIX Bug #1: Add lock for thread-safe dictionary access
         self._lock = threading.RLock()
 
     async def dispatch(self, request: Request, call_next):
         # 获取客户端标识（IP或用户ID）
-        client_id = request.client.host if request.client else "unknown"
+        # BUG FIX #1: Safe attribute access - use getattr to handle missing 'host'
+        client_id = "unknown"
+        if request.client:
+            client_id = getattr(request.client, "host", "unknown")
+        
         if hasattr(request.state, "user") and request.state.user:
-            # FIX Bug #5: Safe access to user ID (could be string or int)
             user_id = getattr(request.state.user, "id", None) or getattr(request.state.user, "user_id", None)
             if user_id:
                 client_id = f"user_{user_id}"
@@ -29,7 +31,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         now = time.monotonic()
         cutoff = now - 60  # 1分钟窗口
 
-        # FIX Bug #1: Use lock to prevent race conditions
+        # BUG FIX #2: Calculate remaining inside lock to avoid race condition
+        remaining = 0
         with self._lock:
             # 获取或创建该客户端的请求队列
             if client_id not in self.requests:
@@ -61,14 +64,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             # 记录请求
             client_deque.append(now)
             current_queue_len = len(client_deque)
+            # Calculate remaining inside lock to get accurate value
+            remaining = max(0, self.requests_per_minute - current_queue_len)
 
         # 继续处理请求
         response = await call_next(request)
 
-        # 添加速率限制头
+        # 添加速率限制头（使用lock内计算的值，避免race condition）
         response.headers["X-RateLimit-Limit"] = str(self.requests_per_minute)
-        response.headers["X-RateLimit-Remaining"] = str(
-            self.requests_per_minute - current_queue_len
-        )
+        response.headers["X-RateLimit-Remaining"] = str(remaining)
 
         return response

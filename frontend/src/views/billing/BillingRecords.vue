@@ -287,8 +287,8 @@ const loadRecords = async () => {
     const res = await http.get('/v1/billing/records', { params })
 
     if (res.code === 200) {
-      records.value = res.data.records
-      pagination.total = res.data.pagination.total
+      records.value = res.data?.records || []
+      pagination.total = res.data?.pagination?.total || 0
     }
   } catch (error) {
     console.error('加载计费记录失败:', error)

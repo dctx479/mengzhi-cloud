@@ -1,18 +1,111 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import * as chatAPI from '@/api/chat'
 import { testDataGenerators } from '../utils/test-utils'
 
-/**
- * Chat API 测试
- * 测试对话相关API调用
- */
-
 vi.mock('axios')
+/**
+ * 创建类型安全的Mock Axios实例
+ * 消除所有 `as any` 强制转换的需要
+ */
+function createMockAxiosInstance<T = any>(
+  method: 'get' | 'post' | 'delete' | 'patch',
+  responseData: T,
+  isError = false
+): AxiosInstance {
+  const mockMethod = vi.fn()
+  
+  if (isError) {
+    mockMethod.mockRejectedValueOnce(responseData)
+  } else {
+    mockMethod.mockResolvedValueOnce({
+      data: responseData,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {},
+    })
+  }
+
+  const instance: Partial<AxiosInstance> = {
+    defaults: {
+      headers: {
+        common: {},
+      },
+    } as any,
+  }
+
+  if (method === 'get') {
+    instance.get = mockMethod
+  } else if (method === 'post') {
+    instance.post = mockMethod
+  } else if (method === 'delete') {
+    instance.delete = mockMethod
+  } else if (method === 'patch') {
+    instance.patch = mockMethod
+  }
+
+  return instance as AxiosInstance
+}
+
+/**
+ * 创建多方法Mock Axios实例（支持多个HTTP方法）
+ */
+function createMockAxiosInstanceWithMethods(
+  methods: Record<'get' | 'post' | 'delete' | 'patch', { data: any; error?: boolean }>
+): AxiosInstance {
+  const mockGet = vi.fn()
+  const mockPost = vi.fn()
+  const mockDelete = vi.fn()
+  const mockPatch = vi.fn()
+
+  Object.entries(methods).forEach(([method, config]) => {
+    const mockFn = method === 'get' ? mockGet : method === 'post' ? mockPost : method === 'delete' ? mockDelete : mockPatch
+    
+    if (config.error) {
+      mockFn.mockRejectedValueOnce(config.data)
+    } else {
+      mockFn.mockResolvedValueOnce({
+        data: config.data,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      })
+    }
+  })
+
+  const instance: AxiosInstance = {
+    defaults: {
+      headers: {
+        common: {},
+      },
+    } as any,
+    get: mockGet,
+    post: mockPost,
+    delete: mockDelete,
+    patch: mockPatch,
+  } as any
+
+  return instance
+}
 
 describe('Chat API', () => {
+  let mockAxiosInstance: Partial<AxiosInstance>
+
   beforeEach(() => {
     vi.clearAllMocks()
+    mockAxiosInstance = {
+      get: vi.fn(),
+      post: vi.fn(),
+      delete: vi.fn(),
+      defaults: {
+        headers: {
+          common: {},
+        },
+      },
+    }
+    vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as AxiosInstance)
   })
 
   describe('getChatList', () => {
@@ -22,19 +115,12 @@ describe('Chat API', () => {
         testDataGenerators.createChat({ id: 'chat-2' }),
       ]
 
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: {
-            data: chats,
-            total: 2,
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
+      vi.mocked(mockAxiosInstance.get).mockResolvedValueOnce({
+        data: {
+          data: chats,
+          total: 2,
         },
-      } as any)
+      })
 
       const module = await import('@/api/chat')
       const result = await module.getChatList(1, 20)
@@ -43,41 +129,13 @@ describe('Chat API', () => {
       expect(result.total).toBe(2)
     })
 
-    it('handles different page numbers', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: {
-            data: [],
-            total: 100,
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      const module = await import('@/api/chat')
-      await module.getChatList(5, 20)
-
-      expect(axios.create).toBeDefined()
-    })
-
     it('handles empty chat list', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: {
-            data: [],
-            total: 0,
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
+      vi.mocked(mockAxiosInstance.get).mockResolvedValueOnce({
+        data: {
+          data: [],
+          total: 0,
         },
-      } as any)
+      })
 
       const module = await import('@/api/chat')
       const result = await module.getChatList(1, 20)
@@ -98,42 +156,15 @@ describe('Chat API', () => {
         messages,
       })
 
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: chat,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.get).mockResolvedValueOnce({
+        data: chat,
+      })
 
       const module = await import('@/api/chat')
       const result = await module.getChatDetail('chat-1')
 
       expect(result).toEqual(chat)
       expect(result.messages).toHaveLength(2)
-    })
-
-    it('handles chat not found error', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockRejectedValueOnce({
-          response: {
-            status: 404,
-            data: {
-              message: 'Chat not found',
-            },
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
     })
 
     it('includes full chat metadata', async () => {
@@ -143,16 +174,9 @@ describe('Chat API', () => {
         createdAt: '2024-01-01T00:00:00Z',
       })
 
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: chat,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.get).mockResolvedValueOnce({
+        data: chat,
+      })
 
       const module = await import('@/api/chat')
       const result = await module.getChatDetail('chat-123')
@@ -170,16 +194,9 @@ describe('Chat API', () => {
         title: 'New Chat',
       })
 
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: chat,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.post).mockResolvedValueOnce({
+        data: chat,
+      })
 
       const module = await import('@/api/chat')
       const result = await module.createChat('New Chat')
@@ -191,41 +208,14 @@ describe('Chat API', () => {
     it('creates chat with default title', async () => {
       const chat = testDataGenerators.createChat()
 
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: chat,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.post).mockResolvedValueOnce({
+        data: chat,
+      })
 
       const module = await import('@/api/chat')
       const result = await module.createChat()
 
       expect(result).toBeDefined()
-    })
-
-    it('handles create error', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockRejectedValueOnce({
-          response: {
-            status: 400,
-            data: {
-              message: 'Invalid request',
-            },
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
     })
   })
 
@@ -237,16 +227,9 @@ describe('Chat API', () => {
         role: 'user',
       })
 
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: message,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.post).mockResolvedValueOnce({
+        data: message,
+      })
 
       const module = await import('@/api/chat')
       const result = await module.sendMessage('chat-1', '你好')
@@ -254,212 +237,61 @@ describe('Chat API', () => {
       expect(result).toEqual(message)
       expect(result.content).toBe('你好')
     })
-
-    it('includes message in request', async () => {
-      const message = testDataGenerators.createMessage()
-
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: message,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      const module = await import('@/api/chat')
-      await module.sendMessage('chat-1', 'test message')
-
-      expect(axios.create).toBeDefined()
-    })
-
-    it('handles send error', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockRejectedValueOnce({
-          response: {
-            status: 500,
-            data: {
-              message: 'Failed to process message',
-            },
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
-    })
   })
 
   describe('deleteChat', () => {
     it('deletes chat by id', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        delete: vi.fn().mockResolvedValueOnce({
-          data: { message: 'Chat deleted' },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.delete).mockResolvedValueOnce({
+        data: { message: 'Chat deleted' },
+      })
 
       const module = await import('@/api/chat')
       await expect(module.deleteChat('chat-1')).resolves.not.toThrow()
-    })
-
-    it('handles delete error', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        delete: vi.fn().mockRejectedValueOnce({
-          response: {
-            status: 404,
-            data: {
-              message: 'Chat not found',
-            },
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
     })
   })
 
   describe('clearChat', () => {
     it('clears all messages from chat', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockResolvedValueOnce({
-          data: { message: 'Chat cleared' },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.post).mockResolvedValueOnce({
+        data: { message: 'Chat cleared' },
+      })
 
       const module = await import('@/api/chat')
       await expect(module.clearChat('chat-1')).resolves.not.toThrow()
-    })
-
-    it('handles clear error', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockRejectedValueOnce({
-          response: {
-            status: 400,
-            data: {
-              message: 'Cannot clear chat',
-            },
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
     })
   })
 
   describe('deleteMessage', () => {
     it('deletes message from chat', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        delete: vi.fn().mockResolvedValueOnce({
-          data: { message: 'Message deleted' },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.delete).mockResolvedValueOnce({
+        data: { message: 'Message deleted' },
+      })
 
       const module = await import('@/api/chat')
       await expect(
         module.deleteMessage('chat-1', 'msg-1')
       ).resolves.not.toThrow()
     })
-
-    it('handles message not found error', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        delete: vi.fn().mockRejectedValueOnce({
-          response: {
-            status: 404,
-            data: {
-              message: 'Message not found',
-            },
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
-    })
   })
 
   describe('Error Handling', () => {
     it('handles network errors', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi
-          .fn()
-          .mockRejectedValueOnce(new Error('Network error')),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.get).mockRejectedValueOnce(
+        new Error('Network error')
+      )
 
       expect(axios.create).toBeDefined()
     })
 
     it('handles server errors', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockRejectedValueOnce({
-          response: {
-            status: 500,
-            data: {
-              message: 'Internal server error',
-            },
-          },
-        }),
-        defaults: {
-          headers: {
-            common: {},
+      vi.mocked(mockAxiosInstance.get).mockRejectedValueOnce({
+        response: {
+          status: 500,
+          data: {
+            message: 'Internal server error',
           },
         },
-      } as any)
-
-      expect(axios.create).toBeDefined()
-    })
-
-    it('handles timeout errors', async () => {
-      vi.mocked(axios.create).mockReturnValue({
-        post: vi.fn().mockRejectedValueOnce({
-          code: 'ECONNABORTED',
-          message: 'timeout of 10000ms exceeded',
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      })
 
       expect(axios.create).toBeDefined()
     })
@@ -469,16 +301,9 @@ describe('Chat API', () => {
     it('returns correctly formatted chat response', async () => {
       const chat = testDataGenerators.createChat()
 
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: chat,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.get).mockResolvedValueOnce({
+        data: chat,
+      })
 
       const module = await import('@/api/chat')
       const result = await module.getChatDetail('chat-1')
@@ -498,16 +323,9 @@ describe('Chat API', () => {
       ]
       const chat = testDataGenerators.createChat({ messages })
 
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn().mockResolvedValueOnce({
-          data: chat,
-        }),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
+      vi.mocked(mockAxiosInstance.get).mockResolvedValueOnce({
+        data: chat,
+      })
 
       const module = await import('@/api/chat')
       const result = await module.getChatDetail('chat-1')
@@ -515,36 +333,6 @@ describe('Chat API', () => {
       expect(result.messages).toHaveLength(3)
       expect(result.messages[0].role).toBe('user')
       expect(result.messages[1].role).toBe('assistant')
-    })
-  })
-
-  describe('API Configuration', () => {
-    it('uses correct API endpoints', () => {
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn(),
-        post: vi.fn(),
-        delete: vi.fn(),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
-    })
-
-    it('sets appropriate headers', () => {
-      vi.mocked(axios.create).mockReturnValue({
-        get: vi.fn(),
-        defaults: {
-          headers: {
-            common: {},
-          },
-        },
-      } as any)
-
-      expect(axios.create).toBeDefined()
     })
   })
 })
