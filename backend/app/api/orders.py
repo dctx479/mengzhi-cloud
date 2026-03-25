@@ -38,7 +38,7 @@ router = APIRouter()
 
 @router.post("/orders", response_model=dict, tags=["订单"])
 async def create_order(
-    request: OrderCreateRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    request: OrderCreateRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)
 ) -> dict:
     """创建订单
 
@@ -95,7 +95,7 @@ async def list_orders(
     page: int = Query(1, ge=1, description="页码"),
     size: int = Query(10, ge=1, le=100, description="每页数量"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
 ) -> dict:
     """获取用户订单列表
 
@@ -137,7 +137,7 @@ async def list_orders(
 
 @router.get("/orders/{order_id}", response_model=dict, tags=["订单"])
 async def get_order(
-    order_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    order_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)
 ) -> dict:
     """获取订单详情
 
@@ -195,7 +195,7 @@ async def create_payment(
     order_id: int,
     request: PaymentCreateRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
 ) -> dict:
     """创建支付
 
@@ -240,7 +240,7 @@ async def create_payment(
 
 @router.get("/orders/{order_id}/payment-status", response_model=dict, tags=["支付"])
 async def get_payment_status(
-    order_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    order_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)
 ) -> dict:
     """查询支付状态
 
@@ -310,7 +310,7 @@ async def payment_callback(
 
 @router.post("/orders/{order_id}/cancel", response_model=dict, tags=["订单"])
 async def cancel_order(
-    order_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    order_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)
 ) -> dict:
     """取消订单
 

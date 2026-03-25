@@ -4,9 +4,10 @@
 """
 from typing import Dict, Any
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
+from loguru import logger
 
 from ..models.usage_stats import UsageStatistics, StatType
 from ..models.billing_transaction import BillingTransaction

@@ -20,6 +20,7 @@ from typing import Optional, Dict, Any, List
 import enum
 
 from .base import BaseModel, generate_uuid
+from .payment import PaymentMethod
 
 
 class BillingMode(enum.Enum):
@@ -45,15 +46,6 @@ class InvoiceStatus(enum.Enum):
     OVERDUE = "overdue"  # 已逾期
     CANCELLED = "cancelled"  # 已取消
     REFUNDED = "refunded"  # 已退款
-
-
-class PaymentMethod(enum.Enum):
-    """支付方式枚举"""
-    WECHAT = "wechat"  # 微信支付
-    ALIPAY = "alipay"  # 支付宝
-    BANK = "bank"  # 银行转账
-    BALANCE = "balance"  # 余额支付
-    OTHER = "other"  # 其他
 
 
 class BillingPlan(BaseModel):

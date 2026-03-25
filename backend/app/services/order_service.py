@@ -82,6 +82,11 @@ class OrderService:
         # 计算过期时间(30分钟后)
         expired_at = datetime.utcnow() + timedelta(minutes=30)
 
+        # 计算折扣金额（原价存在时才计算折扣）
+        discount_amount = None
+        if package.original_price is not None and package.original_price > package.price:
+            discount_amount = package.original_price - package.price
+
         # 创建订单
         order = Order(
             order_no=order_no,
@@ -91,7 +96,7 @@ class OrderService:
             package_type=package.package_type.value,
             amount=package.price,
             original_amount=package.original_price,
-            discount_amount=(package.original_price - package.price) if package.original_price else 0,
+            discount_amount=discount_amount,
             chat_quota=package.chat_quota,
             generation_quota=package.generation_quota,
             token_quota=package.token_quota,
@@ -171,7 +176,14 @@ class OrderService:
         query = self.db.query(Order).filter(Order.user_id == user_id)
 
         if status:
-            query = query.filter(Order.status == status)
+            # 将字符串状态转换为枚举值进行查询
+            try:
+                status_enum = OrderStatus(status)
+                query = query.filter(Order.status == status_enum)
+            except ValueError:
+                logger.warning(f"无效的订单状态: {status}")
+                # 无效的状态值，返回空结果
+                return [], 0
 
         total = query.count()
 

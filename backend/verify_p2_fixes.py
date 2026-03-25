@@ -72,10 +72,10 @@ def main():
             else:
                 print("✗ config.py缺少SMTP配置")
                 results.append(False)
-    except:
+    except Exception:
         print("✗ 无法读取config.py")
         results.append(False)
-    
+
     # 检查constants.py是否包含上传路径
     try:
         with open("app/core/constants.py", "r", encoding="utf-8") as f:
@@ -86,10 +86,10 @@ def main():
             else:
                 print("✗ constants.py缺少上传路径常量")
                 results.append(False)
-    except:
+    except Exception:
         print("✗ 无法读取constants.py")
         results.append(False)
-    
+
     # 检查product_service.py是否包含joinedload
     try:
         with open("app/services/product_service.py", "r", encoding="utf-8") as f:
@@ -100,10 +100,10 @@ def main():
             else:
                 print("✗ product_service.py缺少优化")
                 results.append(False)
-    except:
+    except Exception:
         print("✗ 无法读取product_service.py")
         results.append(False)
-    
+
     # 检查products.py是否包含批量操作
     try:
         with open("app/api/products.py", "r", encoding="utf-8") as f:
@@ -114,10 +114,10 @@ def main():
             else:
                 print("✗ products.py缺少批量操作API")
                 results.append(False)
-    except:
+    except Exception:
         print("✗ 无法读取products.py")
         results.append(False)
-    
+
     # 检查main.py是否注册新路由
     try:
         with open("app/main.py", "r", encoding="utf-8") as f:
@@ -128,7 +128,7 @@ def main():
             else:
                 print("✗ main.py缺少新路由注册")
                 results.append(False)
-    except:
+    except Exception:
         print("✗ 无法读取main.py")
         results.append(False)
     

@@ -533,7 +533,7 @@ class TenantDatabaseManager:
                 enterprise.database_name
             ]
 
-            with open(backup_file, 'r') as f:
+            with open(backup_file, 'r', encoding='utf-8') as f:
                 # S-P0-002: 禁用 shell=True，使用列表参数防止命令注入
                 result = subprocess.run(cmd, stdin=f, capture_output=True, text=True, shell=False)
 
@@ -592,6 +592,12 @@ class TenantDatabaseManager:
                     products = source_db.query(Product).filter(
                         Product.enterprise_id == enterprise_id
                     ).all()
+
+                    # S-P0-002: 验证所有产品都属于指定企业（防止数据泄露）
+                    if products and any(p.enterprise_id != enterprise_id for p in products):
+                        raise ValueError(
+                            f"企业隔离验证失败: 源数据库包含不属于企业 {enterprise_id} 的产品数据"
+                        )
 
                     for product in products:
                         # 创建新对象（避免主键冲突）

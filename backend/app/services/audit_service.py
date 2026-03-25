@@ -16,6 +16,23 @@ from app.models.audit_log import AuditLog
 from app.core.logging_config import logger
 
 
+def _safe_json_loads(data, default=None):
+    """安全地解析JSON字符串，解析失败时返回默认值而非抛出异常。
+
+    参数:
+        data: 待解析的JSON字符串
+        default: 解析失败时的返回值，默认为None
+
+    返回:
+        解析后的Python对象，或default
+    """
+    try:
+        return json.loads(data)
+    except (json.JSONDecodeError, TypeError, ValueError) as e:
+        logger.warning(f"JSON解析失败: {str(e)}, data={repr(data)[:200]}")
+        return default
+
+
 class AuditService:
     """审计日志服务"""
 
@@ -384,9 +401,9 @@ class AuditService:
                     "resource": log.resource,
                     "resource_id": log.resource_id,
                     "details": log.details,
-                    "changes": json.loads(log.changes) if log.changes else None,
-                    "before_data": json.loads(log.before_data) if log.before_data else None,
-                    "after_data": json.loads(log.after_data) if log.after_data else None,
+                    "changes": _safe_json_loads(log.changes) if log.changes else None,
+                    "before_data": _safe_json_loads(log.before_data) if log.before_data else None,
+                    "after_data": _safe_json_loads(log.after_data) if log.after_data else None,
                     "ip_address": log.ip_address,
                     "user_agent": log.user_agent,
                     "request_method": log.request_method,
@@ -441,9 +458,9 @@ class AuditService:
                 "resource": log.resource,
                 "resource_id": log.resource_id,
                 "details": log.details,
-                "changes": json.loads(log.changes) if log.changes else None,
-                "before_data": json.loads(log.before_data) if log.before_data else None,
-                "after_data": json.loads(log.after_data) if log.after_data else None,
+                "changes": _safe_json_loads(log.changes) if log.changes else None,
+                "before_data": _safe_json_loads(log.before_data) if log.before_data else None,
+                "after_data": _safe_json_loads(log.after_data) if log.after_data else None,
                 "ip_address": log.ip_address,
                 "user_agent": log.user_agent,
                 "request_method": log.request_method,
@@ -603,9 +620,9 @@ class AuditService:
                     "resource": log.resource,
                     "resource_id": log.resource_id,
                     "details": log.details,
-                    "changes": log.changes,
-                    "before_data": log.before_data,
-                    "after_data": log.after_data,
+                    "changes": _safe_json_loads(log.changes) if log.changes else None,
+                    "before_data": _safe_json_loads(log.before_data) if log.before_data else None,
+                    "after_data": _safe_json_loads(log.after_data) if log.after_data else None,
                     "ip_address": log.ip_address,
                     "user_agent": log.user_agent,
                     "request_method": log.request_method,

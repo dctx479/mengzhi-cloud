@@ -1,8 +1,8 @@
 """
 产品管理API路由
 
-版本: 1.0
-更新日期: 2026-01-17
+版本: 1.1
+更新日期: 2026-03-25
 
 端点：
 - GET /api/v1/products - 获取产品列表
@@ -13,6 +13,7 @@
 - GET /api/v1/products/{id}/cultural-info - 获取产品文化信息
 """
 
+import os
 from fastapi import APIRouter, Depends, Query, HTTPException, status, UploadFile, File
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -32,12 +33,18 @@ from pydantic import BaseModel
 from typing import List as TypingList, Dict, Any
 from app.services.product_service import ProductService
 from app.services.file_service import FileService
+from app.schemas.cultural_tags import ProductTagsAssignRequest
 from app.core.errors import BusinessException, ErrorCode
 from app.core.responses import success_response, error_response, paginated_response
 from app.api.deps import get_db, require_admin, get_current_user, get_optional_user
 
 # 创建路由器
 router = APIRouter()
+
+# --- File upload security constants ---
+MAX_PRODUCT_IMAGE_SIZE = 10 * 1024 * 1024  # 10 MB for product images
+ALLOWED_PRODUCT_IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+ALLOWED_PRODUCT_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
 # ============ 辅助端点 ============
@@ -519,6 +526,42 @@ async def upload_product_image(
     try:
         from app.models.product import Product
 
+        # --- Security: validate file before processing ---
+        content = await file.read()
+
+        # 1. Size check
+        if len(content) > MAX_PRODUCT_IMAGE_SIZE:
+            max_mb = MAX_PRODUCT_IMAGE_SIZE / (1024 * 1024)
+            actual_mb = len(content) / (1024 * 1024)
+            raise HTTPException(
+                status_code=413,
+                detail=f"文件过大: {actual_mb:.2f}MB，最大允许 {max_mb:.0f}MB",
+            )
+
+        # 2. MIME type check
+        if file.content_type not in ALLOWED_PRODUCT_IMAGE_MIME_TYPES:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"不支持的文件类型: {file.content_type}。"
+                    f"支持的类型: {', '.join(sorted(ALLOWED_PRODUCT_IMAGE_MIME_TYPES))}"
+                ),
+            )
+
+        # 3. Extension check
+        ext = os.path.splitext(file.filename or "")[1].lower()
+        if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"不支持的文件扩展名: {ext}。"
+                    f"支持的扩展名: {', '.join(sorted(ALLOWED_PRODUCT_IMAGE_EXTENSIONS))}"
+                ),
+            )
+
+        # Reset file position so downstream service can read it again
+        await file.seek(0)
+
         # 验证产品是否存在
         service = ProductService(db)
         product = service.get_product_by_id(product_id)
@@ -552,6 +595,8 @@ async def upload_product_image(
         return JSONResponse(
             status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"产品图片上传异常: {str(e)}")
         return JSONResponse(
@@ -786,7 +831,7 @@ async def batch_update_products(
 
 @router.post("/products/{product_id}/tags", response_model=dict, tags=["产品"])
 async def assign_tags_to_product(
-    product_id: int, tag_ids: List[int], current_user: dict = Depends(require_admin), db: Session = Depends(get_db)
+    product_id: int, request: ProductTagsAssignRequest, current_user: dict = Depends(require_admin), db: Session = Depends(get_db)
 ) -> dict:
     """为产品分配文化标签（仅管理员）
 
@@ -809,6 +854,7 @@ async def assign_tags_to_product(
         from app.services.cultural_tag_service import CulturalTagService
         from app.schemas.cultural_tags import CulturalTagListItemResponse
 
+        tag_ids = request.tag_ids
         if not tag_ids:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,

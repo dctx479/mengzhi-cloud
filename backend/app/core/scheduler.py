@@ -15,7 +15,7 @@ class TaskScheduler:
     def load_config(self):
         """加载配置文件"""
         config_path = Path(__file__).parent.parent / "config" / "scheduler.yaml"
-        with open(config_path) as f:
+        with open(config_path, encoding='utf-8') as f:
             return yaml.safe_load(f)
 
     def start(self):

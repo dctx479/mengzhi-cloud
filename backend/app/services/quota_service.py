@@ -454,7 +454,7 @@ class QuotaService:
                     operation=operation,
                     resource_id=resource_id,
                     resource_type=resource_type_name,
-                    metadata=json.dumps(metadata) if metadata else None,
+                    usage_metadata=json.dumps(metadata) if metadata else None,
                     used_at=datetime.utcnow()
                 )
                 self.db.add(usage_record)
@@ -462,6 +462,7 @@ class QuotaService:
 
                 logger.debug(f"配额使用记录: quota_id={quota.id}, amount={amount}")
         except Exception as e:
+            self.db.rollback()
             logger.error(f"记录配额使用失败: {e}")
 
     def sync_redis_to_db(self) -> int:
@@ -519,6 +520,7 @@ class QuotaService:
                         logger.debug(f"同步配额: {key}, used={used}")
 
                 except Exception as e:
+                    self.db.rollback()
                     logger.warning(f"同步配额 {key} 失败: {e}")
                     continue
 
@@ -632,7 +634,7 @@ class QuotaService:
             operation=operation,
             resource_id=resource_id,
             resource_type=resource_type_name,
-            metadata=json.dumps(metadata) if metadata else None,
+            usage_metadata=json.dumps(metadata) if metadata else None,
             used_at=datetime.utcnow()
         )
         self.db.add(usage_record)

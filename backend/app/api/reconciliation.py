@@ -8,11 +8,10 @@
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 from app.api.deps import get_db, get_current_user, require_admin
-from app.models.user import User
 from app.models.reconciliation import (
     ReconciliationRecord, ReconciliationDifference,
     ReconciliationStatus, ReconciliationType,
@@ -26,6 +25,18 @@ from app.core.responses import success_response, error_response
 router = APIRouter(tags=["对账系统"])
 
 
+def _validate_date_string(value: str, field_name: str = "date") -> str:
+    """验证日期字符串格式为 YYYY-MM-DD，返回原字符串或抛出 HTTPException(400)"""
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"无效的日期格式 '{field_name}': '{value}'，要求格式为 YYYY-MM-DD"
+        )
+    return value
+
+
 # ==================== 请求模型 ====================
 
 class StartReconciliationRequest(BaseModel):
@@ -36,6 +47,17 @@ class StartReconciliationRequest(BaseModel):
         description="对账类型"
     )
     force: bool = Field(default=False, description="是否强制重新对账")
+
+    @field_validator("reconciliation_date")
+    @classmethod
+    def validate_reconciliation_date(cls, v: str) -> str:
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(
+                f"无效的日期格式: '{v}'，要求格式为 YYYY-MM-DD"
+            )
+        return v
 
 
 class FixDifferenceRequest(BaseModel):
@@ -51,6 +73,18 @@ class ReconciliationRecordQuery(BaseModel):
     status: Optional[ReconciliationStatus] = Field(None, description="对账状态")
     start_date: Optional[str] = Field(None, description="开始日期")
     end_date: Optional[str] = Field(None, description="结束日期")
+
+    @field_validator("start_date", "end_date")
+    @classmethod
+    def validate_dates(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            try:
+                datetime.strptime(v, "%Y-%m-%d")
+            except ValueError:
+                raise ValueError(
+                    f"无效的日期格式: '{v}'，要求格式为 YYYY-MM-DD"
+                )
+        return v
 
 
 class ReconciliationDifferenceQuery(BaseModel):
@@ -128,7 +162,7 @@ class DifferenceListResponse(BaseModel):
 async def start_reconciliation(
     request: StartReconciliationRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     手动触发对账流程
@@ -154,18 +188,17 @@ async def start_reconciliation(
         return success_response(
             data=ReconciliationRecordResponse(**record.to_dict()),
             message="对账已启动"
-        )
+        ).dict()
 
     except BusinessException as e:
         return error_response(
             code=e.code,
             message=e.message
-        )
-    except Exception as e:
+        ).dict()
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"启动对账失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.get("/records", summary="查询对账记录")
@@ -176,7 +209,7 @@ async def get_reconciliation_records(
     start_date: Optional[str] = Query(None, description="开始日期"),
     end_date: Optional[str] = Query(None, description="结束日期"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     查询对账记录列表
@@ -193,6 +226,12 @@ async def get_reconciliation_records(
     返回:
     - 对账记录列表和分页信息
     """
+    # 验证日期参数格式
+    if start_date:
+        _validate_date_string(start_date, "start_date")
+    if end_date:
+        _validate_date_string(end_date, "end_date")
+
     try:
         service = ReconciliationService(db)
         records, total = service.get_reconciliation_records(
@@ -217,20 +256,20 @@ async def get_reconciliation_records(
             total_pages=(total + page_size - 1) // page_size
         )
 
-        return success_response(data=response_data)
+        return success_response(data=response_data).dict()
 
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"查询对账记录失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.get("/records/{record_id}", summary="获取对账记录详情")
 async def get_reconciliation_record(
     record_id: int = Path(..., description="对账记录ID"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     获取对账记录详情
@@ -252,17 +291,17 @@ async def get_reconciliation_record(
             return error_response(
                 code=ErrorCode.RECORD_NOT_FOUND,
                 message="对账记录不存在"
-            )
+            ).dict()
 
         return success_response(
             data=ReconciliationRecordResponse(**record.to_dict())
-        )
+        ).dict()
 
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"获取对账记录失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.get("/differences", summary="查询差异记录")
@@ -273,7 +312,7 @@ async def get_reconciliation_differences(
     status: Optional[DifferenceStatus] = Query(None, description="差异状态"),
     difference_type: Optional[DifferenceType] = Query(None, description="差异类型"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     查询差异记录列表
@@ -314,20 +353,20 @@ async def get_reconciliation_differences(
             total_pages=(total + page_size - 1) // page_size
         )
 
-        return success_response(data=response_data)
+        return success_response(data=response_data).dict()
 
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"查询差异记录失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.get("/differences/{difference_id}", summary="获取差异记录详情")
 async def get_reconciliation_difference(
     difference_id: int = Path(..., description="差异记录ID"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     获取差异记录详情
@@ -349,17 +388,17 @@ async def get_reconciliation_difference(
             return error_response(
                 code=ErrorCode.RECORD_NOT_FOUND,
                 message="差异记录不存在"
-            )
+            ).dict()
 
         return success_response(
             data=ReconciliationDifferenceResponse(**difference.to_dict())
-        )
+        ).dict()
 
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"获取差异记录失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.post("/differences/{difference_id}/fix", summary="修复差异")
@@ -367,7 +406,7 @@ async def fix_difference(
     difference_id: int = Path(..., description="差异记录ID"),
     request: FixDifferenceRequest = ...,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     修复差异记录
@@ -394,23 +433,23 @@ async def fix_difference(
         return success_response(
             data=ReconciliationDifferenceResponse(**difference.to_dict()),
             message="差异修复成功"
-        )
+        ).dict()
 
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
             message=str(e)
-        )
+        ).dict()
     except BusinessException as e:
         return error_response(
             code=e.code,
             message=e.message
-        )
+        ).dict()
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"修复差异失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.get("/records/{record_id}/report", summary="生成对账报告")
@@ -418,7 +457,7 @@ async def generate_reconciliation_report(
     record_id: int = Path(..., description="对账记录ID"),
     format_type: str = Query("json", description="报告格式 (json, excel, pdf)"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     生成对账报告
@@ -442,25 +481,25 @@ async def generate_reconciliation_report(
         return success_response(
             data=report,
             message="对账报告生成成功"
-        )
+        ).dict()
 
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
             message=str(e)
-        )
+        ).dict()
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"生成对账报告失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.get("/status/{target_date}", summary="获取指定日期对账状态")
 async def get_daily_reconciliation_status(
     target_date: str = Path(..., description="目标日期 (YYYY-MM-DD)"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     获取指定日期的对账状态
@@ -473,6 +512,9 @@ async def get_daily_reconciliation_status(
     返回:
     - 对账状态信息
     """
+    # 验证日期参数格式
+    _validate_date_string(target_date, "target_date")
+
     try:
         service = ReconciliationService(db)
         record = service.get_daily_reconciliation_status(target_date)
@@ -480,25 +522,25 @@ async def get_daily_reconciliation_status(
         if record:
             return success_response(
                 data=ReconciliationRecordResponse(**record.to_dict())
-            )
+            ).dict()
         else:
             return success_response(
                 data=None,
                 message=f"日期 {target_date} 尚未进行对账"
-            )
+            ).dict()
 
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"获取对账状态失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.post("/records/{record_id}/retry", summary="重试失败的对账")
 async def retry_failed_reconciliation(
     record_id: int = Path(..., description="对账记录ID"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     重试失败的对账
@@ -518,23 +560,23 @@ async def retry_failed_reconciliation(
         return success_response(
             data=ReconciliationRecordResponse(**new_record.to_dict()),
             message="对账重试已启动"
-        )
+        ).dict()
 
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
             message=str(e)
-        )
+        ).dict()
     except BusinessException as e:
         return error_response(
             code=e.code,
             message=e.message
-        )
+        ).dict()
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"重试对账失败: {str(e)}"
-        )
+        ).dict()
 
 
 @router.get("/statistics", summary="获取对账统计信息")
@@ -542,7 +584,7 @@ async def get_reconciliation_statistics(
     start_date: Optional[str] = Query(None, description="开始日期"),
     end_date: Optional[str] = Query(None, description="结束日期"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: dict = Depends(require_admin)
 ):
     """
     获取对账统计信息
@@ -556,6 +598,12 @@ async def get_reconciliation_statistics(
     返回:
     - 对账统计信息
     """
+    # 验证日期参数格式
+    if start_date:
+        _validate_date_string(start_date, "start_date")
+    if end_date:
+        _validate_date_string(end_date, "end_date")
+
     try:
         # 构建查询条件
         query = db.query(ReconciliationRecord)
@@ -588,10 +636,10 @@ async def get_reconciliation_statistics(
                     total_matched_count / total_local_count * 100, 2
                 )
 
-        return success_response(data=statistics)
+        return success_response(data=statistics).dict()
 
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message=f"获取统计信息失败: {str(e)}"
-        )
+        ).dict()

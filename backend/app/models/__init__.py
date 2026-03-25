@@ -41,6 +41,7 @@ from .quota_package import QuotaPackage, PackageType, PackagePeriod
 from .order import Order, OrderStatus
 from .payment import Payment, PaymentMethod, PaymentStatus
 from .quota_log import QuotaLog, QuotaLogType, QuotaLogStatus
+from .billing_transaction import BillingTransaction, BillingStatus
 
 # RBAC权限管理模型
 from .role import Role
@@ -141,6 +142,8 @@ __all__ = [
     "QuotaLog",
     "QuotaLogType",
     "QuotaLogStatus",
+    "BillingTransaction",
+    "BillingStatus",
     # RBAC权限管理
     "Role",
     "Permission",

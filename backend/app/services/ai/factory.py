@@ -18,6 +18,7 @@ from .providers.deepseek_provider import DeepSeekProvider
 from .providers.openai_provider import OpenAIProvider
 from .failover import FailoverManager, FailoverStrategy
 from app.models.tenant_ai_config import TenantAIConfig
+from app.core.security import decrypt_api_key
 
 
 class AIProviderFactory:
@@ -124,6 +125,7 @@ class AIProviderFactory:
         failover_manager = FailoverManager(db)
         last_error = None
         failed_config_id = None
+        config = None
 
         for attempt in range(max_retries):
             try:
@@ -157,8 +159,16 @@ class AIProviderFactory:
                     continue
 
                 # 创建Provider实例
-                # TODO: 解密API密钥
-                api_key = config.api_key_encrypted
+                # 解密API密钥
+                try:
+                    api_key = decrypt_api_key(config.api_key_encrypted)
+                except Exception as decrypt_err:
+                    logger.error(f"Failed to decrypt API key for provider {config.id}: {decrypt_err}")
+                    config.record_failure(f"API key decryption failed: {decrypt_err}")
+                    config.update_health_status()
+                    db.commit()
+                    failed_config_id = config.id
+                    continue
                 provider = cls.create_from_config(config, api_key)
 
                 # 执行请求
@@ -241,6 +251,7 @@ class AIProviderFactory:
         failover_manager = FailoverManager(db)
         last_error = None
         failed_config_id = None
+        config = None
 
         for attempt in range(max_retries):
             try:
@@ -274,8 +285,16 @@ class AIProviderFactory:
                     continue
 
                 # 创建Provider实例
-                # TODO: 解密API密钥
-                api_key = config.api_key_encrypted
+                # 解密API密钥
+                try:
+                    api_key = decrypt_api_key(config.api_key_encrypted)
+                except Exception as decrypt_err:
+                    logger.error(f"Failed to decrypt API key for provider {config.id}: {decrypt_err}")
+                    config.record_failure(f"API key decryption failed: {decrypt_err}")
+                    config.update_health_status()
+                    db.commit()
+                    failed_config_id = config.id
+                    continue
                 provider = cls.create_from_config(config, api_key)
 
                 # 执行流式请求

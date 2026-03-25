@@ -3,6 +3,7 @@
 """
 
 import base64
+import hashlib
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
@@ -15,6 +16,7 @@ from app.api.deps import get_db, get_current_user
 from app.core.responses import success_response, error_response
 from app.core.errors import ErrorCode, BusinessException
 from app.core.config import settings
+from app.core.security import decrypt_api_key
 from app.models.tenant_ai_config import TenantAIConfig
 from app.models.enterprise import Enterprise
 from app.models.user import User, UserRole
@@ -24,7 +26,8 @@ from app.services.ai.base_provider import ChatCompletionRequest, ChatMessage
 router = APIRouter()
 
 # 加密密钥 - 从 SECRET_KEY 确定性派生，确保重启后可解密历史数据
-_raw_key = settings.SECRET_KEY.encode()[:32].ljust(32, b"0")
+# Fernet要求32字节密钥，先用SHA256派生固定长度密钥，再base64编码
+_raw_key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()  # 32字节
 cipher = Fernet(base64.urlsafe_b64encode(_raw_key))
 
 
@@ -62,11 +65,6 @@ class UpdateAIConfigRequest(BaseModel):
 def encrypt_api_key(api_key: str) -> str:
     """加密API密钥"""
     return cipher.encrypt(api_key.encode()).decode()
-
-
-def decrypt_api_key(encrypted: str) -> str:
-    """解密API密钥"""
-    return cipher.decrypt(encrypted.encode()).decode()
 
 
 def check_enterprise_admin(user_id: str, enterprise_id: int, db: Session) -> bool:
@@ -282,6 +280,7 @@ async def test_ai_config(
         ).dict()
 
     except Exception as e:
+        db.rollback()
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content=error_response(ErrorCode.PARAM_VALIDATION_FAILED, f"配置测试失败: {str(e)}").dict(),

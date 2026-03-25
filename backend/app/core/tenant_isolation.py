@@ -6,6 +6,7 @@ from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from contextlib import contextmanager
+import threading
 from ..core.config import settings
 
 class TenantIsolationManager:
@@ -13,6 +14,7 @@ class TenantIsolationManager:
 
     def __init__(self):
         self._tenant_engines = {}  # 企业独立数据库连接池
+        self._lock = threading.Lock()  # 保护_tenant_engines字典
 
     def get_tenant_database_url(self, enterprise_id: int) -> str:
         """获取企业独立数据库URL"""
@@ -21,12 +23,15 @@ class TenantIsolationManager:
     @contextmanager
     def get_tenant_session(self, enterprise_id: int) -> Session:
         """获取企业独立数据库会话"""
-        if enterprise_id not in self._tenant_engines:
-            db_url = self.get_tenant_database_url(enterprise_id)
-            engine = create_engine(db_url, pool_pre_ping=True)
-            self._tenant_engines[enterprise_id] = sessionmaker(bind=engine)
+        # 线程安全地获取或创建引擎
+        with self._lock:
+            if enterprise_id not in self._tenant_engines:
+                db_url = self.get_tenant_database_url(enterprise_id)
+                engine = create_engine(db_url, pool_pre_ping=True)
+                self._tenant_engines[enterprise_id] = sessionmaker(bind=engine)
 
-        SessionLocal = self._tenant_engines[enterprise_id]
+            SessionLocal = self._tenant_engines[enterprise_id]
+
         session = SessionLocal()
         try:
             yield session

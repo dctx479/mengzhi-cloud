@@ -67,7 +67,7 @@ class LoggerConfig:
         )
 
     @staticmethod
-    def get_logger(name: str) -> loguru_logger.__class__:
+    def get_logger(name: str):
         """获取日志记录器"""
         # 确保已初始化
         LoggerConfig()

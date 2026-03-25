@@ -592,21 +592,27 @@ async def update_profile(
     try:
         from sqlalchemy import text
 
+        # Whitelist of allowed column names to prevent SQL injection.
+        # Only these columns may appear in the dynamic UPDATE statement.
+        ALLOWED_UPDATE_COLUMNS = {
+            "nickname",
+            "avatar_url",
+            "gender",
+            "updated_at",
+        }
+
         # 构建更新字段
         update_fields = []
         params = {"user_id": current_user["user_id"]}
 
         if request.nickname is not None:
-            update_fields.append("nickname = :nickname")
-            params["nickname"] = request.nickname
+            update_fields.append(("nickname", request.nickname))
 
         if request.avatar_url is not None:
-            update_fields.append("avatar_url = :avatar_url")
-            params["avatar_url"] = request.avatar_url
+            update_fields.append(("avatar_url", request.avatar_url))
 
         if request.gender is not None:
-            update_fields.append("gender = :gender")
-            params["gender"] = request.gender
+            update_fields.append(("gender", request.gender))
 
         # 如果没有字段要更新
         if not update_fields:
@@ -621,12 +627,20 @@ async def update_profile(
                 data={"message": "no changes"}
             )
 
-        # 执行更新
-        params["updated_at"] = datetime.utcnow()
-        update_fields.append("updated_at = :updated_at")
-        sql = f"UPDATE users SET {', '.join(update_fields)} WHERE user_uuid = :user_id"
+        # Always update the timestamp
+        update_fields.append(("updated_at", datetime.utcnow()))
 
-        db.execute(text(sql), params)
+        # Validate all column names against the whitelist before building SQL
+        set_clauses = []
+        for col_name, col_value in update_fields:
+            if col_name not in ALLOWED_UPDATE_COLUMNS:
+                raise ValueError(f"Column '{col_name}' is not in the allowed update whitelist")
+            set_clauses.append(f"{col_name} = :{col_name}")
+            params[col_name] = col_value
+
+        sql = text(f"UPDATE users SET {', '.join(set_clauses)} WHERE user_uuid = :user_id")
+
+        db.execute(sql, params)
         db.commit()
 
         # 清除用户缓存

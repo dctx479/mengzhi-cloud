@@ -130,14 +130,14 @@ def test_pagination_schema():
         PaginationParams(page=0, page_size=20)
         print("✗ 页码0应该被拒绝")
         return False
-    except:
+    except Exception:
         print("✓ 页码0正确被拒绝")
-    
+
     try:
         PaginationParams(page=1, page_size=200)
         print("✗ 页大小200应该被拒绝（最大100）")
         return False
-    except:
+    except Exception:
         print("✓ 页大小200正确被拒绝")
     
     return True

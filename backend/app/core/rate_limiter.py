@@ -5,6 +5,7 @@ P1-6修复: 添加请求频率限制
 """
 
 import time
+import threading
 from typing import Tuple, Dict, Any
 from loguru import logger
 
@@ -19,6 +20,7 @@ class RateLimiter:
         self.redis_client = redis_client
         self._memory_store: Dict[str, Dict[str, Any]] = {}
         self._last_cleanup: float = 0.0
+        self._lock = threading.Lock()  # 保护内存存储和cleanup时间戳
     
     async def check_rate_limit(
         self,
@@ -77,34 +79,36 @@ class RateLimiter:
         now = time.time()
         rate_key = f"rate_limit:{key}"
 
-        # 定期清理过期条目（每60秒最多清理一次）
-        if now - self._last_cleanup > 60 or len(self._memory_store) > self.MAX_MEMORY_ENTRIES:
-            self._cleanup_expired(now)
+        # 在临界区内执行所有操作
+        with self._lock:
+            # 定期清理过期条目（每60秒最多清理一次）
+            if now - self._last_cleanup > 60 or len(self._memory_store) > self.MAX_MEMORY_ENTRIES:
+                self._cleanup_expired(now)
 
-        if rate_key not in self._memory_store:
-            self._memory_store[rate_key] = {
-                "count": 1,
-                "reset_at": now + window_seconds
-            }
-            return True, max_requests - 1
+            if rate_key not in self._memory_store:
+                self._memory_store[rate_key] = {
+                    "count": 1,
+                    "reset_at": now + window_seconds
+                }
+                return True, max_requests - 1
 
-        data = self._memory_store[rate_key]
+            data = self._memory_store[rate_key]
 
-        if now >= data["reset_at"]:
-            self._memory_store[rate_key] = {
-                "count": 1,
-                "reset_at": now + window_seconds
-            }
-            return True, max_requests - 1
+            if now >= data["reset_at"]:
+                self._memory_store[rate_key] = {
+                    "count": 1,
+                    "reset_at": now + window_seconds
+                }
+                return True, max_requests - 1
 
-        if data["count"] >= max_requests:
-            return False, 0
+            if data["count"] >= max_requests:
+                return False, 0
 
-        data["count"] += 1
-        return True, max_requests - data["count"]
+            data["count"] += 1
+            return True, max_requests - data["count"]
 
     def _cleanup_expired(self, now: float) -> None:
-        """清理过期的内存条目"""
+        """清理过期的内存条目（必须在_lock保护下调用）"""
         expired_keys = [k for k, v in self._memory_store.items() if now >= v["reset_at"]]
         for k in expired_keys:
             del self._memory_store[k]

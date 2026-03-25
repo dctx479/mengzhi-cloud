@@ -327,7 +327,8 @@ async def delete_quota(
 
     return {
         "code": 200,
-        "message": "删除成功"
+        "message": "删除成功",
+        "data": None
     }
 
 
@@ -492,5 +493,6 @@ async def batch_reset_expired_quotas(
 
     return {
         "code": 200,
-        "message": f"批量重置成功，共重置 {count} 个配额"
+        "message": f"批量重置成功，共重置 {count} 个配额",
+        "data": {"count": count}
     }

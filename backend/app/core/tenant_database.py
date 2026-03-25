@@ -170,10 +170,9 @@ class TenantDatabaseRouter:
         engine = create_engine(server_url)
 
         try:
-            with engine.connect() as conn:
+            with engine.begin() as conn:
                 # 创建数据库
                 conn.execute(text(f"CREATE DATABASE IF NOT EXISTS `{database_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"))
-                conn.commit()
                 logger.info(f"Created database: {database_name}")
 
             # 初始化表结构
@@ -234,10 +233,9 @@ class TenantDatabaseRouter:
         engine = create_engine(server_url)
 
         try:
-            with engine.connect() as conn:
+            with engine.begin() as conn:
                 # 删除数据库
                 conn.execute(text(f"DROP DATABASE IF EXISTS `{database_name}`"))
-                conn.commit()
                 logger.info(f"Dropped database: {database_name}")
 
         except Exception as e:

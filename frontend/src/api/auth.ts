@@ -108,7 +108,7 @@ export const checkAvailability = async (field: 'username' | 'email', value: stri
   const res = await http.get<{ code: number; data: { available: boolean } }>('/v1/auth/check-availability', {
     params: { field, value }
   })
-  const inner = (res as unknown as { data: { available: boolean } }).data ?? (res as unknown as { available: boolean })
+  const inner = (res as unknown as { data: { available: boolean } }).data ?? res
   return inner.available ?? false
 }
 

@@ -37,11 +37,11 @@ class FileService:
         max_size: int = MAX_IMAGE_SIZE
     ) -> None:
         """验证图片文件
-        
+
         参数:
             file: 上传的文件
             max_size: 最大文件大小（字节）
-            
+
         异常:
             ValidationError: 文件验证失败
         """
@@ -51,13 +51,24 @@ class FileService:
                 f"不支持的文件类型: {file.content_type}。"
                 f"支持的类型: {', '.join(ALLOWED_IMAGE_TYPES)}"
             )
-        
+
         # 验证文件扩展名
-        ext = os.path.splitext(file.filename)[1].lower()
+        ext = os.path.splitext(file.filename or "")[1].lower()
         if ext not in ALLOWED_IMAGE_EXTENSIONS:
             raise ValidationError(
                 f"不支持的文件扩展名: {ext}。"
                 f"支持的扩展名: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}"
+            )
+
+        # 验证文件大小
+        file.file.seek(0, 2)  # seek to end
+        file_size = file.file.tell()
+        file.file.seek(0)  # reset to beginning
+        if file_size > max_size:
+            max_mb = max_size / (1024 * 1024)
+            actual_mb = file_size / (1024 * 1024)
+            raise ValidationError(
+                f"文件过大: {actual_mb:.2f}MB，最大允许 {max_mb:.0f}MB"
             )
 
     @staticmethod
@@ -86,39 +97,44 @@ class FileService:
         filename: Optional[str] = None
     ) -> str:
         """保存文件到指定目录
-        
+
         参数:
             file: 上传的文件
             save_dir: 保存目录
             filename: 文件名（可选，不提供则自动生成）
-            
+
         返回:
             文件相对路径
-            
+
         异常:
             FileOperationError: 文件保存失败
         """
         try:
             # 确保目录存在
             os.makedirs(save_dir, exist_ok=True)
-            
+
             # 生成文件名
             if filename is None:
                 filename = FileService.generate_unique_filename(file.filename)
-            
+
+            # 安全检查：防止目录遍历攻击
+            # 确保filename不包含路径分隔符
+            if "/" in filename or "\\" in filename or ".." in filename:
+                raise FileOperationError(f"文件名包含非法字符: {filename}")
+
             # 完整文件路径
             filepath = os.path.join(save_dir, filename)
-            
+
             # 异步写入文件
             async with aiofiles.open(filepath, 'wb') as f:
                 content = await file.read()
                 await f.write(content)
-            
+
             # 返回相对路径（用于URL）
             relative_path = filepath.replace("\\", "/")
             logger.info(f"文件保存成功: {relative_path}")
             return relative_path
-            
+
         except Exception as e:
             logger.error(f"文件保存失败: {str(e)}")
             raise FileOperationError(f"文件保存失败: {str(e)}")

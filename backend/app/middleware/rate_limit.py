@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from collections import deque
 import time
+import threading
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, requests_per_minute: int = 60):
@@ -13,45 +14,53 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.requests_per_minute = requests_per_minute
         self.requests: dict[str, deque] = {}
         self._last_global_cleanup = time.monotonic()
+        # FIX Bug #1: Add lock for thread-safe dictionary access
+        self._lock = threading.RLock()
 
     async def dispatch(self, request: Request, call_next):
         # 获取客户端标识（IP或用户ID）
         client_id = request.client.host if request.client else "unknown"
         if hasattr(request.state, "user") and request.state.user:
-            client_id = f"user_{request.state.user.id}"
+            # FIX Bug #5: Safe access to user ID (could be string or int)
+            user_id = getattr(request.state.user, "id", None) or getattr(request.state.user, "user_id", None)
+            if user_id:
+                client_id = f"user_{user_id}"
 
         now = time.monotonic()
         cutoff = now - 60  # 1分钟窗口
 
-        # 获取或创建该客户端的请求队列
-        if client_id not in self.requests:
-            self.requests[client_id] = deque()
-        client_deque = self.requests[client_id]
+        # FIX Bug #1: Use lock to prevent race conditions
+        with self._lock:
+            # 获取或创建该客户端的请求队列
+            if client_id not in self.requests:
+                self.requests[client_id] = deque()
+            client_deque = self.requests[client_id]
 
-        # O(1) 清理：从左侧弹出过期的时间戳
-        while client_deque and client_deque[0] < cutoff:
-            client_deque.popleft()
+            # O(1) 清理：从左侧弹出过期的时间戳
+            while client_deque and client_deque[0] < cutoff:
+                client_deque.popleft()
 
-        # 定期全局清理空队列（每120秒一次，避免内存泄漏）
-        if now - self._last_global_cleanup > 120:
-            empty_keys = [k for k, v in self.requests.items() if not v]
-            for k in empty_keys:
-                del self.requests[k]
-            self._last_global_cleanup = now
+            # 定期全局清理空队列（每120秒一次，避免内存泄漏）
+            if now - self._last_global_cleanup > 120:
+                empty_keys = [k for k, v in self.requests.items() if not v]
+                for k in empty_keys:
+                    del self.requests[k]
+                self._last_global_cleanup = now
 
-        # 检查频率限制
-        if len(client_deque) >= self.requests_per_minute:
-            return JSONResponse(
-                status_code=429,
-                content={
-                    "code": 42901,
-                    "message": "请求过于频繁，请稍后再试",
-                    "retry_after": 60
-                }
-            )
+            # 检查频率限制
+            if len(client_deque) >= self.requests_per_minute:
+                return JSONResponse(
+                    status_code=429,
+                    content={
+                        "code": 42901,
+                        "message": "请求过于频繁，请稍后再试",
+                        "retry_after": 60
+                    }
+                )
 
-        # 记录请求
-        client_deque.append(now)
+            # 记录请求
+            client_deque.append(now)
+            current_queue_len = len(client_deque)
 
         # 继续处理请求
         response = await call_next(request)
@@ -59,7 +68,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # 添加速率限制头
         response.headers["X-RateLimit-Limit"] = str(self.requests_per_minute)
         response.headers["X-RateLimit-Remaining"] = str(
-            self.requests_per_minute - len(client_deque)
+            self.requests_per_minute - current_queue_len
         )
 
         return response

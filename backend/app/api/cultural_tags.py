@@ -380,7 +380,7 @@ async def get_tag_products(
 
 # ============ 创建标签 ============
 
-@router.post("/cultural-tags", response_model=dict, tags=["文化标签"])
+@router.post("/cultural-tags", response_model=dict, status_code=status.HTTP_201_CREATED, tags=["文化标签"])
 async def create_tag(
     tag: CulturalTagCreate,
     current_user: dict = Depends(require_admin),
@@ -402,13 +402,10 @@ async def create_tag(
 
         response_data = CulturalTagResponse.from_orm(created_tag)
 
-        return JSONResponse(
-            status_code=status.HTTP_201_CREATED,
-            content=success_response(
-                data=response_data.dict(),
-                message="文化标签创建成功"
-            ).dict()
-        )
+        return success_response(
+            data=response_data.dict(),
+            message="文化标签创建成功"
+        ).dict()
 
     except BusinessException as e:
         logger.warning(f"创建文化标签失败: {e.message}")

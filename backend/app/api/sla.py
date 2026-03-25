@@ -12,7 +12,7 @@ SLA API端点
 """
 
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, Path
+from fastapi import APIRouter, Depends, HTTPException, Query, Path, Body
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
@@ -211,7 +211,7 @@ async def get_agreement(
 @router.put("/agreements/{agreement_id}", response_model=SLAAgreementResponse)
 async def update_agreement(
     agreement_id: int = Path(..., description="协议ID"),
-    agreement_update: SLAAgreementUpdate = None,
+    agreement_update: SLAAgreementUpdate = Body(..., description="更新数据"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

@@ -348,45 +348,6 @@ async def get_resource_audit_logs(
         )
 
 
-@router.get("/{log_id}", response_model=dict, tags=["审计日志"])
-async def get_audit_log(
-    log_id: int,
-    current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
-) -> dict:
-    """
-    获取审计日志详情
-
-    需要管理员权限
-    """
-    try:
-        log = AuditService.get_log_by_id(db, log_id)
-
-        if not log:
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content=error_response(
-                    code=ErrorCode.RECORD_NOT_FOUND,
-                    message="审计日志不存在"
-                ).dict()
-            )
-
-        return success_response(
-            data=log,
-            message="查询成功"
-        ).dict()
-
-    except Exception as e:
-        logger.error(f"获取审计日志详情失败: {str(e)}")
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(
-                code=ErrorCode.SYSTEM_ERROR,
-                message=f"查询失败: {str(e)}"
-            ).dict()
-        )
-
-
 @router.get("/action-types", response_model=dict, tags=["审计日志"])
 async def get_action_types(current_user: dict = Depends(get_current_user)):
     """获取可用的操作类型列表"""
@@ -424,3 +385,42 @@ async def get_resource_types(current_user: dict = Depends(get_current_user)):
         ],
         message="获取资源类型成功"
     ).dict()
+
+
+@router.get("/{log_id}", response_model=dict, tags=["审计日志"])
+async def get_audit_log(
+    log_id: int,
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+) -> dict:
+    """
+    获取审计日志详情
+
+    需要管理员权限
+    """
+    try:
+        log = AuditService.get_log_by_id(db, log_id)
+
+        if not log:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content=error_response(
+                    code=ErrorCode.RECORD_NOT_FOUND,
+                    message="审计日志不存在"
+                ).dict()
+            )
+
+        return success_response(
+            data=log,
+            message="查询成功"
+        ).dict()
+
+    except Exception as e:
+        logger.error(f"获取审计日志详情失败: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=error_response(
+                code=ErrorCode.SYSTEM_ERROR,
+                message=f"查询失败: {str(e)}"
+            ).dict()
+        )

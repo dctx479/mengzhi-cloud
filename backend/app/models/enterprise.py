@@ -258,7 +258,8 @@ class Enterprise(BaseModel):
     )
 
     def __repr__(self) -> str:
-        return f"<Enterprise(id={self.id}, name={self.name}, verify_status={self.verify_status.value})>"
+        verify_status_val = self.verify_status.value if hasattr(self.verify_status, 'value') else (self.verify_status or "unknown")
+        return f"<Enterprise(id={self.id}, name={self.name}, verify_status={verify_status_val})>"
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""

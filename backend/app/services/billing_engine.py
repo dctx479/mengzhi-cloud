@@ -125,19 +125,34 @@ class BillingEngine:
             usage_data: 使用量数据
 
         返回:
-            int: 数量
+            int: 数量（必为正整数）
+
+        抛出:
+            ValueError: 当数量为负数时
         """
+        quantity = 0
+
         if billing_mode == BillingMode.TOKEN:
-            return usage_data.get("tokens", 0)
+            quantity = usage_data.get("tokens", 0)
         elif billing_mode == BillingMode.MESSAGE:
-            return usage_data.get("messages", 0)
+            quantity = usage_data.get("messages", 0)
         elif billing_mode == BillingMode.API_CALL:
-            return usage_data.get("api_calls", 0)
+            quantity = usage_data.get("api_calls", 0)
         elif billing_mode == BillingMode.MONTHLY:
-            return 1
+            quantity = 1
         elif billing_mode == BillingMode.TIERED:
-            return usage_data.get("tokens", 0) or usage_data.get("messages", 0) or usage_data.get("api_calls", 0)
-        return 0
+            # 取第一个非零值（优先级：tokens > messages > api_calls）
+            quantity = usage_data.get("tokens", 0)
+            if quantity <= 0:
+                quantity = usage_data.get("messages", 0)
+            if quantity <= 0:
+                quantity = usage_data.get("api_calls", 0)
+
+        # 验证数量必须为非负整数
+        if quantity < 0:
+            raise ValueError(f"Invalid quantity: {quantity}, must be non-negative")
+
+        return int(quantity)
 
     def _calculate_unit_price(self, plan: BillingPlan, quantity: int) -> float:
         """计算单价
@@ -206,7 +221,7 @@ class BillingEngine:
         self.db.add(invoice)
         self.db.flush()  # 获取invoice.id
 
-        # 关联计费记录
+        # 关联计费记录到账单
         for record in records:
             record.invoice_id = invoice.id
 
@@ -216,6 +231,7 @@ class BillingEngine:
         # 生成使用量汇总
         invoice.usage_summary = self._generate_usage_summary(records)
 
+        # 单次提交保证原子性：invoice和所有records关联同时成功或同时失败
         self.db.commit()
         self.db.refresh(invoice)
 
@@ -239,13 +255,17 @@ class BillingEngine:
             summary["total_messages"] += usage_data.get("messages", 0)
             summary["total_api_calls"] += usage_data.get("api_calls", 0)
 
-            # 按计费模式统计
+            # 按计费模式统计（保留Decimal精度）
             mode = record.billing_mode.value
             if mode not in summary["by_mode"]:
-                summary["by_mode"][mode] = {"quantity": 0, "amount": 0.0}
+                summary["by_mode"][mode] = {"quantity": 0, "amount": Decimal("0.00")}
 
             summary["by_mode"][mode]["quantity"] += record.quantity
-            summary["by_mode"][mode]["amount"] += float(record.amount)
+            summary["by_mode"][mode]["amount"] += record.amount
+
+        # 转换Decimal为float以支持JSON序列化
+        for mode in summary["by_mode"]:
+            summary["by_mode"][mode]["amount"] = float(summary["by_mode"][mode]["amount"])
 
         return summary
 

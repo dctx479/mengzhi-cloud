@@ -2,7 +2,6 @@
  * AI 模型配置 API（使用企业级 AI 配置端点）
  */
 import http from '@/utils/http'
-import { useUserStore } from '@/stores/user'
 
 interface ModelConfig {
   provider: string
@@ -17,10 +16,19 @@ function unwrap<T>(res: unknown): T {
   return r.data !== undefined ? r.data : r
 }
 
-export const getModelConfigs = async (): Promise<{ data: Record<string, ModelConfig | null> }> => {
+/**
+ * 获取当前企业的模型配置
+ * @param enterpriseId - 企业ID（必需）
+ * 
+ * 注意: enterpriseId 必须由调用方提供（从 useUserStore 或路由参数获取）
+ * API 层不应该依赖 Pinia store，以保持层级分离和可测试性
+ */
+export const getModelConfigs = async (enterpriseId: string): Promise<{ data: Record<string, ModelConfig | null> }> => {
+  if (!enterpriseId) {
+    throw new Error('enterpriseId is required')
+  }
+  
   try {
-    const userStore = useUserStore()
-    const enterpriseId = userStore.user?.id ?? '1'
     const res = await http.get(`/v1/enterprises/${enterpriseId}/ai-configs`)
     const items = unwrap<any[]>(res)
     // 按 provider 分组
@@ -45,14 +53,25 @@ export const getModelConfigs = async (): Promise<{ data: Record<string, ModelCon
       }
     }
     return { data: grouped }
-  } catch {
+  } catch (err) {
+    console.error('Failed to fetch model configs:', err)
     return { data: { deepseek: null, qwen: null, zhipu: null, custom: null } }
   }
 }
 
-export const saveModelConfig = async (provider: string, config: Partial<ModelConfig>): Promise<void> => {
-  const userStore = useUserStore()
-  const enterpriseId = userStore.user?.id ?? '1'
+/**
+ * 保存模型配置
+ * @param enterpriseId - 企业ID（必需）
+ * @param provider - 配置提供商
+ * @param config - 配置数据
+ * 
+ * 注意: enterpriseId 必须由调用方提供，API 层不应该依赖 Pinia store
+ */
+export const saveModelConfig = async (enterpriseId: string, provider: string, config: Partial<ModelConfig>): Promise<void> => {
+  if (!enterpriseId) {
+    throw new Error('enterpriseId is required')
+  }
+  
   await http.post(`/v1/enterprises/${enterpriseId}/ai-configs`, {
     name: `${provider}-config`,
     provider,

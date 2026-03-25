@@ -45,7 +45,8 @@ export async function createPayment(data: {
   const res = await http.post<{ code: number; data: Payment; message: string }>(`/v1/orders/${data.order_id}/pay`, {
     payment_method: data.payment_method,
   })
-  return (res as unknown as { data: Payment }).data ?? (res as unknown as Payment)
+  const unwrapped = res as unknown as { data: Payment; code?: number }
+  return unwrapped.data || (res as unknown as Payment)
 }
 
 /**
@@ -53,7 +54,8 @@ export async function createPayment(data: {
  */
 export async function getPaymentStatus(orderId: number): Promise<PaymentStatus> {
   const res = await http.get<{ code: number; data: PaymentStatus; message: string }>(`/v1/orders/${orderId}/payment-status`)
-  return (res as unknown as { data: PaymentStatus }).data ?? (res as unknown as PaymentStatus)
+  const unwrapped = res as unknown as { data: PaymentStatus; code?: number }
+  return unwrapped.data || (res as unknown as PaymentStatus)
 }
 
 /**
@@ -70,5 +72,6 @@ export async function paymentCallback(data: {
     transaction_id: data.transaction_id,
     callback_data: data.callback_data,
   })
-  return (res as unknown as { data: { processed: boolean } }).data ?? (res as unknown as { processed: boolean })
+  const unwrapped = res as unknown as { data: { processed: boolean }; code?: number }
+  return unwrapped.data || (res as unknown as { processed: boolean })
 }

@@ -75,12 +75,20 @@ class ErrorCode(IntEnum):
 
 # 错误码对应的HTTP状态码
 ERROR_HTTP_STATUS = {
+    # 参数错误 10xxx -> 400
     ErrorCode.PARAM_ERROR: 400,
     ErrorCode.PARAM_VALIDATION_FAILED: 400,
     ErrorCode.PARAM_MISSING: 400,
     ErrorCode.PARAM_TYPE_ERROR: 400,
     ErrorCode.PARAM_FORMAT_ERROR: 400,
     ErrorCode.PARAM_VALUE_INVALID: 400,
+    ErrorCode.PARAM_LENGTH_EXCEEDED: 400,
+    ErrorCode.PARAM_DUPLICATE: 400,
+    ErrorCode.FILE_TYPE_NOT_ALLOWED: 400,
+    ErrorCode.FILE_SIZE_EXCEEDED: 400,
+    ErrorCode.JSON_PARSE_ERROR: 400,
+
+    # 认证授权错误 20xxx -> 401/403/404
     ErrorCode.AUTH_ERROR: 401,
     ErrorCode.TOKEN_EXPIRED: 401,
     ErrorCode.TOKEN_INVALID: 401,
@@ -90,22 +98,39 @@ ERROR_HTTP_STATUS = {
     ErrorCode.REFRESH_TOKEN_EXPIRED: 401,
     ErrorCode.USER_NOT_FOUND: 404,
     ErrorCode.PASSWORD_INCORRECT: 401,
+    ErrorCode.ACCOUNT_DISABLED: 403,
+    ErrorCode.ACCOUNT_LOCKED: 403,
+    ErrorCode.LOGIN_TOO_FREQUENT: 429,
     ErrorCode.VERIFICATION_CODE_INVALID: 400,
     ErrorCode.VERIFICATION_CODE_EXPIRED: 400,
     ErrorCode.PERMISSION_DENIED: 403,
-    ErrorCode.ACCOUNT_DISABLED: 403,
-    ErrorCode.ACCOUNT_LOCKED: 403,
-    ErrorCode.RECORD_NOT_FOUND: 404,
+    ErrorCode.RESOURCE_ACCESS_DENIED: 403,
+    ErrorCode.ROLE_NOT_ALLOWED: 403,
+
+    # 数据库错误 40xxx -> 500
+    ErrorCode.DB_ERROR: 500,
+    ErrorCode.DB_CONNECTION_FAILED: 500,
+    ErrorCode.DB_QUERY_FAILED: 500,
+    ErrorCode.DB_INSERT_FAILED: 500,
+    ErrorCode.DB_UPDATE_FAILED: 500,
+    ErrorCode.DB_DELETE_FAILED: 500,
     ErrorCode.DB_DUPLICATE_ENTRY: 409,
+    ErrorCode.RECORD_NOT_FOUND: 404,
     ErrorCode.RECORD_ALREADY_EXISTS: 409,
+
+    # 配额错误 30xxx -> 429/403/404/500
     ErrorCode.QUOTA_ERROR: 429,
     ErrorCode.QUOTA_EXCEEDED: 429,
     ErrorCode.QUOTA_NOT_FOUND: 404,
     ErrorCode.QUOTA_DEDUCT_FAILED: 500,
     ErrorCode.QUOTA_DISABLED: 403,
+
+    # 风控错误 35xxx -> 403/202/500
     ErrorCode.RISK_CONTROL_BLOCKED: 403,
     ErrorCode.RISK_CONTROL_REVIEW_REQUIRED: 202,
     ErrorCode.RISK_CONTROL_SERVICE_ERROR: 500,
+
+    # 系统错误 50xxx -> 500/503
     ErrorCode.SYSTEM_ERROR: 500,
     ErrorCode.INTERNAL_ERROR: 500,
     ErrorCode.SERVICE_UNAVAILABLE: 503,
@@ -113,6 +138,7 @@ ERROR_HTTP_STATUS = {
 
 # 错误码对应的默认消息
 ERROR_MESSAGES = {
+    # 参数错误 10xxx
     ErrorCode.PARAM_ERROR: "参数错误",
     ErrorCode.PARAM_VALIDATION_FAILED: "参数验证失败",
     ErrorCode.PARAM_MISSING: "缺少必要参数",
@@ -121,6 +147,11 @@ ERROR_MESSAGES = {
     ErrorCode.PARAM_VALUE_INVALID: "参数值无效",
     ErrorCode.PARAM_LENGTH_EXCEEDED: "参数长度超限",
     ErrorCode.PARAM_DUPLICATE: "参数重复",
+    ErrorCode.FILE_TYPE_NOT_ALLOWED: "不支持的文件类型",
+    ErrorCode.FILE_SIZE_EXCEEDED: "文件过大",
+    ErrorCode.JSON_PARSE_ERROR: "JSON解析错误",
+
+    # 认证授权错误 20xxx
     ErrorCode.AUTH_ERROR: "认证错误",
     ErrorCode.TOKEN_MISSING: "未提供认证令牌",
     ErrorCode.TOKEN_INVALID: "无效的认证令牌",
@@ -136,17 +167,33 @@ ERROR_MESSAGES = {
     ErrorCode.VERIFICATION_CODE_INVALID: "验证码无效",
     ErrorCode.VERIFICATION_CODE_EXPIRED: "验证码已过期",
     ErrorCode.PERMISSION_DENIED: "权限不足",
-    ErrorCode.RECORD_NOT_FOUND: "记录不存在",
+    ErrorCode.RESOURCE_ACCESS_DENIED: "无法访问该资源",
+    ErrorCode.ROLE_NOT_ALLOWED: "角色不允许执行此操作",
+
+    # 数据库错误 40xxx
+    ErrorCode.DB_ERROR: "数据库操作失败",
+    ErrorCode.DB_CONNECTION_FAILED: "数据库连接失败",
+    ErrorCode.DB_QUERY_FAILED: "数据库查询失败",
+    ErrorCode.DB_INSERT_FAILED: "数据插入失败",
+    ErrorCode.DB_UPDATE_FAILED: "数据更新失败",
+    ErrorCode.DB_DELETE_FAILED: "数据删除失败",
     ErrorCode.DB_DUPLICATE_ENTRY: "数据已存在",
+    ErrorCode.RECORD_NOT_FOUND: "记录不存在",
     ErrorCode.RECORD_ALREADY_EXISTS: "用户名/邮箱/手机号已被注册",
+
+    # 配额错误 30xxx
     ErrorCode.QUOTA_ERROR: "配额错误",
     ErrorCode.QUOTA_EXCEEDED: "配额已用完，请升级套餐或等待配额重置",
     ErrorCode.QUOTA_NOT_FOUND: "配额不存在",
     ErrorCode.QUOTA_DEDUCT_FAILED: "配额扣减失败",
     ErrorCode.QUOTA_DISABLED: "配额已禁用",
+
+    # 风控错误 35xxx
     ErrorCode.RISK_CONTROL_BLOCKED: "操作被风控系统拦截",
     ErrorCode.RISK_CONTROL_REVIEW_REQUIRED: "操作需要人工审核",
     ErrorCode.RISK_CONTROL_SERVICE_ERROR: "风控服务异常",
+
+    # 系统错误 50xxx
     ErrorCode.SYSTEM_ERROR: "系统错误，请稍后再试",
     ErrorCode.INTERNAL_ERROR: "内部服务器错误",
     ErrorCode.SERVICE_UNAVAILABLE: "服务暂时不可用",

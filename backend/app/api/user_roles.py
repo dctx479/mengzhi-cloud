@@ -81,7 +81,11 @@ async def get_user_roles(
     - user_id: 用户ID
     """
     # 检查权限：只能查看自己的角色，或者管理员可以查看所有人
-    if current_user["user_id"] != str(user_id) and current_user["role"] != "admin":
+    from app.models import User
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj:
+        raise HTTPException(status_code=404, detail="当前用户不存在")
+    if current_user_obj.id != user_id and current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="无权查看其他用户的角色")
 
     try:
@@ -117,7 +121,11 @@ async def get_user_permissions(
     返回用户通过所有角色获得的权限列表（去重）
     """
     # 检查权限：只能查看自己的权限，或者管理员可以查看所有人
-    if current_user["user_id"] != str(user_id) and current_user["role"] != "admin":
+    from app.models import User
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj:
+        raise HTTPException(status_code=404, detail="当前用户不存在")
+    if current_user_obj.id != user_id and current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="无权查看其他用户的权限")
 
     try:

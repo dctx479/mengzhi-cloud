@@ -148,7 +148,7 @@ def setup_json_logging(
     logger.add(
         log_file_path,
         level=log_level,
-        format='{{"timestamp":"{time:YYYY-MM-DDTHH:mm:ss.SSSZ}","level":"{level}","logger":"{name}","message":"{message}","module":"{module}","function":"{function}","line":{line}}}',
+        format='<level>{{"timestamp":"{time:YYYY-MM-DDTHH:mm:ss.SSSZ}","level":"{level}","logger":"{name}","message":"{message}","module":"{module}","function":"{function}","line":{line}}}</level>',
         rotation=rotation,
         retention=retention,
         compression="zip",
@@ -162,7 +162,7 @@ def setup_json_logging(
     logger.add(
         error_log_file,
         level="ERROR",
-        format='{{"timestamp":"{time:YYYY-MM-DDTHH:mm:ss.SSSZ}","level":"{level}","logger":"{name}","message":"{message}","module":"{module}","function":"{function}","line":{line},"exception":"{exception}"}}',
+        format='<level>{{"timestamp":"{time:YYYY-MM-DDTHH:mm:ss.SSSZ}","level":"{level}","logger":"{name}","message":"{message}","module":"{module}","function":"{function}","line":{line},"exception":"{exception}"}}</level>',
         rotation=rotation,
         retention=retention,
         compression="zip",

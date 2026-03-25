@@ -16,7 +16,7 @@ from PIL import Image
 import io
 import os
 from pathlib import Path
-from typing import Tuple, Optional, Dict
+from typing import Tuple, Optional, Dict, Any
 from app.core.config import settings
 
 
@@ -27,7 +27,7 @@ class ImageProcessor:
     """
 
     @staticmethod
-    def get_image_info(image_path: str) -> Dict[str, any]:
+    def get_image_info(image_path: str) -> Dict[str, Any]:
         """
         获取图片元数据
 

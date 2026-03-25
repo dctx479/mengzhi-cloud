@@ -116,12 +116,17 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   }
 
   const selectCategory = async (category: TemplateCategory) => {
+    templatesLoading.value = true
+    templatesError.value = null
     try {
       const data = await contentAPI.getTemplatesByCategory(category)
-      templates.value = templates.value.filter((t) => t.category !== category)
-      templates.value.push(...data)
+      // FIX: Replace all templates with new category data (cleaner and prevents duplicates)
+      templates.value = data
     } catch (err) {
       templatesError.value = err instanceof Error ? err.message : 'Failed to fetch templates'
+      throw err
+    } finally {
+      templatesLoading.value = false
     }
   }
 
@@ -156,8 +161,12 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
 
       const response = await contentAPI.generateContent(request)
 
+      // API always returns array per GenerationResponse[] type contract
+      // but add safety check for unexpected single object response
+      const responseArray = Array.isArray(response) ? response : [response]
+
       // Convert API response to GenerationResult format
-      results.value = response.map((r, index) => ({
+      results.value = responseArray.map((r, index) => ({
         id: `result-${Date.now()}-${index}`,
         template_id: config.value.template_id,
         product_id: config.value.product_ids[index % config.value.product_ids.length],

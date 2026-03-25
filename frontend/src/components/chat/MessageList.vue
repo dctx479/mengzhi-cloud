@@ -146,7 +146,12 @@ const handleDelete = (messageId: string) => {
       emit('delete-message', messageId)
       ElMessage.success('消息已删除')
     })
-    .catch(() => {})
+    .catch((error: any) => {
+      // Only ignore cancel action, not errors
+      if (error?.action !== 'cancel') {
+        console.error('Delete message error:', error)
+      }
+    })
 }
 
 const handleRegenerate = (message: Message) => {
@@ -163,7 +168,12 @@ const handleRegenerate = (message: Message) => {
         ElMessage.error('重新生成失败')
       }
     })
-    .catch(() => {})
+    .catch((error: any) => {
+      // Only ignore cancel action, not errors
+      if (error?.action !== 'cancel') {
+        console.error('Regenerate message error:', error)
+      }
+    })
 }
 
 const handleFavorite = (messageId: string) => {

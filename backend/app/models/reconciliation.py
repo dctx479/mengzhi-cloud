@@ -218,7 +218,6 @@ class ReconciliationRecord(BaseModel):
     # 索引
     __table_args__ = (
         Index("idx_reconciliation_date", "reconciliation_date"),
-        Index("idx_batch_no", "batch_no"),
         Index("idx_status", "status"),
         Index("idx_type", "reconciliation_type"),
         Index("idx_created_at", "created_at"),

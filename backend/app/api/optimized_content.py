@@ -218,29 +218,35 @@ async def generate_content_variants(
 @router.get("/content-types")
 async def get_content_types():
     """获取支持的内容类型"""
-    return {
-        "content_types": [
-            {"value": "copy", "label": "营销文案"},
-            {"value": "script", "label": "直播脚本"},
-            {"value": "video_copy", "label": "短视频文案"},
-            {"value": "slogan", "label": "广告标语"},
-            {"value": "story", "label": "品牌故事"}
-        ]
-    }
+    return success_response(
+        data={
+            "content_types": [
+                {"value": "copy", "label": "营销文案"},
+                {"value": "script", "label": "直播脚本"},
+                {"value": "video_copy", "label": "短视频文案"},
+                {"value": "slogan", "label": "广告标语"},
+                {"value": "story", "label": "品牌故事"}
+            ]
+        },
+        message="获取内容类型成功"
+    ).dict()
 
 
 @router.get("/styles")
 async def get_styles():
     """获取支持的风格"""
-    return {
-        "styles": [
-            {"value": "formal", "label": "正式"},
-            {"value": "casual", "label": "轻松"},
-            {"value": "humorous", "label": "幽默"},
-            {"value": "emotional", "label": "情感"},
-            {"value": "professional", "label": "专业"}
-        ]
-    }
+    return success_response(
+        data={
+            "styles": [
+                {"value": "formal", "label": "正式"},
+                {"value": "casual", "label": "轻松"},
+                {"value": "humorous", "label": "幽默"},
+                {"value": "emotional", "label": "情感"},
+                {"value": "professional", "label": "专业"}
+            ]
+        },
+        message="获取风格成功"
+    ).dict()
 
 
 @router.get("/history")
@@ -322,16 +328,19 @@ async def get_statistics(db: Session = Depends(get_db)):
 @router.get("/platforms")
 async def get_platforms():
     """获取支持的平台"""
-    return {
-        "platforms": [
-            {"value": "douyin", "label": "抖音"},
-            {"value": "xiaohongshu", "label": "小红书"},
-            {"value": "wechat", "label": "微信公众号"},
-            {"value": "weibo", "label": "微博"},
-            {"value": "kuaishou", "label": "快手"},
-            {"value": "general", "label": "通用"}
-        ]
-    }
+    return success_response(
+        data={
+            "platforms": [
+                {"value": "douyin", "label": "抖音"},
+                {"value": "xiaohongshu", "label": "小红书"},
+                {"value": "wechat", "label": "微信公众号"},
+                {"value": "weibo", "label": "微博"},
+                {"value": "kuaishou", "label": "快手"},
+                {"value": "general", "label": "通用"}
+            ]
+        },
+        message="获取平台成功"
+    ).dict()
 
 
 # ==================== Stub 端点（前端已调用，后端尚未完整实现） ====================

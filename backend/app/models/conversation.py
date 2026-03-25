@@ -188,7 +188,8 @@ class Conversation(BaseModel):
     )
 
     def __repr__(self) -> str:
-        return f"<Conversation(id={self.id}, user_id={self.user_id}, title={self.title}, agent_type={self.agent_type.value})>"
+        agent_type_val = self.agent_type.value if hasattr(self.agent_type, 'value') else (self.agent_type or "unknown")
+        return f"<Conversation(id={self.id}, user_id={self.user_id}, title={self.title}, agent_type={agent_type_val})>"
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""

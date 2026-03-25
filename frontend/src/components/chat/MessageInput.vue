@@ -282,6 +282,10 @@ const handleImageSelect = (event: Event) => {
       }
       selectedFiles.value.push(imageUpload)
     }
+    reader.onerror = () => {
+      console.error('Failed to read file:', file.name, reader.error)
+      ElMessage.error(`读取图片失败: ${file.name}`)
+    }
     reader.readAsDataURL(file)
   })
 

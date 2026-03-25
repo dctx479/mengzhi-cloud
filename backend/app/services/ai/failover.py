@@ -291,6 +291,8 @@ class FailoverManager:
             if config.avg_response_time:
                 # 响应时间越短得分越高
                 response_score = max(0, 100 - (config.avg_response_time / 50))
+                # 响应时间越短得分越高
+                response_score = max(0, 100 - (config.avg_response_time / 50))
                 score += response_score * 0.1
 
             return score

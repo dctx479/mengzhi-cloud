@@ -47,9 +47,9 @@ from app.api.roles import router as roles_router
 from app.api.permissions import router as permissions_router
 from app.api.user_roles import router as user_roles_router
 
-api_router.include_router(roles_router, prefix="/rbac", tags=["权限管理 - RBAC"])
-api_router.include_router(permissions_router, prefix="/rbac", tags=["权限管理 - RBAC"])
-api_router.include_router(user_roles_router, prefix="/rbac", tags=["权限管理 - RBAC"])
+api_router.include_router(roles_router, tags=["权限管理 - RBAC"])
+api_router.include_router(permissions_router, tags=["权限管理 - RBAC"])
+api_router.include_router(user_roles_router, tags=["权限管理 - RBAC"])
 
 # ==================== 配额与订单模块 ====================
 from app.api.quota_packages import router as quota_packages_router

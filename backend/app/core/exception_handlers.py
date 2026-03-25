@@ -179,7 +179,7 @@ async def business_exception_handler(
     )
 
     # 获取HTTP状态码
-    http_status = ERROR_HTTP_STATUS.get(exc.code, status.HTTP_400_BAD_REQUEST)
+    http_status = ERROR_HTTP_STATUS.get(exc.code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # 返回统一格式的错误响应
     return JSONResponse(

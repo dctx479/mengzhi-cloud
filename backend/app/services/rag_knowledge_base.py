@@ -133,21 +133,25 @@ class CulturalKnowledgeBase:
             query_text = f"{product.name} {product.category} {product.origin_province} {product.origin_city}"
 
             if product.cultural_tags:
-                query_text += f" {' '.join(product.cultural_tags)}"
+                # 处理 cultural_tags 可能是字符串或列表的情况
+                if isinstance(product.cultural_tags, str):
+                    query_text += f" {product.cultural_tags}"
+                elif isinstance(product.cultural_tags, (list, tuple)):
+                    query_text += f" {' '.join(str(tag) for tag in product.cultural_tags)}"
 
             # 向量检索
             if HAS_FAISS and self.index is not None:
-                query_embedding = self.encoder.encode([query_text])[0]
+                query_embedding = self.encoder.encode([query_text], convert_to_numpy=True)[0].astype('float32')
                 distances, indices = self.index.search(
-                    query_embedding.reshape(1, -1).astype('float32'),
+                    query_embedding.reshape(1, -1),
                     min(top_k, len(self.documents))
                 )
 
                 results = []
-                for idx in indices[0]:
+                for list_idx, idx in enumerate(indices[0]):
                     doc = self.documents[int(idx)]
                     # 计算相似度（从距离转换）
-                    distance = distances[0][list(indices[0]).index(idx)]
+                    distance = distances[0][list_idx]
                     similarity = 1.0 / (1.0 + distance)
 
                     results.append({
@@ -192,9 +196,9 @@ class CulturalKnowledgeBase:
             if not HAS_FAISS or self.index is None:
                 return []
 
-            query_embedding = self.encoder.encode([query_text])[0]
+            query_embedding = self.encoder.encode([query_text], convert_to_numpy=True)[0].astype('float32')
             distances, indices = self.index.search(
-                query_embedding.reshape(1, -1).astype('float32'),
+                query_embedding.reshape(1, -1),
                 min(top_k, len(self.documents))
             )
 

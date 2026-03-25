@@ -438,12 +438,15 @@ class ConfigManager:
             Dict[str, Any]: 配置数据
         """
         try:
+            from datetime import datetime
             providers = self.list_enterprise_providers(enterprise_id, include_inactive=True)
+
+            logger.info(f"Exporting config for enterprise {enterprise_id}")
 
             return {
                 "enterprise_id": enterprise_id,
                 "providers": providers,
-                "exported_at": logger.info("Exporting config"),
+                "exported_at": datetime.utcnow().isoformat(),
             }
 
         except Exception as e:

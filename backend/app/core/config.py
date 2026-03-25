@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from pydantic import field_validator, model_validator
+from pydantic import field_validator, model_validator, Field
 from functools import lru_cache
 from typing import Optional, List
 import warnings
@@ -284,7 +284,9 @@ class Settings(BaseSettings):
     ALIYUN_SMS_TEMPLATE_CODE: str = ""  # 验证码模板ID
 
     # CORS配置
-    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:8080", "http://127.0.0.1:8080"]
+    CORS_ORIGINS: List[str] = Field(
+        default=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:8080", "http://127.0.0.1:8080"]
+    )
 
     @field_validator('CORS_ORIGINS', mode='before')
     @classmethod
@@ -304,8 +306,12 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"  # 本地上传目录
     MAX_FILE_SIZE: int = 50 * 1024 * 1024  # 50MB
     MAX_VIDEO_SIZE: int = 200 * 1024 * 1024  # 200MB
-    ALLOWED_IMAGE_TYPES: list = ["image/jpeg", "image/png", "image/webp", "image/gif"]
-    ALLOWED_VIDEO_TYPES: list = ["video/mp4", "video/mpeg", "video/quicktime"]
+    ALLOWED_IMAGE_TYPES: List[str] = Field(
+        default=["image/jpeg", "image/png", "image/webp", "image/gif"]
+    )
+    ALLOWED_VIDEO_TYPES: List[str] = Field(
+        default=["video/mp4", "video/mpeg", "video/quicktime"]
+    )
 
     # OSS配置（阿里云OSS、腾讯云COS等）
     USE_OSS: bool = False  # 是否使用对象存储
@@ -328,12 +334,14 @@ class Settings(BaseSettings):
     ALIPAY_PRIVATE_KEY: str = ""  # 支付宝应用私钥
     ALIPAY_PUBLIC_KEY: str = ""  # 支付宝公钥
     ALIPAY_GATEWAY: str = "https://openapi.alipaydev.com/gateway.do"  # 支付宝网关（沙箱）
-    ALIPAY_CALLBACK_IPS: list = [
-        "110.75.143.0/24",  # 支付宝回调IP段1
-        "110.75.144.0/24",  # 支付宝回调IP段2
-        "127.0.0.1",        # 本地测试
-        "localhost"         # 本地测试
-    ]
+    ALIPAY_CALLBACK_IPS: List[str] = Field(
+        default=[
+            "110.75.143.0/24",  # 支付宝回调IP段1
+            "110.75.144.0/24",  # 支付宝回调IP段2
+            "127.0.0.1",        # 本地测试
+            "localhost"         # 本地测试
+        ]
+    )
 
     # 微信支付配置
     WECHAT_APP_ID: str = ""  # 微信应用ID
@@ -341,12 +349,14 @@ class Settings(BaseSettings):
     WECHAT_API_KEY: str = ""  # 微信API密钥
     WECHAT_CERT_PATH: str = ""  # 微信证书路径
     WECHAT_KEY_PATH: str = ""  # 微信密钥路径
-    WECHAT_CALLBACK_IPS: list = [
-        "101.226.0.0/16",   # 微信回调IP段1
-        "101.227.0.0/16",   # 微信回调IP段2
-        "127.0.0.1",        # 本地测试
-        "localhost"         # 本地测试
-    ]
+    WECHAT_CALLBACK_IPS: List[str] = Field(
+        default=[
+            "101.226.0.0/16",   # 微信回调IP段1
+            "101.227.0.0/16",   # 微信回调IP段2
+            "127.0.0.1",        # 本地测试
+            "localhost"         # 本地测试
+        ]
+    )
 
     class Config:
         env_file = ".env"

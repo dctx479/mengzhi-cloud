@@ -70,7 +70,7 @@ class RiskRule(BaseModel):
 
     __tablename__ = "risk_rules"
 
-    id = Column(String(36), primary_key=True, default=generate_uuid, comment="规则ID")
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="规则ID")
     name = Column(String(100), nullable=False, comment="规则名称")
     description = Column(Text, comment="规则描述")
     rule_type = Column(String(20), nullable=False, comment="规则类型")
@@ -126,13 +126,13 @@ class RiskEvent(BaseModel):
 
     __tablename__ = "risk_events"
 
-    id = Column(String(36), primary_key=True, default=generate_uuid, comment="事件ID")
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="事件ID")
     event_type = Column(String(20), nullable=False, comment="事件类型")
 
     # 关联信息
-    user_id = Column(String(36), comment="用户ID")
-    order_id = Column(String(36), comment="订单ID")
-    payment_id = Column(String(36), comment="支付ID")
+    user_id = Column(BIGINT, ForeignKey("users.id"), nullable=True, comment="用户ID")
+    order_id = Column(BIGINT, ForeignKey("orders.id"), nullable=True, comment="订单ID")
+    payment_id = Column(BIGINT, ForeignKey("payments.id"), nullable=True, comment="支付ID")
 
     # 事件详情
     event_data = Column(JSON, nullable=False, comment="事件数据")
@@ -188,7 +188,7 @@ class RiskBlacklist(BaseModel):
 
     __tablename__ = "risk_blacklist"
 
-    id = Column(String(36), primary_key=True, default=generate_uuid, comment="黑名单ID")
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="黑名单ID")
     blacklist_type = Column(String(20), nullable=False, comment="黑名单类型")
     value = Column(String(200), nullable=False, comment="黑名单值")
 
@@ -245,7 +245,7 @@ class RiskStatistics(BaseModel):
 
     __tablename__ = "risk_statistics"
 
-    id = Column(String(36), primary_key=True, default=generate_uuid, comment="统计ID")
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="统计ID")
     date = Column(DateTime, nullable=False, comment="统计日期")
 
     # 事件统计

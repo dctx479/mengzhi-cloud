@@ -303,15 +303,19 @@ class ReconciliationService:
                 })
 
         # 构建汇总信息
+        total_local_amount = sum((p.amount for p in local_payments), Decimal('0'))
+        total_remote_amount = sum((t.amount for t in remote_transactions), Decimal('0'))
+        difference_amount = total_local_amount - matched_amount
+
         summary = ReconciliationSummary(
             total_local_count=len(local_payments),
             total_remote_count=len(remote_transactions),
             matched_count=matched_count,
             difference_count=len(differences),
-            total_local_amount=sum(p.amount for p in local_payments),
-            total_remote_amount=sum(t.amount for t in remote_transactions),
+            total_local_amount=total_local_amount,
+            total_remote_amount=total_remote_amount,
             matched_amount=matched_amount,
-            difference_amount=sum(p.amount for p in local_payments) - matched_amount
+            difference_amount=difference_amount
         )
 
         logger.info(f"匹配完成: 匹配={matched_count}, 差异={len(differences)}")
@@ -375,6 +379,9 @@ class ReconciliationService:
                 difference.amount_difference = local_payment.amount - remote_transaction.amount
 
             self.db.add(difference)
+
+        # Flush to ensure all differences are inserted and assigned IDs
+        self.db.flush()
 
     def get_reconciliation_records(
         self,

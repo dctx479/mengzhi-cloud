@@ -27,6 +27,7 @@ from app.models.sla import (
     SLALevel,
 )
 from app.services.notification_service import NotificationService
+from app.core.errors import BusinessException, ErrorCode
 
 
 class SLAMonitor:
@@ -140,15 +141,30 @@ class SLAMonitor:
             )
             is_compliant = False
 
-        # 记录违约
-        if violations:
-            for violation in violations:
-                self._record_violation(agreement, violation, start_time, end_time)
+        # P0-015修复: 添加事务管理，确保数据一致性
+        try:
+            if violations:
+                for violation in violations:
+                    self._record_violation(agreement, violation, start_time, end_time)
+    
+            # 记录指标
+            self._record_metrics(
+                agreement, start_time, end_time, availability, response_time, error_rate, throughput, is_compliant
+            )
+    
 
-        # 记录指标
-        self._record_metrics(
-            agreement, start_time, end_time, availability, response_time, error_rate, throughput, is_compliant
-        )
+            # 提交事务（将所有flush的记录持久化）
+            self.db.commit()
+            logger.info(f"SLA evaluation completed for agreement {agreement_id}: is_compliant={is_compliant}")
+
+        except Exception as e:
+            # 回滚所有未提交的更改
+            self.db.rollback()
+            logger.error(f"SLA evaluation failed for agreement {agreement_id}: {str(e)}")
+            raise BusinessException(
+                code=ErrorCode.SYSTEM_ERROR,
+                message="SLA evaluation failed"
+            )
 
         return {
             "agreement_id": agreement_id,
@@ -176,9 +192,12 @@ class SLAMonitor:
             Dict: 可用性数据
         """
         # 查询性能日志
+        # Note: PerformanceLog.timestamp is String field, stored as ISO format
+        start_ts = start_time.isoformat()
+        end_ts = end_time.isoformat()
         query = self.db.query(PerformanceLog).filter(
-            PerformanceLog.timestamp >= start_time.isoformat(),
-            PerformanceLog.timestamp <= end_time.isoformat(),
+            PerformanceLog.timestamp >= start_ts,
+            PerformanceLog.timestamp <= end_ts,
             PerformanceLog.deleted_at.is_(None),
         )
 
@@ -217,9 +236,12 @@ class SLAMonitor:
             Dict: 响应时间数据
         """
         # 查询性能日志
+        # Note: PerformanceLog.timestamp is String field, stored as ISO format
+        start_ts = start_time.isoformat()
+        end_ts = end_time.isoformat()
         query = self.db.query(PerformanceLog).filter(
-            PerformanceLog.timestamp >= start_time.isoformat(),
-            PerformanceLog.timestamp <= end_time.isoformat(),
+            PerformanceLog.timestamp >= start_ts,
+            PerformanceLog.timestamp <= end_ts,
             PerformanceLog.is_success == True,
             PerformanceLog.deleted_at.is_(None),
         )
@@ -278,9 +300,12 @@ class SLAMonitor:
             Dict: 错误率数据
         """
         # 查询性能日志
+        # Note: PerformanceLog.timestamp is String field, stored as ISO format
+        start_ts = start_time.isoformat()
+        end_ts = end_time.isoformat()
         query = self.db.query(PerformanceLog).filter(
-            PerformanceLog.timestamp >= start_time.isoformat(),
-            PerformanceLog.timestamp <= end_time.isoformat(),
+            PerformanceLog.timestamp >= start_ts,
+            PerformanceLog.timestamp <= end_ts,
             PerformanceLog.deleted_at.is_(None),
         )
 
@@ -319,9 +344,12 @@ class SLAMonitor:
             Dict: 吞吐量数据
         """
         # 查询性能日志
+        # Note: PerformanceLog.timestamp is String field, stored as ISO format
+        start_ts = start_time.isoformat()
+        end_ts = end_time.isoformat()
         query = self.db.query(PerformanceLog).filter(
-            PerformanceLog.timestamp >= start_time.isoformat(),
-            PerformanceLog.timestamp <= end_time.isoformat(),
+            PerformanceLog.timestamp >= start_ts,
+            PerformanceLog.timestamp <= end_ts,
             PerformanceLog.deleted_at.is_(None),
         )
 
@@ -415,7 +443,7 @@ class SLAMonitor:
         )
 
         self.db.add(violation_record)
-        self.db.commit()
+        self.db.flush()  # Flush to generate ID before sending alert
 
         # 发送告警
         self._send_alert(agreement, violation_record)
@@ -444,13 +472,16 @@ class SLAMonitor:
             throughput: 吞吐量数据
             is_compliant: 是否达标
         """
+        start_ts = start_time.isoformat()
+        end_ts = end_time.isoformat()
+
         # 记录可用性指标
         availability_metric = SLAMetric(
             agreement_id=agreement.id,
             metric_type=MetricType.AVAILABILITY,
             metric_name="可用性",
-            period_start=start_time.isoformat(),
-            period_end=end_time.isoformat(),
+            period_start=start_ts,
+            period_end=end_ts,
             target_value=availability["target"],
             actual_value=availability["actual"],
             achievement_rate=(availability["actual"] / availability["target"]) * 100,
@@ -466,8 +497,8 @@ class SLAMonitor:
             agreement_id=agreement.id,
             metric_type=MetricType.RESPONSE_TIME,
             metric_name="响应时间",
-            period_start=start_time.isoformat(),
-            period_end=end_time.isoformat(),
+            period_start=start_ts,
+            period_end=end_ts,
             target_value=response_time["target"],
             actual_value=response_time["avg"],
             achievement_rate=(response_time["target"] / max(response_time["avg"], 1)) * 100,
@@ -486,8 +517,8 @@ class SLAMonitor:
             agreement_id=agreement.id,
             metric_type=MetricType.ERROR_RATE,
             metric_name="错误率",
-            period_start=start_time.isoformat(),
-            period_end=end_time.isoformat(),
+            period_start=start_ts,
+            period_end=end_ts,
             target_value=error_rate["target"],
             actual_value=error_rate["actual"],
             achievement_rate=(error_rate["target"] / max(error_rate["actual"], 0.01)) * 100,
@@ -581,12 +612,13 @@ SLA违约告警
             List[Dict]: 违约历史列表
         """
         start_time = datetime.utcnow() - timedelta(days=days)
+        start_ts = start_time.isoformat()
 
         violations = (
             self.db.query(SLAViolation)
             .filter(
                 SLAViolation.agreement_id == agreement_id,
-                SLAViolation.violation_time >= start_time.isoformat(),
+                SLAViolation.violation_time >= start_ts,
                 SLAViolation.deleted_at.is_(None),
             )
             .order_by(SLAViolation.violation_time.desc())

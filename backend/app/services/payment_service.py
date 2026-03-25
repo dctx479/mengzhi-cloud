@@ -156,11 +156,11 @@ class PaymentService:
                     time.sleep(2)
 
             try:
-                # 检查是否已有待支付的支付记录
+                # 检查是否已有待支付的支付记录（使用悲观锁防止并发重复创建）
                 existing_payment = self.db.query(Payment).filter(
                     Payment.order_id == order_id,
                     Payment.status == PaymentStatus.PENDING
-                ).first()
+                ).with_for_update().first()
 
                 if existing_payment:
                     logger.info(f"订单{order_id}已有待支付记录，返回现有支付")
@@ -329,7 +329,7 @@ class PaymentService:
                 track_payment_callback(payment_method, "amount_mismatch", duration)
                 return False
 
-            track_amount_verification("success")
+            track_amount_verification("success", payment_method)
 
             # 更新支付状态
             payment.mark_as_success(callback_data.get("transaction_id"))
@@ -399,6 +399,9 @@ class PaymentService:
                 savepoint.commit()
                 logger.info(f"开发模式支付: 配额发放成功 payment_no={payment.payment_no}")
 
+                # 提交主事务（配额发放成功时）
+                self.db.commit()
+
             except Exception as quota_error:
                 # 配额发放失败，回滚到保存点
                 savepoint.rollback()
@@ -407,11 +410,11 @@ class PaymentService:
                 # 标记支付失败
                 payment.mark_as_failed(f"配额发放失败: {str(quota_error)}")
 
-                # 标记订单失败（需要添加此方法到Order模型）
-                order.status = OrderStatus.CANCELLED
-                order.cancelled_at = datetime.utcnow()
+                # 回滚订单完成状态，重设为已支付状态
+                order.status = OrderStatus.PAID
+                order.completed_at = None
 
-                # 提交失败状态
+                # 提交失败状态到数据库
                 self.db.commit()
 
                 # 重新抛出异常
@@ -420,8 +423,6 @@ class PaymentService:
                     message="配额发放失败，支付已回滚"
                 )
 
-            # 提交主事务
-            self.db.commit()
             logger.info(f"开发模式支付完成: {payment.payment_no}")
 
         except BusinessException:

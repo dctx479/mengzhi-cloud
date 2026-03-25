@@ -77,7 +77,10 @@ export const adminApi = {
     const inner = unwrapAdmin<{ items?: User[] } | User[]>(res)
     return (Array.isArray(inner) ? inner : (inner as { items?: User[] })?.items || []) as User[]
   },
-  updateUser: (id: number, data: Partial<User>) => api.patch(`/users/${id}`, data),
+  updateUser: async (id: number, data: Partial<User>) => {
+    const res = await api.patch<APIResponseWrapper<User>>(`/users/${id}`, data)
+    return unwrapAdmin<User>(res)
+  },
   deleteUser: (id: number) => api.delete(`/users/${id}`),
 
   getEnterprises: async (params?: { search?: string }): Promise<Enterprise[]> => {
@@ -85,7 +88,10 @@ export const adminApi = {
     const inner = unwrapAdmin<{ items?: Enterprise[] } | Enterprise[]>(res)
     return (Array.isArray(inner) ? inner : (inner as { items?: Enterprise[] })?.items || []) as Enterprise[]
   },
-  updateEnterprise: (id: number, data: Partial<Enterprise>) => api.patch(`/enterprises/${id}`, data),
+  updateEnterprise: async (id: number, data: Partial<Enterprise>) => {
+    const res = await api.patch<APIResponseWrapper<Enterprise>>(`/enterprises/${id}`, data)
+    return unwrapAdmin<Enterprise>(res)
+  },
   deleteEnterprise: (id: number) => api.delete(`/enterprises/${id}`),
 
   getAIUsage: async (): Promise<AIUsageData[]> => {

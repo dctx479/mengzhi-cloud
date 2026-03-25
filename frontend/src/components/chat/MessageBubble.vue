@@ -181,6 +181,9 @@ const previewImage = (image: ImageAttachment) => {
 const copyMessage = () => {
   navigator.clipboard.writeText(props.message.content).then(() => {
     ElMessage.success('已复制到剪贴板')
+  }).catch((error) => {
+    console.error('Copy to clipboard failed:', error)
+    ElMessage.error('复制失败，请重试')
   })
 }
 

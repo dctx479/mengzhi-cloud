@@ -27,21 +27,27 @@ contentAPI.interceptors.request.use((config) => {
   return config
 })
 
-/** 从 success_response 包装中提取 data 字段 */
-function unwrap<T>(responseData: unknown): T {
-  if (responseData && typeof responseData === 'object' && 'code' in responseData && 'data' in responseData) {
-    return (responseData as { data: T }).data
-  }
-  return responseData as T
-}
+// 添加响应拦截器 — 自动解包 {code, data, message} 结构
+contentAPI.interceptors.response.use(
+  (response) => {
+    // 后端某些端点返回 Pydantic 模型直接，不用 success_response 包装
+    // 检查是否存在 code 和 data 字段（仅当两者都存在时才解包）
+    const body = response.data
+    if (body && typeof body === 'object' && 'code' in body && 'data' in body && body.code === 200) {
+      return { ...response, data: body.data }
+    }
+    // 否则直接返回原始 response.data（已是最终数据或 Pydantic 序列化对象）
+    return response
+  },
+  (error) => Promise.reject(error)
+)
 
 /**
  * 获取所有模板
  */
 export async function getTemplates(): Promise<ContentTemplate[]> {
   const response = await contentAPI.get('/templates')
-  const data = unwrap<ContentTemplate[]>(response.data)
-  return Array.isArray(data) ? data : []
+  return Array.isArray(response.data) ? response.data : []
 }
 
 /**
@@ -49,8 +55,7 @@ export async function getTemplates(): Promise<ContentTemplate[]> {
  */
 export async function getTemplatesByCategory(category: string): Promise<ContentTemplate[]> {
   const response = await contentAPI.get('/templates', { params: { category } })
-  const data = unwrap<ContentTemplate[]>(response.data)
-  return Array.isArray(data) ? data : []
+  return Array.isArray(response.data) ? response.data : []
 }
 
 /**
@@ -58,7 +63,7 @@ export async function getTemplatesByCategory(category: string): Promise<ContentT
  */
 export async function getTemplateDetail(templateId: string): Promise<ContentTemplate> {
   const response = await contentAPI.get(`/templates/${templateId}`)
-  return unwrap<ContentTemplate>(response.data)
+  return response.data
 }
 
 /**
@@ -66,13 +71,30 @@ export async function getTemplateDetail(templateId: string): Promise<ContentTemp
  */
 export async function generateContent(request: GenerationRequest): Promise<GenerationResponse[]> {
   const response = await contentAPI.post('/generate', request)
-  const inner = unwrap<{ content?: string; length?: number; content_type?: string; style?: string; platform?: string } | null>(response.data)
+  const inner = response.data
+
+  // Backend returns single GenerationResult or array of results
+  // Map to GenerationResponse format expected by caller
+  if (Array.isArray(inner)) {
+    return inner.map((item: any) => ({
+      id: item.id || `gen-${Date.now()}`,
+      content: item.content ?? '',
+      metadata: {
+        length: item.word_count,
+        content_type: item.template_id,
+        style: item.style,
+        platform: item.platform,
+      }
+    }))
+  }
+
+  // Single result case
   return [{
-    id: `gen-${Date.now()}`,
+    id: inner?.id || `gen-${Date.now()}`,
     content: inner?.content ?? '',
     metadata: {
-      length: inner?.length,
-      content_type: inner?.content_type,
+      length: inner?.word_count,
+      content_type: inner?.template_id,
       style: inner?.style,
       platform: inner?.platform,
     }
@@ -93,7 +115,7 @@ export function createGenerationWebSocket(taskId: string): WebSocket {
  */
 export async function getBatchTaskStatus(taskId: string): Promise<BatchTask> {
   const response = await contentAPI.get(`/tasks/${taskId}`)
-  return unwrap<BatchTask>(response.data)
+  return response.data
 }
 
 /**
@@ -101,8 +123,7 @@ export async function getBatchTaskStatus(taskId: string): Promise<BatchTask> {
  */
 export async function getBatchTasks(): Promise<BatchTask[]> {
   const response = await contentAPI.get('/tasks')
-  const data = unwrap<BatchTask[]>(response.data)
-  return Array.isArray(data) ? data : []
+  return Array.isArray(response.data) ? response.data : []
 }
 
 /**
@@ -141,7 +162,7 @@ export async function exportResultsAsPdf(taskId: string): Promise<Blob> {
  */
 export async function saveConfig(name: string, config: GenerationConfig): Promise<SavedConfig> {
   const response = await contentAPI.post('/configs', { name, config })
-  return unwrap<SavedConfig>(response.data)
+  return response.data
 }
 
 /**
@@ -149,8 +170,7 @@ export async function saveConfig(name: string, config: GenerationConfig): Promis
  */
 export async function getSavedConfigs(): Promise<SavedConfig[]> {
   const response = await contentAPI.get('/configs')
-  const data = unwrap<SavedConfig[]>(response.data)
-  return Array.isArray(data) ? data : []
+  return Array.isArray(response.data) ? response.data : []
 }
 
 /**
@@ -158,7 +178,7 @@ export async function getSavedConfigs(): Promise<SavedConfig[]> {
  */
 export async function getSavedConfig(configId: string): Promise<SavedConfig> {
   const response = await contentAPI.get(`/configs/${configId}`)
-  return unwrap<SavedConfig>(response.data)
+  return response.data
 }
 
 /**
@@ -173,8 +193,8 @@ export async function deleteSavedConfig(configId: string): Promise<void> {
  */
 export async function getHistory(limit = 20, offset = 0): Promise<{ items: unknown[]; total: number }> {
   const response = await contentAPI.get('/history', { params: { limit, offset } })
-  const data = unwrap<{ items: unknown[]; total: number } | null>(response.data)
-  return data ?? { items: [], total: 0 }
+  const data = response.data
+  return (data && typeof data === 'object') ? data as { items: unknown[]; total: number } : { items: [], total: 0 }
 }
 
 /**

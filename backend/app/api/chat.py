@@ -254,7 +254,7 @@ async def get_conversations(
         total, conversations = service.get_conversations(user_id=user_id, page=page, page_size=page_size, status=status)
 
         return ConversationListResponse(
-            total=total, page=page, page_size=page_size, items=[conv for conv in conversations]
+            total=total, page=page, page_size=page_size, items=[ConversationResponse.model_validate(conv) for conv in conversations]
         )
 
     except BusinessException as e:
@@ -282,7 +282,7 @@ async def get_conversation(conversation_id: str, user_id: int = Depends(get_user
         service = ChatService(db)
         conversation = service.get_conversation_detail(conversation_id=conversation_id, user_id=user_id)
 
-        return ConversationDetailResponse(**conversation)
+        return ConversationDetailResponse.model_validate(conversation)
 
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")

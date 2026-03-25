@@ -28,9 +28,12 @@ class InputValidator:
         """清理HTML标签，防止XSS攻击"""
         if not text:
             return text
-        sanitized = html.escape(text)
+        # 先移除危险模式（在HTML转义之前）
+        sanitized = text
         for pattern in cls.XSS_PATTERNS:
-            sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE)
+            sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+        # 再进行HTML转义
+        sanitized = html.escape(sanitized)
         return sanitized
     
     @classmethod

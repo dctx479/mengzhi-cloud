@@ -83,33 +83,58 @@ export const useProductStore = defineStore('product', () => {
   }
 
   const setCategory = async (categoryId: string) => {
-    selectedCategory.value = categoryId
-    currentPage.value = 1
-    await fetchProducts()
+    try {
+      selectedCategory.value = categoryId
+      currentPage.value = 1
+      await fetchProducts()
+    } catch (err) {
+      // Error already handled in fetchProducts(), propagate for caller
+      throw err
+    }
   }
 
   const setSearchKeyword = async (keyword: string) => {
-    searchKeyword.value = keyword
-    currentPage.value = 1
-    await fetchProducts()
+    try {
+      searchKeyword.value = keyword
+      currentPage.value = 1
+      await fetchProducts()
+    } catch (err) {
+      // Error already handled in fetchProducts(), propagate for caller
+      throw err
+    }
   }
 
   const setPage = async (page: number) => {
-    currentPage.value = page
-    await fetchProducts()
+    try {
+      currentPage.value = page
+      await fetchProducts()
+    } catch (err) {
+      // Error already handled in fetchProducts(), propagate for caller
+      throw err
+    }
   }
 
   const setPageSize = async (size: number) => {
-    pageSize.value = size
-    currentPage.value = 1
-    await fetchProducts()
+    try {
+      pageSize.value = size
+      currentPage.value = 1
+      await fetchProducts()
+    } catch (err) {
+      // Error already handled in fetchProducts(), propagate for caller
+      throw err
+    }
   }
 
   const clearFilters = async () => {
-    selectedCategory.value = ''
-    searchKeyword.value = ''
-    currentPage.value = 1
-    await fetchProducts()
+    try {
+      selectedCategory.value = ''
+      searchKeyword.value = ''
+      currentPage.value = 1
+      await fetchProducts()
+    } catch (err) {
+      // Error already handled in fetchProducts(), propagate for caller
+      throw err
+    }
   }
 
   const resetState = () => {

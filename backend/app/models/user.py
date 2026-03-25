@@ -286,7 +286,8 @@ class User(BaseModel):
     )
 
     def __repr__(self) -> str:
-        return f"<User(id={self.id}, username={self.username}, user_type={self.user_type.value})>"
+        user_type_val = self.user_type.value if hasattr(self.user_type, 'value') else (self.user_type or "unknown")
+        return f"<User(id={self.id}, username={self.username}, user_type={user_type_val})>"
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
@@ -296,9 +297,9 @@ class User(BaseModel):
             "username": self.username,
             "email": self.email,
             "phone": self.phone,
-            "user_type": self.user_type.value,
-            "status": self.status.value,
-            "role": self.role.value,
+            "user_type": self.user_type.value if self.user_type else None,
+            "status": self.status.value if self.status else None,
+            "role": self.role.value if self.role else None,
             "enterprise_id": self.enterprise_id,
             "nickname": self.nickname,
             "avatar_url": self.avatar_url,

@@ -17,6 +17,7 @@ Prometheus监控中间件
 import time
 from typing import Callable
 from fastapi import FastAPI, Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
 from loguru import logger
 from prometheus_client import Counter, Gauge, make_asgi_app
 
@@ -45,7 +46,7 @@ risk_events = Counter("risk_events_total", "Total risk events", ["risk_level", "
 health_check_status = Gauge("health_check_status", "Health check status (1=healthy, 0=unhealthy)")
 
 
-async def prometheus_middleware(request: Request, call_next: Callable) -> Response:
+class PrometheusMiddleware(BaseHTTPMiddleware):
     """
     Prometheus监控中间件
 
@@ -54,39 +55,41 @@ async def prometheus_middleware(request: Request, call_next: Callable) -> Respon
     - 请求延迟
     - 进行中的请求数
     """
-    # 跳过metrics端点本身
-    if request.url.path == "/metrics":
-        return await call_next(request)
 
-    method = request.method
-    endpoint = request.url.path
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # 跳过metrics端点本身
+        if request.url.path == "/metrics":
+            return await call_next(request)
 
-    # 增加进行中的请求数
-    http_requests_in_progress.labels(method=method, endpoint=endpoint).inc()
+        method = request.method
+        endpoint = request.url.path
 
-    start_time = time.time()
+        # 增加进行中的请求数
+        http_requests_in_progress.labels(method=method, endpoint=endpoint).inc()
 
-    try:
-        response = await call_next(request)
-        status_code = response.status_code
-    except Exception as e:
-        # 如果发生异常，记录为500错误
-        status_code = 500
-        # 重新抛出异常
-        raise
-    finally:
-        # 计算请求延迟
-        duration = time.time() - start_time
+        start_time = time.time()
 
-        # 记录指标
-        http_requests_total.labels(method=method, endpoint=endpoint, status=status_code).inc()
+        try:
+            response = await call_next(request)
+            status_code = response.status_code
+        except Exception as e:
+            # 如果发生异常，记录为500错误
+            status_code = 500
+            # 重新抛出异常
+            raise
+        finally:
+            # 计算请求延迟
+            duration = time.time() - start_time
 
-        http_request_duration_seconds.labels(method=method, endpoint=endpoint).observe(duration)
+            # 记录指标
+            http_requests_total.labels(method=method, endpoint=endpoint, status=status_code).inc()
 
-        # 减少进行中的请求数
-        http_requests_in_progress.labels(method=method, endpoint=endpoint).dec()
+            http_request_duration_seconds.labels(method=method, endpoint=endpoint).observe(duration)
 
-    return response
+            # 减少进行中的请求数
+            http_requests_in_progress.labels(method=method, endpoint=endpoint).dec()
+
+        return response
 
 
 def setup_prometheus_metrics(app: FastAPI):
@@ -100,8 +103,8 @@ def setup_prometheus_metrics(app: FastAPI):
         app = FastAPI()
         setup_prometheus_metrics(app)
     """
-    # 添加中间件
-    app.middleware("http")(prometheus_middleware)
+    # FIX Bug #4: Use BaseHTTPMiddleware instead of invalid middleware registration
+    app.add_middleware(PrometheusMiddleware)
 
     # 挂载/metrics端点
     metrics_app = make_asgi_app()

@@ -126,7 +126,7 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"}
         )
     except BusinessException as e:
-        http_status = ERROR_HTTP_STATUS.get(e.code, 401)
+        http_status = ERROR_HTTP_STATUS.get(e.code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         raise HTTPException(
             status_code=http_status,
             detail=e.message

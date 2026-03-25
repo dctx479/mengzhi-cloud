@@ -71,9 +71,9 @@ class PermissionService:
         ).first()
         if existing:
             if existing.code == code:
-                raise BusinessException(ErrorCode.RESOURCE_ALREADY_EXISTS, "角色代码已存在")
+                raise BusinessException(ErrorCode.RECORD_ALREADY_EXISTS, "角色代码已存在")
             else:
-                raise BusinessException(ErrorCode.RESOURCE_ALREADY_EXISTS, "角色名称已存在")
+                raise BusinessException(ErrorCode.RECORD_ALREADY_EXISTS, "角色名称已存在")
 
         # 创建角色
         role = Role(
@@ -376,6 +376,7 @@ class PermissionService:
         # 覆盖式分配
         role.permissions = permissions
         role.updated_at = datetime.utcnow()
+        self.db.flush()  # 确保关联表同步
         self.db.commit()
         self.db.refresh(role)
 
@@ -414,6 +415,7 @@ class PermissionService:
 
         # 覆盖式分配
         user.roles = roles
+        self.db.flush()  # 确保关联表同步
         self.db.commit()
         self.db.refresh(user)
 
@@ -536,7 +538,8 @@ class PermissionService:
             permissions.append(perm)
             db.add(perm)
 
-        db.flush()  # 获取权限ID
+        db.commit()  # 先提交权限以获取ID
+        db.refresh(permissions[0])  # 刷新以验证ID已生成
 
         # 创建系统角色
         # 1. 超级管理员 - 拥有所有权限

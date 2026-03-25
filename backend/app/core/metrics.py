@@ -4,6 +4,8 @@
 from prometheus_client import Counter, Histogram, Gauge, generate_latest
 from functools import wraps
 import time
+import asyncio
+import inspect
 
 # HTTP请求指标
 http_requests_total = Counter(
@@ -196,14 +198,14 @@ payment_retry_total = Counter(
 def track_request_metrics(func):
     """装饰器：跟踪HTTP请求指标"""
     @wraps(func)
-    async def wrapper(*args, **kwargs):
+    def sync_wrapper(*args, **kwargs):
         start_time = time.time()
         try:
-            response = await func(*args, **kwargs)
+            response = func(*args, **kwargs)
             http_requests_total.labels(
                 method=kwargs.get('method', 'GET'),
                 endpoint=kwargs.get('path', '/'),
-                status=response.status_code
+                status=getattr(response, 'status_code', 200)
             ).inc()
             return response
         finally:
@@ -212,20 +214,57 @@ def track_request_metrics(func):
                 method=kwargs.get('method', 'GET'),
                 endpoint=kwargs.get('path', '/')
             ).observe(duration)
-    return wrapper
+
+    @wraps(func)
+    async def async_wrapper(*args, **kwargs):
+        start_time = time.time()
+        try:
+            response = await func(*args, **kwargs)
+            http_requests_total.labels(
+                method=kwargs.get('method', 'GET'),
+                endpoint=kwargs.get('path', '/'),
+                status=getattr(response, 'status_code', 200)
+            ).inc()
+            return response
+        finally:
+            duration = time.time() - start_time
+            http_request_duration.labels(
+                method=kwargs.get('method', 'GET'),
+                endpoint=kwargs.get('path', '/')
+            ).observe(duration)
+
+    # Check if the function is async
+    if asyncio.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return sync_wrapper
 
 def track_db_metrics(operation: str):
     """装饰器：跟踪数据库查询指标"""
     def decorator(func):
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        def sync_wrapper(*args, **kwargs):
+            start_time = time.time()
+            try:
+                return func(*args, **kwargs)
+            finally:
+                duration = time.time() - start_time
+                db_query_duration.labels(operation=operation).observe(duration)
+
+        @wraps(func)
+        async def async_wrapper(*args, **kwargs):
             start_time = time.time()
             try:
                 return await func(*args, **kwargs)
             finally:
                 duration = time.time() - start_time
                 db_query_duration.labels(operation=operation).observe(duration)
-        return wrapper
+
+        # Check if the function is async
+        if asyncio.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return sync_wrapper
     return decorator
 
 

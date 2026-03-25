@@ -61,9 +61,18 @@ def test_db_session(test_db_engine) -> Generator[Session, None, None]:
     yield session
 
     # 回滚事务，恢复数据库状态
-    session.close()
-    transaction.rollback()
-    connection.close()
+    try:
+        session.close()
+    except Exception:
+        pass
+    try:
+        transaction.rollback()
+    except Exception:
+        pass
+    try:
+        connection.close()
+    except Exception:
+        pass
 
 
 @pytest.fixture
@@ -157,7 +166,24 @@ def test_user_token(client, test_user_data, test_db_session):
         }
     )
 
-    tokens = login_response.json()["data"]["tokens"]
+    # 验证登录响应
+    assert login_response.status_code == 200, (
+        f"Login failed with status {login_response.status_code}: {login_response.text}"
+    )
+
+    response_data = login_response.json()
+    assert response_data.get("code") == 200, (
+        f"Login failed with code {response_data.get('code')}: {response_data.get('message')}"
+    )
+    assert "data" in response_data and "tokens" in response_data["data"], (
+        "Invalid login response structure: missing 'data.tokens'"
+    )
+
+    tokens = response_data["data"]["tokens"]
+    assert "access_token" in tokens and "refresh_token" in tokens, (
+        "Invalid tokens structure: missing 'access_token' or 'refresh_token'"
+    )
+
     return tokens["access_token"], tokens["refresh_token"], user_uuid
 
 
@@ -282,6 +308,8 @@ def clean_db(test_db_session):
     """清理数据库工具"""
     def _clean():
         from sqlalchemy import text
+        from sqlalchemy.exc import OperationalError
+
         # 清理所有表
         tables = [
             "user_quotas",
@@ -296,7 +324,8 @@ def clean_db(test_db_session):
         for table in tables:
             try:
                 test_db_session.execute(text(f"DELETE FROM {table}"))
-            except:
+            except OperationalError:
+                # 表不存在，跳过
                 pass
         test_db_session.commit()
 

@@ -36,6 +36,13 @@ class ProductCreateRequest(BaseModel):
     origin_city: Optional[str] = Field(None, max_length=50, description="产地城市")
     origin_district: Optional[str] = Field(None, max_length=50, description="产地区县")
     origin_detail: Optional[str] = Field(None, max_length=500, description="产地详情")
+    latitude: Optional[float] = Field(None, description="纬度")
+    longitude: Optional[float] = Field(None, description="经度")
+
+    # 产品详情
+    features: Optional[List[str]] = Field(None, description="产品特点列表")
+    specifications: Optional[dict] = Field(None, description="规格参数")
+    nutrition_facts: Optional[dict] = Field(None, description="营养成分")
 
     # 文化属性
     cultural_tags: Optional[List[str]] = Field(None, description="文化标签列表")
@@ -84,6 +91,13 @@ class ProductUpdateRequest(BaseModel):
     origin_city: Optional[str] = Field(None, max_length=50, description="产地城市")
     origin_district: Optional[str] = Field(None, max_length=50, description="产地区县")
     origin_detail: Optional[str] = Field(None, max_length=500, description="产地详情")
+    latitude: Optional[float] = Field(None, description="纬度")
+    longitude: Optional[float] = Field(None, description="经度")
+
+    # 产品详情
+    features: Optional[List[str]] = Field(None, description="产品特点列表")
+    specifications: Optional[dict] = Field(None, description="规格参数")
+    nutrition_facts: Optional[dict] = Field(None, description="营养成分")
 
     # 文化属性
     cultural_tags: Optional[List[str]] = Field(None, description="文化标签列表")
@@ -158,6 +172,11 @@ class ProductDetailResponse(BaseModel):
     # 认证信息
     certification_type: Optional[str] = Field(default=None, description="认证类型")
     certification_no: Optional[str] = Field(default=None, description="认证编号")
+
+    # 产品详情
+    features: Optional[List[str]] = Field(default=None, description="产品特点列表")
+    specifications: Optional[dict] = Field(default=None, description="规格参数")
+    nutrition_facts: Optional[dict] = Field(default=None, description="营养成分")
 
     # 媒体资源
     main_image_url: Optional[str] = Field(default=None, description="主图URL")

@@ -47,11 +47,11 @@ export const getAvailableProviders = async (): Promise<ProviderInfo[]> => {
 
 /** 管理员: 获取提供商设置（含启用状态） */
 export const getProviderSettings = async (): Promise<{ providers: ProviderInfo[]; enabled_ids: string[] }> => {
-  const res = await request.get<{ code: number; data: { providers: ProviderInfo[]; enabled_ids: string[] }; message: string }>('/admin/provider-settings')
+  const res = await request.get<{ code: number; data: { providers: ProviderInfo[]; enabled_ids: string[] }; message: string }>('/v1/admin/provider-settings')
   return unwrap<{ providers: ProviderInfo[]; enabled_ids: string[] }>(res)
 }
 
 /** 管理员: 更新提供商设置 */
 export const updateProviderSettings = async (enabledIds: string[]): Promise<void> => {
-  await request.put('/admin/provider-settings', { enabled_ids: enabledIds })
+  await request.put('/v1/admin/provider-settings', { enabled_ids: enabledIds })
 }

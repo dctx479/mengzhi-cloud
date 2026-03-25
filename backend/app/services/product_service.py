@@ -430,6 +430,8 @@ class ProductService:
                 elif hasattr(product, actual_field):
                     setattr(product, actual_field, value)
 
+            # 重新将对象添加到会话（确保更改被跟踪）
+            self.db.add(product)
             # 保存到数据库
             self.db.commit()
             self.db.refresh(product)

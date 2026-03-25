@@ -13,6 +13,7 @@
 
 import time
 import uuid
+import asyncio
 from datetime import datetime
 from typing import Callable
 from fastapi import Request, Response
@@ -97,17 +98,20 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
                 user_id = getattr(user, "id", None)
                 enterprise_id = getattr(user, "enterprise_id", None)
 
-            # 异步记录性能日志
-            self._log_performance(
-                request_id=request_id,
-                endpoint=request.url.path,
-                method=request.method,
-                user_id=user_id,
-                enterprise_id=enterprise_id,
-                response_time=response_time,
-                status_code=status_code,
-                is_success=is_success,
-                error_message=error_message,
+            # FIX Bug #3: Run blocking DB operation in thread pool executor, don't block event loop
+            asyncio.create_task(
+                asyncio.to_thread(
+                    self._log_performance,
+                    request_id=request_id,
+                    endpoint=request.url.path,
+                    method=request.method,
+                    user_id=user_id,
+                    enterprise_id=enterprise_id,
+                    response_time=response_time,
+                    status_code=status_code,
+                    is_success=is_success,
+                    error_message=error_message,
+                )
             )
 
         return response

@@ -16,12 +16,16 @@ async def get_metrics():
 async def health_check() -> Dict[str, Any]:
     """健康检查"""
     import psutil
+    import os
+
+    # 使用平台兼容的路径：Windows 使用 'C:\' (或其他盘符)，Unix 使用 '/'
+    disk_path = 'C:\\' if os.name == 'nt' else '/'
 
     return {
         "status": "healthy",
         "cpu_usage": psutil.cpu_percent(),
         "memory_usage": psutil.virtual_memory().percent,
-        "disk_usage": psutil.disk_usage('/').percent
+        "disk_usage": psutil.disk_usage(disk_path).percent
     }
 
 @router.get("/slow-queries")

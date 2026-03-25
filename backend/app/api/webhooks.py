@@ -15,6 +15,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from typing import Dict, Any, List
 from datetime import datetime
 import logging
+import secrets
 
 router = APIRouter(prefix="/api/v1/webhooks", tags=["Webhooks"])
 security = HTTPBasic()
@@ -29,10 +30,15 @@ def verify_alertmanager_auth(credentials: HTTPBasicCredentials = Depends(securit
     correct_username = os.getenv("ALERTMANAGER_WEBHOOK_USER", "alertmanager")
     correct_password = os.getenv("ALERTMANAGER_WEBHOOK_SECRET", "changeme")
 
-    if (
-        credentials.username != correct_username
-        or credentials.password != correct_password
-    ):
+    # 使用 secrets.compare_digest() 防止timing attack
+    username_match = secrets.compare_digest(
+        credentials.username.encode(), correct_username.encode()
+    )
+    password_match = secrets.compare_digest(
+        credentials.password.encode(), correct_password.encode()
+    )
+
+    if not (username_match and password_match):
         raise HTTPException(
             status_code=401,
             detail="Invalid credentials",
@@ -79,6 +85,13 @@ async def receive_alerts(
     }
     """
     try:
+        # 验证Content-Type
+        if request.headers.get("content-type") and "application/json" not in request.headers.get("content-type", ""):
+            raise HTTPException(
+                status_code=400,
+                detail="Content-Type must be application/json"
+            )
+
         alert_data = await request.json()
 
         # 解析告警数据
@@ -105,6 +118,11 @@ async def receive_alerts(
             "received_at": datetime.utcnow().isoformat()
         }
 
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Invalid JSON in request: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid JSON format")
     except Exception as e:
         logger.error(f"Error processing alerts: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -117,6 +135,13 @@ async def receive_critical_alerts(
 ):
     """接收严重告警"""
     try:
+        # 验证Content-Type
+        if request.headers.get("content-type") and "application/json" not in request.headers.get("content-type", ""):
+            raise HTTPException(
+                status_code=400,
+                detail="Content-Type must be application/json"
+            )
+
         alert_data = await request.json()
         alerts = alert_data.get("alerts", [])
 
@@ -135,6 +160,11 @@ async def receive_critical_alerts(
             "message": f"Processed {len(alerts)} critical alert(s)"
         }
 
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Invalid JSON in request: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid JSON format")
     except Exception as e:
         logger.error(f"Error processing critical alerts: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -147,6 +177,13 @@ async def receive_warning_alerts(
 ):
     """接收警告告警"""
     try:
+        # 验证Content-Type
+        if request.headers.get("content-type") and "application/json" not in request.headers.get("content-type", ""):
+            raise HTTPException(
+                status_code=400,
+                detail="Content-Type must be application/json"
+            )
+
         alert_data = await request.json()
         alerts = alert_data.get("alerts", [])
 
@@ -165,6 +202,11 @@ async def receive_warning_alerts(
             "message": f"Processed {len(alerts)} warning alert(s)"
         }
 
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Invalid JSON in request: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid JSON format")
     except Exception as e:
         logger.error(f"Error processing warning alerts: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -177,6 +219,13 @@ async def receive_info_alerts(
 ):
     """接收信息告警"""
     try:
+        # 验证Content-Type
+        if request.headers.get("content-type") and "application/json" not in request.headers.get("content-type", ""):
+            raise HTTPException(
+                status_code=400,
+                detail="Content-Type must be application/json"
+            )
+
         alert_data = await request.json()
         alerts = alert_data.get("alerts", [])
 
@@ -195,6 +244,11 @@ async def receive_info_alerts(
             "message": f"Processed {len(alerts)} info alert(s)"
         }
 
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Invalid JSON in request: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid JSON format")
     except Exception as e:
         logger.error(f"Error processing info alerts: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))

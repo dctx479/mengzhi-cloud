@@ -404,7 +404,16 @@ const logPage = ref(1)
 const logPageSize = ref(10)
 const logTotal = ref(0)
 
-const devices = ref<any[]>([])
+interface Device {
+  id: string
+  device_name: string
+  device_type: string
+  ip_address: string
+  last_login: string
+  is_current: boolean
+}
+
+const devices = ref<Device[]>([])
 const loadingDevices = ref(false)
 
 const changingPassword = ref(false)
@@ -437,7 +446,11 @@ const parseUserAgent = (userAgent: string): string => {
 
 const handleChangePassword = async () => {
   try {
-    await passwordFormRef.value?.validate()
+    // Validate form before processing
+    if (!passwordFormRef.value) {
+      return
+    }
+    await passwordFormRef.value.validate()
     changingPassword.value = true
 
     const data: ChangePasswordRequest = {
@@ -511,7 +524,7 @@ const handleSendCode = async (type: 'phone' | 'email') => {
     ElMessage.success('验证码已发送，请查收')
     countDown.value = 60
 
-    const interval = setInterval(() => {
+    const interval: ReturnType<typeof setInterval> = setInterval(() => {
       countDown.value--
       if (countDown.value <= 0) {
         clearInterval(interval)
@@ -527,7 +540,10 @@ const handleSendCode = async (type: 'phone' | 'email') => {
 
 const handleSubmitBindPhone = async () => {
   try {
-    await phoneFormRef.value?.validate()
+    if (!phoneFormRef.value) {
+      return
+    }
+    await phoneFormRef.value.validate()
     await bindPhone({
       phone: phoneForm.value.phone,
       verification_code: phoneForm.value.verification_code,
@@ -543,7 +559,10 @@ const handleSubmitBindPhone = async () => {
 
 const handleSubmitChangeEmail = async () => {
   try {
-    await emailFormRef.value?.validate()
+    if (!emailFormRef.value) {
+      return
+    }
+    await emailFormRef.value.validate()
     await bindEmail({
       email: emailForm.value.email,
       verification_code: emailForm.value.verification_code,
@@ -569,7 +588,13 @@ const handleRemoveDevice = async (deviceId: string) => {
     ElMessage.success('设备已移除')
     await loadDevices()
   } catch (error) {
-    if (error !== 'cancel') {
+    // ElMessageBox rejects with 'cancel' string when user cancels
+    if (error instanceof Error || typeof error === 'string') {
+      if (String(error) !== 'cancel') {
+        ElMessage.error('移除失败')
+        console.error(error)
+      }
+    } else {
       ElMessage.error('移除失败')
       console.error(error)
     }

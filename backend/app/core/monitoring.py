@@ -39,7 +39,7 @@ class PerformanceMonitor:
         """记录数据库查询"""
         db_query_duration.labels(operation=query_type).observe(duration)
 
-        from config.monitoring import monitoring_config
+        from app.config.monitoring import monitoring_config
 
         if duration > monitoring_config.DB_SLOW_QUERY_THRESHOLD:
             self.slow_queries.append({"query": query[:200], "duration": duration, "timestamp": datetime.now()})
@@ -47,9 +47,14 @@ class PerformanceMonitor:
 
     def update_system_metrics(self):
         """更新系统指标"""
+        import os
+
         cpu_usage.set(psutil.cpu_percent(interval=1))
         memory_usage.set(psutil.virtual_memory().percent)
-        disk_usage.set(psutil.disk_usage("/").percent)
+
+        # 使用平台兼容的路径：Windows 使用 'C:\' (或其他盘符)，Unix 使用 '/'
+        disk_path = 'C:\\' if os.name == 'nt' else '/'
+        disk_usage.set(psutil.disk_usage(disk_path).percent)
 
     def get_metrics(self) -> bytes:
         """获取Prometheus指标"""

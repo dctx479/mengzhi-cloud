@@ -220,19 +220,38 @@ class UploadService:
         else:
             file_path, file_url, file_size = await self.save_file_to_local(file, category)
 
-        # 获取图片信息
-        img_info = ImageProcessor.get_image_info(file_path)
-
-        # 生成缩略图
+        # 获取图片信息（仅限本地存储）
+        # BUG FIX: OSS path是对象键，不是文件系统路径，无法用PIL打开
+        img_info = None
         thumbnail_url = None
+        if not settings.USE_OSS:
+            try:
+                img_info = ImageProcessor.get_image_info(file_path)
+            except Exception as e:
+                logger.warning(f"获取图片信息失败: {e}")
+                img_info = {"width": None, "height": None}
+        else:
+            # OSS上传：无法提取本地图片信息，设置为None
+            img_info = {"width": None, "height": None}
+
+        # 生成缩略图（仅限本地存储）
         try:
-            thumbnail_path = ImageProcessor.generate_thumbnail(
-                file_path, size=settings.IMAGE_THUMBNAIL_SIZE, quality=settings.IMAGE_QUALITY
-            )
-            # 生成缩略图URL
-            thumbnail_filename = Path(thumbnail_path).name
-            date_path = datetime.now().strftime("%Y/%m/%d")
-            thumbnail_url = f"/{settings.UPLOAD_DIR}/{category.value}/{date_path}/{thumbnail_filename}"
+            if not settings.USE_OSS:
+                thumbnail_path = ImageProcessor.generate_thumbnail(
+                    file_path, size=settings.IMAGE_THUMBNAIL_SIZE, quality=settings.IMAGE_QUALITY
+                )
+                # 生成缩略图URL（从实际文件路径推导，而不是重新计算date_path）
+                # BUG FIX: 缩略图与主文件在同一目录，直接计算相对URL
+                thumbnail_filename = Path(thumbnail_path).name
+                # 从thumbnail_path中提取相对部分（uploads/category/YYYY/MM/DD/filename_thumb.ext）
+                relative_thumb = str(Path(thumbnail_path)).replace("\\", "/")
+                if relative_thumb.startswith(str(self.upload_dir).replace("\\", "/")):
+                    # 去掉前缀获取相对路径
+                    thumbnail_url = f"/{relative_thumb[len(str(self.upload_dir).replace('\\\\', '/')):]}"
+                else:
+                    # fallback: 使用基于当前日期的路径（可能不准确但是合理的默认值）
+                    date_path = datetime.now().strftime("%Y/%m/%d")
+                    thumbnail_url = f"/{settings.UPLOAD_DIR}/{category.value}/{date_path}/{thumbnail_filename}"
         except Exception as e:
             logger.warning(f"缩略图生成失败: {e}")
 
@@ -294,11 +313,36 @@ class UploadService:
         else:
             file_path, file_url, file_size = await self.save_file_to_local(file, category)
 
-        # TODO: 提取视频元数据（时长、分辨率等）
-        # 可以使用 ffmpeg-python 或 moviepy
+        # 提取视频元数据（仅本地存储）
+        # BUG FIX: OSS对象键无法用ffmpeg处理，仅本地文件可提取
         width = None
         height = None
         duration = None
+
+        if not settings.USE_OSS:
+            try:
+                # 延迟导入以避免依赖全局要求
+                try:
+                    import ffmpeg
+                    probe = ffmpeg.probe(file_path)
+                    video_stream = next((s for s in probe['streams'] if s['codec_type'] == 'video'), None)
+                    if video_stream:
+                        width = video_stream.get('width')
+                        height = video_stream.get('height')
+                        duration = float(probe.get('format', {}).get('duration', 0))
+                except (ImportError, Exception) as e:
+                    logger.warning(f"使用ffmpeg-python提取视频元数据失败，尝试moviepy: {e}")
+                    try:
+                        from moviepy.editor import VideoFileClip
+                        clip = VideoFileClip(file_path)
+                        width = clip.w
+                        height = clip.h
+                        duration = clip.duration
+                        clip.close()
+                    except (ImportError, Exception) as e2:
+                        logger.warning(f"无法提取视频元数据（ffmpeg和moviepy均不可用）: {e2}")
+            except Exception as e:
+                logger.warning(f"视频元数据提取异常: {e}")
 
         # 创建媒体记录
         media = Media(
@@ -323,8 +367,10 @@ class UploadService:
         self.db.commit()
         self.db.refresh(media)
 
-        # TODO: 异步生成视频封面
-        # asyncio.create_task(self._generate_video_thumbnail(media.id))
+        # NOTE: 异步生成视频封面需要在后台任务中处理
+        # 前端可轮询查询media.is_processed字段来判断处理完成
+        # 实现方法: 使用Celery/RQ等任务队列
+        # 示例: asyncio.create_task(self._generate_video_thumbnail(media.id))
 
         return media
 

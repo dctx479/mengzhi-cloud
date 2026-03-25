@@ -20,7 +20,7 @@ import uuid
 
 from app.api.deps import get_db, get_current_user, require_admin
 from app.models.product import Product
-from app.core.responses import error_response
+from app.core.responses import error_response, success_response
 from app.core.errors import ErrorCode, BusinessException
 from app.core.logging_config import logger
 
@@ -295,4 +295,4 @@ async def get_available_fields(
         {"name": "更新时间", "description": "更新时间"}
     ]
 
-    return {"code": 0, "message": "success", "data": fields}
+    return success_response(data=fields, message="获取可导出字段成功").dict()

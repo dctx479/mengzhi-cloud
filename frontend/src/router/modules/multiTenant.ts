@@ -5,7 +5,8 @@ const enterpriseRoutes: RouteRecordRaw[] = [
   {
     path: '/enterprise',
     name: 'Enterprise',
-    meta: { requiresAuth: true, role: 'enterprise_admin' },
+    component: () => import('@/layouts/MainLayout.vue'),
+    meta: { requiresAuth: true, role: 'manager' },
     children: [
       {
         path: 'ai-config',
@@ -26,31 +27,32 @@ const enterpriseRoutes: RouteRecordRaw[] = [
 // 管理员路由
 const adminRoutes: RouteRecordRaw[] = [
   {
-    path: '/admin',
-    name: 'Admin',
+    path: '/admin-multi',
+    name: 'AdminMulti',
+    component: () => import('@/layouts/MainLayout.vue'),
     meta: { requiresAuth: true, role: 'admin' },
     children: [
       {
         path: 'dashboard',
-        name: 'AdminDashboard',
+        name: 'AdminDashboardMulti',
         component: () => import('@/views/admin/DashboardView.vue'),
         meta: { title: '管理员仪表盘' }
       },
       {
         path: 'users',
-        name: 'AdminUsers',
+        name: 'AdminUsersMulti',
         component: () => import('@/views/admin/UsersView.vue'),
         meta: { title: '用户管理' }
       },
       {
         path: 'enterprises',
-        name: 'AdminEnterprises',
+        name: 'AdminEnterprisesMulti',
         component: () => import('@/views/admin/EnterprisesView.vue'),
         meta: { title: '企业管理' }
       },
       {
         path: 'audit-logs',
-        name: 'AdminAuditLogs',
+        name: 'AdminAuditLogsMulti',
         component: () => import('@/views/audit/AuditLogs.vue'),
         meta: { title: '审计日志' }
       }

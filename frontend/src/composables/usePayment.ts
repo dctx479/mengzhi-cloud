@@ -173,6 +173,12 @@ export function usePayment(options: UsePaymentOptions = {}) {
       if (paymentStatus.value === 'pending') {
         scheduleNextCheck()
       }
+    }).catch((error) => {
+      console.error('首次支付状态检查失败:', error)
+      // 首次检查失败时也应该尝试轮询（可能是临时网络问题）
+      if (paymentStatus.value === 'pending') {
+        scheduleNextCheck()
+      }
     })
   }
 

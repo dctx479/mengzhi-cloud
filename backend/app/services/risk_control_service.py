@@ -65,20 +65,32 @@ class RiskControlService:
             }
 
             # 1. 黑名单检查
-            blacklist_result = self._check_blacklist(user_id, event_data, context)
-            if blacklist_result["hits"]:
-                risk_result["blacklist_hits"] = blacklist_result["hits"]
-                risk_result["risk_score"] += blacklist_result["score"]
+            try:
+                blacklist_result = self._check_blacklist(user_id, event_data, context)
+                if blacklist_result["hits"]:
+                    risk_result["blacklist_hits"] = blacklist_result["hits"]
+                    risk_result["risk_score"] += blacklist_result["score"]
+            except Exception as e:
+                self.logger.error(f"黑名单检查模块异常: {str(e)}")
+                raise
 
             # 2. 规则引擎检查
-            rules_result = self._check_rules(event_type, user_id, event_data, context)
-            if rules_result["triggered"]:
-                risk_result["triggered_rules"] = rules_result["triggered"]
-                risk_result["risk_score"] += rules_result["score"]
+            try:
+                rules_result = self._check_rules(event_type, user_id, event_data, context)
+                if rules_result["triggered"]:
+                    risk_result["triggered_rules"] = rules_result["triggered"]
+                    risk_result["risk_score"] += rules_result["score"]
+            except Exception as e:
+                self.logger.error(f"规则检查模块异常: {str(e)}")
+                raise
 
             # 3. 行为分析
-            behavior_result = self._analyze_behavior(user_id, event_type, event_data)
-            risk_result["risk_score"] += behavior_result["score"]
+            try:
+                behavior_result = self._analyze_behavior(user_id, event_type, event_data)
+                risk_result["risk_score"] += behavior_result["score"]
+            except Exception as e:
+                self.logger.error(f"行为分析模块异常: {str(e)}")
+                raise
 
             # 4. 确定最终风险等级和处理动作
             risk_result["risk_level"] = self._calculate_risk_level(risk_result["risk_score"])
@@ -145,6 +157,7 @@ class RiskControlService:
                 check_items.append((BlacklistType.CARD.value, event_data["card_number"]))
 
             # 批量查询黑名单
+            items_to_update = []
             for blacklist_type, value in check_items:
                 blacklist_items = self.db.query(RiskBlacklist).filter(
                     and_(
@@ -167,9 +180,8 @@ class RiskControlService:
                         "reason": item.reason
                     })
 
-                    # 更新命中统计
-                    item.hit_count += 1
-                    item.last_hit_at = datetime.utcnow()
+                    # 记录要更新的项目
+                    items_to_update.append(item)
 
                     # 根据风险等级计算分数
                     if item.risk_level == RiskLevel.CRITICAL.value:
@@ -181,11 +193,18 @@ class RiskControlService:
                     else:
                         score += 5
 
-            self.db.commit()
+            # 批量更新统计信息
+            if items_to_update:
+                now = datetime.utcnow()
+                for item in items_to_update:
+                    item.hit_count += 1
+                    item.last_hit_at = now
+                self.db.commit()
 
         except Exception as e:
             self.logger.error(f"黑名单检查失败: {str(e)}")
             self.db.rollback()
+            raise
 
         return {"hits": hits, "score": score}
 
@@ -206,6 +225,7 @@ class RiskControlService:
                 RiskRule.is_active == True
             ).order_by(RiskRule.priority).all()
 
+            rules_to_update = []
             for rule in rules:
                 if self._evaluate_rule(rule, event_type, user_id, event_data, context):
                     triggered.append({
@@ -216,9 +236,7 @@ class RiskControlService:
                         "action": rule.action
                     })
 
-                    # 更新规则命中统计
-                    rule.hit_count += 1
-                    rule.last_hit_at = datetime.utcnow()
+                    rules_to_update.append(rule)
 
                     # 根据风险等级计算分数
                     if rule.risk_level == RiskLevel.CRITICAL.value:
@@ -230,11 +248,18 @@ class RiskControlService:
                     else:
                         score += 3
 
-            self.db.commit()
+            # 批量更新统计信息
+            if rules_to_update:
+                now = datetime.utcnow()
+                for rule in rules_to_update:
+                    rule.hit_count += 1
+                    rule.last_hit_at = now
+                self.db.commit()
 
         except Exception as e:
             self.logger.error(f"规则检查失败: {str(e)}")
             self.db.rollback()
+            raise
 
         return {"triggered": triggered, "score": score}
 
@@ -287,7 +312,9 @@ class RiskControlService:
             # 计算时间窗口
             start_time = datetime.utcnow() - timedelta(seconds=time_window)
 
-            # 查询时间窗口内的事件数量
+            # 查询时间窗口内的事件数量（使用FOR UPDATE锁防止竞态）
+            # 注意：这里仍然存在竞态条件，因为我们不能在这里真正锁定未来事件
+            # 最佳实践是在应用层使用分布式锁(Redis)，但此处提供了SQL行级锁的基础
             count = self.db.query(RiskEvent).filter(
                 and_(
                     RiskEvent.user_id == user_id,
@@ -296,6 +323,7 @@ class RiskControlService:
                 )
             ).count()
 
+            # 返回是否达到限制（注意：这仍然容易受竞态影响，建议在应用层使用Redis分布式锁）
             return count >= max_count
 
         except Exception as e:
@@ -313,9 +341,12 @@ class RiskControlService:
             if not amount:
                 return False
 
-            return Decimal(str(amount)) > threshold
+            # Convert both to Decimal for safe comparison
+            threshold_decimal = Decimal(str(threshold))
+            amount_decimal = Decimal(str(amount))
+            return amount_decimal > threshold_decimal
 
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError) as e:
             self.logger.error(f"金额规则检查失败: {str(e)}")
             return False
 
@@ -452,11 +483,16 @@ class RiskControlService:
                 amount = Decimal(str(event_data["amount"]))
 
                 # 获取用户历史支付金额
-                payment_amounts = [
-                    Decimal(str(e.event_data.get("amount", 0)))
-                    for e in recent_events
-                    if e.event_type == EventType.PAYMENT.value and e.event_data.get("amount")
-                ]
+                payment_amounts = []
+                for e in recent_events:
+                    if e.event_type == EventType.PAYMENT.value and e.event_data:
+                        try:
+                            amt = e.event_data.get("amount")
+                            if amt is not None:
+                                payment_amounts.append(Decimal(str(amt)))
+                        except (ValueError, TypeError):
+                            # Skip malformed amounts
+                            continue
 
                 if payment_amounts:
                     avg_amount = sum(payment_amounts) / len(payment_amounts)

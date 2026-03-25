@@ -8,10 +8,11 @@
 - 媒体更新和删除
 - 媒体统计
 
-版本: 1.0
-更新日期: 2026-01-17
+版本: 1.1
+更新日期: 2026-03-25
 """
 
+import os
 from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import Optional, List
@@ -33,10 +34,65 @@ from app.services.upload_service import UploadService
 
 router = APIRouter(prefix="/media", tags=["媒体素材管理"])
 
+# --- File upload security constants ---
+MAX_IMAGE_UPLOAD_SIZE = 50 * 1024 * 1024    # 50 MB for images
+MAX_VIDEO_UPLOAD_SIZE = 200 * 1024 * 1024   # 200 MB for videos
+
+ALLOWED_IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+
+ALLOWED_VIDEO_MIME_TYPES = {"video/mp4", "video/mpeg", "video/quicktime"}
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mpeg", ".mpg", ".mov"}
+
+
+def _validate_upload_file(
+    file: UploadFile,
+    content: bytes,
+    allowed_mime_types: set,
+    allowed_extensions: set,
+    max_size: int,
+) -> None:
+    """Validate uploaded file size, MIME type, and extension.
+
+    Raises HTTPException on validation failure.
+    """
+    # 1. Size check
+    if len(content) > max_size:
+        max_mb = max_size / (1024 * 1024)
+        actual_mb = len(content) / (1024 * 1024)
+        raise HTTPException(
+            status_code=413,
+            detail=f"文件过大: {actual_mb:.2f}MB，最大允许 {max_mb:.0f}MB",
+        )
+
+    # 2. MIME type check
+    if file.content_type not in allowed_mime_types:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"不支持的文件类型: {file.content_type}。"
+                f"支持的类型: {', '.join(sorted(allowed_mime_types))}"
+            ),
+        )
+
+    # 3. Extension check
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"不支持的文件扩展名: {ext}。"
+                f"支持的扩展名: {', '.join(sorted(allowed_extensions))}"
+            ),
+        )
+
 
 def _get_user_int_id(current_user: dict, db: Session) -> int:
     """从current_user dict获取用户整数数据库ID"""
-    user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    user_id = current_user.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="无法识别用户身份")
+    user = db.query(User).filter(User.user_uuid == user_id).first()
     if not user:
         raise HTTPException(status_code=401, detail="用户不存在")
     return user.id
@@ -68,6 +124,16 @@ async def upload_image(
     - 自动压缩优化
     """
     try:
+        # --- Security: validate file before processing ---
+        content = await file.read()
+        _validate_upload_file(
+            file, content,
+            ALLOWED_IMAGE_MIME_TYPES, ALLOWED_IMAGE_EXTENSIONS,
+            MAX_IMAGE_UPLOAD_SIZE,
+        )
+        # Reset file position so downstream service can read it again
+        await file.seek(0)
+
         media = await upload_service.upload_image(
             file=file,
             category=category,
@@ -107,6 +173,16 @@ async def upload_video(
     - 最大文件大小：200MB
     """
     try:
+        # --- Security: validate file before processing ---
+        content = await file.read()
+        _validate_upload_file(
+            file, content,
+            ALLOWED_VIDEO_MIME_TYPES, ALLOWED_VIDEO_EXTENSIONS,
+            MAX_VIDEO_UPLOAD_SIZE,
+        )
+        # Reset file position so downstream service can read it again
+        await file.seek(0)
+
         media = await upload_service.upload_video(
             file=file,
             category=category,
@@ -148,7 +224,7 @@ async def list_media(
     query = db.query(Media)
 
     # 权限过滤
-    if current_user["role"] != "admin":
+    if current_user.get("role", "") != "admin":
         query = query.filter(Media.user_id == _get_user_int_id(current_user, db))
     elif user_id:
         # 管理员可以筛选特定用户
@@ -213,7 +289,7 @@ async def get_media(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 权限验证
-    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user.get("role", "") != "admin":
         raise HTTPException(status_code=403, detail="无权访问此媒体")
 
     return media
@@ -240,7 +316,7 @@ async def update_media(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 权限验证
-    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user.get("role", "") != "admin":
         raise HTTPException(status_code=403, detail="无权修改此媒体")
 
     # 更新字段
@@ -274,7 +350,7 @@ async def delete_media(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 权限验证
-    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user.get("role", "") != "admin":
         raise HTTPException(status_code=403, detail="无权删除此媒体")
 
     # 删除媒体
@@ -304,7 +380,7 @@ async def assign_media_to_product(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 验证媒体所有权
-    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user.get("role", "") != "admin":
         raise HTTPException(status_code=403, detail="无权操作此媒体")
 
     # 验证产品存在
@@ -313,7 +389,7 @@ async def assign_media_to_product(
         raise HTTPException(status_code=404, detail="产品不存在")
 
     # 验证产品所有权
-    if product.created_by != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
+    if product.created_by != _get_user_int_id(current_user, db) and current_user.get("role", "") != "admin":
         raise HTTPException(status_code=403, detail="无权操作此产品")
 
     # 关联产品
@@ -339,7 +415,7 @@ async def unassign_media_from_product(
         raise HTTPException(status_code=404, detail="媒体不存在")
 
     # 权限验证
-    if media.user_id != _get_user_int_id(current_user, db) and current_user["role"] != "admin":
+    if media.user_id != _get_user_int_id(current_user, db) and current_user.get("role", "") != "admin":
         raise HTTPException(status_code=403, detail="无权操作此媒体")
 
     # 取消关联

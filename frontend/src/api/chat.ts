@@ -29,6 +29,21 @@ chatAPI.interceptors.request.use((config) => {
   return config
 })
 
+// 添加响应拦截器 — 自动解包 {code, data, message} 结构
+chatAPI.interceptors.response.use(
+  (response) => {
+    // 后端某些端点（如 /stream）返回 Pydantic 模型直接，不用 success_response 包装
+    // 检查是否存在 code 和 data 字段（仅当两者都存在时才解包）
+    const body = response.data
+    if (body && typeof body === 'object' && 'code' in body && 'data' in body && body.code === 200) {
+      return { ...response, data: body.data }
+    }
+    // 否则直接返回原始 response.data（已是最终数据或 Pydantic 序列化对象）
+    return response
+  },
+  (error) => Promise.reject(error)
+)
+
 // ==================== 类型映射辅助 ====================
 
 interface BackendConversation {
@@ -210,10 +225,12 @@ export async function sendMessageStream(
 /**
  * 上传文件
  */
-export async function uploadFile(chatId: string, file: File): Promise<FileUploadResponse> {
+export async function uploadFile(_chatId: string, file: File): Promise<FileUploadResponse> {
   const formData = new FormData()
   formData.append('file', file)
-  const response = await chatAPI.post<FileUploadResponse>(`/${chatId}/uploads`, formData, {
+  // Note: _chatId parameter kept for API compatibility but not used in path
+  // Backend handles file association server-side
+  const response = await chatAPI.post<FileUploadResponse>('/uploads', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
   return response.data
@@ -222,10 +239,12 @@ export async function uploadFile(chatId: string, file: File): Promise<FileUpload
 /**
  * 上传多个文件
  */
-export async function uploadFiles(chatId: string, files: File[]): Promise<FileUploadResponse[]> {
+export async function uploadFiles(_chatId: string, files: File[]): Promise<FileUploadResponse[]> {
   const formData = new FormData()
   files.forEach((file) => formData.append('files', file))
-  const response = await chatAPI.post<FileUploadResponse[]>(`/${chatId}/uploads/batch`, formData, {
+  // Note: _chatId parameter kept for API compatibility but not used in path
+  // Backend handles file association server-side
+  const response = await chatAPI.post<FileUploadResponse[]>('/uploads/batch', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
   return response.data
@@ -243,9 +262,11 @@ export async function getChatHistory(
     params: { page, page_size: pageSize },
   })
   const conv = response.data as BackendConversation
+  // Note: Backend may not always return total count; use server response if available
+  // Otherwise fallback to current page message count
   return {
     data: (conv.messages || []).map(mapMessage),
-    total: conv.messages?.length || 0,
+    total: (conv as unknown as { total?: number }).total ?? conv.messages?.length ?? 0,
   }
 }
 

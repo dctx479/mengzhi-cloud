@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.models.tenant_ai_config import TenantAIConfig, HealthStatus
 from app.services.ai.base_provider import BaseAIProvider, ChatCompletionRequest, ChatMessage
 from app.services.ai.factory import AIProviderFactory
+from app.core.security import decrypt_api_key
 
 
 class HealthCheckConfig:
@@ -185,7 +186,11 @@ class HealthChecker:
             for config in configs:
                 # 这里需要解密API密钥
                 # 实际实现中应该使用加密服务解密
-                api_key = config.api_key_encrypted  # TODO: 解密
+                try:
+                    api_key = decrypt_api_key(config.api_key_encrypted)
+                except Exception as e:
+                    logger.error(f"Failed to decrypt API key for provider {config.id}: {e}")
+                    continue
                 tasks.append(self.check_provider_health(config, api_key))
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -240,7 +245,13 @@ class HealthChecker:
                 )
 
                 # 尝试健康检查
-                api_key = config.api_key_encrypted  # TODO: 解密
+                try:
+                    api_key = decrypt_api_key(config.api_key_encrypted)
+                except Exception as e:
+                    logger.error(f"Failed to decrypt API key for provider {config.id}: {e}")
+                    config.open_circuit_breaker(self.config.CIRCUIT_BREAKER_DURATION)
+                    self.db.commit()
+                    continue
                 is_healthy = await self.check_provider_health(config, api_key)
 
                 if is_healthy:

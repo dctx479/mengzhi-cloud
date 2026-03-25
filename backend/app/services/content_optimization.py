@@ -161,7 +161,21 @@ class DiversityController:
         """
         self.db = db
         self.similarity_threshold = similarity_threshold
-        self.encoder = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2') if HAS_EMBEDDINGS else None
+        # 延迟初始化编码器以避免阻塞，在需要时调用 _ensure_encoder()
+        self._encoder = None
+        self._encoder_initialized = False
+
+    def _ensure_encoder(self):
+        """惰性初始化编码器"""
+        if not self._encoder_initialized and HAS_EMBEDDINGS and not self._encoder:
+            self._encoder = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+            self._encoder_initialized = True
+        return self._encoder
+
+    @property
+    def encoder(self):
+        """获取编码器，需要时初始化"""
+        return self._ensure_encoder()
 
     async def generate_diverse_variants(
         self,

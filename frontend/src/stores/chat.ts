@@ -204,6 +204,8 @@ export const useChatStore = defineStore('chat', () => {
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to clear chat'
       throw err
+    } finally {
+      messageLoading.value = false
     }
   }
 

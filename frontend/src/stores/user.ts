@@ -12,6 +12,7 @@ export const useUserStore = defineStore('user', () => {
   const isLoggedIn = ref(false)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const _restored = ref(false)  // Track if restoration was attempted
 
   // Computed
   const userProfile = computed(() => user.value as UserProfile | null)
@@ -19,6 +20,14 @@ export const useUserStore = defineStore('user', () => {
   const username = computed(() => user.value?.username)
   const userRole = computed(() => user.value?.role)
   const isAdmin = computed(() => user.value?.role === 'admin')
+
+  // Helper: Restore user from localStorage if not yet restored
+  const _ensureRestored = () => {
+    if (!_restored.value) {
+      restoreFromStorage()
+      _restored.value = true
+    }
+  }
 
   // Actions
   const login = async (username: string, password: string) => {
@@ -66,12 +75,14 @@ export const useUserStore = defineStore('user', () => {
     } finally {
       user.value = null
       isLoggedIn.value = false
+      _restored.value = false  // Reset restoration flag
       localStorage.removeItem('token')
       localStorage.removeItem('user')
     }
   }
 
   const fetchCurrentUser = async () => {
+    _ensureRestored()  // Auto-restore before API call
     loading.value = true
     error.value = null
     try {
@@ -122,7 +133,8 @@ export const useUserStore = defineStore('user', () => {
         isLoggedIn.value = false
         return false
       }
-    } catch {
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Token verification failed'
       isLoggedIn.value = false
       return false
     }
@@ -138,6 +150,7 @@ export const useUserStore = defineStore('user', () => {
       } catch {
         localStorage.removeItem('user')
         localStorage.removeItem('token')
+        isLoggedIn.value = false
       }
     }
   }

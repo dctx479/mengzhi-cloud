@@ -88,6 +88,10 @@ class OptimizedContentGenerationService:
         Returns:
             生成的内容
         """
+        # 确保初始化完成
+        if not self.deepseek_client:
+            await self.initialize()
+
         try:
             # 1. 检索产品信息
             product = self.db.query(Product).filter_by(id=product_id).first()
@@ -180,6 +184,10 @@ class OptimizedContentGenerationService:
         Returns:
             内容列表
         """
+        # 确保初始化完成
+        if not self.deepseek_client:
+            await self.initialize()
+
         logger.info(f"开始生成 {count} 个内容变体")
 
         try:

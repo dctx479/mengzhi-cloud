@@ -19,6 +19,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, status, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import Optional
+from pydantic import BaseModel
 
 from app.api.deps import get_db, get_current_user
 from app.services.file_service import FileService
@@ -28,6 +29,29 @@ from app.core.logging_config import logger
 from app.models.user import User
 
 router = APIRouter()
+
+
+# ============ 请求体模型 ============
+
+class UpdateSettingsRequest(BaseModel):
+    """更新用户设置请求"""
+    email_notifications: Optional[bool] = None
+    sms_notifications: Optional[bool] = None
+    profile_public: Optional[bool] = None
+    language: Optional[str] = None
+    theme: Optional[str] = None
+
+
+class BindPhoneRequest(BaseModel):
+    """绑定手机请求"""
+    phone: str
+    code: str
+
+
+class BindEmailRequest(BaseModel):
+    """绑定邮箱请求"""
+    email: str
+    code: str
 
 
 @router.post("/avatar", response_model=dict, tags=["用户"])
@@ -146,14 +170,14 @@ async def get_user_settings(
 
 @router.put("/settings", response_model=dict, tags=["用户"])
 async def update_user_settings(
-    settings_data: dict,
+    settings_data: UpdateSettingsRequest,
     current_user: dict = Depends(get_current_user),
 ) -> dict:
     """更新用户设置
 
     路径: PUT /api/v1/users/settings
     """
-    merged = {**_DEFAULT_SETTINGS, **{k: v for k, v in settings_data.items() if k in _DEFAULT_SETTINGS}}
+    merged = {**_DEFAULT_SETTINGS, **settings_data.dict(exclude_unset=True)}
     return success_response(data=merged, message="设置已保存").dict()
 
 
@@ -199,7 +223,7 @@ async def get_security_logs(
 
 @router.post("/security/bind-phone", response_model=dict, tags=["用户"])
 async def bind_phone(
-    request: dict,
+    request: BindPhoneRequest,
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
@@ -207,8 +231,8 @@ async def bind_phone(
 
     路径: POST /api/v1/users/security/bind-phone
     """
-    phone = request.get("phone", "")
-    code = request.get("code", "")
+    phone = request.phone
+    code = request.code
     if not phone or not code:
         raise BusinessException(code=ErrorCode.PARAM_ERROR, message="手机号和验证码不能为空")
 
@@ -224,7 +248,7 @@ async def bind_phone(
 
 @router.post("/security/bind-email", response_model=dict, tags=["用户"])
 async def bind_email(
-    request: dict,
+    request: BindEmailRequest,
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
@@ -232,8 +256,8 @@ async def bind_email(
 
     路径: POST /api/v1/users/security/bind-email
     """
-    email = request.get("email", "")
-    code = request.get("code", "")
+    email = request.email
+    code = request.code
     if not email or not code:
         raise BusinessException(code=ErrorCode.PARAM_ERROR, message="邮箱和验证码不能为空")
 

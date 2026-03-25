@@ -101,6 +101,10 @@ def get_tenant_database(
 
     try:
         yield db
+    except Exception:
+        # 确保异常时也能关闭连接
+        db.close()
+        raise
     finally:
         db.close()
 

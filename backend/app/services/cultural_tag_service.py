@@ -475,8 +475,13 @@ class CulturalTagService:
         # 移除标签
         product.tags.remove(tag)
 
-        # 更新usage_count
-        tag.decrement_usage()
+        # 更新usage_count - 使用数据库更新确保持久化
+        self.db.query(CulturalTag).filter(
+            CulturalTag.id == tag_id
+        ).update(
+            {CulturalTag.usage_count: func.greatest(CulturalTag.usage_count - 1, 0)},
+            synchronize_session=False
+        )
 
         self.db.commit()
         self.db.refresh(product)

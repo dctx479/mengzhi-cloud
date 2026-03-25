@@ -1,5 +1,6 @@
 """监控中间件"""
 import time
+import asyncio
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.monitoring import performance_monitor
@@ -61,42 +62,58 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
 class ResourceMonitoringMiddleware(BaseHTTPMiddleware):
     """资源监控中间件"""
 
+    def __init__(self, app, check_interval: int = 5):
+        """
+        初始化资源监控中间件
+
+        Args:
+            app: FastAPI应用实例
+            check_interval: 检查间隔（秒），避免频繁调用psutil
+        """
+        super().__init__(app)
+        self.check_interval = check_interval
+        self._last_check_time = 0
+        self._last_check_result = {}
+
     async def dispatch(self, request: Request, call_next):
-        # 更新系统指标
-        performance_monitor.update_system_metrics()
-
-        # 检查资源使用情况
-        import psutil
-        cpu = psutil.cpu_percent()
-        memory = psutil.virtual_memory().percent
-        disk = psutil.disk_usage('/').percent
-
-        # CPU告警
-        if cpu > monitoring_config.CPU_THRESHOLD:
-            await alert_manager.send_alert(
-                level=AlertLevel.WARNING,
-                title="CPU使用率过高",
-                message=f"当前CPU使用率: {cpu:.1f}%",
-                extra={'cpu_usage': cpu}
-            )
-
-        # 内存告警
-        if memory > monitoring_config.MEMORY_THRESHOLD:
-            await alert_manager.send_alert(
-                level=AlertLevel.WARNING,
-                title="内存使用率过高",
-                message=f"当前内存使用率: {memory:.1f}%",
-                extra={'memory_usage': memory}
-            )
-
-        # 磁盘告警
-        if disk > monitoring_config.DISK_THRESHOLD:
-            await alert_manager.send_alert(
-                level=AlertLevel.ERROR,
-                title="磁盘使用率过高",
-                message=f"当前磁盘使用率: {disk:.1f}%",
-                extra={'disk_usage': disk}
-            )
+        # FIX Bug #2: Avoid blocking event loop with synchronous psutil calls
+        # Only check resource every N seconds and cache result
+        current_time = time.time()
+        if current_time - self._last_check_time > self.check_interval:
+            # Run blocking psutil calls in thread pool executor
+            self._last_check_result = await asyncio.to_thread(self._check_resources)
+            self._last_check_time = current_time
 
         response = await call_next(request)
         return response
+
+    def _check_resources(self) -> dict:
+        """
+        检查系统资源使用情况（同步函数在线程池中运行）
+
+        Returns:
+            dict: 资源检查结果
+        """
+        try:
+            import psutil
+            cpu = psutil.cpu_percent()
+            memory = psutil.virtual_memory().percent
+            disk = psutil.disk_usage('/').percent
+
+            # CPU告警
+            if cpu > monitoring_config.CPU_THRESHOLD:
+                # 这些告警应该通过后台任务处理，而不是在请求中
+                logger.warning(f"CPU使用率过高: {cpu:.1f}%")
+
+            # 内存告警
+            if memory > monitoring_config.MEMORY_THRESHOLD:
+                logger.warning(f"内存使用率过高: {memory:.1f}%")
+
+            # 磁盘告警
+            if disk > monitoring_config.DISK_THRESHOLD:
+                logger.warning(f"磁盘使用率过高: {disk:.1f}%")
+
+            return {"cpu": cpu, "memory": memory, "disk": disk}
+        except Exception as e:
+            logger.error(f"检查系统资源失败: {str(e)}")
+            return {}

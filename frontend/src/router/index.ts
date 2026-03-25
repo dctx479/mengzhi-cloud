@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { multiTenantRoutes } from './modules/multiTenant'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -184,6 +185,8 @@ const routes: RouteRecordRaw[] = [
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),
   },
+  // 多租户路由（企业管理员和平台管理员）
+  ...multiTenantRoutes,
 ]
 
 const router = createRouter({
@@ -203,6 +206,7 @@ router.beforeEach(async (to, _from, next) => {
   // 检查是否需要认证
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin)
+  const requiredRole = to.matched.find((record) => record.meta.role)?.meta.role as string | undefined
 
   if (requiresAuth && !userStore.isLoggedIn) {
     // 验证 redirect 目标安全性：必须以 / 开头且不含协议前缀
@@ -210,12 +214,26 @@ router.beforeEach(async (to, _from, next) => {
     const safeRedirect = redirect.startsWith('/') && !redirect.includes('://') ? redirect : '/'
     next({ path: '/login', query: { redirect: safeRedirect } })
   } else if (requiresAdmin && !userStore.isAdmin) {
+    // 管理员权限检查
+    next('/')
+  } else if (requiredRole && userStore.userRole !== requiredRole) {
+    // 角色级权限检查
     next('/')
   } else if (!requiresAuth && userStore.isLoggedIn && (to.path === '/login' || to.path === '/register')) {
+    // 已登录用户不能访问登录/注册页
     next('/')
   } else {
     next()
   }
 })
+
+// 路由懒加载错误处理
+router.onError((error) => {
+  // 捕获chunk加载失败等动态导入错误
+  if (/Loading chunk \d+ failed|failed to fetch/i.test(error.message)) {
+    window.location.reload()
+  }
+})
+
 
 export default router

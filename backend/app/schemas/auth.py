@@ -354,7 +354,7 @@ class ChangePasswordResponse(BaseModel):
         description="响应消息"
     )
     changed_at: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.utcnow(),
         description="修改时间"
     )
 
@@ -367,6 +367,6 @@ class ResetPasswordResponse(BaseModel):
         description="响应消息"
     )
     reset_at: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.utcnow(),
         description="重置时间"
     )

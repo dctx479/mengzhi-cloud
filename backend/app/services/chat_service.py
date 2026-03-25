@@ -44,6 +44,7 @@ class ChatService:
             model=conv.model
         )
         self.db.add(user_msg)
+        self.db.commit()  # BUG FIX: 必须在调用AI前提交用户消息，否则history中不包含该消息
 
         # 构建历史消息
         history = self._build_message_history(conv.id)
@@ -181,7 +182,7 @@ class ChatService:
         page: int = 1,
         page_size: int = 20,
         status: str = "active"
-    ) -> Tuple[int, List[Any]]:
+    ) -> Tuple[int, List[Conversation]]:
         """获取对话列表"""
         query = self.db.query(Conversation).filter(
             Conversation.user_id == user_id
@@ -195,13 +196,13 @@ class ChatService:
             (page - 1) * page_size
         ).limit(page_size).all()
 
-        return (total, [conv.to_dict() for conv in conversations])
+        return (total, [conv for conv in conversations])
 
     def get_conversation_detail(
         self,
         conversation_id: str,
         user_id: int
-    ) -> Dict[str, Any]:
+    ) -> Conversation:
         """获取对话详情"""
         # 修复 N+1 查询：预加载消息关系
         conv = self.db.query(Conversation).options(
@@ -214,9 +215,7 @@ class ChatService:
         if not conv:
             raise BusinessException("对话不存在")
 
-        result = conv.to_dict()
-        result["messages"] = [msg.to_dict() for msg in conv.messages]
-        return result
+        return conv
 
     def delete_conversation(
         self,

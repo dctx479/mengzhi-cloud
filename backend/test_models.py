@@ -121,7 +121,7 @@ if __name__ == "__main__":
     # 数据库连接测试（如果配置了DATABASE_URL）
     try:
         results.append(("数据库连接", test_database_connection()))
-    except:
+    except Exception:
         print("\n跳过数据库连接测试（未配置或数据库不可用）")
 
     # 打印结果摘要

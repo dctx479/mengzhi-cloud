@@ -330,7 +330,7 @@ class TestConcurrencyProtection:
                         payment_method="alipay",
                         user_id=1
                     )
-                except:
+                except Exception:
                     pass
 
         # 验证调用了with_for_update()

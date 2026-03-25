@@ -9,8 +9,8 @@
 
 import json
 import redis
+import threading
 from typing import Any, Optional, List
-from datetime import timedelta
 from app.core.config import settings
 from app.core.constants import REDIS_POOL_SIZE, REDIS_POOL_TIMEOUT
 import logging
@@ -24,12 +24,15 @@ class RedisCache:
     _instance: Optional['RedisCache'] = None
     _pool: Optional[redis.ConnectionPool] = None
     _client: Optional[redis.Redis] = None
+    _lock = threading.Lock()
 
     def __new__(cls) -> 'RedisCache':
-        """单例模式"""
+        """线程安全的单例模式"""
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialize()
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._initialize()
         return cls._instance
 
     def _initialize(self) -> None:
@@ -80,7 +83,7 @@ class RedisCache:
             # 设置缓存
             result = client.setex(
                 key,
-                timedelta(seconds=ttl_seconds),
+                ttl_seconds,  # setex expects integer seconds, not timedelta
                 serialized_value
             )
             return result
@@ -207,7 +210,7 @@ class RedisCache:
                 serialized = json.dumps(value) if not isinstance(value, str) else value
                 pipeline.rpush(key, serialized)
             
-            pipeline.expire(key, timedelta(seconds=ttl_seconds))
+            pipeline.expire(key, ttl_seconds)  # expire expects integer seconds, not timedelta
             pipeline.execute()
             return True
         except Exception as e:
@@ -264,7 +267,7 @@ class RedisCache:
             pipeline = client.pipeline()
             for key, value in mapping.items():
                 serialized = json.dumps(value) if not isinstance(value, str) else value
-                pipeline.setex(key, timedelta(seconds=ttl_seconds), serialized)
+                pipeline.setex(key, ttl_seconds, serialized)  # setex expects integer seconds, not timedelta
             pipeline.execute()
             return True
         except Exception as e:

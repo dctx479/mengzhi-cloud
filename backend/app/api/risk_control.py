@@ -20,7 +20,6 @@ from ..models.risk_control import (
     RiskLevel, RiskAction, RuleType, EventType, BlacklistType
 )
 from .deps import get_current_user, require_permission
-from ..models.user import User
 
 router = APIRouter(tags=["风控系统"])
 
@@ -93,7 +92,7 @@ async def check_risk(
     request: RiskCheckRequest,
     http_request: Request,
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     实时风险检查接口
@@ -132,7 +131,7 @@ async def get_risk_events(
     skip: int = Query(0, ge=0, description="跳过数量"),
     limit: int = Query(100, ge=1, le=1000, description="返回数量"),
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "read"))
+    current_user: dict = Depends(require_permission("risk", "read"))
 ):
     """
     查询风险事件列表
@@ -164,7 +163,7 @@ async def process_risk_event(
     event_id: str,
     request: EventProcessRequest,
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "write"))
+    current_user: dict = Depends(require_permission("risk", "write"))
 ):
     """
     处理风险事件
@@ -193,7 +192,7 @@ async def process_risk_event(
 async def create_rule(
     request: RuleCreateRequest,
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "write"))
+    current_user: dict = Depends(require_permission("risk", "write"))
 ):
     """
     创建新的风控规则
@@ -234,7 +233,7 @@ async def get_rules(
     skip: int = Query(0, ge=0, description="跳过数量"),
     limit: int = Query(100, ge=1, le=1000, description="返回数量"),
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "read"))
+    current_user: dict = Depends(require_permission("risk", "read"))
 ):
     """
     查询风控规则列表
@@ -258,7 +257,7 @@ async def update_rule(
     rule_id: str,
     request: RuleUpdateRequest,
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "write"))
+    current_user: dict = Depends(require_permission("risk", "write"))
 ):
     """
     更新风控规则
@@ -295,7 +294,7 @@ async def update_rule(
 async def delete_rule(
     rule_id: str,
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "write"))
+    current_user: dict = Depends(require_permission("risk", "write"))
 ):
     """
     删除风控规则
@@ -320,7 +319,7 @@ async def delete_rule(
 async def add_to_blacklist(
     request: BlacklistCreateRequest,
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "write"))
+    current_user: dict = Depends(require_permission("risk", "write"))
 ):
     """
     添加黑名单条目
@@ -357,7 +356,7 @@ async def get_blacklist(
     skip: int = Query(0, ge=0, description="跳过数量"),
     limit: int = Query(100, ge=1, le=1000, description="返回数量"),
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "read"))
+    current_user: dict = Depends(require_permission("risk", "read"))
 ):
     """
     查询黑名单列表
@@ -380,7 +379,7 @@ async def get_blacklist(
 async def remove_from_blacklist(
     blacklist_id: str,
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "write"))
+    current_user: dict = Depends(require_permission("risk", "write"))
 ):
     """
     移除黑名单条目
@@ -406,7 +405,7 @@ async def get_risk_statistics(
     start_date: Optional[datetime] = Query(None, description="开始时间"),
     end_date: Optional[datetime] = Query(None, description="结束时间"),
     risk_service: RiskControlService = Depends(get_risk_control_service),
-    current_user: User = Depends(require_permission("risk", "read"))
+    current_user: dict = Depends(require_permission("risk", "read"))
 ):
     """
     获取风险统计数据

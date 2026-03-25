@@ -113,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Delete } from '@element-plus/icons-vue'
 import { useChatStore } from '@/stores/chat'
@@ -190,7 +190,12 @@ const handleDeleteChat = (chatId: string) => {
         ElMessage.error('删除失败')
       }
     })
-    .catch(() => {})
+    .catch((error) => {
+      // Only ignore user cancellation, not other errors
+      if (error.response?.status !== 'cancel' && error !== 'cancel') {
+        console.error('Delete chat error:', error)
+      }
+    })
 }
 
 const handleDeleteCurrentChat = async () => {
@@ -218,7 +223,12 @@ const handleClearChat = async () => {
         ElMessage.error('清空失败')
       }
     })
-    .catch(() => {})
+    .catch((error) => {
+      // Only ignore user cancellation, not other errors
+      if (error.response?.status !== 'cancel' && error !== 'cancel') {
+        console.error('Clear chat error:', error)
+      }
+    })
 }
 
 const handleDeleteMessage = async (messageId: string) => {
@@ -260,20 +270,6 @@ onMounted(async () => {
     ElMessage.error('加载对话列表失败')
   }
 })
-
-// 监听路由变化
-watch(
-  () => currentChatId.value,
-  async (newId) => {
-    if (newId) {
-      try {
-        await chatStore.fetchChatDetail(newId)
-      } catch {
-        ElMessage.error('加载对话失败')
-      }
-    }
-  }
-)
 </script>
 
 <style scoped lang="scss">

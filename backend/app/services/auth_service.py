@@ -280,10 +280,12 @@ class AuthService:
                 raise UserNotFoundError()
 
             # 5. 生成新Token对
+            user_type_val = user.user_type.value if hasattr(user.user_type, 'value') else str(user.user_type).lower()
+            role_val = user.role.value if hasattr(user.role, 'value') else str(user.role).lower()
             new_access_token = self.create_access_token(
                 user_id=user.user_uuid,
-                user_type=user.user_type.value,
-                role=user.role.value,
+                user_type=user_type_val,
+                role=role_val,
                 tenant_id=str(user.enterprise_id) if user.enterprise_id else None
             )
             new_refresh_token = self.create_refresh_token(
@@ -336,7 +338,7 @@ class AuthService:
             ttl_seconds: 缓存有效期（秒），默认1小时
 
         Returns:
-            用户对象或None
+            用户对象或None（总是返回ORM对象，不是dict）
         """
         cache_key = f"user:{user_id}"
 
@@ -345,14 +347,17 @@ class AuthService:
             cached_user = cache.get(cache_key)
             if cached_user:
                 logger.debug(f"用户缓存命中: {user_id}")
-                return cached_user
+                # 缓存中返回的是dict，但我们需要重新从DB查询以获得ORM对象
+                # 这样保证调用方总能得到一致的ORM对象
+                user = self._get_user_by_id(user_id)
+                return user
         except Exception as e:
             logger.warning(f"从缓存获取用户失败 [{user_id}]: {str(e)}")
 
-        # 2. 缓存未命中，查询数据库
+        # 2. 缓存未命中或异常，查询数据库
         user = self._get_user_by_id(user_id)
 
-        # 3. 将用户信息写入缓存
+        # 3. 将用户信息写入缓存（用于快速检查，但不用于返回）
         if user:
             try:
                 # 将用户对象转换为字典格式便于序列化
@@ -363,10 +368,10 @@ class AuthService:
                     "email": user.email,
                     "phone": user.phone,
                     "password_hash": user.password_hash,
-                    "user_type": user.user_type,
-                    "status": user.status,
-                    "role": user.role,
-                    "enterprise_id": user.enterprise_id,
+                    "user_type": user.user_type.value if hasattr(user.user_type, 'value') else str(user.user_type),
+                    "status": user.status.value if hasattr(user.status, 'value') else str(user.status),
+                    "role": user.role.value if hasattr(user.role, 'value') else str(user.role),
+                    "enterprise_id": str(user.enterprise_id) if user.enterprise_id else None,
                     "last_login_at": str(user.last_login_at) if user.last_login_at else None,
                     "created_at": str(user.created_at) if user.created_at else None
                 }

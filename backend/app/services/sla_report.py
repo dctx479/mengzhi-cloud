@@ -149,19 +149,22 @@ class SLAReportService:
         if not agreement:
             return {"error": "Agreement not found"}
 
+        start_ts = start_time.isoformat()
+        end_ts = end_time.isoformat()
+
         # 获取指标数据
         metrics = self.db.query(SLAMetric).filter(
             SLAMetric.agreement_id == agreement_id,
-            SLAMetric.period_start >= start_time.isoformat(),
-            SLAMetric.period_end <= end_time.isoformat(),
+            SLAMetric.period_start >= start_ts,
+            SLAMetric.period_end <= end_ts,
             SLAMetric.deleted_at.is_(None)
         ).all()
 
         # 获取违约记录
         violations = self.db.query(SLAViolation).filter(
             SLAViolation.agreement_id == agreement_id,
-            SLAViolation.violation_time >= start_time.isoformat(),
-            SLAViolation.violation_time <= end_time.isoformat(),
+            SLAViolation.violation_time >= start_ts,
+            SLAViolation.violation_time <= end_ts,
             SLAViolation.deleted_at.is_(None)
         ).all()
 
@@ -302,10 +305,11 @@ class SLAReportService:
         """
         # 获取历史数据（过去30天）
         history_start = start_time - timedelta(days=30)
+        history_start_ts = history_start.isoformat()
 
         metrics = self.db.query(SLAMetric).filter(
             SLAMetric.agreement_id == agreement_id,
-            SLAMetric.period_start >= history_start.isoformat(),
+            SLAMetric.period_start >= history_start_ts,
             SLAMetric.deleted_at.is_(None)
         ).order_by(SLAMetric.period_start).all()
 
@@ -364,6 +368,10 @@ class SLAReportService:
 
         avg_first = sum(first_half) / len(first_half)
         avg_second = sum(second_half) / len(second_half)
+
+        # Safe division: if avg_first is 0, treat as stable
+        if avg_first == 0:
+            return "stable"
 
         change_rate = ((avg_second - avg_first) / avg_first) * 100
 
@@ -440,10 +448,11 @@ class SLAReportService:
         """
         end_time = datetime.utcnow()
         start_time = end_time - timedelta(days=days)
+        start_ts = start_time.isoformat()
 
         metrics = self.db.query(SLAMetric).filter(
             SLAMetric.agreement_id == agreement_id,
-            SLAMetric.period_start >= start_time.isoformat(),
+            SLAMetric.period_start >= start_ts,
             SLAMetric.deleted_at.is_(None)
         ).all()
 
@@ -486,18 +495,47 @@ class SLAReportService:
 
         Returns:
             str: 导出的报告内容
+
+        Raises:
+            ValueError: 不支持的导出格式
         """
         if format == "json":
             import json
             return json.dumps(report, indent=2, ensure_ascii=False)
 
         elif format == "csv":
-            # TODO: 实现CSV导出
-            return "CSV export not implemented yet"
+            # CSV导出: 转换为表格格式
+            import csv
+            import io
+
+            output = io.StringIO()
+            writer = csv.writer(output)
+
+            # 写入头部信息
+            writer.writerow(["报告类型", report.get("report_type", "N/A")])
+            writer.writerow(["统计周期", report.get("period", "N/A")])
+            writer.writerow(["生成时间", report.get("generated_at", "N/A")])
+            writer.writerow([])
+
+            # 写入汇总信息
+            summary = report.get("summary", {})
+            writer.writerow(["总体达成率(%)", summary.get("overall_achievement_rate", 0)])
+            writer.writerow(["总指标数", summary.get("total_metrics", 0)])
+            writer.writerow(["达标指标数", summary.get("compliant_metrics", 0)])
+            writer.writerow(["违约次数", summary.get("violation_count", 0)])
+            writer.writerow([])
+
+            # 写入建议信息
+            recommendations = report.get("recommendations", [])
+            for i, rec in enumerate(recommendations, 1):
+                writer.writerow([f"建议{i}", rec])
+
+            return output.getvalue()
 
         elif format == "pdf":
-            # TODO: 实现PDF导出
-            return "PDF export not implemented yet"
+            # PDF导出: 建议使用第三方库（reportlab、pypdf等）
+            # 这里返回JSON内容作为临时方案，生产环境应集成真实PDF库
+            raise NotImplementedError("PDF export requires reportlab library. Use json or csv format instead.")
 
         else:
             raise ValueError(f"Unsupported format: {format}")

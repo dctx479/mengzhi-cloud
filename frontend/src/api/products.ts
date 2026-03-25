@@ -53,7 +53,7 @@ export const getCategories = async (): Promise<Category[]> => {
     '/v1/products-categories'
   )
   const inner = unwrap<{ categories: Category[] }>(res)
-  return inner.categories || (inner as unknown as Category[]) || []
+  return inner?.categories || []
 }
 
 export const getProductReviews = async (
@@ -81,7 +81,7 @@ export const searchProducts = async (keyword: string): Promise<Product[]> => {
     { params: { search: keyword } }
   )
   const inner = unwrap<{ items: Product[] }>(res)
-  return inner.items || (inner as unknown as Product[]) || []
+  return inner?.items || []
 }
 
 export const getPopularProducts = async (limit = 10): Promise<Product[]> => {
@@ -90,5 +90,5 @@ export const getPopularProducts = async (limit = 10): Promise<Product[]> => {
     { params: { limit } }
   )
   const inner = unwrap<{ items: Product[] }>(res)
-  return inner.items || (inner as unknown as Product[]) || []
+  return inner?.items || []
 }
