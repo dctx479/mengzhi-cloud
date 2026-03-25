@@ -48,8 +48,13 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
   }
 }
 
-export const register = (data: RegisterRequest): Promise<RegisterResponse> =>
-  http.post('/v1/auth/register', data)
+export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
+  const res = await http.post<{ code: number; message: string; data: RegisterResponse }>('/v1/auth/register', data)
+  if (res.code !== 200 || !res.data) {
+    throw new Error((res as any).message || '注册失败')
+  }
+  return (res as unknown as { data: RegisterResponse }).data ?? (res as unknown as RegisterResponse)
+}
 
 export async function logout(): Promise<void> {
   localStorage.removeItem('token')
@@ -76,8 +81,14 @@ export const getCurrentUser = (): Promise<User> =>
     } as User
   })
 
-export const updateProfile = (data: UpdateProfileRequest): Promise<User> =>
-  http.put('/v1/auth/me', data)
+export const updateProfile = async (data: UpdateProfileRequest): Promise<User> => {
+  const res = await http.put<{ code: number; message: string; data: any }>('/v1/auth/me', data)
+  // PUT /auth/me may return {updated: true} or user data; re-fetch to ensure fresh user
+  const inner = (res as unknown as { data: any }).data ?? res
+  if (inner && inner.id) return inner as User
+  // Fallback: re-fetch user profile
+  return getCurrentUser()
+}
 
 export const changePassword = (oldPassword: string, newPassword: string): Promise<void> =>
   http.post('/v1/auth/change-password', { old_password: oldPassword, new_password: newPassword })

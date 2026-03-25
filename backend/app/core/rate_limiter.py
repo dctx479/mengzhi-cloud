@@ -11,11 +11,14 @@ from loguru import logger
 
 class RateLimiter:
     """请求频率限制器"""
-    
+
+    MAX_MEMORY_ENTRIES = 10000  # 内存存储最大条目数
+
     def __init__(self, redis_client=None):
         """初始化频率限制器"""
         self.redis_client = redis_client
         self._memory_store: Dict[str, Dict[str, Any]] = {}
+        self._last_cleanup: float = 0.0
     
     async def check_rate_limit(
         self,
@@ -73,25 +76,36 @@ class RateLimiter:
         """使用内存检查频率限制"""
         now = time.time()
         rate_key = f"rate_limit:{key}"
-        
+
+        # 定期清理过期条目（每60秒最多清理一次）
+        if now - self._last_cleanup > 60 or len(self._memory_store) > self.MAX_MEMORY_ENTRIES:
+            self._cleanup_expired(now)
+
         if rate_key not in self._memory_store:
             self._memory_store[rate_key] = {
                 "count": 1,
                 "reset_at": now + window_seconds
             }
             return True, max_requests - 1
-        
+
         data = self._memory_store[rate_key]
-        
+
         if now >= data["reset_at"]:
             self._memory_store[rate_key] = {
                 "count": 1,
                 "reset_at": now + window_seconds
             }
             return True, max_requests - 1
-        
+
         if data["count"] >= max_requests:
             return False, 0
-        
+
         data["count"] += 1
         return True, max_requests - data["count"]
+
+    def _cleanup_expired(self, now: float) -> None:
+        """清理过期的内存条目"""
+        expired_keys = [k for k, v in self._memory_store.items() if now >= v["reset_at"]]
+        for k in expired_keys:
+            del self._memory_store[k]
+        self._last_cleanup = now

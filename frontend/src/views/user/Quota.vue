@@ -303,14 +303,17 @@ const upgradePlans = [
 ]
 
 const chatQuotaPercent = computed(() => {
+  if (quotaData.value.chat_total <= 0) return 0
   return Math.round((quotaData.value.chat_used / quotaData.value.chat_total) * 100)
 })
 
 const contentQuotaPercent = computed(() => {
+  if (quotaData.value.content_total <= 0) return 0
   return Math.round((quotaData.value.content_used / quotaData.value.content_total) * 100)
 })
 
 const storageQuotaPercent = computed(() => {
+  if (quotaData.value.storage_total <= 0) return 0
   return Math.round((quotaData.value.storage_used / quotaData.value.storage_total) * 100)
 })
 

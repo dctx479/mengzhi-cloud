@@ -319,21 +319,13 @@ class AuthService:
             user_id: 用户UUID
 
         Returns:
-            用户对象
+            用户ORM对象（支持 .role.value 等属性访问）
         """
-        from sqlalchemy.orm import object_session
-        # 这里需要导入User模型，暂时使用SQL查询
-        result = self.db.execute(
-            text("""
-                SELECT id, user_uuid, username, email, phone, password_hash,
-                       user_type, status, role, enterprise_id, last_login_at,
-                       created_at
-                FROM users
-                WHERE user_uuid = :user_id AND deleted_at IS NULL
-            """),
-            {"user_id": user_id}
-        )
-        return result.first()
+        from app.models.user import User
+        return self.db.query(User).filter(
+            User.user_uuid == user_id,
+            User.deleted_at.is_(None)
+        ).first()
 
     def get_user_by_id_cached(self, user_id: str, ttl_seconds: int = 3600):
         """

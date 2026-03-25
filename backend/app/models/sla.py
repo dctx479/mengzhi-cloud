@@ -9,7 +9,7 @@ import enum
 from datetime import datetime
 from sqlalchemy import (
     Column, String, Integer, Float, Boolean, Text,
-    ForeignKey, Enum, JSON, Index
+    ForeignKey, Enum, JSON, Index, CheckConstraint
 )
 from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.orm import relationship
@@ -82,6 +82,11 @@ class SLAAgreement(BaseModel):
 
     # 索引
     __table_args__ = (
+        # enterprise_id 和 user_id 不能同时为 NULL（至少关联一个主体）
+        CheckConstraint(
+            "(enterprise_id IS NOT NULL) OR (user_id IS NOT NULL)",
+            name="ck_sla_agreement_has_owner"
+        ),
         Index("idx_agreement_enterprise", "enterprise_id"),
         Index("idx_agreement_user", "user_id"),
         Index("idx_agreement_level", "level"),

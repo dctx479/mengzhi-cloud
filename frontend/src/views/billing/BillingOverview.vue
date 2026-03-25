@@ -73,13 +73,13 @@
           <div v-else class="simple-pricing">
             <el-descriptions :column="2" border size="small">
               <el-descriptions-item v-if="currentPlan.pricing_rules?.unit_price" label="单价">
-                {{ currentPlan.pricing_rules.unit_price }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                {{ currentPlan.pricing_rules?.unit_price }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
               </el-descriptions-item>
               <el-descriptions-item v-if="currentPlan.pricing_rules?.monthly_fee" label="月费">
-                {{ currentPlan.pricing_rules.monthly_fee }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                {{ currentPlan.pricing_rules?.monthly_fee }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
               </el-descriptions-item>
               <el-descriptions-item v-if="currentPlan.pricing_rules?.included_tokens" label="包含Token">
-                {{ currentPlan.pricing_rules.included_tokens }}
+                {{ currentPlan.pricing_rules?.included_tokens }}
               </el-descriptions-item>
             </el-descriptions>
           </div>
@@ -130,7 +130,7 @@
               <div class="stat-info">
                 <div class="stat-label">日均费用</div>
                 <div class="stat-value">
-                  ¥{{ (statistics.total_amount / getDaysInMonth())?.toFixed(2) || '0.00' }}
+                  ¥{{ ((statistics.total_amount || 0) / getDaysInMonth()).toFixed(2) }}
                 </div>
               </div>
             </div>

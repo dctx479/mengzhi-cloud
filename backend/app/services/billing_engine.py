@@ -90,7 +90,7 @@ class BillingEngine:
         today = date.today()
         billing_month = today.strftime("%Y-%m")
 
-        # 创建计费记录
+        # 创建计费记录（带事务保护）
         record = BillingRecord(
             user_id=user_id,
             plan_id=plan.id,
@@ -107,9 +107,13 @@ class BillingEngine:
             notes=notes,
         )
 
-        self.db.add(record)
-        self.db.commit()
-        self.db.refresh(record)
+        try:
+            self.db.add(record)
+            self.db.commit()
+            self.db.refresh(record)
+        except Exception as e:
+            self.db.rollback()
+            raise ValueError(f"计费记录写入失败: {e}")
 
         return record
 

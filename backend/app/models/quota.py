@@ -172,6 +172,10 @@ class TenantQuota(BaseModel):
         back_populates="quota",
         cascade="all, delete-orphan"
     )
+    transactions = relationship(
+        "BillingTransaction",
+        back_populates="quota"
+    )
 
     # 索引定义
     __table_args__ = (

@@ -88,12 +88,12 @@
         <div class="order-items">
           <div v-for="item in order.items" :key="item.id" class="order-item">
             <img
-              :src="item.product.image || 'https://via.placeholder.com/80'"
+              :src="item.product?.image || 'https://via.placeholder.com/80'"
               alt=""
               class="item-image"
             />
             <div class="item-info">
-              <div class="item-name">{{ item.product.name }}</div>
+              <div class="item-name">{{ item.product?.name || '未知商品' }}</div>
               <div class="item-spec">
                 {{ item.quantity }} × ¥{{ (item.price || 0).toFixed(2) }}
               </div>

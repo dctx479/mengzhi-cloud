@@ -205,7 +205,10 @@ router.beforeEach(async (to, _from, next) => {
   const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin)
 
   if (requiresAuth && !userStore.isLoggedIn) {
-    next({ path: '/login', query: { redirect: to.fullPath } })
+    // 验证 redirect 目标安全性：必须以 / 开头且不含协议前缀
+    const redirect = to.fullPath
+    const safeRedirect = redirect.startsWith('/') && !redirect.includes('://') ? redirect : '/'
+    next({ path: '/login', query: { redirect: safeRedirect } })
   } else if (requiresAdmin && !userStore.isAdmin) {
     next('/')
   } else if (!requiresAuth && userStore.isLoggedIn && (to.path === '/login' || to.path === '/register')) {

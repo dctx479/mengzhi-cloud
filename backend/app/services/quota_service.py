@@ -54,25 +54,13 @@ class QuotaService:
     def __init__(self, db: Session, redis_client: Optional[redis.Redis] = None):
         self.db = db
         self.notification_service = NotificationService(db)
+        self._redis_url = settings.REDIS_URL
 
         # 初始化 Redis 客户端
         if redis_client:
             self.redis = redis_client
         else:
-            try:
-                self.redis = redis.from_url(
-                    settings.REDIS_URL,
-                    decode_responses=True,
-                    socket_connect_timeout=2,
-                    socket_keepalive=True,
-                    health_check_interval=10
-                )
-                # 测试连接
-                self.redis.ping()
-                logger.info("Redis 连接成功")
-            except (RedisError, ConnectionError) as e:
-                logger.warning(f"Redis 连接失败，将使用数据库作为降级方案: {e}")
-                self.redis = None
+            self.redis = self._try_connect_redis()
 
         # 编译 Lua 脚本
         self.deduct_script = None
@@ -81,6 +69,43 @@ class QuotaService:
                 self.deduct_script = self.redis.register_script(self.QUOTA_DEDUCT_SCRIPT)
             except RedisError as e:
                 logger.warning(f"Lua 脚本注册失败: {e}")
+
+    def _try_connect_redis(self) -> Optional[redis.Redis]:
+        """尝试连接Redis，失败返回None"""
+        try:
+            client = redis.from_url(
+                self._redis_url,
+                decode_responses=True,
+                socket_connect_timeout=2,
+                socket_keepalive=True,
+                health_check_interval=10
+            )
+            client.ping()
+            logger.info("Redis 连接成功")
+            return client
+        except (RedisError, ConnectionError) as e:
+            logger.warning(f"Redis 连接失败，将使用数据库作为降级方案: {e}")
+            return None
+
+    def _ensure_redis(self) -> Optional[redis.Redis]:
+        """懒重连：如果Redis断开则尝试重新连接"""
+        if self.redis is not None:
+            try:
+                self.redis.ping()
+                return self.redis
+            except (RedisError, ConnectionError):
+                logger.warning("Redis 连接断开，尝试重连...")
+                self.redis = None
+                self.deduct_script = None
+
+        # 尝试重连
+        self.redis = self._try_connect_redis()
+        if self.redis:
+            try:
+                self.deduct_script = self.redis.register_script(self.QUOTA_DEDUCT_SCRIPT)
+            except RedisError:
+                pass
+        return self.redis
 
     def _get_quota_cache_key(self, user_id: int, enterprise_id: Optional[int],
                             resource_type: QuotaResourceType, period_type: QuotaPeriodType) -> str:

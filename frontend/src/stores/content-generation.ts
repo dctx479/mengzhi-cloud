@@ -2,7 +2,7 @@
  * 内容生成状态管理 Store
  */
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, onScopeDispose } from 'vue'
 import type {
   ContentTemplate,
   GenerationConfig,
@@ -388,6 +388,11 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
       wsConnection = null
     }
   }
+
+  // 自动清理 WebSocket 连接
+  onScopeDispose(() => {
+    disconnectWebSocket()
+  })
 
   return {
     // State

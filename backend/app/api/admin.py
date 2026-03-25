@@ -98,6 +98,10 @@ async def update_user(
         if status:
             user.status = status
         if role:
+            from app.models.user import UserRole
+            valid_roles = [r.value for r in UserRole]
+            if role not in valid_roles:
+                return APIResponse(code=400, message=f"无效的角色值，允许的值: {', '.join(valid_roles)}", data=None)
             user.role = role
 
         user.updated_at = datetime.utcnow()

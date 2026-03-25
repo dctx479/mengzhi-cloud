@@ -8,6 +8,24 @@ interface TypedAdminApi {
   delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
 }
 
+interface APIResponseWrapper<T = unknown> {
+  code?: number
+  data?: T
+  message?: string
+}
+
+interface StatsInner {
+  users?: { total?: number; active?: number }
+  enterprises?: { total?: number }
+  total_ai_usage?: number
+}
+
+interface AIUsageInner {
+  chat?: { message_count?: number }
+  content_generation?: { record_count?: number }
+  items?: AIUsageData[]
+}
+
 const _api = axios.create({
   baseURL: '/api/admin',
 })
@@ -31,19 +49,19 @@ const api = _api as unknown as TypedAdminApi
 
 /** 从后端 APIResponse 包装中提取 data 字段 */
 function unwrapAdmin<T>(res: unknown): T {
-  const r = res as { data?: T }
+  const r = res as APIResponseWrapper<T>
   return r.data !== undefined ? r.data : res as T
 }
 
 export const adminApi = {
   getStats: async (): Promise<AdminStats> => {
-    const res = await api.get<any>('/stats')
-    const inner = unwrapAdmin<{ users?: { total?: number; active?: number }; enterprises?: { total?: number }; total_ai_usage?: number }>(res)
+    const res = await api.get<APIResponseWrapper<StatsInner>>('/stats')
+    const inner = unwrapAdmin<StatsInner>(res)
     // Also fetch AI usage total for the stats panel
     let totalAIUsage = 0
     try {
-      const usageRes = await api.get<any>('/ai-usage')
-      const usageInner = unwrapAdmin<{ chat?: { message_count?: number }; content_generation?: { record_count?: number } }>(usageRes)
+      const usageRes = await api.get<APIResponseWrapper<AIUsageInner>>('/ai-usage')
+      const usageInner = unwrapAdmin<AIUsageInner>(usageRes)
       totalAIUsage = (usageInner?.chat?.message_count || 0) + (usageInner?.content_generation?.record_count || 0)
     } catch { /* ignore */ }
     return {
@@ -55,7 +73,7 @@ export const adminApi = {
   },
 
   getUsers: async (params?: { search?: string }): Promise<User[]> => {
-    const res = await api.get<any>('/users', { params })
+    const res = await api.get<APIResponseWrapper<{ items?: User[] } | User[]>>('/users', { params })
     const inner = unwrapAdmin<{ items?: User[] } | User[]>(res)
     return (Array.isArray(inner) ? inner : (inner as { items?: User[] })?.items || []) as User[]
   },
@@ -63,7 +81,7 @@ export const adminApi = {
   deleteUser: (id: number) => api.delete(`/users/${id}`),
 
   getEnterprises: async (params?: { search?: string }): Promise<Enterprise[]> => {
-    const res = await api.get<any>('/enterprises', { params })
+    const res = await api.get<APIResponseWrapper<{ items?: Enterprise[] } | Enterprise[]>>('/enterprises', { params })
     const inner = unwrapAdmin<{ items?: Enterprise[] } | Enterprise[]>(res)
     return (Array.isArray(inner) ? inner : (inner as { items?: Enterprise[] })?.items || []) as Enterprise[]
   },
@@ -71,19 +89,16 @@ export const adminApi = {
   deleteEnterprise: (id: number) => api.delete(`/enterprises/${id}`),
 
   getAIUsage: async (): Promise<AIUsageData[]> => {
-    const res = await api.get<any>('/ai-usage')
-    const inner = unwrapAdmin<{
-      chat?: { message_count?: number }
-      content_generation?: { record_count?: number }
-      items?: AIUsageData[]
-    } | AIUsageData[]>(res)
+    const res = await api.get<APIResponseWrapper<AIUsageInner | AIUsageData[]>>('/ai-usage')
+    const inner = unwrapAdmin<AIUsageInner | AIUsageData[]>(res)
     // Backend returns array directly
     if (Array.isArray(inner)) return inner
     // Backend returns aggregate stats — synthesize a single chart point
-    const items = (inner as any)?.items
+    const typed = inner as AIUsageInner
+    const items = typed?.items
     if (Array.isArray(items)) return items
     const today = new Date().toISOString().split('T')[0]
-    const count = ((inner as any)?.chat?.message_count || 0) + ((inner as any)?.content_generation?.record_count || 0)
+    const count = (typed?.chat?.message_count || 0) + (typed?.content_generation?.record_count || 0)
     return count > 0 ? [{ date: today, count }] : []
   },
 }

@@ -415,7 +415,8 @@ def check_permission(
         return False
 
     # 管理员拥有所有权限
-    if user.role.value == "admin":
+    role_val = getattr(user.role, 'value', user.role)
+    if role_val == "admin":
         return True
 
     return user.has_permission(resource, action)

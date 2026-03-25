@@ -28,9 +28,9 @@ contentAPI.interceptors.request.use((config) => {
 })
 
 /** 从 success_response 包装中提取 data 字段 */
-function unwrap<T>(responseData: any): T {
+function unwrap<T>(responseData: unknown): T {
   if (responseData && typeof responseData === 'object' && 'code' in responseData && 'data' in responseData) {
-    return responseData.data as T
+    return (responseData as { data: T }).data
   }
   return responseData as T
 }
@@ -66,7 +66,7 @@ export async function getTemplateDetail(templateId: string): Promise<ContentTemp
  */
 export async function generateContent(request: GenerationRequest): Promise<GenerationResponse[]> {
   const response = await contentAPI.post('/generate', request)
-  const inner = unwrap<any>(response.data)
+  const inner = unwrap<{ content?: string; length?: number; content_type?: string; style?: string; platform?: string } | null>(response.data)
   return [{
     id: `gen-${Date.now()}`,
     content: inner?.content ?? '',
@@ -171,17 +171,18 @@ export async function deleteSavedConfig(configId: string): Promise<void> {
 /**
  * 获取历史记录
  */
-export async function getHistory(limit = 20, offset = 0): Promise<any> {
+export async function getHistory(limit = 20, offset = 0): Promise<{ items: unknown[]; total: number }> {
   const response = await contentAPI.get('/history', { params: { limit, offset } })
-  return unwrap<any>(response.data) ?? { items: [], total: 0 }
+  const data = unwrap<{ items: unknown[]; total: number } | null>(response.data)
+  return data ?? { items: [], total: 0 }
 }
 
 /**
  * 获取统计数据
  */
-export async function getStatistics(): Promise<any> {
+export async function getStatistics(): Promise<Record<string, unknown>> {
   const response = await contentAPI.get('/statistics')
-  return response.data
+  return (response.data as Record<string, unknown>) ?? {}
 }
 
 export default contentAPI

@@ -20,9 +20,9 @@ _api.interceptors.request.use((config) => {
 })
 
 /** 从后端 success_response 包装中提取内层 data */
-function unwrapInner<T>(res: { data: any }): T {
+function unwrapInner<T>(res: { data: { code?: number; data?: T; message?: string } }): T {
   const body = res.data  // HTTP body = {code, data: inner, message}
-  return body?.data !== undefined ? body.data : body
+  return body?.data !== undefined ? body.data : body as unknown as T
 }
 
 export const auditLogsApi = {

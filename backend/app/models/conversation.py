@@ -157,16 +157,11 @@ class Conversation(BaseModel):
         comment="额外元数据"
     )
 
-    # 归档和删除时间
+    # 归档时间
     archived_at = Column(
         TIMESTAMP,
         nullable=True,
         comment="归档时间"
-    )
-    deleted_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="软删除时间"
     )
 
     # 关系

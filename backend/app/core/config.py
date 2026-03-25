@@ -67,7 +67,7 @@ class Settings(BaseSettings):
     TENANT_DB_HOST: str = "localhost"  # 租户数据库主机
     TENANT_DB_PORT: int = 3306  # 租户数据库端口
     TENANT_DB_USER: str = "root"  # 租户数据库用户
-    TENANT_DB_PASSWORD: str = "root123"  # 租户数据库密码
+    TENANT_DB_PASSWORD: str = ""  # 租户数据库密码（必须从环境变量配置）
 
     # P1修复: 验证租户数据库密码安全性
     @field_validator('TENANT_DB_PASSWORD')

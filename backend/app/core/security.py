@@ -12,30 +12,35 @@ from loguru import logger
 
 def get_client_ip(request: Request) -> str:
     """获取客户端真实IP地址
-    
-    考虑代理和负载均衡器的情况
-    
+
+    从右向左解析 X-Forwarded-For，取最右侧（最近代理添加的）值，
+    避免客户端伪造左侧 IP 绕过安全检查。
+
     Args:
         request: FastAPI请求对象
-        
+
     Returns:
         客户端IP地址
     """
     # 优先从X-Forwarded-For获取（代理情况）
     forwarded_for = request.headers.get("X-Forwarded-For")
     if forwarded_for:
-        # X-Forwarded-For可能包含多个IP，取第一个
-        return forwarded_for.split(",")[0].strip()
-    
+        # 从右向左解析，取倒数第1个（最近的可信代理添加的客户端IP）
+        ips = [ip.strip() for ip in forwarded_for.split(",")]
+        # 取最右侧非空IP（即最近一级代理看到的客户端IP）
+        for ip in reversed(ips):
+            if ip:
+                return ip
+
     # 从X-Real-IP获取
     real_ip = request.headers.get("X-Real-IP")
     if real_ip:
         return real_ip.strip()
-    
+
     # 直接从request.client获取
     if request.client:
         return request.client.host
-    
+
     return "unknown"
 
 
@@ -51,11 +56,15 @@ def verify_callback_ip(request: Request, allowed_ips: List[str]) -> bool:
     Returns:
         是否允许
     """
-    client_ip = get_client_ip(request)
-    
-    # 本地测试环境
-    if client_ip in ["127.0.0.1", "localhost", "::1"]:
+    # 回调IP验证使用 request.client.host 直接判断，不信任 X-Forwarded-For
+    direct_ip = request.client.host if request.client else "unknown"
+
+    # 本地测试环境（仅用直连IP判断，不可被伪造）
+    if direct_ip in ["127.0.0.1", "::1"]:
         return True
+
+    # 对外部回调使用 get_client_ip（已修复为从右向左解析）
+    client_ip = get_client_ip(request)
     
     try:
         client_ip_obj = ipaddress.ip_address(client_ip)
