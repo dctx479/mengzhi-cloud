@@ -511,7 +511,7 @@ async def health_check(db: Session = Depends(get_db)):
 
     except Exception as e:
         logger.error(f"Health check error: {str(e)}")
-        return {"status": "unhealthy", "timestamp": datetime.utcnow().isoformat(), "error": str(e)}
+        return {"status": "unhealthy", "timestamp": datetime.utcnow().isoformat(), "error": "Health check failed"}
 
 
 # ==================== Stub 端点（前端已调用，后端尚未完整实现） ====================

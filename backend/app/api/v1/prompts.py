@@ -149,7 +149,7 @@ async def list_templates(manager: PromptTemplateManager = Depends(get_template_m
         result = manager.list_available_templates()
         return TemplateListResponse(**result)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取模板列表失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="获取模板列表失败")
 
 
 @router.post(
@@ -180,7 +180,7 @@ async def render_prompt(request: PromptRenderRequest, manager: PromptTemplateMan
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"模板渲染失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="模板渲染失败")
 
 
 @router.post(
@@ -199,7 +199,7 @@ async def validate_context(
         return ContextValidationResponse(is_valid=is_valid, missing_fields=missing_fields, message=message)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="验证失败")
 
 
 @router.get(
@@ -218,7 +218,7 @@ async def get_cultural_keywords(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="获取文化关键词失败")
 
 
 @router.post(
@@ -242,7 +242,7 @@ async def get_template_example(
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="获取模板示例失败")
 
 
 @router.post(
@@ -273,7 +273,7 @@ async def quick_product_copy(
         return PromptRenderResponse(success=True, prompt=prompt)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="生成产品文案失败")
 
 
 @router.post(
@@ -305,7 +305,7 @@ async def quick_slogan(
         return PromptRenderResponse(success=True, prompt=prompt)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="生成广告语失败")
 
 
 @router.get(
@@ -327,7 +327,7 @@ async def get_template_details(template_type: str, manager: PromptTemplateManage
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="获取模板详情失败")
 
 
 @router.get("/health", summary="健康检查", description="检查Prompt服务的可用性")
@@ -337,7 +337,7 @@ async def health_check(manager: PromptTemplateManager = Depends(get_template_man
         templates = manager.list_available_templates()
         return {"status": "healthy", "available_templates": templates["total"], "message": "Prompt服务正常运行"}
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"服务不可用: {str(e)}")
+        raise HTTPException(status_code=503, detail="服务不可用")
 
 
 # 路由导出

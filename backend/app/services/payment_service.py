@@ -848,7 +848,7 @@ class PaymentService:
                 "triggered_rules": [],
                 "blacklist_hits": [],
                 "recommendations": ["风险检查服务异常，建议人工审核"],
-                "error": str(e)
+                "error": "风险检查异常"
             }
 
     def _create_pending_review_payment(

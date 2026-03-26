@@ -103,13 +103,10 @@ export const auditLogsApi = {
    * 返回 { data: string[] } 以供调用方 actionsRes.data 使用
    */
   getActionTypes: async (): Promise<{ data: string[] }> => {
-    interface ActionTypesResponse {
-      items?: string[]
-    }
-    const res = await _api.get<ApiResponse<ActionTypesResponse | string[]>>('/action-types')
-    const inner = unwrapInner<ActionTypesResponse | string[]>(res)
-    const arr = Array.isArray(inner) ? inner : inner.items || []
-    return { data: arr as string[] }
+    const res = await _api.get<ApiResponse<Array<{ value: string; label: string }> | string[]>>('/action-types')
+    const inner = unwrapInner<Array<{ value: string; label: string }> | string[]>(res)
+    const arr = Array.isArray(inner) ? inner : []
+    return { data: arr.map((item: any) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
   },
 
   /**
@@ -117,12 +114,9 @@ export const auditLogsApi = {
    * 返回 { data: string[] } 以供调用方 resourcesRes.data 使用
    */
   getResourceTypes: async (): Promise<{ data: string[] }> => {
-    interface ResourceTypesResponse {
-      items?: string[]
-    }
-    const res = await _api.get<ApiResponse<ResourceTypesResponse | string[]>>('/resource-types')
-    const inner = unwrapInner<ResourceTypesResponse | string[]>(res)
-    const arr = Array.isArray(inner) ? inner : inner.items || []
-    return { data: arr as string[] }
+    const res = await _api.get<ApiResponse<Array<{ value: string; label: string }> | string[]>>('/resource-types')
+    const inner = unwrapInner<Array<{ value: string; label: string }> | string[]>(res)
+    const arr = Array.isArray(inner) ? inner : []
+    return { data: arr.map((item: any) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
   },
 }

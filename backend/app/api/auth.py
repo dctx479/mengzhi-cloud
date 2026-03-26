@@ -77,9 +77,6 @@ async def register(
     request: RegisterRequest,
     db: Session = Depends(get_db)
 ) -> APIResponse:
-    import json
-    from loguru import logger
-    logger.info(f"Register request: {json.dumps(request.dict(), ensure_ascii=False)}")
     """
     用户注册端点
 

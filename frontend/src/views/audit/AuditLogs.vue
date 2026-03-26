@@ -524,7 +524,7 @@ const viewRelatedLog = async (id: number) => {
       resourceId: data.resourceId,
       pageSize: 10
     })
-    relatedLogs.value = relatedRes.data.data.filter(item => item.id !== id)
+    relatedLogs.value = (relatedRes.data.data || []).filter(item => item.id !== id)
   } catch (error) {
     ElMessage.error('加载日志详情失败')
     console.error(error)

@@ -601,7 +601,7 @@ async def upload_product_image(
         logger.error(f"产品图片上传异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message=f"产品图片上传失败: {str(e)}").dict(),
+            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="产品图片上传失败").dict(),
         )
 
 
@@ -736,7 +736,7 @@ async def batch_delete_products(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message=f"批量删除失败: {str(e)}").dict(),
+            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="批量删除失败").dict(),
         )
 
 
@@ -822,7 +822,7 @@ async def batch_update_products(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message=f"批量更新失败: {str(e)}").dict(),
+            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="批量更新失败").dict(),
         )
 
 
@@ -888,7 +888,7 @@ async def assign_tags_to_product(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message=f"产品标签分配失败: {str(e)}").dict(),
+            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="产品标签分配失败").dict(),
         )
 
 

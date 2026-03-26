@@ -125,7 +125,7 @@ async def receive_alerts(
         raise HTTPException(status_code=400, detail="Invalid JSON format")
     except Exception as e:
         logger.error(f"Error processing alerts: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/critical-alerts")
@@ -167,7 +167,7 @@ async def receive_critical_alerts(
         raise HTTPException(status_code=400, detail="Invalid JSON format")
     except Exception as e:
         logger.error(f"Error processing critical alerts: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/warning-alerts")
@@ -209,7 +209,7 @@ async def receive_warning_alerts(
         raise HTTPException(status_code=400, detail="Invalid JSON format")
     except Exception as e:
         logger.error(f"Error processing warning alerts: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/info-alerts")
@@ -251,7 +251,7 @@ async def receive_info_alerts(
         raise HTTPException(status_code=400, detail="Invalid JSON format")
     except Exception as e:
         logger.error(f"Error processing info alerts: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ==================== 告警处理函数 ====================

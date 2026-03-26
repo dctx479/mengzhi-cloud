@@ -198,7 +198,7 @@ async def start_reconciliation(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"启动对账失败: {str(e)}"
+            message="启动对账失败"
         ).dict()
 
 
@@ -262,7 +262,7 @@ async def get_reconciliation_records(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"查询对账记录失败: {str(e)}"
+            message="查询对账记录失败"
         ).dict()
 
 
@@ -301,7 +301,7 @@ async def get_reconciliation_record(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取对账记录失败: {str(e)}"
+            message="获取对账记录失败"
         ).dict()
 
 
@@ -359,7 +359,7 @@ async def get_reconciliation_differences(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"查询差异记录失败: {str(e)}"
+            message="查询差异记录失败"
         ).dict()
 
 
@@ -398,7 +398,7 @@ async def get_reconciliation_difference(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取差异记录失败: {str(e)}"
+            message="获取差异记录失败"
         ).dict()
 
 
@@ -439,7 +439,7 @@ async def fix_difference(
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
-            message=str(e)
+            message="记录不存在"
         ).dict()
     except BusinessException as e:
         return error_response(
@@ -449,7 +449,7 @@ async def fix_difference(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"修复差异失败: {str(e)}"
+            message="修复差异失败"
         ).dict()
 
 
@@ -487,12 +487,12 @@ async def generate_reconciliation_report(
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
-            message=str(e)
+            message="记录不存在"
         ).dict()
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"生成对账报告失败: {str(e)}"
+            message="生成对账报告失败"
         ).dict()
 
 
@@ -533,7 +533,7 @@ async def get_daily_reconciliation_status(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取对账状态失败: {str(e)}"
+            message="获取对账状态失败"
         ).dict()
 
 
@@ -566,7 +566,7 @@ async def retry_failed_reconciliation(
     except RecordNotFoundError as e:
         return error_response(
             code=ErrorCode.RECORD_NOT_FOUND,
-            message=str(e)
+            message="记录不存在"
         ).dict()
     except BusinessException as e:
         return error_response(
@@ -576,7 +576,7 @@ async def retry_failed_reconciliation(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"重试对账失败: {str(e)}"
+            message="重试对账失败"
         ).dict()
 
 
@@ -642,5 +642,5 @@ async def get_reconciliation_statistics(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取统计信息失败: {str(e)}"
+            message="获取统计信息失败"
         ).dict()

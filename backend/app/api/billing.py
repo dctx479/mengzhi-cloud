@@ -137,7 +137,7 @@ async def get_billing_plans(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取计费方案列表失败: {str(e)}"
+            message="获取计费方案列表失败"
         )
 
 
@@ -190,7 +190,7 @@ async def create_billing_plan(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"创建计费方案失败: {str(e)}"
+            message="创建计费方案失败"
         )
 
 
@@ -232,7 +232,7 @@ async def get_billing_plan(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取计费方案详情失败: {str(e)}"
+            message="获取计费方案详情失败"
         )
 
 
@@ -276,12 +276,12 @@ async def update_billing_plan(
     except ValueError as e:
         return error_response(
             code=ErrorCode.NOT_FOUND,
-            message=str(e)
+            message="计费方案不存在"
         )
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"更新计费方案失败: {str(e)}"
+            message="更新计费方案失败"
         )
 
 
@@ -324,7 +324,7 @@ async def delete_billing_plan(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"删除计费方案失败: {str(e)}"
+            message="删除计费方案失败"
         )
 
 
@@ -361,12 +361,12 @@ async def set_default_plan(
     except ValueError as e:
         return error_response(
             code=ErrorCode.NOT_FOUND,
-            message=str(e)
+            message="计费方案不存在"
         )
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"设置默认方案失败: {str(e)}"
+            message="设置默认方案失败"
         )
 
 
@@ -452,7 +452,7 @@ async def get_billing_records(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取计费记录失败: {str(e)}"
+            message="获取计费记录失败"
         )
 
 
@@ -505,7 +505,7 @@ async def get_billing_statistics(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取计费统计失败: {str(e)}"
+            message="获取计费统计失败"
         )
 
 
@@ -585,7 +585,7 @@ async def get_invoices(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取账单列表失败: {str(e)}"
+            message="获取账单列表失败"
         )
 
 
@@ -645,7 +645,7 @@ async def get_invoice(
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"获取账单详情失败: {str(e)}"
+            message="获取账单详情失败"
         )
 
 
@@ -720,12 +720,12 @@ async def pay_invoice(
     except ValueError as e:
         return error_response(
             code=ErrorCode.VALIDATION_ERROR,
-            message=str(e)
+            message="参数验证失败"
         )
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"支付账单失败: {str(e)}"
+            message="支付账单失败"
         )
 
 
@@ -770,10 +770,10 @@ async def generate_invoice(
     except ValueError as e:
         return error_response(
             code=ErrorCode.VALIDATION_ERROR,
-            message=str(e)
+            message="参数验证失败"
         )
     except Exception as e:
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
-            message=f"生成账单失败: {str(e)}"
+            message="生成账单失败"
         )

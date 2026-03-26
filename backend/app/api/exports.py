@@ -252,7 +252,7 @@ async def export_products(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(
                 code=ErrorCode.SYSTEM_ERROR,
-                message=f"导出失败: {str(e)}"
+                message="导出失败"
             ).dict()
         )
 

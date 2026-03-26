@@ -98,7 +98,7 @@ async def list_audit_logs(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(
                 code=ErrorCode.SYSTEM_ERROR,
-                message=f"查询失败: {str(e)}"
+                message="查询失败"
             ).dict()
         )
 
@@ -162,7 +162,7 @@ async def get_audit_statistics(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(
                 code=ErrorCode.SYSTEM_ERROR,
-                message=f"统计失败: {str(e)}"
+                message="统计失败"
             ).dict()
         )
 
@@ -261,7 +261,7 @@ async def export_audit_logs(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(
                 code=ErrorCode.SYSTEM_ERROR,
-                message=f"导出失败: {str(e)}"
+                message="导出失败"
             ).dict()
         )
 
@@ -302,7 +302,7 @@ async def get_user_audit_logs(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(
                 code=ErrorCode.SYSTEM_ERROR,
-                message=f"查询失败: {str(e)}"
+                message="查询失败"
             ).dict()
         )
 
@@ -343,7 +343,7 @@ async def get_resource_audit_logs(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(
                 code=ErrorCode.SYSTEM_ERROR,
-                message=f"查询失败: {str(e)}"
+                message="查询失败"
             ).dict()
         )
 
@@ -421,6 +421,6 @@ async def get_audit_log(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(
                 code=ErrorCode.SYSTEM_ERROR,
-                message=f"查询失败: {str(e)}"
+                message="查询失败"
             ).dict()
         )

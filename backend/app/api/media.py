@@ -152,7 +152,7 @@ async def upload_image(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"上传失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="上传失败")
 
 
 @router.post("/upload/video", response_model=MediaUploadResponse, status_code=201)
@@ -200,7 +200,7 @@ async def upload_video(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"上传失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="上传失败")
 
 
 @router.get("/", response_model=MediaListResponse)

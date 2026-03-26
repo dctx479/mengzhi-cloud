@@ -122,7 +122,7 @@ class RiskControlService:
                 "triggered_rules": [],
                 "blacklist_hits": [],
                 "recommendations": ["系统异常，建议人工审核"],
-                "error": str(e)
+                "error": "风险检查异常"
             }
 
     def _check_blacklist(

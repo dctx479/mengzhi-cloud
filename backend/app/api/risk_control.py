@@ -118,7 +118,7 @@ async def check_risk(
         return RiskCheckResponse(**result)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"风险检查失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="风险检查失败")
 
 
 @router.get("/events", summary="查询风险事件")
@@ -155,7 +155,7 @@ async def get_risk_events(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"查询风险事件失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="查询风险事件失败")
 
 
 @router.post("/events/{event_id}/process", summary="处理风险事件")
@@ -185,7 +185,7 @@ async def process_risk_event(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"处理风险事件失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="处理风险事件失败")
 
 
 @router.post("/rules", summary="创建风控规则")
@@ -225,7 +225,7 @@ async def create_rule(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"创建规则失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="创建规则失败")
 
 
 @router.get("/rules", summary="查询风控规则")
@@ -249,7 +249,7 @@ async def get_rules(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"查询规则失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="查询规则失败")
 
 
 @router.put("/rules/{rule_id}", summary="更新风控规则")
@@ -287,7 +287,7 @@ async def update_rule(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"更新规则失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="更新规则失败")
 
 
 @router.delete("/rules/{rule_id}", summary="删除风控规则")
@@ -312,7 +312,7 @@ async def delete_rule(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"删除规则失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="删除规则失败")
 
 
 @router.post("/blacklist", summary="添加黑名单")
@@ -348,7 +348,7 @@ async def add_to_blacklist(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"添加黑名单失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="添加黑名单失败")
 
 
 @router.get("/blacklist", summary="查询黑名单")
@@ -372,7 +372,7 @@ async def get_blacklist(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"查询黑名单失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="查询黑名单失败")
 
 
 @router.delete("/blacklist/{blacklist_id}", summary="移除黑名单")
@@ -397,7 +397,7 @@ async def remove_from_blacklist(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"移除黑名单失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="移除黑名单失败")
 
 
 @router.get("/statistics", summary="风险统计")
@@ -430,7 +430,7 @@ async def get_risk_statistics(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="获取统计数据失败")
 
 
 @router.get("/enums", summary="获取枚举值")

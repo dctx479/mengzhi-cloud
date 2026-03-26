@@ -309,7 +309,8 @@ async def backup_tenant(
             User.user_uuid == current_user["user_id"]
         ).first()
 
-        if not user or user.enterprise_id != enterprise_id or user.role not in ["enterprise_admin", "admin"]:
+        user_role = user.role.value if hasattr(user.role, 'value') else str(user.role) if user.role else None
+        if not user or user.enterprise_id != enterprise_id or user_role not in ["enterprise_admin", "admin"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="需要系统管理员或企业管理员权限"
@@ -458,7 +459,8 @@ async def get_tenant_info(
             User.user_uuid == current_user["user_id"]
         ).first()
 
-        if not user or user.enterprise_id != enterprise_id or user.role not in ["enterprise_admin", "admin"]:
+        user_role = user.role.value if hasattr(user.role, 'value') else str(user.role) if user.role else None
+        if not user or user.enterprise_id != enterprise_id or user_role not in ["enterprise_admin", "admin"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="需要系统管理员或企业管理员权限"

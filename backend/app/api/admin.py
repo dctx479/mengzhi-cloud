@@ -75,7 +75,7 @@ async def list_users(
             data={"items": [u.to_dict() for u in users], "total": total, "page": page, "page_size": page_size},
         )
     except Exception as e:
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 # ==================== 2. 更新用户 ====================
@@ -110,7 +110,7 @@ async def update_user(
         return APIResponse(code=200, message="更新成功", data=user.to_dict())
     except Exception as e:
         db.rollback()
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 # ==================== 3. 删除用户 ====================
@@ -132,7 +132,7 @@ async def delete_user(
         return APIResponse(code=200, message="删除成功", data={"id": user_id})
     except Exception as e:
         db.rollback()
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 # ==================== 4. 企业列表 ====================
@@ -178,7 +178,7 @@ async def list_enterprises(
             data={"items": [e.to_dict() for e in enterprises], "total": total, "page": page, "page_size": page_size},
         )
     except Exception as e:
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 # ==================== 5. 更新企业 ====================
@@ -217,7 +217,7 @@ async def update_enterprise(
         return APIResponse(code=200, message="更新成功", data=enterprise.to_dict())
     except Exception as e:
         db.rollback()
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 # ==================== 6. 删除企业 ====================
@@ -242,7 +242,7 @@ async def delete_enterprise(
         return APIResponse(code=200, message="删除成功", data={"id": enterprise_id})
     except Exception as e:
         db.rollback()
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 # ==================== 7. 平台统计 ====================
@@ -281,7 +281,7 @@ async def get_stats(current_user: dict = Depends(require_admin), db: Session = D
             },
         )
     except Exception as e:
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 # ==================== 8. AI使用统计 ====================
@@ -333,7 +333,7 @@ async def get_ai_usage(
             },
         )
     except Exception as e:
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 # ==================== 9. 提供商设置 ====================
@@ -376,7 +376,7 @@ async def get_provider_settings(
             providers.append({**p, "enabled": p["id"] in enabled})
         return APIResponse(code=200, message="success", data={"providers": providers, "enabled_ids": enabled})
     except Exception as e:
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 class UpdateProviderSettingsRequest(BaseModel):
@@ -419,7 +419,7 @@ async def update_provider_settings(
         return APIResponse(code=200, message="提供商设置已更新", data={"enabled_ids": enabled_ids})
     except Exception as e:
         db.rollback()
-        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message=str(e), data=None)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 __all__ = ["router"]

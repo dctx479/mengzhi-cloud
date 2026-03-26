@@ -94,7 +94,7 @@ async def list_ai_configs(
     except Exception as e:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(ErrorCode.SYSTEM_ERROR, f"获取配置失败: {str(e)}").dict(),
+            content=error_response(ErrorCode.SYSTEM_ERROR, "获取配置失败").dict(),
         )
 
 
@@ -152,7 +152,7 @@ async def create_ai_config(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(ErrorCode.SYSTEM_ERROR, f"创建配置失败: {str(e)}").dict(),
+            content=error_response(ErrorCode.SYSTEM_ERROR, "创建配置失败").dict(),
         )
 
 
@@ -202,7 +202,7 @@ async def update_ai_config(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(ErrorCode.SYSTEM_ERROR, f"更新配置失败: {str(e)}").dict(),
+            content=error_response(ErrorCode.SYSTEM_ERROR, "更新配置失败").dict(),
         )
 
 
@@ -239,7 +239,7 @@ async def delete_ai_config(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(ErrorCode.SYSTEM_ERROR, f"删除配置失败: {str(e)}").dict(),
+            content=error_response(ErrorCode.SYSTEM_ERROR, "删除配置失败").dict(),
         )
 
 
@@ -283,7 +283,7 @@ async def test_ai_config(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(ErrorCode.SYSTEM_ERROR, f"配置测试失败: {str(e)}").dict(),
+            content=error_response(ErrorCode.SYSTEM_ERROR, "配置测试失败").dict(),
         )
 
 

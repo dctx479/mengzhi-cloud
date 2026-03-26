@@ -669,5 +669,5 @@ class AuditService:
                 "format": format,
                 "data": [] if format == "json" else "",
                 "count": 0,
-                "error": str(e)
+                "error": "导出失败"
             }

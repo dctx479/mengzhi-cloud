@@ -271,7 +271,7 @@ async def create_quota(
             "data": quota.to_dict()
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"创建失败: {e}")
+        raise HTTPException(status_code=500, detail="创建失败")
 
 
 @router.put("/{quota_id}", response_model=dict)

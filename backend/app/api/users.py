@@ -111,7 +111,7 @@ async def upload_avatar(
         logger.error(f"头像上传异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message=f"头像上传失败: {str(e)}").dict(),
+            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="头像上传失败").dict(),
         )
 
 

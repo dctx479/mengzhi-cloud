@@ -140,7 +140,7 @@ async def generate_content(
         raise
     except Exception as e:
         logger.error(f"内容生成失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"内容生成失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="内容生成失败")
 
 
 @router.post("/generate-variants", response_model=dict)
@@ -212,7 +212,7 @@ async def generate_content_variants(
         raise
     except Exception as e:
         logger.error(f"生成变体失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"生成变体失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="生成变体失败")
 
 
 @router.get("/content-types")
