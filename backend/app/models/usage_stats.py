@@ -1,7 +1,7 @@
 """
 使用统计模型
 """
-from sqlalchemy import Column, BIGINT, VARCHAR, DECIMAL, INTEGER, TIMESTAMP, Enum as SQLEnum, Index
+from sqlalchemy import Column, BIGINT, VARCHAR, DECIMAL, INTEGER, Enum as SQLEnum, Index
 from datetime import datetime
 import enum
 
@@ -47,10 +47,7 @@ class UsageStatistics(BaseModel):
     profit = Column(DECIMAL(10, 4), nullable=False, comment="利润")
     profit_margin = Column(DECIMAL(5, 2), nullable=False, comment="利润率%")
 
-    # 时间戳
-    created_at = Column(TIMESTAMP, nullable=False, default=datetime.utcnow)
-
-    # 索引
+    # 索引（created_at 继承自 BaseModel）
     __table_args__ = (
         Index("idx_enterprise_created", "enterprise_id", "created_at"),
         Index("idx_stat_type", "stat_type"),

@@ -226,20 +226,31 @@ class FileService:
     @staticmethod
     def delete_file(filepath: str) -> bool:
         """删除文件
-        
+
         参数:
             filepath: 文件路径
-            
+
         返回:
             是否删除成功
         """
         try:
-            if os.path.exists(filepath):
-                os.remove(filepath)
-                logger.info(f"文件删除成功: {filepath}")
+            # 安全检查：确保只能删除上传目录内的文件，防止路径遍历攻击
+            abs_filepath = os.path.realpath(filepath)
+            allowed_dirs = [
+                os.path.realpath(AVATAR_UPLOAD_DIR),
+                os.path.realpath(PRODUCT_IMAGE_UPLOAD_DIR),
+            ]
+            if not any(abs_filepath.startswith(d + os.sep) or abs_filepath == d
+                       for d in allowed_dirs):
+                logger.error(f"拒绝删除上传目录外的文件: {filepath}")
+                return False
+
+            if os.path.exists(abs_filepath):
+                os.remove(abs_filepath)
+                logger.info(f"文件删除成功: {abs_filepath}")
                 return True
             else:
-                logger.warning(f"文件不存在: {filepath}")
+                logger.warning(f"文件不存在: {abs_filepath}")
                 return False
         except Exception as e:
             logger.error(f"文件删除失败: {str(e)}")

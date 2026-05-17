@@ -220,6 +220,7 @@ class ImageProcessor:
             output_path = str(path_obj.parent / f"{path_obj.stem}{ext}")
 
         with Image.open(image_path) as img:
+            _check_image_pixels(img)
             # 处理RGBA和调色板模式
             if target_format.upper() == 'JPEG':
                 if img.mode in ('RGBA', 'LA', 'P'):

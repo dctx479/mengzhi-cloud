@@ -20,7 +20,6 @@ class AIFailoverService:
         provider_configs: [{"provider": "deepseek", "api_key": "xxx", "priority": 1}, ...]
         """
         self.providers = sorted(provider_configs, key=lambda x: x.get('priority', 999))
-        self.factory = AIProviderFactory()
 
     @staticmethod
     def _is_retryable(exc: Exception) -> bool:
@@ -50,12 +49,14 @@ class AIFailoverService:
 
             for attempt in range(max_retries):
                 try:
-                    provider = self.factory.create_provider(
-                        provider_name=provider_name,
+                    # 使用 AIProviderFactory.create（正确的方法名）
+                    provider = AIProviderFactory.create(
+                        provider_type=provider_name,
                         api_key=api_key,
                         base_url=provider_config.get('base_url')
                     )
-                    response = await provider.chat_completion(request)
+                    # 调用 provider.chat（正确的方法名，非 chat_completion）
+                    response = await provider.chat(request)
                     logger.info("成功使用Provider: %s (尝试 %d/%d)", provider_name, attempt + 1, max_retries)
                     return response
 

@@ -231,8 +231,7 @@ class User(BaseModel):
     enterprise = relationship(
         "Enterprise",
         foreign_keys=[enterprise_id],
-        back_populates="users",
-        remote_side="[Enterprise.id]"
+        back_populates="users"
     )
     conversations = relationship(
         "Conversation",

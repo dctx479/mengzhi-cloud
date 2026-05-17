@@ -72,7 +72,11 @@ onMounted(async () => {
 const loadConfigs = async () => {
   try {
     const res = await getModelConfigs()
-    configs.value = res.data
+    // 后端统一响应格式: {code, data, message}，需要解包 .data
+    const data = res?.data ?? res
+    if (data && typeof data === 'object') {
+      configs.value = data
+    }
   } catch (error) {
     ElMessage.error('加载配置失败')
   }

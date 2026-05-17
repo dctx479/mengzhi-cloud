@@ -157,7 +157,7 @@
           :total="historyTotal"
           :page-sizes="[5, 10, 20, 50]"
           layout="total, sizes, prev, pager, next"
-          @size-change="loadQuotaHistory"
+          @size-change="handleHistorySizeChange"
           @current-change="loadQuotaHistory"
         />
       </div>
@@ -400,6 +400,11 @@ watch(historyFilter, () => {
   historyPage.value = 1
   loadQuotaHistory()
 })
+
+const handleHistorySizeChange = () => {
+  historyPage.value = 1
+  loadQuotaHistory()
+}
 
 const handleUpgrade = async () => {
   try {

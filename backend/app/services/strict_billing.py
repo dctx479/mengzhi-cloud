@@ -214,8 +214,9 @@ class StrictBillingService:
             self.validate_quota(quota, "video_frames", frames * quota_cost_per_frame)
 
         # 5. 验证余额
-        if quota.balance < cost:
-            raise InsufficientBalanceError(f"余额不足: {quota.balance} < {cost}")
+        balance = Decimal(str(quota.balance)) if not isinstance(quota.balance, Decimal) else quota.balance
+        if balance < cost:
+            raise InsufficientBalanceError(f"余额不足: {balance} < {cost}")
 
         # 6. 创建预扣费交易
         transaction = BillingTransaction(
@@ -230,8 +231,9 @@ class StrictBillingService:
         )
 
         # 7. 扣除余额
-        quota.balance -= cost
-        quota.pending_amount += cost
+        quota.balance = balance - cost
+        pending = Decimal(str(quota.pending_amount)) if not isinstance(quota.pending_amount, Decimal) else quota.pending_amount
+        quota.pending_amount = pending + cost
 
         self.db.add(transaction)
         self.db.commit()
@@ -263,7 +265,9 @@ class StrictBillingService:
         transaction.actual_usage = json.dumps(actual_usage) if actual_usage else None
 
         # 更新配额
-        quota.pending_amount -= transaction.amount
+        pending = Decimal(str(quota.pending_amount)) if not isinstance(quota.pending_amount, Decimal) else quota.pending_amount
+        tx_amount = Decimal(str(transaction.amount)) if not isinstance(transaction.amount, Decimal) else transaction.amount
+        quota.pending_amount = pending - tx_amount
 
         # 计算实际资源使用量（用于配额追踪，单位与 validate_quota 一致）
         request_params = json.loads(transaction.request_params) if transaction.request_params else {}
@@ -324,7 +328,8 @@ class StrictBillingService:
             return transaction
 
         quota = self.db.query(TenantQuota).filter_by(id=transaction.quota_id).with_for_update().first()
-        refund_amount = transaction.amount * Decimal(refund_percentage) / Decimal(100)
+        tx_amount = Decimal(str(transaction.amount)) if not isinstance(transaction.amount, Decimal) else transaction.amount
+        refund_amount = tx_amount * Decimal(refund_percentage) / Decimal(100)
 
         # 更新交易状态
         transaction.status = BillingStatus.REFUNDED
@@ -333,8 +338,10 @@ class StrictBillingService:
         transaction.refund_reason = reason
 
         # 退款到余额
-        quota.balance += refund_amount
-        quota.pending_amount -= transaction.amount
+        balance = Decimal(str(quota.balance)) if not isinstance(quota.balance, Decimal) else quota.balance
+        pending = Decimal(str(quota.pending_amount)) if not isinstance(quota.pending_amount, Decimal) else quota.pending_amount
+        quota.balance = balance + refund_amount
+        quota.pending_amount = pending - tx_amount
 
         self.db.commit()
 
@@ -352,7 +359,7 @@ class StrictBillingService:
                 QuotaUsage.used_at >= today_start
             )
         ).all()
-        return sum(u.amount for u in result)
+        return sum(u.amount or 0 for u in result)
 
     def _get_monthly_usage(self, quota_id: int, resource_type: str) -> int:
         """获取本月使用量"""
@@ -364,4 +371,4 @@ class StrictBillingService:
                 QuotaUsage.used_at >= month_start
             )
         ).all()
-        return sum(u.amount for u in result)
+        return sum(u.amount or 0 for u in result)

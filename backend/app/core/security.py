@@ -26,6 +26,10 @@ def get_client_ip(request: Request) -> str:
     从 X-Forwarded-For 获取最左侧（最初客户端）的IP地址。
     X-Forwarded-For 格式: client_ip, proxy1_ip, proxy2_ip, ...
 
+    警告: 此函数信任 X-Forwarded-For 头，仅适用于部署在可信反向代理
+    （如 Nginx/Traefik）之后的场景。直接暴露到公网时该头可被伪造，
+    安全敏感场景（如支付回调IP验证）请使用 request.client.host。
+
     Args:
         request: FastAPI请求对象
 
@@ -73,8 +77,8 @@ def verify_callback_ip(request: Request, allowed_ips: List[str]) -> bool:
     if direct_ip in ["127.0.0.1", "::1"]:
         return True
 
-    # 对外部回调使用 get_client_ip（已修复为从右向左解析）
-    client_ip = get_client_ip(request)
+    # 外部回调验证始终使用直连IP，防止 X-Forwarded-For 伪造
+    client_ip = direct_ip
 
     try:
         client_ip_obj = ipaddress.ip_address(client_ip)

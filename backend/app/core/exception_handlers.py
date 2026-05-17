@@ -10,7 +10,7 @@ P1修复: 增加服务层装饰器，细粒度异常映射
 """
 
 from fastapi import Request, status
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
 from loguru import logger
 import uuid
@@ -276,6 +276,36 @@ async def general_exception_handler(
     )
 
 
+async def http_exception_handler(
+    request: Request,
+    exc: HTTPException
+) -> JSONResponse:
+    """FastAPI HTTPException 处理器
+
+    将 FastAPI 原生 HTTPException 转换为项目统一响应格式，
+    避免返回 {"detail": "..."} 格式与其他错误响应不一致。
+    """
+    request_id = str(uuid.uuid4())
+
+    logger.warning(
+        f"HTTP异常: status={exc.status_code} | "
+        f"detail={exc.detail} | "
+        f"path={request.url.path} | "
+        f"method={request.method} | "
+        f"request_id={request_id}"
+    )
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=error_response(
+            code=exc.status_code * 100,  # 映射为业务错误码，如 404 -> 40400
+            message=str(exc.detail) if exc.detail else "请求错误",
+            request_id=request_id
+        ).model_dump(mode='json'),
+        headers=getattr(exc, "headers", None),
+    )
+
+
 def register_exception_handlers(app) -> None:
     """注册所有异常处理器到FastAPI应用
 
@@ -286,6 +316,9 @@ def register_exception_handlers(app) -> None:
 
     # 注册业务异常处理器
     app.add_exception_handler(BusinessException, business_exception_handler)
+
+    # 注册 FastAPI HTTPException 处理器（统一响应格式）
+    app.add_exception_handler(HTTPException, http_exception_handler)
 
     # 注册参数验证异常处理器
     app.add_exception_handler(ValidationError, validation_exception_handler)

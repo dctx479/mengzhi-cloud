@@ -10,6 +10,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
+from decimal import Decimal
 
 from app.api.deps import get_db, get_current_user, require_admin
 from app.models.reconciliation import (
@@ -616,15 +617,17 @@ async def get_reconciliation_statistics(
 
         records = query.all()
 
-        # 计算统计信息
+        # 计算统计信息（使用 Decimal 保持金融精度，最终转 str 输出）
+        matched_amount_sum = sum((r.matched_amount or Decimal("0")) for r in records)
+        difference_amount_sum = sum((r.difference_amount or Decimal("0")) for r in records)
         statistics = {
             "total_reconciliations": len(records),
             "success_count": sum(1 for r in records if r.status == ReconciliationStatus.SUCCESS),
             "partial_count": sum(1 for r in records if r.status == ReconciliationStatus.PARTIAL),
             "failed_count": sum(1 for r in records if r.status == ReconciliationStatus.FAILED),
             "total_differences": sum((r.difference_count or 0) for r in records),
-            "total_matched_amount": float(sum((r.matched_amount or 0) for r in records)),
-            "total_difference_amount": float(sum((r.difference_amount or 0) for r in records)),
+            "total_matched_amount": str(matched_amount_sum),
+            "total_difference_amount": str(difference_amount_sum),
             "average_match_rate": 0
         }
 

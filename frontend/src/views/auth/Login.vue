@@ -110,15 +110,17 @@ const rules: FormRules = {
 
 const handleSubmit = async () => {
   if (loading.value) return
-  try {
-    await formRef.value?.validate()
-    loading.value = true
+  // validate() rejects with false on validation failure — not an Error
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
 
+  loading.value = true
+  try {
     await userStore.login(formData.username, formData.password)
     ElMessage.success('登录成功')
     router.push('/')
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '登录失败')
+  } catch {
+    // http interceptor already shows ElMessage.error for API errors
   } finally {
     loading.value = false
   }

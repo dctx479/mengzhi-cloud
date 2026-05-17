@@ -12,6 +12,7 @@ JSON格式日志配置
 
 import json
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -135,6 +136,11 @@ def setup_json_logging(
     # 移除默认的日志处理器
     logger.remove()
 
+    # 安全修复: 生产环境禁用 diagnose，防止变量值（含密码/token）泄露到日志
+    is_production = os.getenv("ENVIRONMENT", "development") == "production"
+    # backtrace 在生产环境保留（有助于调试），diagnose 必须关闭
+    enable_diagnose = not is_production
+
     # 添加控制台JSON输出
     if enable_console:
         logger.add(
@@ -154,7 +160,7 @@ def setup_json_logging(
         compression="zip",
         enqueue=True,  # 异步写入
         backtrace=True,  # 启用回溯
-        diagnose=True,  # 启用诊断
+        diagnose=enable_diagnose,  # 安全修复: 生产环境禁用，防止变量值泄露
     )
 
     # 添加错误日志单独文件
@@ -168,11 +174,11 @@ def setup_json_logging(
         compression="zip",
         enqueue=True,
         backtrace=True,
-        diagnose=True,
+        diagnose=enable_diagnose,  # 安全修复: 生产环境禁用，防止变量值泄露
     )
 
-    logger.info(f"✅ JSON logging enabled: {log_file_path}")
-    logger.info(f"✅ Error logging enabled: {error_log_file}")
+    logger.info(f"JSON logging enabled: {log_file_path}")
+    logger.info(f"Error logging enabled: {error_log_file}")
 
 
 def get_logger_with_context(**context):

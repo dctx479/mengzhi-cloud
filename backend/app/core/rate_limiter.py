@@ -10,6 +10,26 @@ from typing import Tuple, Dict, Any
 from loguru import logger
 
 
+# Lua 脚本：原子性地检查并递增计数器
+# 返回 [当前计数, 是否新建(1=新建/0=已存在)]
+_RATE_LIMIT_LUA = """
+local key = KEYS[1]
+local max_requests = tonumber(ARGV[1])
+local window_seconds = tonumber(ARGV[2])
+local current = redis.call('GET', key)
+if current == false then
+    redis.call('SETEX', key, window_seconds, 1)
+    return {1, 1}
+end
+current = tonumber(current)
+if current >= max_requests then
+    return {current, 0}
+end
+redis.call('INCR', key)
+return {current + 1, 0}
+"""
+
+
 class RateLimiter:
     """请求频率限制器"""
 
@@ -21,7 +41,14 @@ class RateLimiter:
         self._memory_store: Dict[str, Dict[str, Any]] = {}
         self._last_cleanup: float = 0.0
         self._lock = threading.Lock()  # 保护内存存储和cleanup时间戳
-    
+        self._lua_script = None  # 缓存已注册的 Lua 脚本
+
+    def _get_lua_script(self):
+        """懒加载并缓存 Lua 脚本"""
+        if self._lua_script is None and self.redis_client is not None:
+            self._lua_script = self.redis_client.register_script(_RATE_LIMIT_LUA)
+        return self._lua_script
+
     async def check_rate_limit(
         self,
         key: str,
@@ -29,12 +56,12 @@ class RateLimiter:
         window_seconds: int
     ) -> Tuple[bool, int]:
         """检查是否超过频率限制
-        
+
         Args:
             key: 限制键（如用户ID、IP地址）
             max_requests: 时间窗口内最大请求数
             window_seconds: 时间窗口（秒）
-            
+
         Returns:
             (是否允许, 剩余请求数)
         """
@@ -42,33 +69,30 @@ class RateLimiter:
             return await self._check_rate_limit_redis(key, max_requests, window_seconds)
         else:
             return await self._check_rate_limit_memory(key, max_requests, window_seconds)
-    
+
     async def _check_rate_limit_redis(
         self,
         key: str,
         max_requests: int,
         window_seconds: int
     ) -> Tuple[bool, int]:
-        """使用Redis检查频率限制"""
+        """使用 Redis Lua 脚本原子性地检查频率限制"""
         try:
             rate_key = f"rate_limit:{key}"
-            current = self.redis_client.get(rate_key)
-            
-            if current is None:
-                self.redis_client.setex(rate_key, window_seconds, 1)
-                return True, max_requests - 1
-            
-            current = int(current)
-            if current >= max_requests:
+            script = self._get_lua_script()
+            result = script(keys=[rate_key], args=[max_requests, window_seconds])
+            current, _ = int(result[0]), int(result[1])
+
+            if current > max_requests:
                 return False, 0
-            
-            self.redis_client.incr(rate_key)
-            return True, max_requests - current - 1
-            
+
+            remaining = max(0, max_requests - current)
+            return True, remaining
+
         except Exception as e:
             logger.error(f"Redis频率限制检查失败: {e}")
             return await self._check_rate_limit_memory(key, max_requests, window_seconds)
-    
+
     async def _check_rate_limit_memory(
         self,
         key: str,
@@ -113,3 +137,4 @@ class RateLimiter:
         for k in expired_keys:
             del self._memory_store[k]
         self._last_cleanup = now
+

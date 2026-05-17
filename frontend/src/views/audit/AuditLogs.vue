@@ -548,7 +548,7 @@ const handleExport = async () => {
 
     const { data } = await auditLogsApi.exportAuditLogs(exportForm)
 
-    // 创建下载链接
+    // exportAuditLogs returns raw AxiosResponse; { data } is the blob
     const url = window.URL.createObjectURL(new Blob([data]))
     const link = document.createElement('a')
     link.href = url

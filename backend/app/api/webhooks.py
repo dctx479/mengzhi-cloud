@@ -10,12 +10,14 @@ Alertmanager Webhook接收器
 - /api/v1/webhooks/info-alerts
 """
 
-from fastapi import APIRouter, Request, HTTPException, Depends
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from typing import Dict, Any, List
-from datetime import datetime
+import os
 import logging
 import secrets
+from datetime import datetime
+from typing import Dict, Any, List
+
+from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 router = APIRouter(prefix="/api/v1/webhooks", tags=["Webhooks"])
 security = HTTPBasic()
@@ -26,7 +28,6 @@ logger = logging.getLogger(__name__)
 
 def verify_alertmanager_auth(credentials: HTTPBasicCredentials = Depends(security)):
     """验证Alertmanager的HTTP Basic Auth"""
-    import os
     correct_username = os.getenv("ALERTMANAGER_WEBHOOK_USER", "alertmanager")
     correct_password = os.getenv("ALERTMANAGER_WEBHOOK_SECRET", "changeme")
 

@@ -5,7 +5,7 @@
 创建日期: 2026-01-23
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Dict, Any
 from datetime import datetime
 
@@ -14,21 +14,47 @@ from datetime import datetime
 
 class OrderCreateRequest(BaseModel):
     """订单创建请求"""
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "package_id": 1
+        }
+    })
 
     package_id: int = Field(..., description="套餐ID")
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "package_id": 1
-            }
-        }
 
 
 # ============ 响应Schema ============
 
 class OrderDetailResponse(BaseModel):
     """订单详情响应"""
+    model_config = ConfigDict(from_attributes=True, json_schema_extra={
+        "example": {
+            "id": 1,
+            "order_no": "ORD20260123001",
+            "user_id": 1,
+            "package_id": 1,
+            "package_name": "标准版-月付",
+            "package_type": "standard",
+            "amount": 99.00,
+            "original_amount": 129.00,
+            "discount_amount": 30.00,
+            "quotas": {
+                "chat": 500,
+                "generation": 200,
+                "token": 200000,
+                "storage_mb": 2000
+            },
+            "validity_days": 30,
+            "status": "pending",
+            "remark": None,
+            "paid_at": None,
+            "completed_at": None,
+            "cancelled_at": None,
+            "expired_at": "2026-01-24T10:00:00",
+            "created_at": "2026-01-23T10:00:00",
+            "updated_at": "2026-01-23T10:00:00"
+        }
+    })
 
     id: int = Field(..., description="订单ID")
     order_no: str = Field(..., description="订单号")
@@ -58,40 +84,10 @@ class OrderDetailResponse(BaseModel):
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
 
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
-            "example": {
-                "id": 1,
-                "order_no": "ORD20260123001",
-                "user_id": 1,
-                "package_id": 1,
-                "package_name": "标准版-月付",
-                "package_type": "standard",
-                "amount": 99.00,
-                "original_amount": 129.00,
-                "discount_amount": 30.00,
-                "quotas": {
-                    "chat": 500,
-                    "generation": 200,
-                    "token": 200000,
-                    "storage_mb": 2000
-                },
-                "validity_days": 30,
-                "status": "pending",
-                "remark": None,
-                "paid_at": None,
-                "completed_at": None,
-                "cancelled_at": None,
-                "expired_at": "2026-01-24T10:00:00",
-                "created_at": "2026-01-23T10:00:00",
-                "updated_at": "2026-01-23T10:00:00"
-            }
-        }
-
 
 class OrderListItemResponse(BaseModel):
     """订单列表项响应"""
+    model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="订单ID")
     order_no: str = Field(..., description="订单号")
@@ -99,6 +95,3 @@ class OrderListItemResponse(BaseModel):
     amount: float = Field(..., description="订单金额(元)")
     status: str = Field(..., description="订单状态")
     created_at: datetime = Field(..., description="创建时间")
-
-    class Config:
-        from_attributes = True

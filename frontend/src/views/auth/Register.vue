@@ -444,16 +444,17 @@ onUnmounted(() => {
 
 const handleSubmit = async () => {
   if (loading.value) return
-  try {
-    await formRef.value?.validate()
-    loading.value = true
+  // validate() rejects with false on validation failure — not an Error
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
 
+  loading.value = true
+  try {
     await userStore.register(formData.username, formData.email, formData.password)
     ElMessage.success('注册成功，请登录')
     router.push('/login')
-  } catch (error) {
-    // 错误已在http拦截器中处理并显示
-    console.error('注册失败:', error)
+  } catch {
+    // http interceptor already shows ElMessage.error for API errors
   } finally {
     loading.value = false
   }

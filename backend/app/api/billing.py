@@ -694,11 +694,20 @@ async def pay_invoice(
                 message="用户不存在"
             )
 
-        # 验证账单所有权
+        # 转换支付方式为枚举（在查询账单前验证，避免无效参数进入后续逻辑）
+        try:
+            payment_method = PaymentMethod(request.payment_method)
+        except ValueError:
+            return error_response(
+                code=ErrorCode.PARAM_VALIDATION_FAILED,
+                message=f"无效的支付方式: {request.payment_method}"
+            )
+
+        # 验证账单所有权，并用 with_for_update() 加行锁防止并发重复支付
         invoice = db.query(Invoice).filter(
             Invoice.id == invoice_id,
             Invoice.user_id == user.id
-        ).first()
+        ).with_for_update().first()
 
         if not invoice:
             return error_response(
@@ -706,13 +715,17 @@ async def pay_invoice(
                 message=f"账单不存在: {invoice_id}"
             )
 
-        # 转换支付方式为枚举
-        try:
-            payment_method = PaymentMethod(request.payment_method)
-        except ValueError:
+        # 幂等检查：已支付的账单不允许重复支付
+        if invoice.status == InvoiceStatus.PAID:
             return error_response(
-                code=ErrorCode.PARAM_VALIDATION_FAILED,
-                message=f"无效的支付方式: {request.payment_method}"
+                code=ErrorCode.PARAM_VALUE_INVALID,
+                message="账单已支付，请勿重复操作"
+            )
+
+        if invoice.status == InvoiceStatus.CANCELLED:
+            return error_response(
+                code=ErrorCode.PARAM_VALUE_INVALID,
+                message="账单已取消，无法支付"
             )
 
         # 支付账单
@@ -728,10 +741,10 @@ async def pay_invoice(
             message="支付账单成功"
         )
 
-    except ValueError as e:
+    except BusinessException as e:
         return error_response(
-            code=ErrorCode.PARAM_VALIDATION_FAILED,
-            message="参数验证失败"
+            code=e.code,
+            message=e.message
         )
     except Exception as e:
         logger.error(f"支付账单失败: {e}")

@@ -16,8 +16,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {})
 
-// 配置 DOMPurify 安全策略
-DOMPurify.setConfig({
+// DOMPurify 清理配置（局部传入，避免污染全局配置）
+const PURIFY_CONFIG = {
   ALLOWED_TAGS: [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'p', 'br', 'hr',
@@ -32,7 +32,7 @@ DOMPurify.setConfig({
   ],
   ALLOW_DATA_ATTR: false,
   ADD_ATTR: ['target', 'rel'],
-})
+} as const
 
 // 初始化 Markdown 渲染器
 const md: MarkdownIt = new MarkdownIt({
@@ -74,11 +74,11 @@ md.renderer.rules.table_open = defaultTableOpenRender
 const sanitizedHTML = computed(() => {
   try {
     const rawHTML = md.render(props.content)
-    // S-P0-001: 使用 DOMPurify 清理潜在的 XSS 攻击代码
-    return DOMPurify.sanitize(rawHTML)
+    // S-P0-001: 使用 DOMPurify 清理潜在的 XSS 攻击代码（局部配置，不影响全局）
+    return DOMPurify.sanitize(rawHTML, PURIFY_CONFIG)
   } catch (e) {
     console.error('Markdown render error:', e)
-    return DOMPurify.sanitize(`<p>${props.content}</p>`)
+    return DOMPurify.sanitize(`<p>${props.content}</p>`, PURIFY_CONFIG)
   }
 })
 </script>

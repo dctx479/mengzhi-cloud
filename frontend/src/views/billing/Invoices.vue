@@ -539,7 +539,8 @@ const downloadInvoice = async (invoiceId) => {
     const res = await http.get(`/v1/billing/invoices/${invoiceId}/download`, {
       responseType: 'blob'
     })
-    const blob = new Blob([res], { type: 'application/pdf' })
+    // http interceptor returns response.data; for blob responseType that is already the Blob
+    const blob = res instanceof Blob ? res : new Blob([res as any], { type: 'application/pdf' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url

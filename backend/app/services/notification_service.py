@@ -179,7 +179,11 @@ class EmailService:
         </html>
         """
 
-        return self.send_email(to, subject, body, html=True)
+        try:
+            return self.send_email(to, subject, body, html=True)
+        except Exception as e:
+            logger.error(f"发送验证码邮件失败，不影响主流程: to={to}, error={e}")
+            return False
 
     def send_password_reset_email(self, to: str, reset_link: str, username: str = "") -> bool:
         """发送密码重置邮件"""
@@ -219,7 +223,11 @@ class EmailService:
         </html>
         """
 
-        return self.send_email(to, subject, body, html=True)
+        try:
+            return self.send_email(to, subject, body, html=True)
+        except Exception as e:
+            logger.error(f"发送密码重置邮件失败，不影响主流程: to={to}, error={e}")
+            return False
 
     def send_welcome_email(self, to: str, username: str) -> bool:
         """发送欢迎邮件"""
@@ -248,7 +256,11 @@ class EmailService:
         </html>
         """
 
-        return self.send_email(to, subject, body, html=True)
+        try:
+            return self.send_email(to, subject, body, html=True)
+        except Exception as e:
+            logger.error(f"发送欢迎邮件失败，不影响主流程: to={to}, error={e}")
+            return False
 
 
 class SMSService:

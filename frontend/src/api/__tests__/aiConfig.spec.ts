@@ -49,7 +49,7 @@ describe('aiConfig API', () => {
 
       const result = await getAIConfigs(enterpriseId)
 
-      expect(mockGet).toHaveBeenCalledWith(`/api/enterprises/${enterpriseId}/ai-configs`)
+      expect(mockGet).toHaveBeenCalledWith(`/v1/enterprises/${enterpriseId}/ai-configs`)
       expect(result).toEqual(mockConfigs)
     })
 
@@ -73,7 +73,7 @@ describe('aiConfig API', () => {
 
       await getAIConfigs('enterprise-123')
 
-      expect(mockGet).toHaveBeenCalledWith('/api/enterprises/enterprise-123/ai-configs')
+      expect(mockGet).toHaveBeenCalledWith('/v1/enterprises/enterprise-123/ai-configs')
     })
   })
 
@@ -84,7 +84,7 @@ describe('aiConfig API', () => {
       const result = await createAIConfig(enterpriseId, mockConfigForm)
 
       expect(mockPost).toHaveBeenCalledWith(
-        `/api/enterprises/${enterpriseId}/ai-configs`,
+        `/v1/enterprises/${enterpriseId}/ai-configs`,
         mockConfigForm
       )
       expect(result).toEqual(mockConfig)
@@ -138,7 +138,7 @@ describe('aiConfig API', () => {
       const result = await updateAIConfig(enterpriseId, configId, updates)
 
       expect(mockPatch).toHaveBeenCalledWith(
-        `/api/enterprises/${enterpriseId}/ai-configs/${configId}`,
+        `/v1/enterprises/${enterpriseId}/ai-configs/${configId}`,
         updates
       )
       expect(result.name).toBe('Updated Config')
@@ -168,7 +168,7 @@ describe('aiConfig API', () => {
       await updateAIConfig('ent-456', 'cfg-789', { name: 'Test' })
 
       expect(mockPatch).toHaveBeenCalledWith(
-        '/api/enterprises/ent-456/ai-configs/cfg-789',
+        '/v1/enterprises/ent-456/ai-configs/cfg-789',
         { name: 'Test' }
       )
     })
@@ -199,7 +199,7 @@ describe('aiConfig API', () => {
       await deleteAIConfig(enterpriseId, configId)
 
       expect(mockDelete).toHaveBeenCalledWith(
-        `/api/enterprises/${enterpriseId}/ai-configs/${configId}`
+        `/v1/enterprises/${enterpriseId}/ai-configs/${configId}`
       )
     })
 
@@ -215,7 +215,7 @@ describe('aiConfig API', () => {
 
       await deleteAIConfig('ent-999', 'cfg-888')
 
-      expect(mockDelete).toHaveBeenCalledWith('/api/enterprises/ent-999/ai-configs/cfg-888')
+      expect(mockDelete).toHaveBeenCalledWith('/v1/enterprises/ent-999/ai-configs/cfg-888')
     })
 
     it('should return void on successful deletion', async () => {
@@ -237,7 +237,7 @@ describe('aiConfig API', () => {
       const result = await testAIConfig(enterpriseId, configId)
 
       expect(mockPost).toHaveBeenCalledWith(
-        `/api/enterprises/${enterpriseId}/ai-configs/${configId}/test`
+        `/v1/enterprises/${enterpriseId}/ai-configs/${configId}/test`
       )
       expect(result).toEqual(mockResponse)
     })
@@ -272,7 +272,7 @@ describe('aiConfig API', () => {
 
       await testAIConfig('ent-111', 'cfg-222')
 
-      expect(mockPost).toHaveBeenCalledWith('/api/enterprises/ent-111/ai-configs/cfg-222/test')
+      expect(mockPost).toHaveBeenCalledWith('/v1/enterprises/ent-111/ai-configs/cfg-222/test')
     })
   })
 

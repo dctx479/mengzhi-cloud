@@ -16,6 +16,7 @@ import os
 from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import Optional, List
+from loguru import logger
 
 from app.api.deps import get_db, get_current_user, require_admin
 from app.schemas.media import (
@@ -202,6 +203,7 @@ async def upload_image(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"图片上传失败: {str(e)}")
         raise HTTPException(status_code=500, detail="上传失败")
 
 
@@ -250,10 +252,8 @@ async def upload_video(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"视频上传失败: {str(e)}")
         raise HTTPException(status_code=500, detail="上传失败")
-
-
-@router.get("/", response_model=MediaListResponse)
 async def list_media(
     media_type: Optional[MediaTypeSchema] = Query(None, description="媒体类型筛选"),
     category: Optional[MediaCategory] = Query(None, description="分类筛选"),

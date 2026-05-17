@@ -8,6 +8,7 @@ AI Provider 工厂类
 - 健康检查集成
 """
 import time
+import threading
 from typing import Dict, Type, Optional, Tuple
 from datetime import datetime
 from loguru import logger
@@ -42,6 +43,8 @@ class AIProviderFactory:
     }
 
     _instances: Dict[str, BaseAIProvider] = {}
+    # 保护 _instances 字典的并发写入
+    _instances_lock: threading.Lock = threading.Lock()
 
     @classmethod
     def create(
@@ -51,7 +54,7 @@ class AIProviderFactory:
         base_url: Optional[str] = None,
         **kwargs
     ) -> BaseAIProvider:
-        """创建Provider实例（带缓存）
+        """创建Provider实例（带缓存，线程安全）
 
         Args:
             provider_type: Provider类型
@@ -64,7 +67,15 @@ class AIProviderFactory:
         """
         cache_key = f"{provider_type}:{api_key[-8:]}"
 
-        if cache_key not in cls._instances:
+        # 先不加锁检查（快速路径）
+        if cache_key in cls._instances:
+            return cls._instances[cache_key]
+
+        # 加锁后再次检查，防止并发重复创建
+        with cls._instances_lock:
+            if cache_key in cls._instances:
+                return cls._instances[cache_key]
+
             if provider_type not in cls._providers:
                 raise ValueError(f"Unknown provider: {provider_type}")
 
@@ -246,7 +257,7 @@ class AIProviderFactory:
             str: 流式响应内容
 
         Raises:
-            Exception: 所有Provider都失败时抛出异常
+            Exception: 所有Provider都失败时抛出异常（仅在第一个 chunk yield 之前）
         """
         failover_manager = FailoverManager(db)
         last_error = None
@@ -254,12 +265,11 @@ class AIProviderFactory:
         config = None
 
         for attempt in range(max_retries):
+            # --- Provider 选择阶段（yield 之前，异常可以正常传播）---
             try:
-                # 选择Provider
                 if attempt == 0:
                     config = failover_manager.select_provider(enterprise_id, strategy)
                 else:
-                    # 故障转移
                     config = failover_manager.retry_with_failover(
                         enterprise_id=enterprise_id,
                         failed_config_id=failed_config_id,
@@ -275,17 +285,15 @@ class AIProviderFactory:
                     f"{config.provider} (ID: {config.id}) for enterprise {enterprise_id}"
                 )
 
-                # 检查熔断器
                 if config.is_circuit_breaker_open():
                     logger.warning(
                         f"Provider {config.provider} (ID: {config.id}) "
                         f"circuit breaker is open, skipping"
                     )
                     failed_config_id = config.id
+                    last_error = Exception(f"Circuit breaker open for provider {config.provider}")
                     continue
 
-                # 创建Provider实例
-                # 解密API密钥
                 try:
                     api_key = decrypt_api_key(config.api_key_encrypted)
                 except Exception as decrypt_err:
@@ -294,66 +302,79 @@ class AIProviderFactory:
                     config.update_health_status()
                     db.commit()
                     failed_config_id = config.id
+                    last_error = decrypt_err
                     continue
+
                 provider = cls.create_from_config(config, api_key)
-
-                # 执行流式请求
-                start_time = time.time()
-                chunk_count = 0
-
-                async for chunk in provider.chat_stream(request):
-                    chunk_count += 1
-                    yield chunk
-
-                end_time = time.time()
-
-                # 计算响应时间（毫秒）
-                response_time = (end_time - start_time) * 1000
-
-                # 记录成功
-                config.record_success(response_time)
-                config.update_health_status()
-                db.commit()
-
-                logger.info(
-                    f"Stream request succeeded with provider {config.provider} "
-                    f"(ID: {config.id}), chunks: {chunk_count}, "
-                    f"response time: {response_time:.2f}ms"
-                )
-
-                return  # 成功完成
 
             except Exception as e:
                 last_error = e
                 logger.error(
-                    f"Stream request failed with provider {config.provider if config else 'unknown'} "
-                    f"(attempt {attempt + 1}/{max_retries}): {e}"
+                    f"Provider selection failed (attempt {attempt + 1}/{max_retries}): {e}"
                 )
-
-                if config:
-                    # 记录失败
-                    config.record_failure(str(e))
-                    config.update_health_status()
-
-                    # 检查是否需要开启熔断器
-                    if config.error_count >= 5:
-                        config.open_circuit_breaker(duration_seconds=300)
-                        logger.error(
-                            f"Circuit breaker opened for provider {config.provider} "
-                            f"(ID: {config.id})"
-                        )
-
-                    db.commit()
-                    failed_config_id = config.id
-
-                # 如果是最后一次尝试，抛出异常
                 if attempt == max_retries - 1:
                     raise Exception(
                         f"All providers failed after {max_retries} attempts. "
                         f"Last error: {last_error}"
                     )
+                continue
 
-        # 不应该到达这里
+            # --- 流式迭代阶段（yield 之后异常会直接传播给调用方）---
+            start_time = time.time()
+            chunk_count = 0
+            stream_error = None
+
+            try:
+                async for chunk in provider.chat_stream(request):
+                    chunk_count += 1
+                    yield chunk
+            except Exception as e:
+                stream_error = e
+
+            end_time = time.time()
+            response_time = (end_time - start_time) * 1000
+
+            if stream_error is None:
+                # 流式成功完成
+                config.record_success(response_time)
+                config.update_health_status()
+                db.commit()
+                logger.info(
+                    f"Stream request succeeded with provider {config.provider} "
+                    f"(ID: {config.id}), chunks: {chunk_count}, "
+                    f"response time: {response_time:.2f}ms"
+                )
+                return
+
+            # 流中途失败：记录错误，尝试下一个 provider
+            last_error = stream_error
+            logger.error(
+                f"Stream request failed with provider {config.provider} "
+                f"(attempt {attempt + 1}/{max_retries}): {stream_error}"
+            )
+            config.record_failure(str(stream_error))
+            config.update_health_status()
+            if config.error_count >= 5:
+                config.open_circuit_breaker(duration_seconds=300)
+                logger.error(
+                    f"Circuit breaker opened for provider {config.provider} "
+                    f"(ID: {config.id})"
+                )
+            db.commit()
+            failed_config_id = config.id
+
+            # 如果已经 yield 了部分数据，无法重试（调用方已收到部分响应）
+            if chunk_count > 0:
+                raise Exception(
+                    f"Stream interrupted after {chunk_count} chunks: {stream_error}"
+                )
+
+            if attempt == max_retries - 1:
+                raise Exception(
+                    f"All providers failed after {max_retries} attempts. "
+                    f"Last error: {last_error}"
+                )
+
         raise Exception(f"Unexpected error in chat_stream_with_failover: {last_error}")
 
     @classmethod
@@ -369,5 +390,6 @@ class AIProviderFactory:
     @classmethod
     def clear_cache(cls):
         """清除Provider实例缓存"""
-        cls._instances.clear()
+        with cls._instances_lock:
+            cls._instances.clear()
         logger.info("Provider instance cache cleared")

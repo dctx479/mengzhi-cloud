@@ -5,7 +5,7 @@
 更新日期: 2026-01-17
 """
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -265,6 +265,7 @@ class TokenResponse(BaseModel):
 
 class UserResponse(BaseModel):
     """用户信息响应"""
+    model_config = ConfigDict(from_attributes=True)
 
     user_id: str = Field(
         ...,
@@ -326,9 +327,6 @@ class UserResponse(BaseModel):
         default=None,
         description="个人网站"
     )
-
-    class Config:
-        from_attributes = True
 
 
 class LoginResponse(BaseModel):

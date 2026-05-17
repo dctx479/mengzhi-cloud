@@ -7,9 +7,10 @@ DeepSeek API客户端 - 与DeepSeek服务集成
 
 import httpx
 import json
+import asyncio
+import threading
 from typing import Optional, List, Dict, Any, AsyncGenerator
 from datetime import datetime
-import asyncio
 from tenacity import retry, stop_after_attempt, wait_exponential
 from loguru import logger
 
@@ -297,16 +298,23 @@ class DeepSeekClient:
 
 # 创建全局客户端实例
 _deepseek_client: Optional[DeepSeekClient] = None
+_deepseek_client_lock = threading.Lock()
 
 
 async def get_deepseek_client() -> DeepSeekClient:
     """
-    获取DeepSeek客户端实例（单例）
+    获取DeepSeek客户端实例（单例，线程安全）
 
     Returns:
         DeepSeek客户端
     """
     global _deepseek_client
-    if _deepseek_client is None:
-        _deepseek_client = DeepSeekClient()
+    # 快速路径：已初始化则直接返回
+    if _deepseek_client is not None:
+        return _deepseek_client
+
+    # 加锁后再次检查，防止并发重复初始化
+    with _deepseek_client_lock:
+        if _deepseek_client is None:
+            _deepseek_client = DeepSeekClient()
     return _deepseek_client

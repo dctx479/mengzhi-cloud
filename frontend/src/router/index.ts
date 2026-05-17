@@ -103,6 +103,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'admin',
         redirect: '/admin/dashboard',
+        component: () => import('@/layouts/MainLayout.vue'),
         meta: { requiresAuth: true, requiresAdmin: true },
         children: [
           {
@@ -132,6 +133,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'enterprise',
         redirect: '/enterprise/ai-config',
+        component: () => import('@/layouts/MainLayout.vue'),
         meta: { requiresAuth: true, requiresAdmin: true },
         children: [
           {
@@ -223,8 +225,12 @@ router.beforeEach(async (to, _from, next) => {
     // 管理员权限检查
     next('/')
   } else if (requiredRole && userStore.userRole !== requiredRole) {
-    // 角色级权限检查
-    next('/')
+    // 角色级权限检查：admin 拥有最高权限，可访问所有角色路由
+    if (userStore.userRole !== 'admin') {
+      next('/')
+      return
+    }
+    next()
   } else if (!requiresAuth && userStore.isLoggedIn && (to.path === '/login' || to.path === '/register')) {
     // 已登录用户不能访问登录/注册页
     next('/')

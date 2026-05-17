@@ -821,7 +821,7 @@ async def batch_update_products(
     """
     try:
         from app.models.product import Product
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         if not request.ids:
             return JSONResponse(
@@ -852,7 +852,7 @@ async def batch_update_products(
             )
 
         # 添加更新时间
-        update_data["updated_at"] = datetime.utcnow()
+        update_data["updated_at"] = datetime.now(timezone.utc)
 
         # 执行批量更新
         updated_count = (

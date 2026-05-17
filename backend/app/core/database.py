@@ -10,7 +10,6 @@
 更新日期: 2026-01-17
 """
 
-import os
 from typing import Generator
 from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import sessionmaker, Session, scoped_session
@@ -49,11 +48,10 @@ from ..models import (
     UserQuota,
     QuotaType,
 )
+from ..core.config import settings
 
-# 数据库URL配置
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "mysql+pymysql://root:password@localhost:3306/ai_marketing_platform?charset=utf8mb4"
-)
+# 数据库URL配置：统一从 settings 读取，避免硬编码凭据
+DATABASE_URL = settings.DATABASE_URL
 
 # 创建引擎
 engine = create_engine(
@@ -94,6 +92,9 @@ def get_db() -> Generator[Session, None, None]:
     session = SessionLocal()
     try:
         yield session
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 

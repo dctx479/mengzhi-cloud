@@ -264,7 +264,8 @@ class ContentRecord(BaseModel):
     )
 
     def __repr__(self) -> str:
-        return f"<ContentRecord(id={self.id}, user_id={self.user_id}, content_type={self.content_type.value})>"
+        ct_val = self.content_type.value if hasattr(self.content_type, 'value') else (self.content_type or "unknown")
+        return f"<ContentRecord(id={self.id}, user_id={self.user_id}, content_type={ct_val})>"
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""

@@ -10,7 +10,7 @@
     <div class="overview-cards">
       <div class="card overview-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
-          <i class="el-icon-document"></i>
+          <el-icon :size="28" color="white"><Document /></el-icon>
         </div>
         <div class="card-content">
           <div class="card-value">{{ overview.total_agreements }}</div>
@@ -20,7 +20,7 @@
 
       <div class="card overview-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
-          <i class="el-icon-success"></i>
+          <el-icon :size="28" color="white"><CircleCheck /></el-icon>
         </div>
         <div class="card-content">
           <div class="card-value">{{ overview.compliant_agreements }}</div>
@@ -30,7 +30,7 @@
 
       <div class="card overview-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
-          <i class="el-icon-data-line"></i>
+          <el-icon :size="28" color="white"><TrendCharts /></el-icon>
         </div>
         <div class="card-content">
           <div class="card-value">{{ overview.compliance_rate }}%</div>
@@ -40,7 +40,7 @@
 
       <div class="card overview-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)">
-          <i class="el-icon-warning"></i>
+          <el-icon :size="28" color="white"><Warning /></el-icon>
         </div>
         <div class="card-content">
           <div class="card-value">{{ overview.violation_count }}</div>
@@ -54,7 +54,7 @@
       <div class="card-header">
         <h2>SLA协议列表</h2>
         <el-button type="primary" @click="showCreateDialog = true">
-          <i class="el-icon-plus"></i> 创建协议
+          <el-icon><Plus /></el-icon> 创建协议
         </el-button>
       </div>
 
@@ -97,7 +97,7 @@
       <div class="card-header">
         <h2>实时指标 - {{ selectedAgreement.name }}</h2>
         <el-button @click="refreshMetrics">
-          <i class="el-icon-refresh"></i> 刷新
+          <el-icon><Refresh /></el-icon> 刷新
         </el-button>
       </div>
 
@@ -268,6 +268,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Document, CircleCheck, TrendCharts, Warning, Refresh, Plus } from '@element-plus/icons-vue'
 import http from '@/utils/http'
 
 interface SLAAgreement {

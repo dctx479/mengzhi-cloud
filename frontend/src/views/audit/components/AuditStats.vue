@@ -22,7 +22,7 @@
               <el-icon :size="32"><SuccessFilled /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ stats?.successRate.toFixed(1) || 0 }}%</div>
+              <div class="stat-value">{{ stats ? stats.successRate.toFixed(1) : '0.0' }}%</div>
               <div class="stat-label">成功率</div>
             </div>
           </div>
@@ -35,7 +35,7 @@
               <el-icon :size="32"><CircleCloseFilled /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ stats?.failureRate.toFixed(1) || 0 }}%</div>
+              <div class="stat-value">{{ stats ? stats.failureRate.toFixed(1) : '0.0' }}%</div>
               <div class="stat-label">失败率</div>
             </div>
           </div>

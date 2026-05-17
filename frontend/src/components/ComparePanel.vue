@@ -199,12 +199,15 @@ const handleExportCompare = () => {
     ...rows.map((row: any[]) => row.map((cell: any) => `"${cell}"`).join(',')),
   ].join('\n')
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
+  const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
   link.setAttribute('href', url)
   link.setAttribute('download', `产品对比-${new Date().getTime()}.csv`)
+  document.body.appendChild(link)
   link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 
   ElMessage.success('对比结果已导出')
 }

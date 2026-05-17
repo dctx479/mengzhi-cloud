@@ -114,6 +114,11 @@ class RiskControlService:
 
         except Exception as e:
             self.logger.error(f"风险检查失败: {str(e)}")
+            # 回滚所有未提交的 flush（如黑名单/规则 hit_count 更新），避免脏数据残留在会话中
+            try:
+                self.db.rollback()
+            except Exception:
+                pass
             # 发生错误时采用保守策略
             return {
                 "risk_score": 100,

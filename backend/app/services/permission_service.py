@@ -122,7 +122,10 @@ class PermissionService:
         返回:
             Optional[Role]: 角色对象或None
         """
-        return self.db.query(Role).filter(Role.code == code).first()
+        return self.db.query(Role).filter(
+            Role.code == code,
+            Role.deleted_at.is_(None)
+        ).first()
 
     def list_roles(
         self,
@@ -433,8 +436,11 @@ class PermissionService:
                     "不能移除超级管理员的 ADMIN 角色"
                 )
 
-        # 获取角色
-        roles = self.db.query(Role).filter(Role.id.in_(role_ids)).all()
+        # 获取角色（排除软删除）
+        roles = self.db.query(Role).filter(
+            Role.id.in_(role_ids),
+            Role.deleted_at.is_(None)
+        ).all()
 
         if len(roles) != len(role_ids):
             raise BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "部分角色不存在")

@@ -58,7 +58,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   })
 
   const filteredTemplates = computed(() => {
-    if (!selectedTemplate.value) return []
+    if (!selectedTemplate.value) return templates.value
     return templates.value.filter((t) => t.category === selectedTemplate.value?.category)
   })
 
@@ -86,7 +86,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   const totalWordCount = computed(() => results.value.reduce((sum, r) => sum + r.word_count, 0))
 
   // Helper function for category info
-  function getCategoryInfo(category: TemplateCategory) {
+  function getCategoryInfo(category: TemplateCategory): { name: string; icon: string } {
     const map: Record<TemplateCategory, { name: string; icon: string }> = {
       product: { name: '产品文案', icon: '📝' },
       slogan: { name: '广告语', icon: '💡' },
@@ -94,7 +94,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
       social: { name: '社交媒体', icon: '📱' },
       video: { name: '短视频脚本', icon: '🎬' },
     }
-    return map[category]
+    return map[category] ?? { name: category, icon: '📄' }
   }
 
   // Actions

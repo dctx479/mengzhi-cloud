@@ -136,6 +136,7 @@ class ChatService:
         full_content = ""
         input_tokens = 0
         output_tokens = 0
+        stream_error: Optional[Exception] = None
 
         try:
             async for chunk in client.chat_completion_stream(
@@ -157,9 +158,13 @@ class ChatService:
                         input_tokens = usage.get("prompt_tokens", 0)
                         output_tokens = usage.get("completion_tokens", 0)
         except Exception as e:
+            stream_error = e
+            logger.error(f"Stream AI call failed: {str(e)}")
+
+        if stream_error is not None:
+            # 流中途失败：回滚事务，不保存任何消息
             self.db.rollback()
-            logger.error(f"Stream AI call failed, transaction rolled back: {str(e)}")
-            raise BusinessException(f"AI流式服务调用失败: {str(e)}")
+            raise BusinessException(f"AI流式服务调用失败: {str(stream_error)}")
 
         # 保存助手消息（AI 成功完成后才持久化）
         total_tokens = input_tokens + output_tokens

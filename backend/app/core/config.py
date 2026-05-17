@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 from pydantic import field_validator, model_validator, Field
 from functools import lru_cache
-from typing import Optional, List
+from typing import Optional, List, Tuple
 import warnings
 import os
 
@@ -130,7 +130,6 @@ class Settings(BaseSettings):
         python scripts/generate_secret_key.py
         """
         # 获取环境变量，检查是否为测试环境
-        import os
         environment = os.getenv('ENVIRONMENT', 'development')
         app_env = os.getenv('APP_ENV', '')
 
@@ -207,7 +206,6 @@ class Settings(BaseSettings):
 
         开发和测试环境可以使用占位符密钥
         """
-        import os
         environment = os.getenv('ENVIRONMENT', 'development')
         app_env = os.getenv('APP_ENV', '')
 
@@ -249,7 +247,6 @@ class Settings(BaseSettings):
 
         # 检查API密钥格式（DeepSeek密钥通常以sk-开头）
         if not v.startswith('sk-'):
-            import warnings
             warnings.warn(
                 f"DeepSeek API密钥格式可能不正确（通常以'sk-'开头），当前值: {v[:6]}...",
                 UserWarning
@@ -257,7 +254,6 @@ class Settings(BaseSettings):
 
         # 检查密钥长度（DeepSeek密钥通常较长）
         if len(v) < 20:
-            import warnings
             warnings.warn(
                 f"DeepSeek API密钥长度可能不足（当前: {len(v)}），请确认使用完整密钥",
                 UserWarning
@@ -328,7 +324,7 @@ class Settings(BaseSettings):
     OSS_DOMAIN: str = ""  # CDN域名
 
     # 图片处理
-    IMAGE_THUMBNAIL_SIZE: tuple = (300, 300)  # 缩略图尺寸
+    IMAGE_THUMBNAIL_SIZE: Tuple[int, int] = (300, 300)  # 缩略图尺寸
     IMAGE_QUALITY: int = 85  # 压缩质量
 
     # 支付配置

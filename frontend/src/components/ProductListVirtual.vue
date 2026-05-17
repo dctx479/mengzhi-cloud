@@ -48,12 +48,12 @@ interface Props {
 const props = defineProps<Props>()
 
 // 方法
-const viewDetail = (productId: number) => {
+const viewDetail = (productId: string) => {
   console.log('查看产品详情:', productId)
   // 导航到产品详情页
 }
 
-const addToCart = (productId: number) => {
+const addToCart = (productId: string) => {
   console.log('添加到购物车:', productId)
   // 添加到购物车逻辑
 }

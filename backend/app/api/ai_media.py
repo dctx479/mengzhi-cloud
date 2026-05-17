@@ -2,6 +2,7 @@
 AI媒体生成API
 """
 
+import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
@@ -21,6 +22,9 @@ from app.services.ai_media_providers import MediaProviderError
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# 服务商连通性测试超时（秒）
+_PROVIDER_TEST_TIMEOUT = 30
 
 
 class CreateMediaProviderRequest(BaseModel):
@@ -190,7 +194,11 @@ async def test_media_provider(
     provider = service.get_provider(provider_id)
     if not provider:
         return _json_error(status.HTTP_404_NOT_FOUND, ErrorCode.RECORD_NOT_FOUND, "服务商不存在")
-    result = await service.validate_provider(provider)
+    try:
+        result = await asyncio.wait_for(service.validate_provider(provider), timeout=_PROVIDER_TEST_TIMEOUT)
+    except asyncio.TimeoutError:
+        logger.error("媒体服务商测试超时 provider_id=%s", provider_id)
+        return _json_error(status.HTTP_504_GATEWAY_TIMEOUT, ErrorCode.SYSTEM_ERROR, "服务商连通性测试超时")
     data = {"success": result["success"], "message": result["message"], "provider": provider.to_dict()}
     return success_response(data=data).dict()
 
@@ -205,7 +213,11 @@ async def health_check_media_provider(
     provider = service.get_provider(provider_id)
     if not provider:
         return _json_error(status.HTTP_404_NOT_FOUND, ErrorCode.RECORD_NOT_FOUND, "服务商不存在")
-    result = await service.validate_provider(provider)
+    try:
+        result = await asyncio.wait_for(service.validate_provider(provider), timeout=_PROVIDER_TEST_TIMEOUT)
+    except asyncio.TimeoutError:
+        logger.error("媒体服务商健康检查超时 provider_id=%s", provider_id)
+        return _json_error(status.HTTP_504_GATEWAY_TIMEOUT, ErrorCode.SYSTEM_ERROR, "服务商健康检查超时")
     data = {"success": result["success"], "message": result["message"], "provider": provider.to_dict()}
     return success_response(data=data, message="健康检查完成").dict()
 

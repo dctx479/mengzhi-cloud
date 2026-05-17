@@ -287,7 +287,8 @@ class Product(BaseModel):
     )
 
     def __repr__(self) -> str:
-        return f"<Product(id={self.id}, name={self.name}, status={self.status.value})>"
+        status_val = self.status.value if hasattr(self.status, 'value') else (self.status or "unknown")
+        return f"<Product(id={self.id}, name={self.name}, status={status_val})>"
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""

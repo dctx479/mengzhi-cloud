@@ -333,9 +333,9 @@ class SLAReportService:
             }
 
         # 分析各指标趋势
-        availability_trend = self._calculate_trend(availability_values)
-        response_time_trend = self._calculate_trend(response_time_values)
-        error_rate_trend = self._calculate_trend(error_rate_values)
+        availability_trend = self._calculate_trend(availability_values, higher_is_better=True)
+        response_time_trend = self._calculate_trend(response_time_values, higher_is_better=False)
+        error_rate_trend = self._calculate_trend(error_rate_values, higher_is_better=False)
 
         # 综合趋势
         trends = [availability_trend, response_time_trend, error_rate_trend]
@@ -353,12 +353,13 @@ class SLAReportService:
             "overall_trend": overall_trend,
         }
 
-    def _calculate_trend(self, values: List[float]) -> str:
+    def _calculate_trend(self, values: List[float], higher_is_better: bool = True) -> str:
         """
         计算趋势
 
         Args:
             values: 数值列表
+            higher_is_better: True 表示值越高越好（如可用性），False 表示值越低越好（如响应时间、错误率）
 
         Returns:
             str: 趋势（improving/stable/deteriorating）
@@ -379,12 +380,20 @@ class SLAReportService:
 
         change_rate = ((avg_second - avg_first) / avg_first) * 100
 
-        if change_rate > 5:
-            return "improving"
-        elif change_rate < -5:
-            return "deteriorating"
+        # 根据指标方向判断趋势：
+        # higher_is_better=True（可用性/吞吐量）：值升高 = improving
+        # higher_is_better=False（响应时间/错误率）：值降低 = improving
+        if higher_is_better:
+            if change_rate > 5:
+                return "improving"
+            elif change_rate < -5:
+                return "deteriorating"
         else:
-            return "stable"
+            if change_rate < -5:
+                return "improving"
+            elif change_rate > 5:
+                return "deteriorating"
+        return "stable"
 
     def _generate_recommendations(
         self,

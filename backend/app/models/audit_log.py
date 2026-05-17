@@ -7,8 +7,7 @@
 创建日期: 2026-01-17
 """
 
-from sqlalchemy import Column, BIGINT, VARCHAR, Text, TIMESTAMP, Integer, Index
-from datetime import datetime
+from sqlalchemy import Column, BIGINT, VARCHAR, Text, Integer, Index
 
 from .base import BaseModel
 
@@ -122,16 +121,7 @@ class AuditLog(BaseModel):
         comment="错误消息"
     )
 
-    # 时间戳
-    created_at = Column(
-        TIMESTAMP,
-        default=datetime.utcnow,
-        nullable=False,
-        index=True,
-        comment="操作时间"
-    )
-
-    # 索引
+    # 索引（created_at 继承自 BaseModel，此处仅添加额外索引）
     __table_args__ = (
         Index("idx_user_id", "user_id"),
         Index("idx_action", "action"),

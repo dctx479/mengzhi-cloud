@@ -224,7 +224,7 @@ class BusinessException(Exception):
 class ValidationError(BusinessException):
     """验证错误"""
 
-    def __init__(self, message: str = "参数验证失败", errors: List[dict] = None):
+    def __init__(self, message: str = "参数验证失败", errors: Optional[List[dict]] = None):
         super().__init__(
             code=ErrorCode.PARAM_VALIDATION_FAILED,
             message=message,
@@ -359,7 +359,7 @@ class FileSizeExceededError(BusinessException):
 class FileTypeNotAllowedError(BusinessException):
     """文件类型不允许"""
 
-    def __init__(self, allowed_types: list = None):
+    def __init__(self, allowed_types: Optional[List] = None):
         message = "文件类型不支持"
         if allowed_types:
             message += f"，支持的类型：{', '.join(allowed_types)}"

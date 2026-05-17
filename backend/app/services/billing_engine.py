@@ -152,7 +152,7 @@ class BillingEngine:
         if quantity < 0:
             raise ValueError(f"Invalid quantity: {quantity}, must be non-negative")
 
-        return int(quantity)
+        return int(round(quantity))
 
     def _calculate_unit_price(self, plan: BillingPlan, quantity: int) -> Decimal:
         """计算单价

@@ -308,12 +308,13 @@ class RedisCache:
             return False
 
     def clear_all(self) -> bool:
-        """清空所有缓存"""
+        """清空所有缓存 - 警告: 此操作会删除当前 Redis DB 的所有键，谨慎使用"""
         try:
             client = self.get_client()
             if client is None:
                 return False
 
+            logger.warning("⚠️ WARNING: 正在执行 flushdb，将清空当前 Redis DB 所有缓存键")
             client.flushdb()
             logger.info("已清空所有缓存")
             return True

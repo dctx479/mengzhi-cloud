@@ -67,7 +67,27 @@ class RedisClient:
                 logger.warning(f"Redis连接已断开，重新初始化: {e}")
                 cls._instance = None
                 cls._pool = None
-                return cls.get_instance()  # Recursive retry
+                # 重新初始化一次，不再递归，避免无限递归栈溢出
+                try:
+                    cls._pool = ConnectionPool(
+                        host=settings.REDIS_HOST,
+                        port=settings.REDIS_PORT,
+                        password=settings.REDIS_PASSWORD,
+                        db=settings.REDIS_DB,
+                        decode_responses=True,
+                        socket_connect_timeout=3,
+                        socket_timeout=3,
+                        max_connections=50,
+                        socket_keepalive=True,
+                        health_check_interval=30
+                    )
+                    cls._instance = Redis(connection_pool=cls._pool)
+                    cls._instance.ping()
+                    logger.info("Redis重连成功")
+                except Exception as reconnect_err:
+                    logger.error(f"Redis重连失败: {reconnect_err}")
+                    cls._instance = None
+                    cls._pool = None
                 
         return cls._instance
     

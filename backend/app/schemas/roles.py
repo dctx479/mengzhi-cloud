@@ -5,7 +5,7 @@
 更新日期: 2026-01-17
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -19,14 +19,16 @@ class PermissionBase(BaseModel):
     name: str = Field(..., max_length=100, description="权限显示名称")
     description: Optional[str] = Field(None, max_length=200, description="权限描述")
 
-    @validator('resource')
+    @field_validator('resource')
+    @classmethod
     def validate_resource(cls, v):
         """验证资源名称格式"""
         if not v.islower() or not v.replace('_', '').isalnum():
             raise ValueError('资源名称必须是小写字母和下划线组成')
         return v
 
-    @validator('action')
+    @field_validator('action')
+    @classmethod
     def validate_action(cls, v):
         """验证操作名称"""
         valid_actions = {'create', 'read', 'update', 'delete', 'list', 'export', 'import', 'manage'}
@@ -48,11 +50,10 @@ class PermissionUpdate(BaseModel):
 
 class PermissionResponse(PermissionBase):
     """权限响应Schema"""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="权限ID")
     created_at: datetime = Field(..., description="创建时间")
-
-    class Config:
-        from_attributes = True
 
 
 # ==================== Role Schemas ====================
@@ -63,7 +64,8 @@ class RoleBase(BaseModel):
     code: str = Field(..., min_length=2, max_length=50, description="角色代码")
     description: Optional[str] = Field(None, max_length=200, description="角色描述")
 
-    @validator('code')
+    @field_validator('code')
+    @classmethod
     def validate_code(cls, v):
         """验证角色代码格式"""
         if not v.isupper() or not v.replace('_', '').isalnum():
@@ -84,30 +86,27 @@ class RoleUpdate(BaseModel):
 
 class RoleResponse(RoleBase):
     """角色响应Schema（不含权限详情）"""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="角色ID")
     is_system: bool = Field(..., description="是否系统角色")
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
-
-    class Config:
-        from_attributes = True
 
 
 class RoleWithPermissions(RoleResponse):
     """角色响应Schema（含权限详情）"""
     permissions: List[PermissionResponse] = Field(default_factory=list, description="权限列表")
 
-    class Config:
-        from_attributes = True
-
 
 # ==================== User Role Assignment Schemas ====================
 
 class UserRoleAssignment(BaseModel):
     """用户角色分配Schema"""
-    role_ids: List[int] = Field(..., min_items=1, description="角色ID列表")
+    role_ids: List[int] = Field(..., min_length=1, description="角色ID列表")
 
-    @validator('role_ids')
+    @field_validator('role_ids')
+    @classmethod
     def validate_unique_roles(cls, v):
         """确保角色ID唯一"""
         if len(v) != len(set(v)):
@@ -117,9 +116,10 @@ class UserRoleAssignment(BaseModel):
 
 class RolePermissionAssignment(BaseModel):
     """角色权限分配Schema"""
-    permission_ids: List[int] = Field(..., min_items=1, description="权限ID列表")
+    permission_ids: List[int] = Field(..., min_length=1, description="权限ID列表")
 
-    @validator('permission_ids')
+    @field_validator('permission_ids')
+    @classmethod
     def validate_unique_permissions(cls, v):
         """确保权限ID唯一"""
         if len(v) != len(set(v)):

@@ -18,7 +18,7 @@ import httpx
 from app.models.tenant_ai_config import TenantAIConfig, HealthStatus
 
 
-class AlertLevel(str):
+class AlertLevel:
     """告警级别"""
     INFO = "info"
     WARNING = "warning"
@@ -26,7 +26,7 @@ class AlertLevel(str):
     CRITICAL = "critical"
 
 
-class AlertChannel(str):
+class AlertChannel:
     """告警渠道"""
     EMAIL = "email"
     WEBHOOK = "webhook"

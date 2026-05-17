@@ -405,8 +405,8 @@ async def get_tenant_stats(
     ).count()
 
     # 获取连接统计
-    router = get_tenant_router()
-    connection_stats = router.get_connection_stats()
+    tenant_router = get_tenant_router()
+    connection_stats = tenant_router.get_connection_stats()
 
     return TenantStatsResponse(
         total_tenants=total_tenants,

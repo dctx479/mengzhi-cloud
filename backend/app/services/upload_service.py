@@ -128,7 +128,9 @@ class UploadService:
             tuple: (file_path, file_url, file_size)
         """
         # 生成唯一文件名
-        ext = Path(file.filename).suffix
+        # file.filename 可能为 None（某些客户端不传文件名），需要安全处理
+        raw_filename = file.filename or ""
+        ext = Path(raw_filename).suffix if raw_filename else ""
         # 安全检查：防止路径遍历攻击
         if "/" in ext or "\\" in ext or ".." in ext:
             from fastapi import HTTPException
@@ -186,7 +188,8 @@ class UploadService:
         bucket = oss2.Bucket(auth, settings.OSS_ENDPOINT, settings.OSS_BUCKET)
 
         # 生成对象键
-        ext = Path(file.filename).suffix
+        raw_filename = file.filename or ""
+        ext = Path(raw_filename).suffix if raw_filename else ""
         # 安全检查：防止路径遍历攻击（与本地存储保持一致）
         if "/" in ext or "\\" in ext or ".." in ext:
             raise HTTPException(status_code=400, detail="文件扩展名包含非法字符")

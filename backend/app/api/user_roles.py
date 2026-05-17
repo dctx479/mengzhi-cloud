@@ -67,6 +67,37 @@ async def assign_roles_to_user(
         raise HTTPException(status_code=500, detail="分配角色失败")
 
 
+@router.get("/me/permissions", response_model=List[PermissionResponse])
+async def get_my_permissions(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取当前用户的所有权限
+
+    权限要求：已登录用户
+
+    返回当前用户通过所有角色获得的权限列表（去重）
+    """
+    try:
+        # 需要从user_uuid获取user_id
+        user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+
+        if not user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+
+        service = PermissionService(db)
+        permissions = service.get_user_permissions(user.id)
+
+        return [PermissionResponse.from_orm(perm) for perm in permissions]
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get current user permissions: {str(e)}")
+        raise HTTPException(status_code=500, detail="获取用户权限失败")
+
+
 @router.get("/{user_id}/roles", response_model=List[RoleResponse])
 async def get_user_roles(
     user_id: int = Path(..., description="用户ID"),
@@ -134,37 +165,6 @@ async def get_user_permissions(
 
     except Exception as e:
         logger.error(f"Failed to get permissions for user {user_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail="获取用户权限失败")
-
-
-@router.get("/me/permissions", response_model=List[PermissionResponse])
-async def get_my_permissions(
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    获取当前用户的所有权限
-
-    权限要求：已登录用户
-
-    返回当前用户通过所有角色获得的权限列表（去重）
-    """
-    try:
-        # 需要从user_uuid获取user_id
-        user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
-
-        if not user:
-            raise HTTPException(status_code=404, detail="用户不存在")
-
-        service = PermissionService(db)
-        permissions = service.get_user_permissions(user.id)
-
-        return [PermissionResponse.from_orm(perm) for perm in permissions]
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to get current user permissions: {str(e)}")
         raise HTTPException(status_code=500, detail="获取用户权限失败")
 
 

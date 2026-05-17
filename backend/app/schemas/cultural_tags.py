@@ -12,7 +12,7 @@
 更新日期: 2026-01-17
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -34,7 +34,8 @@ class CulturalTagBase(BaseModel):
     keywords: Optional[str] = Field(None, max_length=200, description="关键词（逗号分隔）")
     parent_id: Optional[int] = Field(None, description="父标签ID")
 
-    @validator('category')
+    @field_validator('category')
+    @classmethod
     def validate_category(cls, v):
         """验证标签分类"""
         valid_categories = [
@@ -64,7 +65,8 @@ class CulturalTagUpdate(BaseModel):
     parent_id: Optional[int] = Field(None, description="父标签ID")
     is_active: Optional[bool] = Field(None, description="是否启用")
 
-    @validator('category')
+    @field_validator('category')
+    @classmethod
     def validate_category(cls, v):
         """验证标签分类"""
         if v is None:
@@ -83,6 +85,7 @@ class CulturalTagUpdate(BaseModel):
 
 class CulturalTagResponse(CulturalTagBase):
     """文化标签响应"""
+    model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="标签ID")
     usage_count: int = Field(default=0, description="使用次数")
@@ -90,21 +93,16 @@ class CulturalTagResponse(CulturalTagBase):
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
 
-    class Config:
-        from_attributes = True
-
 
 class CulturalTagListItemResponse(BaseModel):
     """文化标签列表项响应（简化版）"""
+    model_config = ConfigDict(from_attributes=True)
 
     id: int
     name: str
     category: str
     usage_count: int
     is_active: bool
-
-    class Config:
-        from_attributes = True
 
 
 class CulturalTagWithProductsResponse(CulturalTagResponse):
@@ -124,7 +122,8 @@ class CulturalTagListQuery(BaseModel):
     page: int = Field(1, ge=1, description="页码")
     page_size: int = Field(50, ge=1, le=100, description="每页数量")
 
-    @validator('category')
+    @field_validator('category')
+    @classmethod
     def validate_category(cls, v):
         """验证标签分类"""
         if v is None:
@@ -164,9 +163,10 @@ class TagCategoryResponse(BaseModel):
 class ProductTagsAssignRequest(BaseModel):
     """产品标签分配请求"""
 
-    tag_ids: List[int] = Field(..., min_items=1, description="标签ID列表")
+    tag_ids: List[int] = Field(..., min_length=1, description="标签ID列表")
 
-    @validator('tag_ids')
+    @field_validator('tag_ids')
+    @classmethod
     def validate_tag_ids(cls, v):
         """验证标签ID列表"""
         if len(v) != len(set(v)):

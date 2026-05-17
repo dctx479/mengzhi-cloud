@@ -26,8 +26,10 @@ app = FastAPI(
 )
 
 # ==================== 中间件配置 ====================
+# 注意: FastAPI 中间件后注册先执行（栈结构）
+# 执行顺序: CORS → RateLimit → Performance → 路由处理器
 
-# CORS配置 - 根据环境动态配置
+# CORS配置 - 根据环境动态配置（最先注册，最后执行，包裹所有其他中间件）
 from app.core.config import settings
 
 if settings.ENVIRONMENT == "development":
@@ -52,6 +54,14 @@ app.add_middleware(
     expose_headers=["Content-Length", "Content-Type", "Authorization"],
     max_age=3600,  # 缓存预检请求结果1小时
 )
+
+# 频率限制中间件（在 CORS 之后注册，先于 CORS 执行）
+from app.middleware.rate_limit import RateLimitMiddleware
+app.add_middleware(RateLimitMiddleware, requests_per_minute=60)
+
+# 性能监控中间件（最后注册，最先执行，紧贴路由处理器）
+from app.middleware.performance import PerformanceMiddleware
+app.add_middleware(PerformanceMiddleware)
 
 
 # ==================== 异常处理 ====================

@@ -159,7 +159,8 @@ class Message(BaseModel):
     )
 
     def __repr__(self) -> str:
-        return f"<Message(id={self.id}, conversation_id={self.conversation_id}, role={self.role.value})>"
+        role_val = self.role.value if hasattr(self.role, 'value') else (self.role or "unknown")
+        return f"<Message(id={self.id}, conversation_id={self.conversation_id}, role={role_val})>"
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""

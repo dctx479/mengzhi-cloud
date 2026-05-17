@@ -474,9 +474,9 @@ class QuotaService:
                 self.db.rollback()
             except Exception as rollback_err:
                 logger.error(f"DB配额记录失败且回滚异常(会话可能已损坏): 原错误={e}, 回滚错误={rollback_err}")
-                raise
+                return  # 会话已损坏，静默退出，不影响主流程
             logger.error(f"DB配额使用记录失败，已回滚: {e}")
-            raise
+            # 不 raise：此方法是 Redis 扣减成功后的异步记录，失败不应回滚已完成的扣减
     def sync_redis_to_db(self) -> int:
         """
         将 Redis 配额数据同步到数据库（定时任务调用）

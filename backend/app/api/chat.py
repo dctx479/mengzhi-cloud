@@ -160,41 +160,36 @@ async def send_message_stream(
     Returns:
         流式响应（SSE）
     """
-    try:
-        service = ChatService(db)
+    service = ChatService(db)
 
-        async def event_generator():
-            """生成SSE事件流"""
-            try:
-                async for chunk in service.send_message_stream(
-                    user_id=user_id, content=request.content, conversation_id=request.conversation_id, temperature=0.7
-                ):
-                    # 发送数据块
-                    yield f"data: {chunk}\n\n"
+    async def event_generator():
+        """生成SSE事件流"""
+        try:
+            async for chunk in service.send_message_stream(
+                user_id=user_id, content=request.content, conversation_id=request.conversation_id, temperature=0.7
+            ):
+                # 发送数据块
+                yield f"data: {chunk}\n\n"
 
-                # 发送完成信号
-                yield f"data: {json.dumps({'status': 'completed'})}\n\n"
+            # 发送完成信号
+            yield f"data: {json.dumps({'status': 'completed'})}\n\n"
 
-            except BusinessException as e:
-                logger.error(f"Stream error: {e.message}")
-                error_data = json.dumps({"error": True, "code": e.code, "message": e.message})
-                yield f"data: {error_data}\n\n"
-            except Exception as e:
-                logger.error(f"Stream unexpected error: {str(e)}")
-                error_data = json.dumps(
-                    {"error": True, "code": ErrorCode.SYSTEM_ERROR, "message": "Stream processing failed"}
-                )
-                yield f"data: {error_data}\n\n"
+        except BusinessException as e:
+            logger.error(f"Stream error: {e.message}")
+            error_data = json.dumps({"error": True, "code": str(e.code), "message": e.message})
+            yield f"data: {error_data}\n\n"
+        except Exception as e:
+            logger.error(f"Stream unexpected error: {str(e)}")
+            error_data = json.dumps(
+                {"error": True, "code": str(ErrorCode.SYSTEM_ERROR), "message": "Stream processing failed"}
+            )
+            yield f"data: {error_data}\n\n"
 
-        return StreamingResponse(
-            event_generator(),
-            media_type="text/event-stream",
-            headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
-        )
-
-    except Exception as e:
-        logger.error(f"Stream setup error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to setup stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.post("/conversations", response_model=ConversationResponse)

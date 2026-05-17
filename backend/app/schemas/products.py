@@ -6,7 +6,7 @@
 修复: 字段映射与Product模型一致
 """
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
@@ -24,6 +24,25 @@ class ProductStatus(str, Enum):
 
 class ProductCreateRequest(BaseModel):
     """产品创建请求"""
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "name": "草原牛肉",
+            "short_name": "牛肉",
+            "description": "来自内蒙古草原的优质牛肉",
+            "category": "肉类",
+            "sub_category": "牛肉制品",
+            "origin_province": "内蒙古",
+            "origin_city": "呼伦贝尔",
+            "origin_district": "陈巴尔虎旗",
+            "origin_detail": "呼伦贝尔大草原核心区域",
+            "cultural_tags": ["草原", "有机", "绿色"],
+            "cultural_story": "传统草原养殖文化",
+            "historical_origin": "草原牛自由放牧...",
+            "certification_type": "地理标志",
+            "certification_no": "GI-2024-001",
+            "status": "draft"
+        }
+    })
 
     name: str = Field(..., min_length=1, max_length=200, description="产品名称")
     short_name: Optional[str] = Field(None, max_length=100, description="产品简称")
@@ -55,30 +74,16 @@ class ProductCreateRequest(BaseModel):
 
     status: ProductStatus = Field(default=ProductStatus.DRAFT, description="产品状态")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "草原牛肉",
-                "short_name": "牛肉",
-                "description": "来自内蒙古草原的优质牛肉",
-                "category": "肉类",
-                "sub_category": "牛肉制品",
-                "origin_province": "内蒙古",
-                "origin_city": "呼伦贝尔",
-                "origin_district": "陈巴尔虎旗",
-                "origin_detail": "呼伦贝尔大草原核心区域",
-                "cultural_tags": ["草原", "有机", "绿色"],
-                "cultural_story": "传统草原养殖文化",
-                "historical_origin": "草原牛自由放牧...",
-                "certification_type": "地理标志",
-                "certification_no": "GI-2024-001",
-                "status": "draft"
-            }
-        }
-
 
 class ProductUpdateRequest(BaseModel):
     """产品更新请求"""
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "name": "高级草原牛肉",
+            "description": "更新后的描述",
+            "status": "published"
+        }
+    })
 
     name: Optional[str] = Field(None, min_length=1, max_length=200, description="产品名称")
     short_name: Optional[str] = Field(None, max_length=100, description="产品简称")
@@ -110,20 +115,21 @@ class ProductUpdateRequest(BaseModel):
 
     status: Optional[ProductStatus] = Field(None, description="产品状态")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "高级草原牛肉",
-                "description": "更新后的描述",
-                "status": "published"
-            }
-        }
-
 
 # ============ 响应Schema ============
 
 class CulturalInfoResponse(BaseModel):
     """文化信息响应"""
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "cultural_tags": ["草原", "有机", "绿色"],
+            "cultural_story": "传统草原养殖文化",
+            "historical_origin": "草原牛自由放牧...",
+            "origin_province": "内蒙古",
+            "origin_city": "呼伦贝尔",
+            "origin_district": "陈巴尔虎旗"
+        }
+    })
 
     cultural_tags: Optional[List[str]] = Field(default=None, description="文化标签列表")
     cultural_story: Optional[str] = Field(default=None, description="文化故事")
@@ -132,21 +138,41 @@ class CulturalInfoResponse(BaseModel):
     origin_city: Optional[str] = Field(default=None, description="产地城市")
     origin_district: Optional[str] = Field(default=None, description="产地区县")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "cultural_tags": ["草原", "有机", "绿色"],
-                "cultural_story": "传统草原养殖文化",
-                "historical_origin": "草原牛自由放牧...",
-                "origin_province": "内蒙古",
-                "origin_city": "呼伦贝尔",
-                "origin_district": "陈巴尔虎旗"
-            }
-        }
-
 
 class ProductDetailResponse(BaseModel):
     """产品详情响应"""
+    model_config = ConfigDict(from_attributes=True, json_schema_extra={
+        "example": {
+            "id": 1,
+            "product_uuid": "550e8400-e29b-41d4-a716-446655440000",
+            "name": "草原牛肉",
+            "short_name": "牛肉",
+            "description": "来自内蒙古草原的优质牛肉",
+            "category": "肉类",
+            "sub_category": "牛肉制品",
+            "origin_province": "内蒙古",
+            "origin_city": "呼伦贝尔",
+            "origin_district": "陈巴尔虎旗",
+            "origin_detail": "呼伦贝尔大草原核心区域",
+            "latitude": 49.2,
+            "longitude": 119.7,
+            "cultural_tags": ["草原", "有机", "绿色"],
+            "cultural_story": "传统草原养殖文化",
+            "historical_origin": "草原牛自由放牧...",
+            "certification_type": "地理标志",
+            "certification_no": "GI-2024-001",
+            "main_image_url": "/uploads/products/1/main.jpg",
+            "image_urls": ["/uploads/products/1/1.jpg", "/uploads/products/1/2.jpg"],
+            "video_url": "/uploads/products/1/video.mp4",
+            "status": "draft",
+            "view_count": 100,
+            "generate_count": 10,
+            "created_at": "2026-01-17T10:00:00",
+            "updated_at": "2026-01-17T10:00:00",
+            "created_by": 1,
+            "published_at": None
+        }
+    })
 
     id: int = Field(..., description="产品ID")
     product_uuid: str = Field(..., description="产品UUID")
@@ -201,44 +227,23 @@ class ProductDetailResponse(BaseModel):
             return v.value
         return v
 
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
-            "example": {
-                "id": 1,
-                "product_uuid": "550e8400-e29b-41d4-a716-446655440000",
-                "name": "草原牛肉",
-                "short_name": "牛肉",
-                "description": "来自内蒙古草原的优质牛肉",
-                "category": "肉类",
-                "sub_category": "牛肉制品",
-                "origin_province": "内蒙古",
-                "origin_city": "呼伦贝尔",
-                "origin_district": "陈巴尔虎旗",
-                "origin_detail": "呼伦贝尔大草原核心区域",
-                "latitude": 49.2,
-                "longitude": 119.7,
-                "cultural_tags": ["草原", "有机", "绿色"],
-                "cultural_story": "传统草原养殖文化",
-                "historical_origin": "草原牛自由放牧...",
-                "certification_type": "地理标志",
-                "certification_no": "GI-2024-001",
-                "main_image_url": "/uploads/products/1/main.jpg",
-                "image_urls": ["/uploads/products/1/1.jpg", "/uploads/products/1/2.jpg"],
-                "video_url": "/uploads/products/1/video.mp4",
-                "status": "draft",
-                "view_count": 100,
-                "generate_count": 10,
-                "created_at": "2026-01-17T10:00:00",
-                "updated_at": "2026-01-17T10:00:00",
-                "created_by": 1,
-                "published_at": None
-            }
-        }
-
 
 class ProductListItemResponse(BaseModel):
     """产品列表项响应（简化版）"""
+    model_config = ConfigDict(from_attributes=True, json_schema_extra={
+        "example": {
+            "id": 1,
+            "product_uuid": "550e8400-e29b-41d4-a716-446655440000",
+            "name": "草原牛肉",
+            "category": "肉类",
+            "origin_province": "内蒙古",
+            "origin_city": "呼伦贝尔",
+            "main_image_url": "/uploads/products/1/main.jpg",
+            "status": "draft",
+            "view_count": 100,
+            "created_at": "2026-01-17T10:00:00"
+        }
+    })
 
     id: int = Field(..., description="产品ID")
     product_uuid: str = Field(..., description="产品UUID")
@@ -259,28 +264,23 @@ class ProductListItemResponse(BaseModel):
             return v.value
         return v
 
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
-            "example": {
-                "id": 1,
-                "product_uuid": "550e8400-e29b-41d4-a716-446655440000",
-                "name": "草原牛肉",
-                "category": "肉类",
-                "origin_province": "内蒙古",
-                "origin_city": "呼伦贝尔",
-                "main_image_url": "/uploads/products/1/main.jpg",
-                "status": "draft",
-                "view_count": 100,
-                "created_at": "2026-01-17T10:00:00"
-            }
-        }
-
 
 # ============ 查询参数Schema ============
 
 class ProductListQuery(BaseModel):
     """产品列表查询参数"""
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "page": 1,
+            "size": 10,
+            "search": "牛肉",
+            "category": "肉类",
+            "region": "内蒙古",
+            "status": "published",
+            "sort_by": "created_at",
+            "sort_order": "desc"
+        }
+    })
 
     page: int = Field(default=1, ge=1, description="页码")
     size: int = Field(default=10, ge=1, le=100, description="每页数量")
@@ -293,20 +293,6 @@ class ProductListQuery(BaseModel):
 
     sort_by: Optional[str] = Field(default="created_at", description="排序字段：created_at, name")
     sort_order: Optional[str] = Field(default="desc", description="排序顺序：asc, desc")
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "page": 1,
-                "size": 10,
-                "search": "牛肉",
-                "category": "肉类",
-                "region": "内蒙古",
-                "status": "published",
-                "sort_by": "created_at",
-                "sort_order": "desc"
-            }
-        }
 
     @field_validator('sort_by')
     @classmethod

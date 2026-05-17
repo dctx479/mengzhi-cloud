@@ -64,14 +64,21 @@ class AlertManager:
             await asyncio.gather(*tasks, return_exceptions=True)
 
     async def _send_email_alert(self, alert_data: Dict):
-        """发送邮件告警"""
+        """发送邮件告警（在线程池中执行同步SMTP调用，避免阻塞事件循环）"""
         try:
-            msg = MIMEMultipart()
-            msg['From'] = monitoring_config.ALERT_EMAIL_FROM
-            msg['To'] = ', '.join(monitoring_config.ALERT_EMAIL_TO)
-            msg['Subject'] = f"[{alert_data['level'].upper()}] {alert_data['title']}"
+            await asyncio.to_thread(self._send_email_sync, alert_data)
+            logger.info("Email alert sent successfully")
+        except Exception as e:
+            logger.error(f"Failed to send email alert: {e}")
 
-            body = f"""
+    def _send_email_sync(self, alert_data: Dict):
+        """同步发送邮件（在线程池中运行）"""
+        msg = MIMEMultipart()
+        msg['From'] = monitoring_config.ALERT_EMAIL_FROM
+        msg['To'] = ', '.join(monitoring_config.ALERT_EMAIL_TO)
+        msg['Subject'] = f"[{alert_data['level'].upper()}] {alert_data['title']}"
+
+        body = f"""
 告警级别: {alert_data['level'].upper()}
 告警标题: {alert_data['title']}
 告警时间: {alert_data['timestamp']}
@@ -81,20 +88,16 @@ class AlertManager:
 
 额外数据:
 {alert_data['extra']}
-            """
+        """
 
-            msg.attach(MIMEText(body, 'plain'))
+        msg.attach(MIMEText(body, 'plain'))
 
-            with smtplib.SMTP(monitoring_config.ALERT_EMAIL_SMTP_HOST,
-                            monitoring_config.ALERT_EMAIL_SMTP_PORT) as server:
-                server.starttls()
-                server.login(monitoring_config.ALERT_EMAIL_USERNAME,
-                           monitoring_config.ALERT_EMAIL_PASSWORD)
-                server.send_message(msg)
-
-            logger.info("Email alert sent successfully")
-        except Exception as e:
-            logger.error(f"Failed to send email alert: {e}")
+        with smtplib.SMTP(monitoring_config.ALERT_EMAIL_SMTP_HOST,
+                        monitoring_config.ALERT_EMAIL_SMTP_PORT) as server:
+            server.starttls()
+            server.login(monitoring_config.ALERT_EMAIL_USERNAME,
+                       monitoring_config.ALERT_EMAIL_PASSWORD)
+            server.send_message(msg)
 
     async def _send_dingtalk_alert(self, alert_data: Dict):
         """发送钉钉告警"""

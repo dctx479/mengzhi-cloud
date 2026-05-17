@@ -13,16 +13,16 @@ from loguru import logger
 class InputValidator:
     """输入验证器"""
     
-    # XSS危险字符模式
+    # XSS危险字符模式：每个模式单独指定 flags，避免 DOTALL 误匹配事件属性
     XSS_PATTERNS = [
-        r'<script[^>]*>.*?</script>',
-        r'javascript:',
-        r'on\w+\s*=',
-        r'<iframe[^>]*>',
-        r'<object[^>]*>',
-        r'<embed[^>]*>',
+        (r'<script[^>]*>.*?</script>', re.IGNORECASE | re.DOTALL),
+        (r'javascript\s*:', re.IGNORECASE),
+        (r'on[a-zA-Z]+\s*=', re.IGNORECASE),
+        (r'<iframe[^>]*>', re.IGNORECASE | re.DOTALL),
+        (r'<object[^>]*>', re.IGNORECASE | re.DOTALL),
+        (r'<embed[^>]*>', re.IGNORECASE | re.DOTALL),
     ]
-    
+
     @classmethod
     def sanitize_html(cls, text: str) -> str:
         """清理HTML标签，防止XSS攻击"""
@@ -30,8 +30,8 @@ class InputValidator:
             return text
         # 先移除危险模式（在HTML转义之前）
         sanitized = text
-        for pattern in cls.XSS_PATTERNS:
-            sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+        for pattern, flags in cls.XSS_PATTERNS:
+            sanitized = re.sub(pattern, '', sanitized, flags=flags)
         # 再进行HTML转义
         sanitized = html.escape(sanitized)
         return sanitized

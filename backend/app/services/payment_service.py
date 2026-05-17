@@ -567,20 +567,20 @@ class PaymentService:
 
             # 增加配额
             quota_changes = []
-            if order.chat_quota > 0:
-                user.chat_quota += order.chat_quota
+            if (order.chat_quota or 0) > 0:
+                user.chat_quota = (user.chat_quota or 0) + order.chat_quota
                 quota_changes.append(f"chat_quota +{order.chat_quota}")
                 track_quota_grant("chat", "success", time.time() - start_time)
-            if order.generation_quota > 0:
-                user.generation_quota += order.generation_quota
+            if (order.generation_quota or 0) > 0:
+                user.generation_quota = (user.generation_quota or 0) + order.generation_quota
                 quota_changes.append(f"generation_quota +{order.generation_quota}")
                 track_quota_grant("generation", "success", time.time() - start_time)
-            if order.token_quota > 0:
-                user.token_quota += order.token_quota
+            if (order.token_quota or 0) > 0:
+                user.token_quota = (user.token_quota or 0) + order.token_quota
                 quota_changes.append(f"token_quota +{order.token_quota}")
                 track_quota_grant("token", "success", time.time() - start_time)
-            if order.storage_quota_mb > 0:
-                user.storage_quota_mb += order.storage_quota_mb
+            if (order.storage_quota_mb or 0) > 0:
+                user.storage_quota_mb = (user.storage_quota_mb or 0) + order.storage_quota_mb
                 quota_changes.append(f"storage_quota_mb +{order.storage_quota_mb}")
                 track_quota_grant("storage", "success", time.time() - start_time)
 

@@ -165,13 +165,16 @@ const loadProviders = async () => {
   }
 };
 
-const rules: FormRules = {
+const rules = computed<FormRules>(() => ({
   name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
   provider: [{ required: true, message: '请选择提供商', trigger: 'change' }],
   apiKey: [{ required: true, message: '请输入API密钥', trigger: 'blur' }],
-  endpoint: [{ required: true, message: '请输入端点地址', trigger: 'blur' }],
+  // endpoint 仅在需要时才校验 required
+  ...(needsEndpoint.value
+    ? { endpoint: [{ required: true, message: '请输入端点地址', trigger: 'blur' }] }
+    : {}),
   model: [{ required: true, message: '请输入模型', trigger: 'blur' }]
-};
+}));
 
 watch(() => props.modelValue, (val) => {
   if (val) Object.assign(form, val);

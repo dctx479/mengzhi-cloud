@@ -45,10 +45,12 @@ class PerformanceMonitor:
             logger.warning(f"Slow query detected: {duration:.2f}s - {query[:100]}")
 
     def update_system_metrics(self):
-        """更新系统指标"""
+        """更新系统指标（同步函数，应在线程池中调用）"""
         import os
 
-        cpu_usage.set(psutil.cpu_percent(interval=1))
+        # 安全修复: interval=None 不阻塞（返回上次调用以来的CPU使用率），
+        # 避免 interval=1 在事件循环中阻塞1秒
+        cpu_usage.set(psutil.cpu_percent(interval=None))
         memory_usage.set(psutil.virtual_memory().percent)
 
         # 使用平台兼容的路径：Windows 使用 'C:\' (或其他盘符)，Unix 使用 '/'

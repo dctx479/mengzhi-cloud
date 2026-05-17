@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 import logging
 import subprocess
 import os
+import threading
 import re
 import shutil
 
@@ -367,12 +368,12 @@ class TenantDatabaseManager:
                 if not validation_result["valid"]:
                     raise ValueError(f"Data validation failed: {validation_result['errors']}")
 
-                # 4. 更新企业隔离模式
+                # 4. 删除租户数据库（先删除再更新模式，避免 drop 失败时 isolation_mode 已变更导致状态不一致）
+                self.drop_tenant_database(enterprise_id, db, backup_first=True)
+
+                # 5. 更新企业隔离模式（drop_tenant_database 已 commit database_name=None，此处再 commit isolation_mode）
                 enterprise.isolation_mode = IsolationMode.SHARED
                 db.commit()
-
-                # 5. 删除租户数据库
-                self.drop_tenant_database(enterprise_id, db, backup_first=True)
 
                 logger.info(f"Successfully migrated enterprise {enterprise_id} to shared mode")
 
@@ -688,20 +689,23 @@ class TenantDatabaseManager:
         return validation_result
 
 
-# 全局管理器实例
+# 全局管理器实例（双重检查锁定，保证线程安全）
 _manager: Optional[TenantDatabaseManager] = None
+_manager_lock = threading.Lock()
 
 
 def get_tenant_db_manager() -> TenantDatabaseManager:
     """
-    获取全局租户数据库管理器
+    获取全局租户数据库管理器（线程安全单例）
 
     返回:
         TenantDatabaseManager: 管理器实例
     """
     global _manager
     if _manager is None:
-        _manager = TenantDatabaseManager()
+        with _manager_lock:
+            if _manager is None:
+                _manager = TenantDatabaseManager()
     return _manager
 
 

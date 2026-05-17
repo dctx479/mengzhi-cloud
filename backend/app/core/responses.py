@@ -7,7 +7,7 @@
 
 from pydantic import BaseModel, Field
 from typing import TypeVar, Generic, Optional, List, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 T = TypeVar("T")
@@ -26,7 +26,7 @@ class APIResponse(BaseModel, Generic[T]):
     code: int = Field(default=200, description="业务状态码")
     message: str = Field(default="success", description="响应消息")
     data: Optional[T] = Field(default=None, description="响应数据")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="响应时间戳")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="响应时间戳")
 
     class Config:
         json_schema_extra = {
@@ -34,7 +34,7 @@ class APIResponse(BaseModel, Generic[T]):
                 "code": 200,
                 "message": "success",
                 "data": {},
-                "timestamp": "2026-01-17T10:00:00"
+                "timestamp": "2026-01-17T10:00:00+00:00"
             }
         }
 
@@ -46,7 +46,7 @@ class ErrorResponse(BaseModel):
     message: str = Field(..., description="错误消息")
     data: Optional[Any] = Field(default=None, description="数据为空")
     errors: Optional[List[FieldError]] = Field(default=None, description="字段错误详情")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="响应时间戳")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="响应时间戳")
     request_id: Optional[str] = Field(default=None, description="请求ID")
 
     class Config:

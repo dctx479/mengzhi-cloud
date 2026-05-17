@@ -32,6 +32,25 @@ function unwrap<T>(res: unknown): T | undefined {
 
 const COST_SUMMARY_EMPTY: AIMediaCostSummary = { total_cost: 0, total_tasks: 0, by_provider: [] }
 
+/** Convert camelCase AIMediaProviderForm fields to snake_case for backend */
+function toSnakeCase(data: Partial<AIMediaProviderForm>): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+  if (data.providerCode !== undefined) result.provider_code = data.providerCode
+  if (data.providerName !== undefined) result.provider_name = data.providerName
+  if (data.providerType !== undefined) result.provider_type = data.providerType
+  if (data.apiKey !== undefined) result.api_key = data.apiKey
+  if (data.appId !== undefined) result.app_id = data.appId
+  if (data.apiEndpoint !== undefined) result.api_endpoint = data.apiEndpoint
+  if (data.defaultModel !== undefined) result.default_model = data.defaultModel
+  if (data.isActive !== undefined) result.is_active = data.isActive
+  if (data.isPrimary !== undefined) result.is_primary = data.isPrimary
+  if (data.priority !== undefined) result.priority = data.priority
+  if (data.costPerUnit !== undefined) result.cost_per_unit = data.costPerUnit
+  if (data.rateLimitPerMinute !== undefined) result.rate_limit_per_minute = data.rateLimitPerMinute
+  if (data.config !== undefined) result.config = data.config
+  return result
+}
+
 export const aiMediaApi = {
   getProviders: async (params?: { providerType?: MediaProviderType; includeInactive?: boolean }): Promise<AIMediaProvider[]> => {
     const res = await request.get<APIResponse<ListResponse<AIMediaProvider>>>('/v1/ai-media/admin/media-providers', {
@@ -45,14 +64,14 @@ export const aiMediaApi = {
   },
 
   createProvider: async (data: AIMediaProviderForm): Promise<AIMediaProvider> => {
-    const res = await request.post<APIResponse<AIMediaProvider>>('/v1/ai-media/admin/media-providers', data)
+    const res = await request.post<APIResponse<AIMediaProvider>>('/v1/ai-media/admin/media-providers', toSnakeCase(data))
     const result = unwrap<AIMediaProvider>(res)
     if (!result) throw new Error('创建服务商失败：服务器未返回数据')
     return result
   },
 
   updateProvider: async (id: number, data: Partial<AIMediaProviderForm>): Promise<AIMediaProvider> => {
-    const res = await request.put<APIResponse<AIMediaProvider>>(`/v1/ai-media/admin/media-providers/${id}`, data)
+    const res = await request.put<APIResponse<AIMediaProvider>>(`/v1/ai-media/admin/media-providers/${id}`, toSnakeCase(data))
     const result = unwrap<AIMediaProvider>(res)
     if (!result) throw new Error('更新服务商失败：服务器未返回数据')
     return result

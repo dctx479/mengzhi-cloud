@@ -19,7 +19,7 @@ from loguru import logger
 from app.core.responses import success_response
 from app.services.optimized_content_generation import ContentGenerationServiceFactory
 from app.models.content_record import ContentType, Style, Platform
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_user
 
 # 生成任务超时（秒）
 _GENERATE_TIMEOUT = 60
@@ -329,16 +329,25 @@ async def get_styles():
 async def get_history(
     limit: int = Query(20, ge=1, le=100, description="每页数量"),
     offset: int = Query(0, ge=0, description="偏移量"),
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     获取内容生成历史记录
 
-    返回 ContentRecord 列表
+    返回 ContentRecord 列表（仅返回当前用户的记录）
     """
     try:
         from app.models.content_record import ContentRecord
-        query = db.query(ContentRecord).order_by(ContentRecord.created_at.desc())
+        from app.models.user import User
+
+        # 获取当前用户整数ID
+        user_uuid = current_user.get("user_id")
+        user_obj = db.query(User).filter(User.user_uuid == user_uuid).first()
+        if not user_obj:
+            raise HTTPException(status_code=401, detail="用户不存在")
+
+        query = db.query(ContentRecord).filter(ContentRecord.user_id == user_obj.id).order_by(ContentRecord.created_at.desc())
         total = query.count()
         records = query.offset(offset).limit(limit).all()
 
@@ -356,6 +365,8 @@ async def get_history(
             },
             message="获取历史记录成功"
         ).dict()
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"获取历史记录失败: {str(e)}")
         raise HTTPException(status_code=500, detail="获取历史记录失败")

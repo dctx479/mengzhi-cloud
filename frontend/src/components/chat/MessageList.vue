@@ -123,11 +123,11 @@ const scrollToMessage = (messageId: string) => {
 const handleScroll = () => {
   if (!listContainer.value) return
 
-  const { scrollTop, scrollHeight } = listContainer.value
+  const { scrollTop, scrollHeight, clientHeight } = listContainer.value
   currentScrollPosition.value = scrollTop
 
-  // 检查是否滚动到顶部，加载更多消息
-  if (scrollTop < scrollHeight * 0.2 && hasMoreMessages.value) {
+  // 检查是否滚动到顶部附近（距顶部 100px 以内），加载更多消息
+  if (scrollTop < 100 && hasMoreMessages.value) {
     emit('load-more')
   }
 }
@@ -180,12 +180,19 @@ const handleFavorite = (messageId: string) => {
   emit('favorite', messageId)
 }
 
+// 判断用户是否在底部附近（距底部 100px 以内）
+const isNearBottom = () => {
+  if (!listContainer.value) return true
+  const { scrollTop, scrollHeight, clientHeight } = listContainer.value
+  return scrollHeight - scrollTop - clientHeight < 100
+}
+
 // 自动滚动到底部（当有新消息时）
 watch(
   () => props.messages.length,
   async () => {
-    if (props.isLoading || props.streamingMessageId) {
-      // 如果正在加载或流式响应，持续滚动到底部
+    // 仅当用户在底部附近，或正在流式响应时才自动滚动
+    if (isNearBottom() || props.streamingMessageId) {
       scrollToBottom()
     }
   }

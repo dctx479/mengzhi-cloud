@@ -26,7 +26,13 @@ class BillingTransaction(BaseModel):
     id = Column(BIGINT, primary_key=True, autoincrement=True, comment="交易ID")
 
     # 关联信息
-    enterprise_id = Column(BIGINT, nullable=False, index=True, comment="企业ID")
+    enterprise_id = Column(
+        BIGINT,
+        ForeignKey("enterprises.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="企业ID"
+    )
     quota_id = Column(BIGINT, ForeignKey("tenant_quotas.id"), nullable=False, comment="配额ID")
 
     # 交易信息
@@ -45,8 +51,7 @@ class BillingTransaction(BaseModel):
     refund_amount = Column(DECIMAL(10, 4), nullable=True, comment="退款金额")
     refund_reason = Column(VARCHAR(200), nullable=True, comment="退款原因")
 
-    # 时间戳
-    created_at = Column(TIMESTAMP, nullable=False, default=datetime.utcnow, comment="创建时间")
+    # 时间戳（completed_at/refunded_at 补充字段，created_at/updated_at 继承自 BaseModel）
     completed_at = Column(TIMESTAMP, nullable=True, comment="完成时间")
     refunded_at = Column(TIMESTAMP, nullable=True, comment="退款时间")
 

@@ -17,6 +17,26 @@ import inspect
 from app.services.audit_service import AuditService
 from app.core.logging_config import logger
 
+# 审计日志中需要脱敏的敏感字段名（大小写不敏感匹配）
+_SENSITIVE_FIELDS = frozenset({
+    "password", "passwd", "pwd", "new_password", "old_password",
+    "confirm_password", "token", "access_token", "refresh_token",
+    "secret", "secret_key", "api_key", "apikey", "authorization",
+    "credit_card", "card_number", "cvv", "ssn",
+})
+
+
+def _sanitize_dict(data: Any) -> Any:
+    """递归脱敏字典中的敏感字段，将其替换为 '***'"""
+    if isinstance(data, dict):
+        return {
+            k: "***" if k.lower() in _SENSITIVE_FIELDS else _sanitize_dict(v)
+            for k, v in data.items()
+        }
+    if isinstance(data, list):
+        return [_sanitize_dict(item) for item in data]
+    return data
+
 
 def audit_log(
     action: str,
@@ -123,10 +143,10 @@ def audit_log(
                     # 尝试从kwargs中获取请求数据
                     for key, value in kwargs.items():
                         if hasattr(value, "dict"):
-                            request_body = value.dict()
+                            request_body = _sanitize_dict(value.dict())
                             break
                         elif hasattr(value, "__dict__") and not isinstance(value, (Request, Session)):
-                            request_body = value.__dict__
+                            request_body = _sanitize_dict(value.__dict__)
                             break
                 except Exception as e:
                     logger.warning(f"捕获请求体失败: {str(e)}")
@@ -144,9 +164,9 @@ def audit_log(
                 if capture_response_body:
                     try:
                         if hasattr(result, "dict"):
-                            response_body = result.dict()
+                            response_body = _sanitize_dict(result.dict())
                         elif isinstance(result, dict):
-                            response_body = result
+                            response_body = _sanitize_dict(result)
                     except Exception as e:
                         logger.warning(f"捕获响应体失败: {str(e)}")
 
@@ -253,10 +273,10 @@ def audit_log(
                 try:
                     for key, value in kwargs.items():
                         if hasattr(value, "dict"):
-                            request_body = value.dict()
+                            request_body = _sanitize_dict(value.dict())
                             break
                         elif hasattr(value, "__dict__") and not isinstance(value, (Request, Session)):
-                            request_body = value.__dict__
+                            request_body = _sanitize_dict(value.__dict__)
                             break
                 except Exception as e:
                     logger.warning(f"捕获请求体失败: {str(e)}")
@@ -274,9 +294,9 @@ def audit_log(
                 if capture_response_body:
                     try:
                         if hasattr(result, "dict"):
-                            response_body = result.dict()
+                            response_body = _sanitize_dict(result.dict())
                         elif isinstance(result, dict):
-                            response_body = result
+                            response_body = _sanitize_dict(result)
                     except Exception as e:
                         logger.warning(f"捕获响应体失败: {str(e)}")
 
@@ -341,7 +361,8 @@ def get_client_ip(request: Request) -> str:
     """
     获取客户端真实IP地址
 
-    考虑代理和负载均衡器的情况
+    考虑代理和负载均衡器的情况。
+    注意：X-Forwarded-For 可被客户端伪造，仅在受信任的反向代理后使用。
 
     参数:
         request: FastAPI Request对象
@@ -349,11 +370,14 @@ def get_client_ip(request: Request) -> str:
     返回:
         客户端IP地址
     """
-    # 尝试从X-Forwarded-For头获取
+    # 尝试从X-Forwarded-For头获取（仅在反向代理环境下可信）
     forwarded_for = request.headers.get("X-Forwarded-For")
     if forwarded_for:
-        # X-Forwarded-For可能包含多个IP，取第一个
-        return forwarded_for.split(",")[0].strip()
+        # X-Forwarded-For可能包含多个IP，取最后一个（最近的可信代理添加的）
+        # 格式: "client, proxy1, proxy2" — 最右侧是最近的代理追加的
+        ips = [ip.strip() for ip in forwarded_for.split(",") if ip.strip()]
+        if ips:
+            return ips[-1]
 
     # 尝试从X-Real-IP头获取
     real_ip = request.headers.get("X-Real-IP")

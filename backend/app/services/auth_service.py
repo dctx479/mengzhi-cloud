@@ -472,8 +472,16 @@ class AuthService:
                 # 处理不同类型的locked_until
                 if isinstance(user.locked_until, str):
                     locked_time = datetime.fromisoformat(user.locked_until.replace('Z', '+00:00'))
+                    # 若解析结果带时区，转为 naive UTC 再比较
+                    if locked_time.tzinfo is not None:
+                        from datetime import timezone
+                        locked_time = locked_time.astimezone(timezone.utc).replace(tzinfo=None)
                 elif isinstance(user.locked_until, datetime):
                     locked_time = user.locked_until
+                    # 若 ORM 返回 aware datetime，统一转为 naive UTC
+                    if locked_time.tzinfo is not None:
+                        from datetime import timezone
+                        locked_time = locked_time.astimezone(timezone.utc).replace(tzinfo=None)
                 else:
                     # 安全原则：未知类型视为锁定
                     logger.warning(f"locked_until类型未知: {type(user.locked_until)}")

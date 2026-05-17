@@ -116,8 +116,8 @@ class RiskRule(BaseModel):
             "hit_count": self.hit_count,
             "last_hit_at": self.last_hit_at.isoformat() if self.last_hit_at else None,
             "created_by": self.created_by,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
 
 
@@ -178,8 +178,8 @@ class RiskEvent(BaseModel):
             "user_agent": self.user_agent,
             "device_fingerprint": self.device_fingerprint,
             "location": self.location,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
 
 
@@ -229,8 +229,8 @@ class RiskBlacklist(BaseModel):
             "hit_count": self.hit_count,
             "last_hit_at": self.last_hit_at.isoformat() if self.last_hit_at else None,
             "created_by": self.created_by,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
 
     def is_expired(self) -> bool:
@@ -277,6 +277,6 @@ class RiskStatistics(BaseModel):
             "blacklist_hits": self.blacklist_hits,
             "auto_processed": self.auto_processed,
             "manual_processed": self.manual_processed,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
