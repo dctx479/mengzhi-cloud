@@ -153,6 +153,8 @@ async def get_order(
     # P1-10: 移除重复的异常处理
     service = OrderService(db)
     order = service.get_order_by_id(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
 
     # 验证订单所有权
     current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()

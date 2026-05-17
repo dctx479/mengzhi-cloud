@@ -418,7 +418,9 @@ const loadStatistics = async () => {
     })
 
     if (res.code === 200 && res.data) {
-      Object.assign(statistics, res.data)
+      statistics.total_amount = res.data.total_amount ?? 0
+      statistics.total_records = res.data.total_records ?? 0
+      statistics.by_mode = res.data.by_mode ?? {}
     }
   } catch (error) {
     console.error('加载统计数据失败:', error)

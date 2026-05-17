@@ -310,7 +310,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage, ElMessageBox, ElForm } from 'element-plus'
 import type { FormRules } from 'element-plus'
 import {
@@ -419,6 +419,9 @@ const loadingDevices = ref(false)
 const changingPassword = ref(false)
 const sendingCode = ref(false)
 const countDown = ref(0)
+const activeTimers: ReturnType<typeof setInterval>[] = []
+
+onBeforeUnmount(() => activeTimers.forEach(clearInterval))
 
 const formatDateTime = (dateStr: string): string => {
   return new Date(dateStr).toLocaleString('zh-CN')
@@ -528,8 +531,10 @@ const handleSendCode = async (type: 'phone' | 'email') => {
       countDown.value--
       if (countDown.value <= 0) {
         clearInterval(interval)
+        activeTimers.splice(activeTimers.indexOf(interval), 1)
       }
     }, 1000)
+    activeTimers.push(interval)
   } catch (error) {
     ElMessage.error('发送验证码失败')
     console.error(error)

@@ -311,7 +311,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, h } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import http from '@/utils/http'
@@ -460,25 +460,24 @@ const viewInvoiceDetail = async (invoiceId) => {
 
       // 显示详情对话框
       ElMessageBox.alert(
-        `<div style="max-height: 500px; overflow-y: auto;">
-          <h3>账单详情</h3>
-          <p><strong>账单编号:</strong> ${invoice.invoice_number || '-'}</p>
-          <p><strong>账单周期:</strong> ${invoice.billing_period?.start || '-'} ~ ${invoice.billing_period?.end || '-'}</p>
-          <p><strong>总金额:</strong> ¥${invoice.amounts?.total?.toFixed(2) || '0.00'}</p>
-          <p><strong>状态:</strong> ${getInvoiceStatusText(invoice.status)}</p>
-          <h4>计费记录 (${invoice.records?.length || 0}条)</h4>
-          ${invoice.records?.map(record => `
-            <div style="border: 1px solid #eee; padding: 8px; margin: 4px 0; border-radius: 4px;">
-              <p><strong>日期:</strong> ${record.billing_date || '-'}</p>
-              <p><strong>模式:</strong> ${getBillingModeText(record.billing_mode)}</p>
-              <p><strong>数量:</strong> ${record.quantity}</p>
-              <p><strong>金额:</strong> ¥${record.amount || '0.00'}</p>
-            </div>
-          `).join('') || '<p>暂无记录</p>'}
-        </div>`,
+        h('div', { style: 'max-height: 500px; overflow-y: auto;' }, [
+          h('h3', '账单详情'),
+          h('p', [h('strong', '账单编号:'), ` ${invoice.invoice_number || '-'}`]),
+          h('p', [h('strong', '账单周期:'), ` ${invoice.billing_period?.start || '-'} ~ ${invoice.billing_period?.end || '-'}`]),
+          h('p', [h('strong', '总金额:'), ` ¥${invoice.amounts?.total?.toFixed(2) || '0.00'}`]),
+          h('p', [h('strong', '状态:'), ` ${getInvoiceStatusText(invoice.status)}`]),
+          h('h4', `计费记录 (${invoice.records?.length || 0}条)`),
+          ...(invoice.records?.map(record =>
+            h('div', { style: 'border: 1px solid #eee; padding: 8px; margin: 4px 0; border-radius: 4px;' }, [
+              h('p', [h('strong', '日期:'), ` ${record.billing_date || '-'}`]),
+              h('p', [h('strong', '模式:'), ` ${getBillingModeText(record.billing_mode)}`]),
+              h('p', [h('strong', '数量:'), ` ${record.quantity}`]),
+              h('p', [h('strong', '金额:'), ` ¥${record.amount || '0.00'}`]),
+            ])
+          ) || [h('p', '暂无记录')]),
+        ]),
         '账单详情',
         {
-          dangerouslyUseHTMLString: true,
           confirmButtonText: '关闭'
         }
       )

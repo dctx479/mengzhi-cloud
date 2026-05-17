@@ -426,9 +426,9 @@ async def logout(
 
         # 将Token加入黑名单
         jti = current_user.get("jti")
-        if jti:
-            # Token有效期为30分钟，转换为秒
-            auth_service.add_token_to_blacklist(jti, 30 * 60)
+        if not jti:
+            raise HTTPException(status_code=400, detail="Token 缺少 jti 字段，无法安全登出")
+        auth_service.add_token_to_blacklist(jti, 30 * 60)
 
         # 清除用户缓存
         user_id = current_user.get("user_id")
@@ -880,11 +880,11 @@ async def reset_password(
                 SET password_hash = :password_hash,
                     password_changed_at = :now,
                     updated_at = :now
-                WHERE id = :user_id
+                WHERE user_uuid = :user_id
             """),
             {
                 "password_hash": new_password_hash,
-                "user_id": user.id,
+                "user_id": user.user_uuid,
                 "now": now
             }
         )

@@ -193,11 +193,11 @@ class PaymentService:
                     self._process_dev_payment(payment, order)
                 else:
                     # 生产模式：调用第三方支付
-                    if payment_method == "alipay":
+                    if payment_method_enum == PaymentMethod.ALIPAY:
                         self._process_alipay(payment, order)
-                    elif payment_method == "wechat":
+                    elif payment_method_enum == PaymentMethod.WECHAT:
                         self._process_wechat(payment, order)
-                    elif payment_method == "balance":
+                    elif payment_method_enum == PaymentMethod.BALANCE:
                         self._process_balance(payment, order, user_id)
 
                 return payment

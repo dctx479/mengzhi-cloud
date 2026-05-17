@@ -81,8 +81,8 @@ async def generate_content(
                 if cfg.product_ids and not product_id:
                     try:
                         product_id = int(cfg.product_ids[0])
-                    except (ValueError, IndexError):
-                        pass
+                    except (ValueError, IndexError) as e:
+                        logger.warning(f"无效的 product_id 值: {cfg.product_ids}, 错误: {e}")
                 content_type = cfg.content_type or content_type
                 style = cfg.style or style
                 platform = cfg.platform or platform
@@ -282,10 +282,7 @@ async def get_history(
         ).dict()
     except Exception as e:
         logger.error(f"获取历史记录失败: {str(e)}")
-        return success_response(
-            data={"items": [], "total": 0, "limit": limit, "offset": offset},
-            message="获取历史记录成功"
-        ).dict()
+        raise HTTPException(status_code=500, detail="获取历史记录失败")
 
 
 @router.get("/statistics")
