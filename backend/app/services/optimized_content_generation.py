@@ -15,6 +15,8 @@
 import asyncio
 import json
 import hashlib
+import re
+import threading
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 from loguru import logger
@@ -42,6 +44,13 @@ class OptimizedContentGenerationService:
     - 质量评估
     - 性能缓存
     """
+
+    # Class-level shared cache so all instances within the same process benefit
+    _shared_cache: Dict[str, Any] = {}
+    _cache_lock = threading.Lock()
+
+    # Timeout for a single AI generation call (seconds)
+    _AI_TIMEOUT = 30
 
     def __init__(self, db: Session):
         """初始化"""
@@ -246,6 +255,15 @@ class OptimizedContentGenerationService:
             logger.error(f"生成变体失败: {str(e)}")
             raise
 
+    @staticmethod
+    def _sanitize_text(text: str, max_length: int = 500) -> str:
+        """Strip control characters and truncate to prevent prompt injection."""
+        if not text:
+            return ""
+        # Remove ASCII control chars except tab (\x09) and newline (\x0a, \x0d)
+        text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
+        return text[:max_length].strip()
+
     async def _build_enhanced_prompt(
         self,
         product: Product,
@@ -289,16 +307,25 @@ class OptimizedContentGenerationService:
 
         marketing_text = self._format_marketing_materials(marketing_materials)
 
-        # 4. 构建用户提示
+        # 4. 构建用户提示 — sanitize all product fields to prevent prompt injection
+        safe_name = self._sanitize_text(product.name or '', 100)
+        safe_category = self._sanitize_text(product.category or '', 50)
+        safe_province = self._sanitize_text(product.origin_province or '', 50)
+        safe_city = self._sanitize_text(product.origin_city or '', 50)
+        safe_description = self._sanitize_text(product.description or '暂无', 300)
+        safe_features = ', '.join(
+            self._sanitize_text(f, 50) for f in (product.features or [])
+        ) or '暂无'
+
         user_prompt = f"""
 请为以下农畜产品生成{self._get_content_type_name(content_type)}：
 
 【产品信息】
-名称：{product.name}
-类别：{product.category}
-产地：{product.origin_province} {product.origin_city or ''}
-描述：{product.description or '暂无'}
-特点：{', '.join(product.features) if product.features else '暂无'}
+名称：{safe_name}
+类别：{safe_category}
+产地：{safe_province} {safe_city}
+描述：{safe_description}
+特点：{safe_features}
 
 【文化背景】
 {cultural_text}
@@ -342,11 +369,17 @@ class OptimizedContentGenerationService:
             try:
                 logger.info(f"生成内容 (尝试 {attempt + 1}/{max_retries})")
 
-                response = await self.deepseek_client.chat_completion(
-                    messages=[{"role": "user", "content": prompt}],
-                    system_prompt=PromptTemplates.get_system_prompt(),
-                    **params
-                )
+                try:
+                    response = await asyncio.wait_for(
+                        self.deepseek_client.chat_completion(
+                            messages=[{"role": "user", "content": prompt}],
+                            system_prompt=PromptTemplates.get_system_prompt(),
+                            **params
+                        ),
+                        timeout=self._AI_TIMEOUT
+                    )
+                except asyncio.TimeoutError:
+                    raise RuntimeError(f"AI生成超时 (>{self._AI_TIMEOUT}s)")
 
                 content = response['choices'][0]['message']['content']
 
@@ -416,46 +449,31 @@ class OptimizedContentGenerationService:
         return hashlib.md5(key_str.encode(), usedforsecurity=False).hexdigest()
 
     def _get_from_cache(self, key: str) -> Optional[str]:
-        """从缓存获取"""
-        # 这里应该集成Redis或其他缓存
-        # 暂时使用内存缓存
+        """从共享缓存获取（线程安全）"""
         try:
-            if not hasattr(self, '_memory_cache'):
-                self._memory_cache = {}
-
-            if key in self._memory_cache:
-                entry = self._memory_cache[key]
+            with self.__class__._cache_lock:
+                entry = self.__class__._shared_cache.get(key)
+                if entry is None:
+                    return None
                 if datetime.now() - entry['timestamp'] < timedelta(seconds=self.cache_ttl):
                     return entry['content']
-                else:
-                    del self._memory_cache[key]
-
+                del self.__class__._shared_cache[key]
             return None
         except Exception as e:
             logger.warning(f"缓存读取异常，将跳过缓存: {str(e)}")
             return None
 
     def _save_to_cache(self, key: str, content: str) -> None:
-        """保存到缓存"""
+        """保存到共享缓存（线程安全，最多保留100条）"""
         try:
-            if not hasattr(self, '_memory_cache'):
-                self._memory_cache = {}
-
-            self._memory_cache[key] = {
-                'content': content,
-                'timestamp': datetime.now()
-            }
-
-            # 简单的缓存清理（保留最多100条）
-            if len(self._memory_cache) > 100:
-                oldest_key = min(
-                    self._memory_cache.keys(),
-                    key=lambda k: self._memory_cache[k]['timestamp']
-                )
-                del self._memory_cache[oldest_key]
-
+            with self.__class__._cache_lock:
+                cache = self.__class__._shared_cache
+                cache[key] = {'content': content, 'timestamp': datetime.now()}
+                if len(cache) > 100:
+                    oldest_key = min(cache.keys(), key=lambda k: cache[k]['timestamp'])
+                    del cache[oldest_key]
         except Exception as e:
-            logger.warning(f"缓存保存异常，可能导致内存膨胀: {str(e)}")
+            logger.warning(f"缓存保存异常: {str(e)}")
 
 
 class ContentGenerationServiceFactory:

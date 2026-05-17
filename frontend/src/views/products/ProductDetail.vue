@@ -151,7 +151,7 @@
                 <el-avatar :src="review.userAvatar" :size="32" />
                 <div class="review-user-info">
                   <p class="review-user-name">{{ review.userName }}</p>
-                  <el-rate v-model="review.rating" disabled allow-half size="small" />
+              <el-rate :model-value="review.rating" disabled allow-half size="small" />
                   <p class="review-time">{{ formatDate(review.createdAt) }}</p>
                 </div>
               </div>
@@ -159,12 +159,13 @@
             </div>
 
             <el-pagination
-              v-if="reviewTotal > 10"
-              :current-page="1"
-              :page-size="10"
+              v-if="reviewTotal > reviewPageSize"
+              v-model:current-page="reviewPage"
+              :page-size="reviewPageSize"
               :total="reviewTotal"
               layout="prev, pager, next"
               class="review-pagination"
+              @current-change="handleReviewPageChange"
             />
           </div>
         </div>
@@ -174,7 +175,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useProductStore } from '@/stores/product'
@@ -191,6 +192,8 @@ const quantity = ref(1)
 const reviews = ref<any[]>([])
 const reviewTotal = ref(0)
 const reviewsLoading = ref(false)
+const reviewPage = ref(1)
+const reviewPageSize = 10
 
 const product = computed(() => productStore.currentProduct!)
 
@@ -211,17 +214,22 @@ const goToList = () => {
   router.push('/products')
 }
 
-const loadReviews = async () => {
+const loadReviews = async (page = reviewPage.value) => {
   reviewsLoading.value = true
   try {
-    const response = await productAPI.getProductReviews(route.params.id as string)
+    const response = await productAPI.getProductReviews(route.params.id as string, page, reviewPageSize)
     reviews.value = response.data
     reviewTotal.value = response.total
+    reviewPage.value = page
   } catch (error) {
     ElMessage.error('加载评价失败')
   } finally {
     reviewsLoading.value = false
   }
+}
+
+const handleReviewPageChange = (page: number) => {
+  loadReviews(page)
 }
 
 onMounted(async () => {
@@ -230,11 +238,16 @@ onMounted(async () => {
     if (productStore.currentProduct) {
       const p = productStore.currentProduct
       mainImage.value = p?.image || p?.images?.[0] || ''
-      await loadReviews()
+      await loadReviews(1)
     }
   } catch (error) {
     ElMessage.error('加载产品信息失败')
   }
+})
+
+onUnmounted(() => {
+  // 离开详情页时清除当前产品，避免下次进入时短暂显示旧数据
+  productStore.currentProduct = null
 })
 </script>
 

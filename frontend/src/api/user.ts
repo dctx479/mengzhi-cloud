@@ -55,6 +55,9 @@ export async function getOrders(params: {
         page: params.page,
         size: params.page_size, // 后端参数名为 size
         status: params.status,
+        start_date: params.start_date,
+        end_date: params.end_date,
+        keyword: params.keyword,
       },
     }
   )
@@ -71,7 +74,8 @@ export async function getOrders(params: {
  * 获取订单详情
  */
 export async function getOrderDetail(orderId: string): Promise<Order> {
-  return http.get<Order>(`/v1/orders/${orderId}`)
+  const res = await http.get<ApiResponse<Order>>(`/v1/orders/${orderId}`)
+  return extractData(res) ?? ({} as Order)
 }
 
 /**
@@ -123,7 +127,7 @@ export async function getQuotaHistory(params: {
   type?: string
 }): Promise<QuotaHistoryResponse> {
   const res = await http.get<ApiResponse<{ items: QuotaHistory[]; total: number; page: number; page_size: number }>>(
-    '/v1/quotas/',
+    '/v1/quotas',
     { params }
   )
   const inner = extractData(res) ?? {}

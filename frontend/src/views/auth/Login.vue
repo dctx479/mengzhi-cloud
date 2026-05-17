@@ -11,12 +11,15 @@
           :rules="rules"
           @keyup.enter="handleSubmit"
           class="login-form"
+          aria-label="登录表单"
         >
           <el-form-item prop="username">
             <el-input
               v-model="formData.username"
               placeholder="用户名 / 邮箱"
               clearable
+              aria-label="用户名或邮箱"
+              aria-required="true"
             >
               <template #prefix>
                 <el-icon><User /></el-icon>
@@ -30,6 +33,8 @@
               type="password"
               placeholder="密码"
               show-password
+              aria-label="密码"
+              aria-required="true"
             >
               <template #prefix>
                 <el-icon><Lock /></el-icon>
@@ -43,6 +48,8 @@
               size="large"
               class="login-btn"
               :loading="loading"
+              :disabled="loading"
+              aria-label="登录"
               @click="handleSubmit"
             >
               {{ loading ? '登录中...' : '登录' }}
@@ -77,7 +84,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElForm } from 'element-plus'
 import type { FormRules } from 'element-plus'
-import { Message, Lock } from '@element-plus/icons-vue'
+import { Lock } from '@element-plus/icons-vue'
 import { User } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 
@@ -102,6 +109,7 @@ const rules: FormRules = {
 }
 
 const handleSubmit = async () => {
+  if (loading.value) return
   try {
     await formRef.value?.validate()
     loading.value = true

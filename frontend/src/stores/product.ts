@@ -49,10 +49,12 @@ export const useProductStore = defineStore('product', () => {
         category: selectedCategory.value || undefined,
         keyword: searchKeyword.value || undefined,
       })
-      products.value = response.data
-      total.value = response.total
+      // Guard against unexpected API response shape
+      products.value = Array.isArray(response?.data) ? response.data : []
+      total.value = typeof response?.total === 'number' ? response.total : 0
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch products'
+      throw err  // Re-throw so callers (setCategory etc.) can handle if needed
     } finally {
       loading.value = false
     }
@@ -83,58 +85,33 @@ export const useProductStore = defineStore('product', () => {
   }
 
   const setCategory = async (categoryId: string) => {
-    try {
-      selectedCategory.value = categoryId
-      currentPage.value = 1
-      await fetchProducts()
-    } catch (err) {
-      // Error already handled in fetchProducts(), propagate for caller
-      throw err
-    }
+    selectedCategory.value = categoryId
+    currentPage.value = 1
+    await fetchProducts()
   }
 
   const setSearchKeyword = async (keyword: string) => {
-    try {
-      searchKeyword.value = keyword
-      currentPage.value = 1
-      await fetchProducts()
-    } catch (err) {
-      // Error already handled in fetchProducts(), propagate for caller
-      throw err
-    }
+    searchKeyword.value = keyword
+    currentPage.value = 1
+    await fetchProducts()
   }
 
   const setPage = async (page: number) => {
-    try {
-      currentPage.value = page
-      await fetchProducts()
-    } catch (err) {
-      // Error already handled in fetchProducts(), propagate for caller
-      throw err
-    }
+    currentPage.value = page
+    await fetchProducts()
   }
 
   const setPageSize = async (size: number) => {
-    try {
-      pageSize.value = size
-      currentPage.value = 1
-      await fetchProducts()
-    } catch (err) {
-      // Error already handled in fetchProducts(), propagate for caller
-      throw err
-    }
+    pageSize.value = size
+    currentPage.value = 1
+    await fetchProducts()
   }
 
   const clearFilters = async () => {
-    try {
-      selectedCategory.value = ''
-      searchKeyword.value = ''
-      currentPage.value = 1
-      await fetchProducts()
-    } catch (err) {
-      // Error already handled in fetchProducts(), propagate for caller
-      throw err
-    }
+    selectedCategory.value = ''
+    searchKeyword.value = ''
+    currentPage.value = 1
+    await fetchProducts()
   }
 
   const resetState = () => {
@@ -143,6 +120,7 @@ export const useProductStore = defineStore('product', () => {
     selectedCategory.value = ''
     searchKeyword.value = ''
     currentPage.value = 1
+    pageSize.value = 12
     total.value = 0
     error.value = null
   }

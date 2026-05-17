@@ -101,22 +101,32 @@ export const auditLogsApi = {
   /**
    * 获取操作类型列表
    * 返回 { data: string[] } 以供调用方 actionsRes.data 使用
+   * 注意: 后端该端点尚未实现（404），捕获错误后返回空数组
    */
   getActionTypes: async (): Promise<{ data: string[] }> => {
-    const res = await _api.get<ApiResponse<Array<{ value: string; label: string }> | string[]>>('/action-types')
-    const inner = unwrapInner<Array<{ value: string; label: string }> | string[]>(res)
-    const arr = Array.isArray(inner) ? inner : []
-    return { data: arr.map((item: any) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
+    try {
+      const res = await _api.get<ApiResponse<Array<{ value: string; label: string }> | string[]>>('/action-types')
+      const inner = unwrapInner<Array<{ value: string; label: string }> | string[]>(res)
+      const arr = Array.isArray(inner) ? inner : []
+      return { data: arr.map((item: any) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
+    } catch {
+      return { data: [] }
+    }
   },
 
   /**
    * 获取资源类型列表
    * 返回 { data: string[] } 以供调用方 resourcesRes.data 使用
+   * 注意: 后端该端点尚未实现（404），捕获错误后返回空数组
    */
   getResourceTypes: async (): Promise<{ data: string[] }> => {
-    const res = await _api.get<ApiResponse<Array<{ value: string; label: string }> | string[]>>('/resource-types')
-    const inner = unwrapInner<Array<{ value: string; label: string }> | string[]>(res)
-    const arr = Array.isArray(inner) ? inner : []
-    return { data: arr.map((item: any) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
+    try {
+      const res = await _api.get<ApiResponse<Array<{ value: string; label: string }> | string[]>>('/resource-types')
+      const inner = unwrapInner<Array<{ value: string; label: string }> | string[]>(res)
+      const arr = Array.isArray(inner) ? inner : []
+      return { data: arr.map((item: any) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
+    } catch {
+      return { data: [] }
+    }
   },
 }

@@ -42,6 +42,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   // State - Batch Tasks
   const batchTasks = ref<BatchTask[]>([])
   const tasksLoading = ref(false)
+  const tasksError = ref<string | null>(null)
   const currentTask = ref<BatchTask | null>(null)
 
   // State - Saved Configs
@@ -150,6 +151,9 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
       return
     }
 
+    // Prevent concurrent generation requests
+    if (generating.value) return
+
     generating.value = true
     generationError.value = null
     progress.value = 0
@@ -240,11 +244,12 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
 
   const fetchBatchTasks = async () => {
     tasksLoading.value = true
+    tasksError.value = null
     try {
       const tasks = await contentAPI.getBatchTasks()
       batchTasks.value = tasks
     } catch (err) {
-      generationError.value = err instanceof Error ? err.message : 'Failed to fetch tasks'
+      tasksError.value = err instanceof Error ? err.message : 'Failed to fetch tasks'
     } finally {
       tasksLoading.value = false
     }
@@ -256,7 +261,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
       currentTask.value = task
       return task
     } catch (err) {
-      generationError.value = err instanceof Error ? err.message : 'Failed to fetch task'
+      tasksError.value = err instanceof Error ? err.message : 'Failed to fetch task'
       throw err
     }
   }
@@ -269,7 +274,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
         task.status = 'cancelled'
       }
     } catch (err) {
-      generationError.value = err instanceof Error ? err.message : 'Failed to cancel task'
+      tasksError.value = err instanceof Error ? err.message : 'Failed to cancel task'
     }
   }
 
@@ -380,8 +385,12 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
       wsConnection = contentAPI.createGenerationWebSocket(taskId)
 
       wsConnection.onmessage = (event) => {
-        const data = JSON.parse(event.data)
-        onMessage(data)
+        try {
+          const data = JSON.parse(event.data)
+          onMessage(data)
+        } catch {
+          generationError.value = 'Received malformed WebSocket message'
+        }
       }
 
       wsConnection.onerror = onError
@@ -419,6 +428,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     generationError,
     batchTasks,
     tasksLoading,
+    tasksError,
     currentTask,
     savedConfigs,
     configsLoading,

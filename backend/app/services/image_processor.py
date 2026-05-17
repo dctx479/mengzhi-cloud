@@ -19,6 +19,19 @@ from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
 from app.core.config import settings
 
+# OOM 防护：限制最大像素数，防止解压炸弹攻击（默认 178M，收紧到 50M）
+Image.MAX_IMAGE_PIXELS = 50_000_000  # ~7071x7071
+
+
+def _check_image_pixels(img: Image.Image) -> None:
+    """在加载像素数据前检查图片尺寸，防止 OOM。"""
+    pixels = img.width * img.height
+    if pixels > 50_000_000:
+        raise ValueError(
+            f"图片尺寸过大: {img.width}x{img.height} ({pixels:,} 像素)，"
+            f"最大允许 50,000,000 像素"
+        )
+
 
 class ImageProcessor:
     """图片处理服务
@@ -38,6 +51,7 @@ class ImageProcessor:
             dict: 包含宽度、高度、格式等信息
         """
         with Image.open(image_path) as img:
+            _check_image_pixels(img)
             return {
                 "width": img.width,
                 "height": img.height,
@@ -67,6 +81,7 @@ class ImageProcessor:
             output_path = image_path
 
         with Image.open(image_path) as img:
+            _check_image_pixels(img)
             # 转换RGBA为RGB（用于JPEG）
             if img.mode == 'RGBA' and output_path.lower().endswith('.jpg'):
                 # 创建白色背景
@@ -103,6 +118,7 @@ class ImageProcessor:
         )
 
         with Image.open(image_path) as img:
+            _check_image_pixels(img)
             # 保持宽高比的缩略图
             img.thumbnail(size, Image.Resampling.LANCZOS)
 
@@ -142,6 +158,7 @@ class ImageProcessor:
             output_path = image_path
 
         with Image.open(image_path) as img:
+            _check_image_pixels(img)
             original_width, original_height = img.size
 
             # 计算新尺寸
@@ -166,6 +183,14 @@ class ImageProcessor:
 
             # 调整尺寸
             resized_img = img.resize((width, height), Image.Resampling.LANCZOS)
+
+            # 处理RGBA图片输出为JPEG的情况
+            if output_path.lower().endswith(('.jpg', '.jpeg')) and resized_img.mode in ('RGBA', 'LA', 'P'):
+                background = Image.new('RGB', resized_img.size, (255, 255, 255))
+                if resized_img.mode == 'P':
+                    resized_img = resized_img.convert('RGBA')
+                background.paste(resized_img, mask=resized_img.split()[-1])
+                resized_img = background
 
             # 保存
             resized_img.save(output_path, quality=settings.IMAGE_QUALITY, optimize=True)
@@ -251,6 +276,7 @@ class ImageProcessor:
         )
 
         with Image.open(image_path) as img:
+            _check_image_pixels(img)
             # 计算裁剪区域（居中）
             width, height = img.size
             if width > height:
@@ -269,6 +295,14 @@ class ImageProcessor:
 
             # 缩放到目标尺寸
             img_resized = img_cropped.resize((size, size), Image.Resampling.LANCZOS)
+
+            # 处理RGBA图片输出为JPEG的情况
+            if thumbnail_path.lower().endswith(('.jpg', '.jpeg')) and img_resized.mode in ('RGBA', 'LA', 'P'):
+                background = Image.new('RGB', img_resized.size, (255, 255, 255))
+                if img_resized.mode == 'P':
+                    img_resized = img_resized.convert('RGBA')
+                background.paste(img_resized, mask=img_resized.split()[-1])
+                img_resized = background
 
             # 保存
             img_resized.save(thumbnail_path, quality=quality, optimize=True)

@@ -193,13 +193,13 @@ class RiskControlService:
                     else:
                         score += 5
 
-            # 批量更新统计信息
+            # 批量更新统计信息（flush 而非 commit，由外层事务统一提交）
             if items_to_update:
                 now = datetime.utcnow()
                 for item in items_to_update:
                     item.hit_count += 1
                     item.last_hit_at = now
-                self.db.commit()
+                self.db.flush()
 
         except Exception as e:
             self.logger.error(f"黑名单检查失败: {str(e)}")
@@ -248,13 +248,13 @@ class RiskControlService:
                     else:
                         score += 3
 
-            # 批量更新统计信息
+            # 批量更新统计信息（flush 而非 commit，由外层事务统一提交）
             if rules_to_update:
                 now = datetime.utcnow()
                 for rule in rules_to_update:
                     rule.hit_count += 1
                     rule.last_hit_at = now
-                self.db.commit()
+                self.db.flush()
 
         except Exception as e:
             self.logger.error(f"规则检查失败: {str(e)}")
@@ -468,10 +468,19 @@ class RiskControlService:
                 score += 5
 
             # 分析事件频率
-            event_count_today = len([
-                e for e in recent_events
-                if e.created_at.date() == datetime.utcnow().date()
-            ])
+            today = datetime.utcnow().date()
+            event_count_today = 0
+            for e in recent_events:
+                try:
+                    # created_at 可能是 datetime 对象或 ISO 字符串
+                    if isinstance(e.created_at, str):
+                        event_date = datetime.fromisoformat(e.created_at).date()
+                    else:
+                        event_date = e.created_at.date()
+                    if event_date == today:
+                        event_count_today += 1
+                except (ValueError, AttributeError):
+                    continue
 
             if event_count_today > 20:
                 score += 10

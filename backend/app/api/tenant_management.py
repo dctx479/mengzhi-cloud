@@ -12,6 +12,7 @@
 - 查询租户信息
 """
 
+import os
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
@@ -203,6 +204,15 @@ async def delete_tenant(
             detail="企业不存在"
         )
 
+    # 检查租户下是否有活跃用户，防止误删
+    from app.models import User
+    user_count = db.query(User).filter(User.enterprise_id == enterprise_id).count()
+    if user_count > 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"该租户仍有 {user_count} 个用户，请先迁移或删除用户后再删除租户"
+        )
+
     # 如果有独立数据库，删除数据库
     if enterprise.database_name:
         manager = get_tenant_db_manager()
@@ -309,11 +319,25 @@ async def backup_tenant(
             User.user_uuid == current_user["user_id"]
         ).first()
 
-        user_role = user.role.value if hasattr(user.role, 'value') else str(user.role) if user.role else None
-        if not user or user.enterprise_id != enterprise_id or user_role not in ["enterprise_admin", "admin"]:
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="需要系统管理员或企业管理员权限"
+            )
+        user_role = user.role.value if hasattr(user.role, 'value') else str(user.role) if user.role else None
+        if user.enterprise_id != enterprise_id or user_role not in ["enterprise_admin", "admin"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="需要系统管理员或企业管理员权限"
+            )
+
+    # 路径穿越防护：验证 output_dir 不包含 ".." 等危险路径
+    if request.output_dir:
+        normalized = os.path.normpath(request.output_dir)
+        if ".." in normalized.split(os.sep) or normalized.startswith(("/etc", "/root", "/proc", "/sys")):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="无效的输出目录路径"
             )
 
     # 获取企业信息
@@ -459,8 +483,13 @@ async def get_tenant_info(
             User.user_uuid == current_user["user_id"]
         ).first()
 
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="需要系统管理员或企业管理员权限"
+            )
         user_role = user.role.value if hasattr(user.role, 'value') else str(user.role) if user.role else None
-        if not user or user.enterprise_id != enterprise_id or user_role not in ["enterprise_admin", "admin"]:
+        if user.enterprise_id != enterprise_id or user_role not in ["enterprise_admin", "admin"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="需要系统管理员或企业管理员权限"

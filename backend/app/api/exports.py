@@ -30,6 +30,7 @@ router = APIRouter()
 # 导出配置
 BATCH_SIZE = 1000  # 分批处理大小
 MAX_SYNC_EXPORT = 5000  # 同步导出最大记录数
+MAX_EXPORT_LIMIT = 50000  # 导出绝对上限，超出拒绝请求
 
 
 
@@ -208,6 +209,15 @@ async def export_products(
                 content=error_response(
                     code=ErrorCode.RECORD_NOT_FOUND,
                     message="没有可导出的产品数据"
+                ).dict()
+            )
+
+        if total_count > MAX_EXPORT_LIMIT:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=error_response(
+                    code=ErrorCode.INVALID_PARAMS,
+                    message=f"导出数据量 {total_count} 超过上限 {MAX_EXPORT_LIMIT}，请缩小筛选范围"
                 ).dict()
             )
 

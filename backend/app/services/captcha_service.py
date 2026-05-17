@@ -108,7 +108,7 @@ class CaptchaService:
 
     def verify_image_captcha(self, identifier: str, code: str) -> bool:
         """
-        验证图片验证码
+        验证图片验证码（原子操作，防止并发重放）
 
         Args:
             identifier: 唯一标识
@@ -125,19 +125,25 @@ class CaptchaService:
 
         try:
             key = f"image_captcha:{identifier}"
-            stored_code = self.redis_client.get(key)
 
-            if stored_code:
-                # 确保stored_code是字符串类型
-                if isinstance(stored_code, bytes):
-                    stored_code = stored_code.decode('utf-8')
+            # Lua 脚本保证 get+delete 原子性，防止并发请求同时通过验证
+            lua_script = """
+                local stored = redis.call('GET', KEYS[1])
+                if stored == false then
+                    return nil
+                end
+                redis.call('DEL', KEYS[1])
+                return stored
+            """
+            stored_code = self.redis_client.eval(lua_script, 1, key)
 
-                if stored_code.upper() == code.upper():
-                    # 验证成功后删除验证码
-                    self.redis_client.delete(key)
-                    return True
+            if stored_code is None:
+                return False
 
-            return False
+            if isinstance(stored_code, bytes):
+                stored_code = stored_code.decode('utf-8')
+
+            return stored_code.upper() == code.upper()
         except Exception as e:
             logger.error(f"验证图片验证码失败: {e}")
             raise BusinessException(
@@ -172,6 +178,56 @@ class CaptchaService:
             return "*" * len(code)
         return f"{code[:2]}...{code[-2:]}"
 
+    def _check_send_rate_limit(self, identifier: str, code_type: str) -> None:
+        """
+        检查验证码发送频率限制，防止短信/邮件轰炸
+
+        规则：
+        - 同一 identifier+code_type 60 秒内只能发送 1 次
+        - 同一 identifier 24 小时内最多发送 10 次
+
+        Args:
+            identifier: 邮箱或手机号
+            code_type: 验证码类型
+
+        Raises:
+            BusinessException: 超出频率限制
+        """
+        if self.redis_client is None:
+            return  # Redis 不可用时跳过限制检查（降级处理）
+
+        try:
+            # 60 秒冷却键
+            cooldown_key = f"code_cooldown:{identifier}:{code_type}"
+            if self.redis_client.exists(cooldown_key):
+                raise BusinessException(
+                    code=ErrorCode.SYSTEM_ERROR,
+                    message="发送过于频繁，请60秒后再试"
+                )
+
+            # 24 小时内发送次数上限
+            daily_key = f"code_daily:{identifier}"
+            daily_count = self.redis_client.get(daily_key)
+            if daily_count and int(daily_count) >= 10:
+                raise BusinessException(
+                    code=ErrorCode.SYSTEM_ERROR,
+                    message="今日发送次数已达上限，请明日再试"
+                )
+
+            # 设置冷却期（60 秒）
+            self.redis_client.setex(cooldown_key, 60, "1")
+
+            # 递增日计数（首次设置 24 小时 TTL）
+            pipe = self.redis_client.pipeline()
+            pipe.incr(daily_key)
+            pipe.expire(daily_key, 86400)
+            pipe.execute()
+
+        except BusinessException:
+            raise
+        except Exception as e:
+            logger.warning(f"频率限制检查失败（降级跳过）: {e}")
+
     def send_email_code(self, email: str, code_type: str = "register") -> str:
         """
         发送邮箱验证码
@@ -192,6 +248,9 @@ class CaptchaService:
                 message="验证码服务暂时不可用"
             )
 
+        # 频率限制检查（防止邮件轰炸）
+        self._check_send_rate_limit(email, code_type)
+
         try:
             key = f"verify_code:{email}:{code_type}"
             self.redis_client.setex(key, 300, code)  # 5分钟有效期
@@ -204,6 +263,8 @@ class CaptchaService:
             code_masked = self._get_code_hash(code)
             logger.info(f"邮箱验证码已发送: {email} (code: {code_masked})")
             return code
+        except BusinessException:
+            raise
         except Exception as e:
             logger.error(f"发送邮箱验证码失败: {e}")
             raise BusinessException(
@@ -231,6 +292,9 @@ class CaptchaService:
                 message="验证码服务暂时不可用"
             )
 
+        # 频率限制检查（防止短信轰炸）
+        self._check_send_rate_limit(phone, code_type)
+
         try:
             key = f"verify_code:{phone}:{code_type}"
             self.redis_client.setex(key, 300, code)  # 5分钟有效期
@@ -243,6 +307,8 @@ class CaptchaService:
             code_masked = self._get_code_hash(code)
             logger.info(f"短信验证码已发送: {phone} (code: {code_masked})")
             return code
+        except BusinessException:
+            raise
         except Exception as e:
             logger.error(f"发送短信验证码失败: {e}")
             raise BusinessException(

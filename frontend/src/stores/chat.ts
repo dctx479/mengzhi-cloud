@@ -91,78 +91,86 @@ export const useChatStore = defineStore('chat', () => {
       return
     }
 
+    // Capture chatId at call time to detect stale callbacks after chat switch
+    const activeChatId = currentChat.value.id
+
     messageLoading.value = true
     error.value = null
 
+    // Add user message immediately
+    const userMessage: Message = {
+      id: `temp-${Date.now()}`,
+      content,
+      role: 'user',
+      timestamp: new Date().toISOString(),
+      status: 'sending',
+      files: files,
+    }
+    messages.value.push(userMessage)
+
+    // Add AI placeholder message
+    const aiMessage: Message = {
+      id: `ai-${Date.now()}`,
+      content: '',
+      role: 'assistant',
+      timestamp: new Date().toISOString(),
+      status: 'sending',
+      isStreaming: useStream || false,
+    }
+    messages.value.push(aiMessage)
+    streamingMessageId.value = aiMessage.id
+
     try {
-      // Add user message immediately
-      const userMessage: Message = {
-        id: `temp-${Date.now()}`,
-        content,
-        role: 'user',
-        timestamp: new Date().toISOString(),
-        status: 'sending',
-        files: files,
-      }
-      messages.value.push(userMessage)
-
-      // Create AI message for streaming or regular response
-      const aiMessage: Message = {
-        id: `ai-${Date.now()}`,
-        content: '',
-        role: 'assistant',
-        timestamp: new Date().toISOString(),
-        status: 'sending',
-        isStreaming: useStream || false,
-      }
-      messages.value.push(aiMessage)
-      streamingMessageId.value = aiMessage.id
-
-      // Send to API with or without streaming
       if (useStream) {
-        // Stream response
         await chatAPI.sendMessageStream(
-          currentChat.value.id,
+          activeChatId,
           content,
           (chunk) => {
+            // Discard callbacks if user has switched to a different chat
+            if (currentChat.value?.id !== activeChatId) return
+            const idx = messages.value.findIndex((m) => m.id === aiMessage.id)
+            if (idx === -1) return
             if (chunk.type === 'chunk' && chunk.content) {
-              aiMessage.content += chunk.content
+              messages.value[idx].content += chunk.content
             } else if (chunk.type === 'done') {
-              aiMessage.status = 'sent'
-              aiMessage.isStreaming = false
+              messages.value[idx].status = 'sent'
+              messages.value[idx].isStreaming = false
               streamingMessageId.value = null
             } else if (chunk.type === 'error') {
-              aiMessage.status = 'failed'
-              aiMessage.content = `错误: ${chunk.error || 'Unknown error'}`
-              aiMessage.isStreaming = false
+              messages.value[idx].status = 'failed'
+              messages.value[idx].content = `错误: ${chunk.error || 'Unknown error'}`
+              messages.value[idx].isStreaming = false
               streamingMessageId.value = null
             }
           }
         )
       } else {
-        // Regular response
-        const response = await chatAPI.sendMessage(currentChat.value.id, content)
-        aiMessage.content = response.content
-        aiMessage.status = 'sent'
-        aiMessage.isStreaming = false
+        const response = await chatAPI.sendMessage(activeChatId, content)
+        const idx = messages.value.findIndex((m) => m.id === aiMessage.id)
+        if (idx !== -1) {
+          messages.value[idx].content = response.content
+          messages.value[idx].status = 'sent'
+          messages.value[idx].isStreaming = false
+        }
         streamingMessageId.value = null
       }
 
-      // Update user message
+      // Mark user message as sent
       const userIndex = messages.value.findIndex((m) => m.id === userMessage.id)
       if (userIndex !== -1) {
         messages.value[userIndex].status = 'sent'
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to send message'
-      // Mark messages as failed using findIndex (variables from try are out of scope)
-      const failedUserIndex = messages.value.findIndex((m) => m.status === 'sending' && m.role === 'user')
+      // Mark the specific messages as failed using their captured IDs
+      const failedUserIndex = messages.value.findIndex((m) => m.id === userMessage.id)
       if (failedUserIndex !== -1) {
         messages.value[failedUserIndex].status = 'failed'
       }
-      const failedAiIndex = messages.value.findIndex((m) => m.status === 'sending' && m.role === 'assistant')
+      const failedAiIndex = messages.value.findIndex((m) => m.id === aiMessage.id)
       if (failedAiIndex !== -1) {
         messages.value[failedAiIndex].status = 'failed'
+        messages.value[failedAiIndex].isStreaming = false
       }
       streamingMessageId.value = null
       throw err
@@ -176,7 +184,8 @@ export const useChatStore = defineStore('chat', () => {
     try {
       await chatAPI.deleteChat(chatId)
       chats.value = chats.value.filter((c) => c.id !== chatId)
-      totalChats.value--
+      // Guard against going below 0 if state is out of sync
+      totalChats.value = Math.max(0, totalChats.value - 1)
       if (currentChat.value?.id === chatId) {
         currentChat.value = null
         messages.value = []
@@ -298,6 +307,8 @@ export const useChatStore = defineStore('chat', () => {
     chats.value = []
     currentChat.value = null
     messages.value = []
+    loading.value = false
+    messageLoading.value = false
     currentPage.value = 1
     totalChats.value = 0
     error.value = null

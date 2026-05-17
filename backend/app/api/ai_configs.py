@@ -2,13 +2,14 @@
 租户AI配置管理API
 """
 
+import asyncio
 import base64
 import hashlib
 
 from loguru import logger
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 from cryptography.fernet import Fernet
 from typing import Optional
@@ -29,7 +30,16 @@ router = APIRouter()
 # 加密密钥 - 从 SECRET_KEY 确定性派生，确保重启后可解密历史数据
 # Fernet要求32字节密钥，先用SHA256派生固定长度密钥，再base64编码
 _raw_key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()  # 32字节
-cipher = Fernet(base64.urlsafe_b64encode(_raw_key))
+_cipher = Fernet(base64.urlsafe_b64encode(_raw_key))
+
+# 测试连接超时（秒）
+_TEST_TIMEOUT = 30
+
+# 允许的 AI 提供商白名单
+_ALLOWED_PROVIDERS = frozenset({
+    "openai", "azure", "anthropic", "deepseek",
+    "qwen", "wenxin", "glm", "spark", "moonshot", "custom"
+})
 
 
 # ==================== 请求体 Schema ====================
@@ -46,6 +56,22 @@ class CreateAIConfigRequest(BaseModel):
     name: Optional[str] = None  # 前端传入但后端不存储
 
     model_config = {"populate_by_name": True}
+
+    @field_validator("provider")
+    @classmethod
+    def validate_provider(cls, v: str) -> str:
+        if v.lower() not in _ALLOWED_PROVIDERS:
+            raise ValueError(f"不支持的 provider，允许值: {', '.join(sorted(_ALLOWED_PROVIDERS))}")
+        return v.lower()
+
+    @field_validator("api_key")
+    @classmethod
+    def validate_api_key(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("api_key 不能为空")
+        if len(v) > 512:
+            raise ValueError("api_key 长度不能超过 512 字符")
+        return v
 
 
 class UpdateAIConfigRequest(BaseModel):
@@ -65,7 +91,7 @@ class UpdateAIConfigRequest(BaseModel):
 
 def encrypt_api_key(api_key: str) -> str:
     """加密API密钥"""
-    return cipher.encrypt(api_key.encode()).decode()
+    return _cipher.encrypt(api_key.encode()).decode()
 
 
 def check_enterprise_admin(user_id: str, enterprise_id: int, db: Session) -> bool:
@@ -276,9 +302,19 @@ async def test_ai_config(
         api_key = decrypt_api_key(config.api_key_encrypted)
         provider = AIProviderFactory.create(provider_type=config.provider, api_key=api_key, base_url=config.base_url)
 
-        # 发送测试请求
+        # 发送测试请求（带超时保护）
         test_request = ChatCompletionRequest(messages=[ChatMessage(role="user", content="test")], max_tokens=10)
-        response = await provider.chat(test_request)
+        try:
+            response = await asyncio.wait_for(
+                provider.chat(test_request),
+                timeout=_TEST_TIMEOUT
+            )
+        except asyncio.TimeoutError:
+            logger.error(f"AI配置测试超时 (config_id={config_id}, timeout={_TEST_TIMEOUT}s)")
+            return JSONResponse(
+                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                content=error_response(ErrorCode.SYSTEM_ERROR, "配置测试超时，请检查网络或API地址").dict(),
+            )
 
         return success_response(
             data={"success": True, "message": "配置测试成功", "model": response.model}, message="配置测试成功"
@@ -286,7 +322,6 @@ async def test_ai_config(
 
     except Exception as e:
         logger.error(f"AI config operation failed: {str(e)}")
-        db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(ErrorCode.SYSTEM_ERROR, "配置测试失败").dict(),
@@ -329,8 +364,18 @@ async def get_available_providers(current_user: dict = Depends(get_current_user)
 
     if config and config.config_value:
         try:
-            enabled_ids = set(config.config_value) if isinstance(config.config_value, list) else set()
-        except (TypeError, ValueError):
+            import json as _json
+            # config_value 可能是 list（ORM JSON列）或 JSON 字符串
+            raw = config.config_value
+            if isinstance(raw, str):
+                raw = _json.loads(raw)
+            if isinstance(raw, list):
+                enabled_ids = set(raw)
+            else:
+                logger.warning("⚠️ WARNING: enabled_providers 格式无效，回退到全部启用")
+                enabled_ids = {p["id"] for p in all_providers}
+        except (TypeError, ValueError, _json.JSONDecodeError):
+            logger.warning("⚠️ WARNING: enabled_providers 解析失败，回退到全部启用")
             # config_value format invalid, fallback to all
             enabled_ids = {p["id"] for p in all_providers}
     else:

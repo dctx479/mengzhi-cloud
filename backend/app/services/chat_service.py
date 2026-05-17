@@ -13,6 +13,9 @@ from app.models.user_quota import UserQuota, QuotaType
 from app.services.ai.deepseek_client import get_deepseek_client
 from app.core.errors import BusinessException
 
+# 历史消息截断：最多保留最近 N 条消息，防止 token 超限
+MAX_HISTORY_MESSAGES = 20
+
 
 class ChatService:
     """对话服务"""
@@ -44,19 +47,24 @@ class ChatService:
             model=conv.model
         )
         self.db.add(user_msg)
-        self.db.commit()  # BUG FIX: 必须在调用AI前提交用户消息，否则history中不包含该消息
+        self.db.flush()  # flush 而非 commit，保持事务完整性
 
         # 构建历史消息
         history = self._build_message_history(conv.id)
 
-        # 调用AI
-        client = await get_deepseek_client()
-        response = await client.chat_completion(
-            messages=history,
-            system_prompt=self._get_system_prompt(conv.agent_type),
-            temperature=temperature,
-            max_tokens=conv.max_tokens
-        )
+        # 调用AI（失败时整个事务回滚，用户消息不会孤立存在）
+        try:
+            client = await get_deepseek_client()
+            response = await client.chat_completion(
+                messages=history,
+                system_prompt=self._get_system_prompt(conv.agent_type),
+                temperature=temperature,
+                max_tokens=conv.max_tokens
+            )
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"AI call failed, transaction rolled back: {str(e)}")
+            raise BusinessException(f"AI服务调用失败: {str(e)}")
 
         # 解析响应
         choice = response["choices"][0]
@@ -82,11 +90,11 @@ class ChatService:
         self.db.add(assistant_msg)
 
         # 更新对话统计
-        conv.message_count += 2
-        conv.total_tokens += total_tokens
-        conv.total_cost += cost
+        conv.message_count = (conv.message_count or 0) + 2
+        conv.total_tokens = (conv.total_tokens or 0) + total_tokens
+        conv.total_cost = (conv.total_cost or 0) + cost
 
-        # 更新配额
+        # 更新配额（先用后扣，AI 成功才扣减）
         quota.increment_chat_usage()
         quota.increment_token_usage(total_tokens)
 
@@ -110,7 +118,7 @@ class ChatService:
         # 获取或创建对话
         conv = self._get_or_create_conversation(user_id, conversation_id)
 
-        # 保存用户消息
+        # 保存用户消息（flush 不 commit，保持事务）
         user_msg = Message(
             conversation_id=conv.id,
             role=MessageRole.USER,
@@ -118,7 +126,7 @@ class ChatService:
             model=conv.model
         )
         self.db.add(user_msg)
-        self.db.commit()
+        self.db.flush()
 
         # 构建历史消息
         history = self._build_message_history(conv.id)
@@ -129,26 +137,31 @@ class ChatService:
         input_tokens = 0
         output_tokens = 0
 
-        async for chunk in client.chat_completion_stream(
-            messages=history,
-            system_prompt=self._get_system_prompt(conv.agent_type),
-            temperature=temperature,
-            max_tokens=conv.max_tokens
-        ):
-            if "choices" in chunk and len(chunk["choices"]) > 0:
-                delta = chunk["choices"][0].get("delta", {})
-                content_chunk = delta.get("content", "")
-                if content_chunk:
-                    full_content += content_chunk
-                    yield content_chunk
+        try:
+            async for chunk in client.chat_completion_stream(
+                messages=history,
+                system_prompt=self._get_system_prompt(conv.agent_type),
+                temperature=temperature,
+                max_tokens=conv.max_tokens
+            ):
+                if "choices" in chunk and len(chunk["choices"]) > 0:
+                    delta = chunk["choices"][0].get("delta", {})
+                    content_chunk = delta.get("content", "")
+                    if content_chunk:
+                        full_content += content_chunk
+                        yield content_chunk
 
-                # 最后一个chunk包含usage信息
-                if "usage" in chunk:
-                    usage = chunk["usage"]
-                    input_tokens = usage.get("prompt_tokens", 0)
-                    output_tokens = usage.get("completion_tokens", 0)
+                    # 最后一个chunk包含usage信息
+                    if "usage" in chunk:
+                        usage = chunk["usage"]
+                        input_tokens = usage.get("prompt_tokens", 0)
+                        output_tokens = usage.get("completion_tokens", 0)
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Stream AI call failed, transaction rolled back: {str(e)}")
+            raise BusinessException(f"AI流式服务调用失败: {str(e)}")
 
-        # 保存助手消息
+        # 保存助手消息（AI 成功完成后才持久化）
         total_tokens = input_tokens + output_tokens
         cost = client.calculate_cost(input_tokens, output_tokens)
 
@@ -166,11 +179,11 @@ class ChatService:
         self.db.add(assistant_msg)
 
         # 更新对话统计
-        conv.message_count += 2
-        conv.total_tokens += total_tokens
-        conv.total_cost += cost
+        conv.message_count = (conv.message_count or 0) + 2
+        conv.total_tokens = (conv.total_tokens or 0) + total_tokens
+        conv.total_cost = (conv.total_cost or 0) + cost
 
-        # 更新配额
+        # 更新配额（AI 成功才扣减）
         quota.increment_chat_usage()
         quota.increment_token_usage(total_tokens)
 
@@ -189,7 +202,11 @@ class ChatService:
         )
 
         if status:
-            query = query.filter(Conversation.status == ConversationStatus(status))
+            try:
+                query = query.filter(Conversation.status == ConversationStatus(status))
+            except ValueError:
+                # 非法 status 值忽略过滤，返回全部
+                logger.warning(f"Invalid conversation status filter: {status!r}, ignoring")
 
         total = query.count()
         conversations = query.order_by(desc(Conversation.updated_at)).offset(
@@ -326,10 +343,14 @@ class ChatService:
         return conv
 
     def _build_message_history(self, conversation_id: int) -> List[Dict[str, str]]:
-        """构建消息历史"""
+        """构建消息历史（截断到最近 MAX_HISTORY_MESSAGES 条，防止 token 超限）"""
         messages = self.db.query(Message).filter(
             Message.conversation_id == conversation_id
         ).order_by(Message.created_at).all()
+
+        # 截断：保留最近 N 条，确保上下文不超限
+        if len(messages) > MAX_HISTORY_MESSAGES:
+            messages = messages[-MAX_HISTORY_MESSAGES:]
 
         return [{"role": msg.role.value, "content": msg.content} for msg in messages]
 

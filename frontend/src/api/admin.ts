@@ -70,7 +70,9 @@ export const adminApi = {
       const usageRes = await api.get<APIResponseWrapper<AIUsageInner>>('/ai-usage')
       const usageInner = unwrapAdmin<AIUsageInner>(usageRes)
       totalAIUsage = (usageInner?.chat?.message_count || 0) + (usageInner?.content_generation?.record_count || 0)
-    } catch { /* ignore */ }
+    } catch (e) {
+      console.warn('⚠️ WARNING: Failed to fetch AI usage for stats panel', e)
+    }
     return {
       totalUsers: inner?.users?.total || 0,
       totalEnterprises: inner?.enterprises?.total || 0,
@@ -79,10 +81,10 @@ export const adminApi = {
     }
   },
 
-  getUsers: async (params?: { search?: string }): Promise<User[]> => {
+  getUsers: async (params?: { search?: string; page?: number; page_size?: number }): Promise<{ items: User[]; total: number }> => {
     const res = await api.get<APIResponseWrapper<ListResponse<User>>>('/users', { params })
     const inner = unwrapAdmin<ListResponse<User>>(res)
-    return inner?.items || []
+    return { items: inner?.items || [], total: inner?.total || 0 }
   },
   updateUser: async (id: number, data: Partial<User>) => {
     const res = await api.patch<APIResponseWrapper<User>>(`/users/${id}`, data)
@@ -90,10 +92,10 @@ export const adminApi = {
   },
   deleteUser: (id: number) => api.delete(`/users/${id}`),
 
-  getEnterprises: async (params?: { search?: string }): Promise<Enterprise[]> => {
+  getEnterprises: async (params?: { search?: string; page?: number; page_size?: number }): Promise<{ items: Enterprise[]; total: number }> => {
     const res = await api.get<APIResponseWrapper<ListResponse<Enterprise>>>('/enterprises', { params })
     const inner = unwrapAdmin<ListResponse<Enterprise>>(res)
-    return inner?.items || []
+    return { items: inner?.items || [], total: inner?.total || 0 }
   },
   updateEnterprise: async (id: number, data: Partial<Enterprise>) => {
     const res = await api.patch<APIResponseWrapper<Enterprise>>(`/enterprises/${id}`, data)

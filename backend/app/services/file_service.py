@@ -125,10 +125,16 @@ class FileService:
             # 完整文件路径
             filepath = os.path.join(save_dir, filename)
 
-            # 异步写入文件
+            # 重置文件指针（validate_image_file 已 seek(0)，但直接调用时可能未重置）
+            file.file.seek(0)
+
+            # 分块异步写入，避免将整个文件加载到内存
             async with aiofiles.open(filepath, 'wb') as f:
-                content = await file.read()
-                await f.write(content)
+                while True:
+                    chunk = await file.read(1024 * 1024)  # 1MB 块
+                    if not chunk:
+                        break
+                    await f.write(chunk)
 
             # 返回相对路径（用于URL）
             relative_path = filepath.replace("\\", "/")

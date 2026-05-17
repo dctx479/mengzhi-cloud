@@ -23,6 +23,7 @@ from pydantic import BaseModel
 
 from app.api.deps import get_db, get_current_user
 from app.services.file_service import FileService
+from app.services.auth_service import AuthService
 from app.core.responses import success_response, error_response
 from app.core.errors import BusinessException, ErrorCode
 from app.core.logging_config import logger
@@ -214,7 +215,8 @@ async def get_security_logs(
             "ip_address": log.ip_address or "",
             "user_agent": log.user_agent or "",
             "created_at": log.created_at.isoformat() if log.created_at else "",
-            "success": log.status == "success",
+            # log.status 可能是 Enum 或字符串，统一转为字符串后比较
+            "success": (log.status.value if hasattr(log.status, "value") else str(log.status)) == "success",
         }
         for log in logs
     ]
@@ -235,6 +237,20 @@ async def bind_phone(
     code = request.verification_code
     if not phone or not code:
         raise BusinessException(code=ErrorCode.PARAM_ERROR, message="手机号和验证码不能为空")
+
+    # 验证验证码（防止任意绑定）
+    auth_service = AuthService(db)
+    try:
+        auth_service.verify_code(identifier=phone, code_type="bind_phone", code=code)
+    except BusinessException:
+        raise BusinessException(code=ErrorCode.VERIFICATION_CODE_INVALID, message="验证码无效或已过期")
+
+    # 检查手机号是否已被其他用户使用
+    existing = auth_service.get_user_by_phone(phone)
+    if existing:
+        user_uuid = current_user.get("user_id")
+        if str(existing.user_uuid) != str(user_uuid):
+            raise BusinessException(code=ErrorCode.RECORD_ALREADY_EXISTS, message="该手机号已被其他账号绑定")
 
     user_uuid = current_user.get("user_id")
     user = db.query(User).filter(User.user_uuid == user_uuid).first()
@@ -260,6 +276,20 @@ async def bind_email(
     code = request.verification_code
     if not email or not code:
         raise BusinessException(code=ErrorCode.PARAM_ERROR, message="邮箱和验证码不能为空")
+
+    # 验证验证码（防止任意绑定）
+    auth_service = AuthService(db)
+    try:
+        auth_service.verify_code(identifier=email, code_type="bind_email", code=code)
+    except BusinessException:
+        raise BusinessException(code=ErrorCode.VERIFICATION_CODE_INVALID, message="验证码无效或已过期")
+
+    # 检查邮箱是否已被其他用户使用
+    existing = auth_service.get_user_by_email(email)
+    if existing:
+        user_uuid = current_user.get("user_id")
+        if str(existing.user_uuid) != str(user_uuid):
+            raise BusinessException(code=ErrorCode.RECORD_ALREADY_EXISTS, message="该邮箱已被其他账号绑定")
 
     user_uuid = current_user.get("user_id")
     user = db.query(User).filter(User.user_uuid == user_uuid).first()

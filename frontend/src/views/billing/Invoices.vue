@@ -105,17 +105,17 @@
                   {{ row.due_date }}
                 </el-descriptions-item>
                 <el-descriptions-item label="小计">
-                  ¥{{ row.amounts?.subtotal?.toFixed(2) || '0.00' }}
+                  ¥{{ parseFloat(row.amounts?.subtotal || 0).toFixed(2) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="折扣">
-                  ¥{{ row.amounts?.discount?.toFixed(2) || '0.00' }}
+                  ¥{{ parseFloat(row.amounts?.discount || 0).toFixed(2) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="税费">
-                  ¥{{ row.amounts?.tax?.toFixed(2) || '0.00' }}
+                  ¥{{ parseFloat(row.amounts?.tax || 0).toFixed(2) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="总金额">
                   <span class="total-amount">
-                    ¥{{ row.amounts?.total?.toFixed(2) || '0.00' }}
+                    ¥{{ parseFloat(row.amounts?.total || 0).toFixed(2) }}
                   </span>
                 </el-descriptions-item>
                 <el-descriptions-item v-if="row.payment?.method" label="支付方式">
@@ -170,7 +170,7 @@
 
         <el-table-column label="金额" width="120" sortable>
           <template #default="{ row }">
-            <span class="amount">¥{{ row.amounts?.total?.toFixed(2) || '0.00' }}</span>
+            <span class="amount">¥{{ parseFloat(row.amounts?.total || 0).toFixed(2) }}</span>
           </template>
         </el-table-column>
 
@@ -252,7 +252,7 @@
           </el-descriptions-item>
           <el-descriptions-item label="应付金额">
             <span class="payment-amount">
-              ¥{{ selectedInvoice.amounts?.total?.toFixed(2) || '0.00' }}
+              ¥{{ parseFloat(selectedInvoice.amounts?.total || 0).toFixed(2) }}
             </span>
           </el-descriptions-item>
         </el-descriptions>
@@ -424,7 +424,7 @@ const loadInvoices = async () => {
   }
 }
 
-// 更新状态统计
+// 更新状态统计（基于当前页数据，仅供参考）
 const updateStatusCounts = () => {
   const counts = {
     pending: 0,
@@ -435,8 +435,9 @@ const updateStatusCounts = () => {
   }
 
   invoices.value.forEach(invoice => {
-    if (counts.hasOwnProperty(invoice.status)) {
-      counts[invoice.status]++
+    const status = invoice.status
+    if (Object.prototype.hasOwnProperty.call(counts, status)) {
+      counts[status]++
     }
   })
 
@@ -464,7 +465,7 @@ const viewInvoiceDetail = async (invoiceId) => {
           h('h3', '账单详情'),
           h('p', [h('strong', '账单编号:'), ` ${invoice.invoice_number || '-'}`]),
           h('p', [h('strong', '账单周期:'), ` ${invoice.billing_period?.start || '-'} ~ ${invoice.billing_period?.end || '-'}`]),
-          h('p', [h('strong', '总金额:'), ` ¥${invoice.amounts?.total?.toFixed(2) || '0.00'}`]),
+          h('p', [h('strong', '总金额:'), ` ¥${parseFloat(invoice.amounts?.total || 0).toFixed(2)}`]),
           h('p', [h('strong', '状态:'), ` ${getInvoiceStatusText(invoice.status)}`]),
           h('h4', `计费记录 (${invoice.records?.length || 0}条)`),
           ...(invoice.records?.map(record =>
@@ -533,9 +534,24 @@ const confirmPayment = async () => {
 }
 
 // 下载账单
-const downloadInvoice = (invoiceId) => {
-  ElMessage.info('下载功能开发中...')
-  // TODO: 实现下载功能
+const downloadInvoice = async (invoiceId) => {
+  try {
+    const res = await http.get(`/v1/billing/invoices/${invoiceId}/download`, {
+      responseType: 'blob'
+    })
+    const blob = new Blob([res], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `invoice-${invoiceId}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('下载账单失败:', error)
+    ElMessage.error('下载账单失败')
+  }
 }
 
 const getBillingModeText = (mode) => {

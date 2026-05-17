@@ -498,9 +498,12 @@ const viewDetail = async (log: AuditLog) => {
     currentLog.value = data
 
     // 加载相关日志（同一资源的其他操作）
+    // 兼容后端返回 snake_case 字段（resource/resource_id）和类型定义的 camelCase
+    const resourceType = (log as any).resource || log.resourceType
+    const resourceId = (log as any).resource_id || log.resourceId
     const relatedRes = await auditLogsApi.getAuditLogs({
-      resourceType: log.resourceType,
-      resourceId: log.resourceId,
+      resourceType,
+      resourceId,
       pageSize: 10
     })
     relatedLogs.value = (relatedRes.data.data || []).filter(item => item.id !== log.id)
@@ -519,9 +522,11 @@ const viewRelatedLog = async (id: number) => {
     currentLog.value = data
 
     // 重新加载相关日志
+    const resourceType = (data as any).resource || data.resourceType
+    const resourceId = (data as any).resource_id || data.resourceId
     const relatedRes = await auditLogsApi.getAuditLogs({
-      resourceType: data.resourceType,
-      resourceId: data.resourceId,
+      resourceType,
+      resourceId,
       pageSize: 10
     })
     relatedLogs.value = (relatedRes.data.data || []).filter(item => item.id !== id)
@@ -548,10 +553,10 @@ const handleExport = async () => {
     const link = document.createElement('a')
     link.href = url
 
-    // 设置文件名
+    // 设置文件名（excel 格式被 API 降级为 csv，扩展名统一用实际格式）
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
-    const extension = exportForm.format === 'excel' ? 'xlsx' : exportForm.format
-    link.setAttribute('download', `audit-logs-${timestamp}.${extension}`)
+    const actualFormat = exportForm.format === 'excel' ? 'csv' : exportForm.format
+    link.setAttribute('download', `audit-logs-${timestamp}.${actualFormat}`)
 
     document.body.appendChild(link)
     link.click()

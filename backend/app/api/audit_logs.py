@@ -23,12 +23,38 @@ from app.core.logging_config import logger
 router = APIRouter()
 
 
+def _parse_date_range(
+    start_date: Optional[str],
+    end_date: Optional[str]
+) -> tuple:
+    """解析并验证时间范围参数，返回 (start_datetime, end_datetime) 或抛出 ValueError。
+
+    返回:
+        (start_datetime, end_datetime) — 均可为 None
+    异常:
+        ValueError: 格式错误或 start > end
+    """
+    start_datetime = None
+    end_datetime = None
+
+    if start_date:
+        start_datetime = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+
+    if end_date:
+        end_datetime = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+
+    if start_datetime and end_datetime and start_datetime > end_datetime:
+        raise ValueError("开始日期不能晚于结束日期")
+
+    return start_datetime, end_datetime
+
+
 @router.get("/", response_model=dict, tags=["审计日志"])
 async def list_audit_logs(
     user_id: Optional[int] = Query(None, description="用户ID"),
-    username: Optional[str] = Query(None, description="用户名（模糊搜索）"),
-    action: Optional[str] = Query(None, description="操作类型"),
-    resource: Optional[str] = Query(None, description="资源类型"),
+    username: Optional[str] = Query(None, max_length=100, description="用户名（模糊搜索）"),
+    action: Optional[str] = Query(None, max_length=50, description="操作类型"),
+    resource: Optional[str] = Query(None, max_length=50, description="资源类型"),
     resource_id: Optional[int] = Query(None, description="资源ID"),
     is_success: Optional[bool] = Query(None, description="是否成功"),
     start_date: Optional[str] = Query(None, description="开始日期（ISO格式）"),
@@ -44,33 +70,17 @@ async def list_audit_logs(
     需要管理员权限
     """
     try:
-        # 解析日期
-        start_datetime = None
-        end_datetime = None
-
-        if start_date:
-            try:
-                start_datetime = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-            except ValueError:
-                return JSONResponse(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    content=error_response(
-                        code=ErrorCode.INVALID_PARAMS,
-                        message="开始日期格式不正确，请使用ISO格式"
-                    ).dict()
-                )
-
-        if end_date:
-            try:
-                end_datetime = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-            except ValueError:
-                return JSONResponse(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    content=error_response(
-                        code=ErrorCode.INVALID_PARAMS,
-                        message="结束日期格式不正确，请使用ISO格式"
-                    ).dict()
-                )
+        # 解析并验证日期范围
+        try:
+            start_datetime, end_datetime = _parse_date_range(start_date, end_date)
+        except ValueError as e:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=error_response(
+                    code=ErrorCode.INVALID_PARAMS,
+                    message=str(e) if str(e) else "日期格式不正确，请使用ISO格式"
+                ).dict()
+            )
 
         # 查询日志
         result = AuditService.query_logs(
@@ -116,33 +126,17 @@ async def get_audit_statistics(
     需要管理员权限
     """
     try:
-        # 解析日期
-        start_datetime = None
-        end_datetime = None
-
-        if start_date:
-            try:
-                start_datetime = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-            except ValueError:
-                return JSONResponse(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    content=error_response(
-                        code=ErrorCode.INVALID_PARAMS,
-                        message="开始日期格式不正确，请使用ISO格式"
-                    ).dict()
-                )
-
-        if end_date:
-            try:
-                end_datetime = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-            except ValueError:
-                return JSONResponse(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    content=error_response(
-                        code=ErrorCode.INVALID_PARAMS,
-                        message="结束日期格式不正确，请使用ISO格式"
-                    ).dict()
-                )
+        # 解析并验证日期范围
+        try:
+            start_datetime, end_datetime = _parse_date_range(start_date, end_date)
+        except ValueError as e:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=error_response(
+                    code=ErrorCode.INVALID_PARAMS,
+                    message=str(e) if str(e) else "日期格式不正确，请使用ISO格式"
+                ).dict()
+            )
 
         # 获取统计信息
         stats = AuditService.get_statistics(
@@ -171,11 +165,11 @@ async def get_audit_statistics(
 async def export_audit_logs(
     format: str = Query("json", pattern="^(json|csv)$", description="导出格式（json/csv）"),
     user_id: Optional[int] = Query(None, description="用户ID"),
-    action: Optional[str] = Query(None, description="操作类型"),
-    resource: Optional[str] = Query(None, description="资源类型"),
+    action: Optional[str] = Query(None, max_length=50, description="操作类型"),
+    resource: Optional[str] = Query(None, max_length=50, description="资源类型"),
     start_date: Optional[str] = Query(None, description="开始日期（ISO格式）"),
     end_date: Optional[str] = Query(None, description="结束日期（ISO格式）"),
-    limit: int = Query(10000, ge=1, le=50000, description="最大导出数量"),
+    limit: int = Query(5000, ge=1, le=10000, description="最大导出数量（上限10000）"),
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -185,33 +179,17 @@ async def export_audit_logs(
     需要管理员权限
     """
     try:
-        # 解析日期
-        start_datetime = None
-        end_datetime = None
-
-        if start_date:
-            try:
-                start_datetime = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-            except ValueError:
-                return JSONResponse(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    content=error_response(
-                        code=ErrorCode.INVALID_PARAMS,
-                        message="开始日期格式不正确，请使用ISO格式"
-                    ).dict()
-                )
-
-        if end_date:
-            try:
-                end_datetime = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-            except ValueError:
-                return JSONResponse(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    content=error_response(
-                        code=ErrorCode.INVALID_PARAMS,
-                        message="结束日期格式不正确，请使用ISO格式"
-                    ).dict()
-                )
+        # 解析并验证日期范围
+        try:
+            start_datetime, end_datetime = _parse_date_range(start_date, end_date)
+        except ValueError as e:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=error_response(
+                    code=ErrorCode.INVALID_PARAMS,
+                    message=str(e) if str(e) else "日期格式不正确，请使用ISO格式"
+                ).dict()
+            )
 
         # 导出日志
         result = AuditService.export_logs(

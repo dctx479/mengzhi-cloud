@@ -66,9 +66,9 @@ async def create_order(
         "package_id": order.package_id,
         "package_name": order.package_name,
         "package_type": order.package_type,
-        "amount": float(order.amount) if order.amount else 0,
-        "original_amount": float(order.original_amount) if order.original_amount else None,
-        "discount_amount": float(order.discount_amount) if order.discount_amount else None,
+        "amount": str(order.amount) if order.amount is not None else "0",
+        "original_amount": str(order.original_amount) if order.original_amount is not None else None,
+        "discount_amount": str(order.discount_amount) if order.discount_amount is not None else None,
         "quotas": {
             "chat": order.chat_quota,
             "generation": order.generation_quota,
@@ -124,7 +124,7 @@ async def list_orders(
             "id": order.id,
             "order_no": order.order_no,
             "package_name": order.package_name,
-            "amount": float(order.amount) if order.amount else 0,
+            "amount": str(order.amount) if order.amount is not None else "0",
             "status": order.status.value if hasattr(order.status, "value") else order.status,
             "created_at": order.created_at,
         }
@@ -169,9 +169,9 @@ async def get_order(
         "package_id": order.package_id,
         "package_name": order.package_name,
         "package_type": order.package_type,
-        "amount": float(order.amount) if order.amount else 0,
-        "original_amount": float(order.original_amount) if order.original_amount else None,
-        "discount_amount": float(order.discount_amount) if order.discount_amount else None,
+        "amount": str(order.amount) if order.amount is not None else "0",
+        "original_amount": str(order.original_amount) if order.original_amount is not None else None,
+        "discount_amount": str(order.discount_amount) if order.discount_amount is not None else None,
         "quotas": {
             "chat": order.chat_quota,
             "generation": order.generation_quota,
@@ -223,7 +223,7 @@ async def create_payment(
         "id": payment.id,
         "payment_no": payment.payment_no,
         "order_id": payment.order_id,
-        "amount": float(payment.amount) if payment.amount else 0,
+        "amount": str(payment.amount) if payment.amount is not None else "0",
         "payment_method": (
             payment.payment_method.value if hasattr(payment.payment_method, "value") else payment.payment_method
         ),
@@ -326,10 +326,9 @@ async def cancel_order(
         取消结果
 
     注意:
-        只有待支付(pending)状态的订单才能取消
+        只有待支付(pending)或支付失败(failed)状态的订单才能取消
     """
-    from app.models.order import Order, OrderStatus
-    from datetime import datetime
+    from app.models.order import Order
 
     current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
     if not current_user_obj:
@@ -344,12 +343,10 @@ async def cancel_order(
     if not order:
         raise BusinessException(code=ErrorCode.RECORD_NOT_FOUND, message="订单不存在")
 
-    order_status = order.status.value if hasattr(order.status, "value") else order.status
-    if order_status != "pending":
-        raise BusinessException(code=ErrorCode.INVALID_OPERATION, message="只有待支付订单才能取消")
+    if not order.can_cancel():
+        raise BusinessException(code=ErrorCode.INVALID_OPERATION, message="只有待支付或支付失败的订单才能取消")
 
-    order.status = OrderStatus.CANCELLED
-    order.cancelled_at = datetime.utcnow()
+    order.mark_as_cancelled()
     db.commit()
     db.refresh(order)
 

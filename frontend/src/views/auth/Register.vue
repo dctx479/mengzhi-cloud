@@ -11,12 +11,15 @@
           :rules="rules"
           @keyup.enter="handleSubmit"
           class="register-form"
+          aria-label="注册表单"
         >
           <el-form-item prop="username">
             <el-input
               v-model="formData.username"
               placeholder="用户名"
               clearable
+              aria-label="用户名"
+              aria-required="true"
               @input="debouncedCheckUsername"
             >
               <template #prefix>
@@ -70,6 +73,8 @@
               type="password"
               placeholder="密码（8-32位，需包含大小写字母、数字和特殊字符）"
               show-password
+              aria-label="密码"
+              aria-required="true"
               @input="validatePasswordField"
             >
               <template #prefix>
@@ -91,6 +96,8 @@
               type="password"
               placeholder="确认密码"
               show-password
+              aria-label="确认密码"
+              aria-required="true"
             >
               <template #prefix>
                 <el-icon><Lock /></el-icon>
@@ -113,6 +120,8 @@
               size="large"
               class="register-btn"
               :loading="loading"
+              :disabled="loading"
+              aria-label="注册"
               @click="handleSubmit"
             >
               {{ loading ? '注册中...' : '注册' }}
@@ -154,7 +163,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElForm } from 'element-plus'
 import type { FormRules } from 'element-plus'
@@ -214,13 +223,20 @@ const emailSuggestions = computed(() => {
     .slice(0, 5)
 })
 
-// 防抖函数
+// 防抖函数 — 返回带 cancel 方法的版本以便组件卸载时清理
 const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number) => {
   let timer: ReturnType<typeof setTimeout> | null = null
-  return (...args: Parameters<T>) => {
+  const debounced = (...args: Parameters<T>) => {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => fn(...args), delay)
   }
+  debounced.cancel = () => {
+    if (timer) {
+      clearTimeout(timer)
+      timer = null
+    }
+  }
+  return debounced
 }
 
 // 验证结果缓存
@@ -421,7 +437,13 @@ const rules: FormRules = {
   ],
 }
 
+onUnmounted(() => {
+  debouncedCheckUsername.cancel()
+  debouncedCheckEmail.cancel()
+})
+
 const handleSubmit = async () => {
+  if (loading.value) return
   try {
     await formRef.value?.validate()
     loading.value = true

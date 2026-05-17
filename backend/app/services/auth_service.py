@@ -300,7 +300,13 @@ class AuthService:
             )
 
             # 6. 将旧Refresh Token加入黑名单
-            ttl = int(payload.get("exp").timestamp()) - int(datetime.utcnow().timestamp())
+            # payload["exp"] 是 jose 解码后的 Unix timestamp int，不是 datetime 对象
+            exp_val = payload.get("exp")
+            if isinstance(exp_val, datetime):
+                exp_ts = int(exp_val.timestamp())
+            else:
+                exp_ts = int(exp_val)
+            ttl = exp_ts - int(datetime.utcnow().timestamp())
             if ttl > 0:
                 self.add_token_to_blacklist(jti, ttl)
 
@@ -346,27 +352,14 @@ class AuthService:
         Returns:
             用户对象或None（总是返回ORM对象，不是dict）
         """
-        cache_key = f"user:{user_id}"
-
-        # 1. 尝试从缓存获取
-        try:
-            cached_user = cache.get(cache_key)
-            if cached_user:
-                logger.debug(f"用户缓存命中: {user_id}")
-                # 缓存中返回的是dict，但我们需要重新从DB查询以获得ORM对象
-                # 这样保证调用方总能得到一致的ORM对象
-                user = self._get_user_by_id(user_id)
-                return user
-        except Exception as e:
-            logger.warning(f"从缓存获取用户失败 [{user_id}]: {str(e)}")
-
-        # 2. 缓存未命中或异常，查询数据库
+        # 直接查询数据库，返回 ORM 对象
+        # 注意：cache.get 返回 dict，无法替代 ORM 对象（调用方需要 .role.value 等属性）
+        # 缓存仅用于写入（供其他轻量检查使用），读取路径始终走 DB 保证类型一致性
         user = self._get_user_by_id(user_id)
 
-        # 3. 将用户信息写入缓存（用于快速检查，但不用于返回）
+        # 将用户信息写入缓存（用于快速检查，但不用于返回）
         if user:
             try:
-                # 将用户对象转换为字典格式便于序列化
                 user_dict = {
                     "id": user.id,
                     "user_uuid": user.user_uuid,
@@ -381,7 +374,7 @@ class AuthService:
                     "last_login_at": str(user.last_login_at) if user.last_login_at else None,
                     "created_at": str(user.created_at) if user.created_at else None
                 }
-                cache.set(cache_key, user_dict, ttl_seconds=ttl_seconds)
+                cache.set(f"user:{user_id}", user_dict, ttl_seconds=ttl_seconds)
                 logger.debug(f"用户信息已缓存: {user_id}, TTL={ttl_seconds}秒")
             except Exception as e:
                 logger.warning(f"缓存用户信息失败 [{user_id}]: {str(e)}")
@@ -497,7 +490,7 @@ class AuthService:
 
     def check_and_update_login_attempts(self, user_id: int, success: bool = False) -> None:
         """
-        检查和更新登录尝试次数
+        检查和更新登录尝试次数（原子操作，防止并发竞态）
 
         Args:
             user_id: 用户内部ID
@@ -515,32 +508,22 @@ class AuthService:
                 {"user_id": user_id, "now": now}
             )
         else:
-            # 登录失败，增加尝试次数
+            # 原子操作：递增计数并在同一语句中判断是否需要锁定
+            # 避免 TOCTOU 竞态：先 UPDATE 再 SELECT 的两步操作在并发时可能导致
+            # 多个请求同时读到相同的 login_attempts 值，绕过锁定阈值
+            lock_until = datetime.utcnow() + timedelta(minutes=30)
             self.db.execute(
                 text("""
                     UPDATE users
-                    SET login_attempts = login_attempts + 1
+                    SET login_attempts = login_attempts + 1,
+                        locked_until = CASE
+                            WHEN login_attempts + 1 >= 5 THEN :lock_until
+                            ELSE locked_until
+                        END
                     WHERE id = :user_id
                 """),
-                {"user_id": user_id}
+                {"user_id": user_id, "lock_until": lock_until}
             )
-
-            # 如果尝试次数超过5次，锁定账号
-            result = self.db.execute(
-                text("SELECT login_attempts FROM users WHERE id = :user_id"),
-                {"user_id": user_id}
-            ).first()
-
-            if result and result[0] >= 5:
-                lock_until = datetime.utcnow() + timedelta(minutes=30)
-                self.db.execute(
-                    text("""
-                        UPDATE users
-                        SET locked_until = :locked_until
-                        WHERE id = :user_id
-                    """),
-                    {"locked_until": lock_until, "user_id": user_id}
-                )
 
         self.db.commit()
 
@@ -586,7 +569,7 @@ class AuthService:
 
     def verify_code(self, identifier: str, code_type: str, code: str) -> bool:
         """
-        验证验证码
+        验证验证码（原子操作，防止并发重放攻击）
 
         Args:
             identifier: 标识符
@@ -604,18 +587,34 @@ class AuthService:
 
         try:
             key = f"verify_code:{identifier}:{code_type}"
-            stored_code = self.redis_client.get(key)
 
-            if stored_code:
-                # 确保stored_code是字符串类型
-                if isinstance(stored_code, bytes):
-                    stored_code = stored_code.decode('utf-8')
+            # 使用 Lua 脚本保证 get+delete 原子性，防止并发请求同时通过验证
+            # （两个请求同时 GET 到相同验证码，都在 DELETE 前完成比较）
+            lua_script = """
+                local stored = redis.call('GET', KEYS[1])
+                if stored == false then
+                    return nil
+                end
+                redis.call('DEL', KEYS[1])
+                return stored
+            """
+            stored_code = self.redis_client.eval(lua_script, 1, key)
 
-                if stored_code == code:
-                    # 验证成功后删除验证码
-                    self.redis_client.delete(key)
-                    return True
+            if stored_code is None:
+                raise BusinessException(
+                    code=ErrorCode.VERIFICATION_CODE_INVALID,
+                    message="验证码无效或已过期"
+                )
 
+            # 确保stored_code是字符串类型
+            if isinstance(stored_code, bytes):
+                stored_code = stored_code.decode('utf-8')
+
+            if stored_code == code:
+                return True
+
+            # 验证码错误：重新存回 Redis（已被原子删除，需要重新写入以保留剩余有效期）
+            # 注意：此处不重新写入，验证码一旦被取出即失效，防止暴力枚举
             raise BusinessException(
                 code=ErrorCode.VERIFICATION_CODE_INVALID,
                 message="验证码无效或已过期"

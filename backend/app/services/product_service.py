@@ -18,6 +18,7 @@ from app.core.cache_manager import cache
 from app.core.constants import PRODUCT_CACHE_TTL, ALLOWED_SORT_FIELDS, ALLOWED_SORT_ORDERS
 
 from app.models.product import Product
+from app.models.user import User
 from app.schemas.products import (
     ProductCreateRequest,
     ProductUpdateRequest,
@@ -235,6 +236,10 @@ class ProductService:
                 except ValueError:
                     logger.warning(f"无效的产品状态: {status}")
 
+            # 精选筛选
+            if is_featured is not None:
+                filters.append(Product.is_featured == is_featured)
+
             # 应用所有筛选条件
             if filters:
                 query = query.filter(and_(*filters))
@@ -405,6 +410,17 @@ class ProductService:
             BusinessException: 产品不存在或更新失败
         """
         product = self.get_product_by_id(product_id)
+
+        # 权限检查：只有创建者或管理员可以更新产品
+        if product.created_by != user_id:
+            user = self.db.query(User).filter(User.id == user_id).first()
+            user_role = user.role.value if user and hasattr(user.role, 'value') else (str(user.role) if user else None)
+            if user_role not in ('admin', 'super_admin'):
+                logger.warning(f"用户{user_id}无权更新产品{product_id}（创建者={product.created_by}）")
+                raise BusinessException(
+                    code=ErrorCode.PERMISSION_DENIED,
+                    message="无权更新此产品"
+                )
 
         try:
             # 更新字段（仅更新提供的字段，映射到实际模型字段）

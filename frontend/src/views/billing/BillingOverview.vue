@@ -65,7 +65,7 @@
               </el-table-column>
               <el-table-column label="单价">
                 <template #default="{ row }">
-                  {{ row.unit_price?.toFixed(2) || '0.00' }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                  {{ parseFloat(row.unit_price || 0).toFixed(2) }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
                 </template>
               </el-table-column>
             </el-table>
@@ -73,10 +73,10 @@
           <div v-else class="simple-pricing">
             <el-descriptions :column="2" border size="small">
               <el-descriptions-item v-if="currentPlan.pricing_rules?.unit_price" label="单价">
-                {{ currentPlan.pricing_rules?.unit_price?.toFixed(2) || '0.00' }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                {{ parseFloat(currentPlan.pricing_rules?.unit_price || 0).toFixed(2) }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
               </el-descriptions-item>
               <el-descriptions-item v-if="currentPlan.pricing_rules?.monthly_fee" label="月费">
-                {{ currentPlan.pricing_rules?.monthly_fee?.toFixed(2) || '0.00' }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                {{ parseFloat(currentPlan.pricing_rules?.monthly_fee || 0).toFixed(2) }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
               </el-descriptions-item>
               <el-descriptions-item v-if="currentPlan.pricing_rules?.included_tokens" label="包含Token">
                 {{ currentPlan.pricing_rules?.included_tokens }}
@@ -111,7 +111,7 @@
               <div class="stat-icon">💰</div>
               <div class="stat-info">
                 <div class="stat-label">总费用</div>
-                <div class="stat-value">¥{{ statistics.total_amount?.toFixed(2) || '0.00' }}</div>
+                <div class="stat-value">¥{{ parseFloat(statistics.total_amount || 0).toFixed(2) }}</div>
               </div>
             </div>
           </el-col>
@@ -130,7 +130,7 @@
               <div class="stat-info">
                 <div class="stat-label">日均费用</div>
                 <div class="stat-value">
-                  ¥{{ ((statistics.total_amount || 0) / getDaysInMonth()).toFixed(2) }}
+                  ¥{{ (parseFloat(statistics.total_amount || 0) / getDaysInMonth()).toFixed(2) }}
                 </div>
               </div>
             </div>
@@ -152,7 +152,7 @@
             <el-table-column prop="quantity" label="使用量" width="120" />
             <el-table-column label="费用">
               <template #default="{ row }">
-                ¥{{ row.amount?.toFixed(2) || '0.00' }}
+                ¥{{ parseFloat(row.amount || 0).toFixed(2) }}
               </template>
             </el-table-column>
           </el-table>
@@ -185,7 +185,7 @@
         </el-table-column>
         <el-table-column label="金额" width="120">
           <template #default="{ row }">
-            ¥{{ row.amounts?.total?.toFixed(2) || '0.00' }}
+            ¥{{ parseFloat(row.amounts?.total || 0).toFixed(2) }}
           </template>
         </el-table-column>
         <el-table-column label="状态" width="100">
@@ -364,8 +364,8 @@ const getModeStatsData = () => {
   }))
 }
 
-// 加载当前计费方案
-const loadCurrentPlan = async () => {
+// 加载计费方案（当前方案 + 可用方案列表）
+const loadPlans = async () => {
   try {
     plansLoading.value = true
     const res = await http.get('/v1/billing/plans', {
@@ -373,27 +373,10 @@ const loadCurrentPlan = async () => {
     })
 
     if (res.code === 200) {
-      const plans = res.data
+      const plans = res.data || []
+      availablePlans.value = plans
       // 获取默认方案作为当前方案
-      currentPlan.value = plans.find(p => p.is_default) || plans[0]
-    }
-  } catch (error) {
-    console.error('加载计费方案失败:', error)
-  } finally {
-    plansLoading.value = false
-  }
-}
-
-// 加载可用计费方案
-const loadAvailablePlans = async () => {
-  try {
-    plansLoading.value = true
-    const res = await http.get('/v1/billing/plans', {
-      params: { is_active: true }
-    })
-
-    if (res.code === 200) {
-      availablePlans.value = res.data
+      currentPlan.value = plans.find(p => p.is_default) || plans[0] || null
     }
   } catch (error) {
     console.error('加载计费方案失败:', error)
@@ -421,8 +404,7 @@ const loadStatistics = async () => {
       statistics.total_amount = res.data.total_amount ?? 0
       statistics.total_records = res.data.total_records ?? 0
       statistics.by_mode = res.data.by_mode ?? {}
-    }
-  } catch (error) {
+    }  } catch (error) {
     console.error('加载统计数据失败:', error)
   } finally {
     statisticsLoading.value = false
@@ -487,8 +469,7 @@ const payInvoice = async (invoiceId) => {
 
 // 初始化
 onMounted(() => {
-  loadCurrentPlan()
-  loadAvailablePlans()
+  loadPlans()
   loadStatistics()
   loadRecentInvoices()
 })

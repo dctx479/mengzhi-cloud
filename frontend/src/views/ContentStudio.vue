@@ -50,8 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useProductStore } from '@/stores/product'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useContentGenerationStore } from '@/stores/content-generation'
 import TemplateSelector from '@/components/TemplateSelector.vue'
 import ConfigPanel from '@/components/ConfigPanel.vue'
@@ -60,7 +59,6 @@ import BatchTaskManager from '@/components/BatchTaskManager.vue'
 import HistoryPanel from '@/components/HistoryPanel.vue'
 import StatisticsPanel from '@/components/StatisticsPanel.vue'
 
-const productStore = useProductStore()
 const contentStore = useContentGenerationStore()
 
 const activeTab = ref('generation')
@@ -69,9 +67,6 @@ onMounted(async () => {
   // Fetch initial data with error handling
   try {
     await Promise.all([
-      productStore.fetchProducts().catch((err) => {
-        console.error('Failed to fetch products:', err)
-      }),
       contentStore.fetchTemplates().catch((err) => {
         console.error('Failed to fetch templates:', err)
       }),
@@ -85,6 +80,11 @@ onMounted(async () => {
   } catch (err) {
     console.error('Error during component initialization:', err)
   }
+})
+
+onUnmounted(() => {
+  // 断开 WebSocket 连接，防止组件卸载后仍有消息回调
+  contentStore.disconnectWebSocket()
 })
 </script>
 

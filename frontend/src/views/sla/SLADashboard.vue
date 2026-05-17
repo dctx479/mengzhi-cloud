@@ -265,187 +265,231 @@
   </div>
 </template>
 
-<script>
-import { ref, reactive, computed, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import http from '@/utils/http'
 
-export default {
-  name: 'SLADashboard',
-  setup() {
-    const loading = ref(false)
-    const showCreateDialog = ref(false)
-    const agreements = ref([])
-    const selectedAgreement = ref(null)
-    const metrics = ref({})
-    const violations = ref([])
-    const violationFilter = ref('')
-    const overview = reactive({
-      total_agreements: 0,
-      compliant_agreements: 0,
-      compliance_rate: 0,
-      violation_count: 0
-    })
+interface SLAAgreement {
+  id: string
+  name: string
+  level: string
+  availability_target: number
+  response_time_target: number
+  error_rate_target: number
+  throughput_target: number
+  start_date: string
+  end_date: string
+  is_active: boolean
+}
 
-    const newAgreement = reactive({
-      name: '',
-      level: 'STANDARD',
-      start_date: '',
-      end_date: '',
-      availability_target: 99.5,
-      response_time_target: 2000,
-      error_rate_target: 0.1,
-      throughput_target: 100
-    })
+interface MetricDetail {
+  actual?: number
+  avg?: number
+  is_compliant?: boolean
+  total_requests?: number
+  successful_requests?: number
+  failed_requests?: number
+  p50?: number
+  p95?: number
+  p99?: number
+}
 
-    // 计算属性
-    const filteredViolations = computed(() => {
-      if (!violationFilter.value) return violations.value
-      return violations.value.filter(v => v.severity === violationFilter.value)
-    })
+interface Violation {
+  metric_type: string
+  severity: string
+  target_value: number
+  actual_value: number
+  deviation_rate: number
+  violation_time: string
+  is_resolved: boolean
+  description: string
+}
 
-    // 方法
-    const loadOverview = async () => {
-      try {
-        const res = await http.get('/v1/sla/dashboard/overview')
-        const data = res.data ?? res
-        Object.assign(overview, data)
-      } catch (error) {
-        console.error('Failed to load overview:', error)
-      }
-    }
+const loading = ref(false)
+const showCreateDialog = ref(false)
+const agreements = ref<SLAAgreement[]>([])
+const selectedAgreement = ref<SLAAgreement | null>(null)
+const metrics = ref<Record<string, MetricDetail>>({})
+const violations = ref<Violation[]>([])
+const violationFilter = ref('')
+const overview = reactive({
+  total_agreements: 0,
+  compliant_agreements: 0,
+  compliance_rate: 0,
+  violation_count: 0
+})
 
-    const loadAgreements = async () => {
-      loading.value = true
-      try {
-        const res = await http.get('/v1/sla/agreements')
-        const rawData = res.data ?? res
-        agreements.value = Array.isArray(rawData) ? rawData : []
-        if (agreements.value.length > 0 && !selectedAgreement.value) {
-          selectedAgreement.value = agreements.value[0]
-          await loadMetrics()
-          await loadViolations()
-        }
-      } catch (error) {
-        ElMessage.error('加载协议列表失败')
-      } finally {
-        loading.value = false
-      }
-    }
+const newAgreement = reactive({
+  name: '',
+  level: 'STANDARD',
+  start_date: '',
+  end_date: '',
+  availability_target: 99.5,
+  response_time_target: 2000,
+  error_rate_target: 0.1,
+  throughput_target: 100
+})
 
-    const loadMetrics = async () => {
-      if (!selectedAgreement.value) return
-      try {
-        const res = await http.get(`/v1/sla/metrics/realtime/${selectedAgreement.value.id}`)
-        const data = res.data ?? res
-        metrics.value = data.metrics || {}
-      } catch (error) {
-        ElMessage.error('加载指标数据失败')
-      }
-    }
+// 自动刷新定时器
+let refreshTimer: ReturnType<typeof setInterval> | null = null
 
-    const loadViolations = async () => {
-      if (!selectedAgreement.value) return
-      try {
-        const res = await http.get(`/v1/sla/violations/${selectedAgreement.value.id}?days=7`)
-        const rawViolations = res.data ?? res
-        violations.value = Array.isArray(rawViolations) ? rawViolations : []
-      } catch (error) {
-        ElMessage.error('加载违约记录失败')
-      }
-    }
+// 计算属性
+const filteredViolations = computed(() => {
+  if (!violationFilter.value) return violations.value
+  return violations.value.filter((v: Violation) => v.severity === violationFilter.value)
+})
 
-    const viewMetrics = async (agreement) => {
-      selectedAgreement.value = agreement
-      await loadMetrics()
-      await loadViolations()
-      // 滚动到指标区域
-      document.querySelector('.metrics-section')?.scrollIntoView({ behavior: 'smooth' })
-    }
-
-    const viewReport = async (agreement) => {
-      try {
-        const res = await http.get(`/v1/sla/reports/daily/${agreement.id}`)
-        // TODO: 显示报告详情
-        console.log('Report:', res.data ?? res)
-        ElMessage.success('报告生成成功')
-      } catch (error) {
-        ElMessage.error('生成报告失败')
-      }
-    }
-
-    const refreshMetrics = async () => {
-      await loadMetrics()
-      await loadViolations()
-      ElMessage.success('数据已刷新')
-    }
-
-    const createAgreement = async () => {
-      try {
-        const data = {
-          ...newAgreement,
-          start_date: newAgreement.start_date ? new Date(newAgreement.start_date).toISOString().split('T')[0] : '',
-          end_date: newAgreement.end_date ? new Date(newAgreement.end_date).toISOString().split('T')[0] : ''
-        }
-        await http.post('/v1/sla/agreements', data)
-        ElMessage.success('协议创建成功')
-        showCreateDialog.value = false
-        await loadAgreements()
-        await loadOverview()
-      } catch (error) {
-        ElMessage.error('创建协议失败')
-      }
-    }
-
-    const getLevelType = (level) => {
-      const types = {
-        BASIC: 'info',
-        STANDARD: '',
-        PREMIUM: 'success',
-        ENTERPRISE: 'warning'
-      }
-      return types[level] || ''
-    }
-
-    const getSeverityType = (severity) => {
-      const types = {
-        LOW: 'info',
-        MEDIUM: 'warning',
-        HIGH: 'danger',
-        CRITICAL: 'danger'
-      }
-      return types[severity] || ''
-    }
-
-    // 生命周期
-    onMounted(async () => {
-      await loadOverview()
-      await loadAgreements()
-    })
-
-    return {
-      loading,
-      showCreateDialog,
-      agreements,
-      selectedAgreement,
-      metrics,
-      violations,
-      violationFilter,
-      overview,
-      newAgreement,
-      filteredViolations,
-      loadAgreements,
-      loadMetrics,
-      loadViolations,
-      viewMetrics,
-      viewReport,
-      refreshMetrics,
-      createAgreement,
-      getLevelType,
-      getSeverityType
-    }
+// 方法
+const loadOverview = async () => {
+  try {
+    const res = await http.get('/v1/sla/dashboard/overview')
+    const data = (res as any).data ?? res
+    Object.assign(overview, data)
+  } catch (error) {
+    console.error('Failed to load overview:', error)
   }
 }
+
+const loadAgreements = async () => {
+  loading.value = true
+  try {
+    const res = await http.get('/v1/sla/agreements')
+    const rawData = (res as any).data ?? res
+    // 兼容分页格式 {items, total} 和裸数组两种响应
+    agreements.value = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData?.items)
+        ? rawData.items
+        : []
+    if (agreements.value.length > 0 && !selectedAgreement.value) {
+      selectedAgreement.value = agreements.value[0]
+      await loadMetrics()
+      await loadViolations()
+    }
+  } catch (error) {
+    ElMessage.error('加载协议列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+const loadMetrics = async () => {
+  if (!selectedAgreement.value) return
+  try {
+    const res = await http.get(`/v1/sla/metrics/realtime/${selectedAgreement.value.id}`)
+    const data = (res as any).data ?? res
+    metrics.value = data.metrics || {}
+  } catch (error) {
+    ElMessage.error('加载指标数据失败')
+  }
+}
+
+const loadViolations = async () => {
+  if (!selectedAgreement.value) return
+  try {
+    const res = await http.get(`/v1/sla/violations/${selectedAgreement.value.id}?days=7`)
+    const rawViolations = (res as any).data ?? res
+    violations.value = Array.isArray(rawViolations) ? rawViolations : []
+  } catch (error) {
+    ElMessage.error('加载违约记录失败')
+  }
+}
+
+const viewMetrics = async (agreement: SLAAgreement) => {
+  selectedAgreement.value = agreement
+  await loadMetrics()
+  await loadViolations()
+  // 滚动到指标区域
+  document.querySelector('.metrics-section')?.scrollIntoView({ behavior: 'smooth' })
+}
+
+const viewReport = async (agreement: SLAAgreement) => {
+  try {
+    const res = await http.get(`/v1/sla/reports/daily/${agreement.id}`)
+    // TODO: 显示报告详情
+    console.log('Report:', (res as any).data ?? res)
+    ElMessage.success('报告生成成功')
+  } catch (error) {
+    ElMessage.error('生成报告失败')
+  }
+}
+
+const refreshMetrics = async () => {
+  await loadMetrics()
+  await loadViolations()
+  ElMessage.success('数据已刷新')
+}
+
+const resetNewAgreement = () => {
+  Object.assign(newAgreement, {
+    name: '',
+    level: 'STANDARD',
+    start_date: '',
+    end_date: '',
+    availability_target: 99.5,
+    response_time_target: 2000,
+    error_rate_target: 0.1,
+    throughput_target: 100
+  })
+}
+
+const createAgreement = async () => {
+  try {
+    const data = {
+      ...newAgreement,
+      start_date: newAgreement.start_date ? new Date(newAgreement.start_date).toISOString().split('T')[0] : '',
+      end_date: newAgreement.end_date ? new Date(newAgreement.end_date).toISOString().split('T')[0] : ''
+    }
+    await http.post('/v1/sla/agreements', data)
+    ElMessage.success('协议创建成功')
+    showCreateDialog.value = false
+    resetNewAgreement()
+    await loadAgreements()
+    await loadOverview()
+  } catch (error) {
+    ElMessage.error('创建协议失败')
+  }
+}
+
+const getLevelType = (level: string) => {
+  const types: Record<string, string> = {
+    BASIC: 'info',
+    STANDARD: '',
+    PREMIUM: 'success',
+    ENTERPRISE: 'warning'
+  }
+  return types[level] || ''
+}
+
+const getSeverityType = (severity: string) => {
+  const types: Record<string, string> = {
+    LOW: 'info',
+    MEDIUM: 'warning',
+    HIGH: 'danger',
+    CRITICAL: 'danger'
+  }
+  return types[severity] || ''
+}
+
+// 生命周期
+onMounted(async () => {
+  await loadOverview()
+  await loadAgreements()
+  // 每60秒自动刷新指标
+  refreshTimer = setInterval(async () => {
+    if (selectedAgreement.value) {
+      await loadMetrics()
+    }
+  }, 60000)
+})
+
+onUnmounted(() => {
+  if (refreshTimer !== null) {
+    clearInterval(refreshTimer)
+    refreshTimer = null
+  }
+})
 </script>
 
 <style scoped>

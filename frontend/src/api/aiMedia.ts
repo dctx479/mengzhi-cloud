@@ -35,7 +35,10 @@ const COST_SUMMARY_EMPTY: AIMediaCostSummary = { total_cost: 0, total_tasks: 0, 
 export const aiMediaApi = {
   getProviders: async (params?: { providerType?: MediaProviderType; includeInactive?: boolean }): Promise<AIMediaProvider[]> => {
     const res = await request.get<APIResponse<ListResponse<AIMediaProvider>>>('/v1/ai-media/admin/media-providers', {
-      params,
+      params: params ? {
+        provider_type: params.providerType,
+        include_inactive: params.includeInactive,
+      } : undefined,
     })
     const data = unwrap<ListResponse<AIMediaProvider>>(res)
     return data?.items ?? []
@@ -77,7 +80,7 @@ export const aiMediaApi = {
 
   getCosts: async (params?: { mediaType?: MediaProviderType }): Promise<AIMediaCostSummary> => {
     const res = await request.get<APIResponse<AIMediaCostSummary>>('/v1/ai-media/admin/media-generation/costs', {
-      params,
+      params: params ? { media_type: params.mediaType } : undefined,
     })
     return unwrap<AIMediaCostSummary>(res) ?? COST_SUMMARY_EMPTY
   },
@@ -88,7 +91,14 @@ export const aiMediaApi = {
     page?: number
     pageSize?: number
   }): Promise<{ items: AIMediaTask[]; total: number; page: number }> => {
-    const res = await request.get<APIResponse<ListResponse<AIMediaTask>>>('/v1/ai-media/tasks', { params })
+    const res = await request.get<APIResponse<ListResponse<AIMediaTask>>>('/v1/ai-media/tasks', {
+      params: params ? {
+        status: params.status,
+        media_type: params.mediaType,
+        page: params.page,
+        page_size: params.pageSize,
+      } : undefined,
+    })
     const data = unwrap<ListResponse<AIMediaTask>>(res)
     return { items: data?.items ?? [], total: data?.total ?? 0, page: data?.page ?? 1 }
   },

@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { ElMessage } from 'element-plus'
@@ -201,26 +201,12 @@ onMounted(async () => {
   if (productStore.products.length === 0) {
     await productStore.fetchProducts()
   }
+})
 
-  // 为产品添加模拟的农产品特定字段（实际项目中应从 API 返回）
-  productStore.products.forEach((product) => {
-    if (!product.origin) {
-      const regions = ['锡林郭勒盟', '呼伦贝尔市', '赤峰市', '通辽市']
-      product.origin = regions[Math.floor(Math.random() * regions.length)]
-    }
-    if (!product.culturalTags) {
-      product.culturalTags = [culturalTags[Math.floor(Math.random() * culturalTags.length)]]
-    }
-    if (product.hasOrganic === undefined) {
-      product.hasOrganic = Math.random() > 0.7
-    }
-    if (product.hasGeo === undefined) {
-      product.hasGeo = Math.random() > 0.8
-    }
-    if (product.unit === undefined) {
-      product.unit = '件'
-    }
-  })
+onUnmounted(() => {
+  // 离开页面时重置快速预览状态，避免内存泄漏
+  showQuickView.value = false
+  selectedQuickViewProduct.value = undefined
 })
 </script>
 

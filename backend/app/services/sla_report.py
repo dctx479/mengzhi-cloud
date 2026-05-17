@@ -152,13 +152,22 @@ class SLAReportService:
         start_ts = start_time.isoformat()
         end_ts = end_time.isoformat()
 
-        # 获取指标数据
-        metrics = self.db.query(SLAMetric).filter(
-            SLAMetric.agreement_id == agreement_id,
-            SLAMetric.period_start >= start_ts,
-            SLAMetric.period_end >= start_ts,
-            SLAMetric.deleted_at.is_(None)
-        ).all()
+        # 按指标类型分别查询，避免全量加载后 Python 过滤（内存效率）
+        def _query_metrics(metric_type: MetricType) -> List[SLAMetric]:
+            return self.db.query(SLAMetric).filter(
+                SLAMetric.agreement_id == agreement_id,
+                SLAMetric.metric_type == metric_type,
+                SLAMetric.period_start >= start_ts,
+                SLAMetric.period_end <= end_ts,
+                SLAMetric.deleted_at.is_(None)
+            ).all()
+
+        availability_metrics = _query_metrics(MetricType.AVAILABILITY)
+        response_time_metrics = _query_metrics(MetricType.RESPONSE_TIME)
+        error_rate_metrics = _query_metrics(MetricType.ERROR_RATE)
+
+        # 合并用于总体统计
+        metrics = availability_metrics + response_time_metrics + error_rate_metrics
 
         # 获取违约记录
         violations = self.db.query(SLAViolation).filter(
@@ -167,11 +176,6 @@ class SLAReportService:
             SLAViolation.violation_time <= end_ts,
             SLAViolation.deleted_at.is_(None)
         ).all()
-
-        # 统计各类指标
-        availability_metrics = [m for m in metrics if m.metric_type == MetricType.AVAILABILITY]
-        response_time_metrics = [m for m in metrics if m.metric_type == MetricType.RESPONSE_TIME]
-        error_rate_metrics = [m for m in metrics if m.metric_type == MetricType.ERROR_RATE]
 
         # 计算总体达成率
         total_metrics = len(metrics)
@@ -303,17 +307,24 @@ class SLAReportService:
         Returns:
             Dict: 趋势分析
         """
-        # 获取历史数据（过去30天）
+        # 获取历史数据（过去30天），按指标类型分别查询避免全量加载
         history_start = start_time - timedelta(days=30)
         history_start_ts = history_start.isoformat()
 
-        metrics = self.db.query(SLAMetric).filter(
-            SLAMetric.agreement_id == agreement_id,
-            SLAMetric.period_start >= history_start_ts,
-            SLAMetric.deleted_at.is_(None)
-        ).order_by(SLAMetric.period_start).all()
+        def _query_trend_metrics(metric_type: MetricType) -> List[float]:
+            rows = self.db.query(SLAMetric.actual_value).filter(
+                SLAMetric.agreement_id == agreement_id,
+                SLAMetric.metric_type == metric_type,
+                SLAMetric.period_start >= history_start_ts,
+                SLAMetric.deleted_at.is_(None)
+            ).order_by(SLAMetric.period_start).all()
+            return [r[0] for r in rows]
 
-        if not metrics:
+        availability_values = _query_trend_metrics(MetricType.AVAILABILITY)
+        response_time_values = _query_trend_metrics(MetricType.RESPONSE_TIME)
+        error_rate_values = _query_trend_metrics(MetricType.ERROR_RATE)
+
+        if not availability_values and not response_time_values and not error_rate_values:
             return {
                 "availability_trend": "stable",
                 "response_time_trend": "stable",
@@ -321,17 +332,10 @@ class SLAReportService:
                 "overall_trend": "stable",
             }
 
-        # 分析可用性趋势
-        availability_metrics = [m for m in metrics if m.metric_type == MetricType.AVAILABILITY]
-        availability_trend = self._calculate_trend([m.actual_value for m in availability_metrics])
-
-        # 分析响应时间趋势
-        response_time_metrics = [m for m in metrics if m.metric_type == MetricType.RESPONSE_TIME]
-        response_time_trend = self._calculate_trend([m.actual_value for m in response_time_metrics])
-
-        # 分析错误率趋势
-        error_rate_metrics = [m for m in metrics if m.metric_type == MetricType.ERROR_RATE]
-        error_rate_trend = self._calculate_trend([m.actual_value for m in error_rate_metrics])
+        # 分析各指标趋势
+        availability_trend = self._calculate_trend(availability_values)
+        response_time_trend = self._calculate_trend(response_time_values)
+        error_rate_trend = self._calculate_trend(error_rate_values)
 
         # 综合趋势
         trends = [availability_trend, response_time_trend, error_rate_trend]

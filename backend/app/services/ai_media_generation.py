@@ -29,16 +29,28 @@ from app.services.ai_media_providers import (
     build_media_provider_client,
 )
 
-_raw_key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()
-cipher = Fernet(base64.urlsafe_b64encode(_raw_key))
+_cipher: Optional[Fernet] = None
+
+
+def _get_cipher() -> Fernet:
+    """延迟初始化 Fernet cipher，避免模块导入时 SECRET_KEY 未就绪。"""
+    global _cipher
+    if _cipher is None:
+        _raw_key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()
+        _cipher = Fernet(base64.urlsafe_b64encode(_raw_key))
+    return _cipher
 
 
 def encrypt_media_api_key(api_key: str) -> str:
-    return cipher.encrypt(api_key.encode()).decode()
+    return _get_cipher().encrypt(api_key.encode()).decode()
 
 
 def decrypt_media_api_key(api_key_encrypted: str) -> str:
-    return cipher.decrypt(api_key_encrypted.encode()).decode()
+    from cryptography.fernet import InvalidToken
+    try:
+        return _get_cipher().decrypt(api_key_encrypted.encode()).decode()
+    except InvalidToken as exc:
+        raise ValueError("API密钥解密失败，密钥可能已更换或数据已损坏") from exc
 
 
 class AIMediaGenerationService:
@@ -149,6 +161,9 @@ class AIMediaGenerationService:
         return task
 
     def cancel_task(self, task: MediaGenerationTask) -> MediaGenerationTask:
+        # 终态任务不可取消
+        if task.status in (MediaTaskStatus.SUCCEEDED, MediaTaskStatus.FAILED, MediaTaskStatus.CANCELED):
+            return task
         task.status = MediaTaskStatus.CANCELED
         task.completed_at = datetime.now(timezone.utc)
         self.db.commit()
@@ -260,7 +275,10 @@ class AIMediaGenerationService:
         )
 
     def get_provider_client(self, provider: MediaProvider):
-        api_key = decrypt_media_api_key(provider.api_key_encrypted)
+        try:
+            api_key = decrypt_media_api_key(provider.api_key_encrypted)
+        except ValueError as exc:
+            raise MediaProviderError(f"服务商API密钥无法解密: {exc}") from exc
         return build_media_provider_client(provider, api_key)
 
     async def validate_provider(self, provider: MediaProvider) -> Dict[str, Any]:
@@ -335,9 +353,10 @@ class AIMediaGenerationService:
             if task.provider:
                 task.provider.record_success()
             self._replace_task_results(task, results)
+            # 在同一事务内暂存费用记录，避免 commit 后 record_cost 失败导致费用丢失
+            self._stage_cost_record(task)
             self.db.commit()
             self.db.refresh(task)
-            self.record_cost(task)
             return
         if status == MediaTaskStatus.FAILED:
             task.completed_at = datetime.now(timezone.utc)
@@ -366,6 +385,29 @@ class AIMediaGenerationService:
                     metadata_json=item.metadata,
                 )
             )
+
+    def _stage_cost_record(self, task: MediaGenerationTask) -> None:
+        """在当前 DB session 中暂存费用记录，不单独 commit（由调用方统一提交）。"""
+        if not task.provider:
+            return
+        existing = self.db.query(MediaGenerationCost).filter(MediaGenerationCost.task_id == task.id).first()
+        if existing:
+            return
+        unit_count = task.result_count
+        if task.media_type == MediaProviderType.VIDEO and task.duration:
+            unit_count = task.duration
+        self.db.add(
+            MediaGenerationCost(
+                task_id=task.id,
+                provider_id=task.provider_id,
+                user_id=task.user_id,
+                enterprise_id=task.enterprise_id,
+                media_type=task.media_type,
+                unit_count=unit_count,
+                unit_price=task.provider.cost_per_unit,
+                total_amount=task.cost_amount,
+            )
+        )
 
     def _clear_primary_provider(self, provider_type: MediaProviderType, exclude_id: Optional[int] = None) -> None:
         query = self.db.query(MediaProvider).filter(

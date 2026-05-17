@@ -511,8 +511,8 @@ class QuotaService:
                     # 查询数据库中的配额
                     query = self.db.query(TenantQuota).filter(
                         and_(
-                            TenantQuota.resource_type.value == resource_type_str,
-                            TenantQuota.period_type.value == period_type_str,
+                            TenantQuota.resource_type == resource_type_str,
+                            TenantQuota.period_type == period_type_str,
                             TenantQuota.is_active == 1
                         )
                     )
@@ -640,6 +640,17 @@ class QuotaService:
             logger.warning(f"配额不足: {message}")
             return False, message
 
+        # 重新以行锁获取配额，防止并发超扣
+        quota = (
+            self.db.query(TenantQuota)
+            .filter(TenantQuota.id == quota.id)
+            .with_for_update()
+            .first()
+        )
+        if not quota or not quota.is_sufficient(amount):
+            remaining = quota.get_remaining() if quota else 0
+            return False, f"配额不足，剩余: {remaining}, 需要: {amount}"
+
         # 扣减配额
         quota.increment_usage(amount)
 
@@ -662,7 +673,12 @@ class QuotaService:
             quota.last_alert_level = alert_level
             quota.last_alert_at = datetime.utcnow()
 
-        self.db.commit()
+        try:
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"配额扣减提交失败: {e}")
+            raise
 
         logger.info(
             f"配额扣减成功: {resource_type.value}, "

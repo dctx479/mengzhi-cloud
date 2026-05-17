@@ -622,16 +622,16 @@ async def get_reconciliation_statistics(
             "success_count": sum(1 for r in records if r.status == ReconciliationStatus.SUCCESS),
             "partial_count": sum(1 for r in records if r.status == ReconciliationStatus.PARTIAL),
             "failed_count": sum(1 for r in records if r.status == ReconciliationStatus.FAILED),
-            "total_differences": sum(r.difference_count for r in records),
-            "total_matched_amount": float(sum(r.matched_amount for r in records if r.matched_amount)),
-            "total_difference_amount": float(sum(r.difference_amount for r in records if r.difference_amount)),
+            "total_differences": sum((r.difference_count or 0) for r in records),
+            "total_matched_amount": float(sum((r.matched_amount or 0) for r in records)),
+            "total_difference_amount": float(sum((r.difference_amount or 0) for r in records)),
             "average_match_rate": 0
         }
 
         # 计算平均匹配率
         if records:
-            total_local_count = sum(r.total_local_count for r in records)
-            total_matched_count = sum(r.matched_count for r in records)
+            total_local_count = sum((r.total_local_count or 0) for r in records)
+            total_matched_count = sum((r.matched_count or 0) for r in records)
             if total_local_count > 0:
                 statistics["average_match_rate"] = round(
                     total_matched_count / total_local_count * 100, 2

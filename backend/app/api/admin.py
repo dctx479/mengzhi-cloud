@@ -15,19 +15,38 @@
 8. GET /api/admin/ai-usage - AI使用统计
 """
 
-from fastapi import APIRouter, Depends, Query, status
+import logging
+
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from sqlalchemy import text, func
-from typing import Optional
+from sqlalchemy import func
+from typing import Optional, List
 from datetime import datetime, timedelta
 
 from app.core.responses import APIResponse
 from app.core.errors import ErrorCode, ERROR_MESSAGES, BusinessException
 from app.api.deps import get_db, require_admin
 from app.models import User, Enterprise, Message, ContentRecord, SystemConfig
+from app.models.enterprise import VerifyStatus, PlanType
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+# ==================== 请求体模型 ====================
+
+
+class UpdateUserRequest(BaseModel):
+    status: Optional[str] = None
+    role: Optional[str] = None
+
+
+class UpdateEnterpriseRequest(BaseModel):
+    verify_status: Optional[str] = None
+    plan_type: Optional[str] = None
+    reject_reason: Optional[str] = None
 
 
 # ==================== 1. 用户列表 ====================
@@ -75,6 +94,7 @@ async def list_users(
             data={"items": [u.to_dict() for u in users], "total": total, "page": page, "page_size": page_size},
         )
     except Exception as e:
+        logger.error("⚠️ WARNING: list_users 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
@@ -84,8 +104,7 @@ async def list_users(
 @router.patch("/users/{user_id}", response_model=APIResponse, summary="更新用户", tags=["管理员"])
 async def update_user(
     user_id: int,
-    status: Optional[str] = None,
-    role: Optional[str] = None,
+    body: UpdateUserRequest,
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> APIResponse:
@@ -95,14 +114,30 @@ async def update_user(
         if not user:
             return APIResponse(code=404, message="用户不存在", data=None)
 
-        if status:
-            user.status = status
-        if role:
+        if body.status:
+            from app.models.user import UserStatus
+            valid_statuses = [s.value for s in UserStatus]
+            if body.status not in valid_statuses:
+                return APIResponse(
+                    code=400,
+                    message=f"无效的状态值，允许的值: {', '.join(valid_statuses)}",
+                    data=None,
+                )
+            user.status = body.status
+
+        if body.role:
+            # 防止管理员降级自己
+            if str(user.user_uuid) == current_user["user_id"]:
+                return APIResponse(code=400, message="不能修改自己的角色", data=None)
             from app.models.user import UserRole
             valid_roles = [r.value for r in UserRole]
-            if role not in valid_roles:
-                return APIResponse(code=400, message=f"无效的角色值，允许的值: {', '.join(valid_roles)}", data=None)
-            user.role = role
+            if body.role not in valid_roles:
+                return APIResponse(
+                    code=400,
+                    message=f"无效的角色值，允许的值: {', '.join(valid_roles)}",
+                    data=None,
+                )
+            user.role = body.role
 
         user.updated_at = datetime.utcnow()
         db.commit()
@@ -110,6 +145,7 @@ async def update_user(
         return APIResponse(code=200, message="更新成功", data=user.to_dict())
     except Exception as e:
         db.rollback()
+        logger.error("⚠️ WARNING: update_user 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
@@ -126,12 +162,17 @@ async def delete_user(
         if not user:
             return APIResponse(code=404, message="用户不存在", data=None)
 
+        # 防止管理员删除自己
+        if str(user.user_uuid) == current_user["user_id"]:
+            return APIResponse(code=400, message="不能删除自己的账户", data=None)
+
         user.deleted_at = datetime.utcnow()
         db.commit()
 
         return APIResponse(code=200, message="删除成功", data={"id": user_id})
     except Exception as e:
         db.rollback()
+        logger.error("⚠️ WARNING: delete_user 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
@@ -178,6 +219,7 @@ async def list_enterprises(
             data={"items": [e.to_dict() for e in enterprises], "total": total, "page": page, "page_size": page_size},
         )
     except Exception as e:
+        logger.error("⚠️ WARNING: list_enterprises 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
@@ -187,9 +229,7 @@ async def list_enterprises(
 @router.patch("/enterprises/{enterprise_id}", response_model=APIResponse, summary="更新企业", tags=["管理员"])
 async def update_enterprise(
     enterprise_id: int,
-    verify_status: Optional[str] = None,
-    plan_type: Optional[str] = None,
-    reject_reason: Optional[str] = None,
+    body: UpdateEnterpriseRequest,
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> APIResponse:
@@ -202,14 +242,30 @@ async def update_enterprise(
         if not enterprise:
             return APIResponse(code=404, message="企业不存在", data=None)
 
-        if verify_status:
-            enterprise.verify_status = verify_status
-            if verify_status == "verified":
+        if body.verify_status:
+            valid_statuses = [s.value for s in VerifyStatus]
+            if body.verify_status not in valid_statuses:
+                return APIResponse(
+                    code=400,
+                    message=f"无效的认证状态，允许的值: {', '.join(valid_statuses)}",
+                    data=None,
+                )
+            enterprise.verify_status = body.verify_status
+            if body.verify_status == VerifyStatus.VERIFIED.value:
                 enterprise.verified_at = datetime.utcnow()
-        if plan_type:
-            enterprise.plan_type = plan_type
-        if reject_reason:
-            enterprise.reject_reason = reject_reason
+
+        if body.plan_type:
+            valid_plans = [p.value for p in PlanType]
+            if body.plan_type not in valid_plans:
+                return APIResponse(
+                    code=400,
+                    message=f"无效的套餐类型，允许的值: {', '.join(valid_plans)}",
+                    data=None,
+                )
+            enterprise.plan_type = body.plan_type
+
+        if body.reject_reason:
+            enterprise.reject_reason = body.reject_reason
 
         enterprise.updated_at = datetime.utcnow()
         db.commit()
@@ -217,6 +273,7 @@ async def update_enterprise(
         return APIResponse(code=200, message="更新成功", data=enterprise.to_dict())
     except Exception as e:
         db.rollback()
+        logger.error("⚠️ WARNING: update_enterprise 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
@@ -242,6 +299,7 @@ async def delete_enterprise(
         return APIResponse(code=200, message="删除成功", data={"id": enterprise_id})
     except Exception as e:
         db.rollback()
+        logger.error("⚠️ WARNING: delete_enterprise 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
@@ -281,6 +339,7 @@ async def get_stats(current_user: dict = Depends(require_admin), db: Session = D
             },
         )
     except Exception as e:
+        logger.error("⚠️ WARNING: get_stats 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
@@ -333,6 +392,7 @@ async def get_ai_usage(
             },
         )
     except Exception as e:
+        logger.error("⚠️ WARNING: get_ai_usage 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
@@ -376,11 +436,12 @@ async def get_provider_settings(
             providers.append({**p, "enabled": p["id"] in enabled})
         return APIResponse(code=200, message="success", data={"providers": providers, "enabled_ids": enabled})
     except Exception as e:
+        logger.error("⚠️ WARNING: get_provider_settings 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 
 class UpdateProviderSettingsRequest(BaseModel):
-    enabled_ids: list = None
+    enabled_ids: Optional[List[str]] = None
 
 
 @router.put("/provider-settings", response_model=APIResponse, summary="更新提供商设置", tags=["管理员"])
@@ -419,6 +480,7 @@ async def update_provider_settings(
         return APIResponse(code=200, message="提供商设置已更新", data={"enabled_ids": enabled_ids})
     except Exception as e:
         db.rollback()
+        logger.error("⚠️ WARNING: update_provider_settings 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
 
 

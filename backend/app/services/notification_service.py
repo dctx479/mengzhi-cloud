@@ -7,10 +7,14 @@
 创建日期: 2026-01-17
 """
 
+import html as html_lib
+import json
 import smtplib
+import time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from typing import Optional, List
+from threading import Lock
+from typing import Optional, List, Dict
 from datetime import datetime
 
 from app.core.config import settings
@@ -21,6 +25,11 @@ from app.core.errors import ExternalServiceError
 class EmailService:
     """邮件服务"""
 
+    # Class-level deduplication cache — prevents duplicate sends within the TTL window
+    _dedup_cache: Dict[str, float] = {}
+    _dedup_lock: Lock = Lock()
+    _dedup_ttl: int = 60  # seconds
+
     def __init__(self):
         """初始化邮件服务配置"""
         self.smtp_server = settings.SMTP_SERVER
@@ -30,6 +39,20 @@ class EmailService:
         self.from_email = settings.SMTP_FROM_EMAIL
         self.from_name = settings.SMTP_FROM_NAME
         self.dev_mode = settings.EMAIL_DEV_MODE
+
+    def _is_duplicate_send(self, key: str) -> bool:
+        """Idempotency guard: returns True if this notification was recently sent."""
+        with self.__class__._dedup_lock:
+            now = time.time()
+            expired = [k for k, ts in list(self.__class__._dedup_cache.items())
+                       if now - ts > self.__class__._dedup_ttl]
+            for k in expired:
+                del self.__class__._dedup_cache[k]
+            if key in self.__class__._dedup_cache:
+                logger.warning(f"⚠️ WARNING: Duplicate email suppressed (key={key})")
+                return True
+            self.__class__._dedup_cache[key] = now
+            return False
 
     def _create_message(
         self,
@@ -129,25 +152,22 @@ class EmailService:
             raise ExternalServiceError(f"邮件发送失败: {str(e)}")
 
     def send_verification_email(self, to: str, code: str, username: str = "") -> bool:
-        """发送验证码邮件
-        
-        参数:
-            to: 收件人邮箱
-            code: 验证码
-            username: 用户名（可选）
-            
-        返回:
-            是否发送成功
-        """
+        """发送验证码邮件"""
+        # Idempotency: suppress duplicate sends within 60 s
+        if self._is_duplicate_send(f"verify:{to}:{code}"):
+            return True
+
+        safe_username = html_lib.escape(username)
+        safe_code = html_lib.escape(code)
         subject = "邮箱验证码 - 内蒙古农畜产品平台"
-        
+
         body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; padding: 20px;">
             <h2>邮箱验证码</h2>
-            <p>{'尊敬的 ' + username + ',' if username else '您好,'}</p>
+            <p>{'尊敬的 ' + safe_username + ',' if safe_username else '您好,'}</p>
             <p>您的验证码是:</p>
-            <h1 style="color: #4CAF50; letter-spacing: 5px;">{code}</h1>
+            <h1 style="color: #4CAF50; letter-spacing: 5px;">{safe_code}</h1>
             <p>验证码有效期为5分钟，请勿泄露给他人。</p>
             <p>如果这不是您的操作，请忽略此邮件。</p>
             <hr>
@@ -158,38 +178,36 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         return self.send_email(to, subject, body, html=True)
 
     def send_password_reset_email(self, to: str, reset_link: str, username: str = "") -> bool:
-        """发送密码重置邮件
-        
-        参数:
-            to: 收件人邮箱
-            reset_link: 重置链接
-            username: 用户名（可选）
-            
-        返回:
-            是否发送成功
-        """
+        """发送密码重置邮件"""
+        # Validate URL scheme to prevent javascript: injection in href
+        if not reset_link.startswith(('https://', 'http://')):
+            logger.error(f"send_password_reset_email: invalid reset_link scheme, refusing to send")
+            raise ValueError("reset_link must be an http/https URL")
+
+        safe_username = html_lib.escape(username)
+        safe_link_text = html_lib.escape(reset_link)  # for text display only; href uses validated original
         subject = "密码重置 - 内蒙古农畜产品平台"
-        
+
         body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; padding: 20px;">
             <h2>密码重置请求</h2>
-            <p>{'尊敬的 ' + username + ',' if username else '您好,'}</p>
+            <p>{'尊敬的 ' + safe_username + ',' if safe_username else '您好,'}</p>
             <p>我们收到了您的密码重置请求。请点击下面的链接重置密码:</p>
             <p>
-                <a href="{reset_link}" 
-                   style="display: inline-block; padding: 10px 20px; 
-                          background-color: #4CAF50; color: white; 
+                <a href="{reset_link}"
+                   style="display: inline-block; padding: 10px 20px;
+                          background-color: #4CAF50; color: white;
                           text-decoration: none; border-radius: 5px;">
                     重置密码
                 </a>
             </p>
             <p>或复制以下链接到浏览器:</p>
-            <p style="color: #666;">{reset_link}</p>
+            <p style="color: #666;">{safe_link_text}</p>
             <p>此链接将在1小时后失效。</p>
             <p>如果这不是您的操作，请忽略此邮件。</p>
             <hr>
@@ -200,26 +218,19 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         return self.send_email(to, subject, body, html=True)
 
     def send_welcome_email(self, to: str, username: str) -> bool:
-        """发送欢迎邮件
-        
-        参数:
-            to: 收件人邮箱
-            username: 用户名
-            
-        返回:
-            是否发送成功
-        """
+        """发送欢迎邮件"""
+        safe_username = html_lib.escape(username)
         subject = "欢迎加入内蒙古农畜产品平台"
-        
+
         body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; padding: 20px;">
             <h2>欢迎加入！</h2>
-            <p>尊敬的 {username},</p>
+            <p>尊敬的 {safe_username},</p>
             <p>欢迎加入内蒙古农畜产品品牌营销AI赋能云平台！</p>
             <p>我们的平台致力于:</p>
             <ul>
@@ -236,12 +247,17 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         return self.send_email(to, subject, body, html=True)
 
 
 class SMSService:
     """短信服务"""
+
+    # Class-level deduplication cache
+    _dedup_cache: Dict[str, float] = {}
+    _dedup_lock: Lock = Lock()
+    _dedup_ttl: int = 60  # seconds
 
     def __init__(self):
         """初始化短信服务配置"""
@@ -253,6 +269,20 @@ class SMSService:
             self.access_secret = settings.ALIYUN_ACCESS_SECRET
             self.sign_name = settings.ALIYUN_SMS_SIGN
             self.template_code = settings.ALIYUN_SMS_TEMPLATE_CODE
+
+    def _is_duplicate_send(self, key: str) -> bool:
+        """Idempotency guard: returns True if this SMS was recently sent."""
+        with self.__class__._dedup_lock:
+            now = time.time()
+            expired = [k for k, ts in list(self.__class__._dedup_cache.items())
+                       if now - ts > self.__class__._dedup_ttl]
+            for k in expired:
+                del self.__class__._dedup_cache[k]
+            if key in self.__class__._dedup_cache:
+                logger.warning(f"⚠️ WARNING: Duplicate SMS suppressed (key={key})")
+                return True
+            self.__class__._dedup_cache[key] = now
+            return False
 
     def _send_aliyun_sms(self, phone: str, template_param: dict) -> bool:
         """发送阿里云短信
@@ -280,7 +310,7 @@ class SMSService:
                 phone_numbers=phone,
                 sign_name=self.sign_name,
                 template_code=self.template_code,
-                template_param=str(template_param)
+                template_param=json.dumps(template_param, ensure_ascii=False)
             )
 
             response = client.send_sms(request)
@@ -318,15 +348,11 @@ class SMSService:
         return False
 
     def send_verification_sms(self, phone: str, code: str) -> bool:
-        """发送验证码短信
+        """发送验证码短信"""
+        # Idempotency: suppress duplicate sends within 60 s
+        if self._is_duplicate_send(f"verify:{phone}:{code}"):
+            return True
 
-        参数:
-            phone: 手机号
-            code: 验证码
-
-        返回:
-            是否发送成功
-        """
         # 开发模式：仅打印日志
         if self.dev_mode:
             logger.info(f"[开发模式-短信验证码] To: {phone}, Code: {code}")

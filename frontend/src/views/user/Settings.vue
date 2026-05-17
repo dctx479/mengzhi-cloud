@@ -123,7 +123,7 @@ const settings = ref<UserSettings>({
   sms_notifications: false,
   profile_public: false,
   language: 'zh-CN',
-  theme: 'auto',
+  theme: 'light',
 })
 
 const defaultSettings: UserSettings = {
@@ -170,6 +170,7 @@ const handleResetSettings = async () => {
       type: 'warning',
     })
 
+    if (savingSettings.value) return
     settings.value = { ...defaultSettings }
     await handleSaveSettings()
   } catch (error) {

@@ -20,7 +20,7 @@
       <el-col :span="8">
         <el-card>
           <div class="stat-card">
-            <div class="stat-value">¥{{ costSummary.total_cost.toFixed(2) }}</div>
+            <div class="stat-value">¥{{ (costSummary.total_cost ?? 0).toFixed(2) }}</div>
             <div class="stat-label">累计生成成本</div>
           </div>
         </el-card>
@@ -95,7 +95,7 @@
             <el-table-column prop="provider_name" label="服务商" />
             <el-table-column prop="task_count" label="任务数" width="100" />
             <el-table-column label="成本" width="120">
-              <template #default="{ row }">¥{{ row.total_cost.toFixed(2) }}</template>
+              <template #default="{ row }">¥{{ (row.total_cost ?? 0).toFixed(2) }}</template>
             </el-table-column>
           </el-table>
         </el-card>

@@ -175,13 +175,17 @@ class StrictBillingService:
                 logger.info(f"检测到重复请求: {idempotency_key}")
                 return existing
 
-        # 2. 获取配额
-        quota = self.db.query(TenantQuota).filter_by(enterprise_id=enterprise_id).first()
+        # 2. 获取配额（行锁防止并发超扣）
+        quota = self.db.query(TenantQuota).filter_by(enterprise_id=enterprise_id).with_for_update().first()
         if not quota:
             raise BillingError("未找到企业配额")
 
         # 3. 计算成本
         cost = self.calculate_cost(service_type, params)
+
+        # 边界条件：费用必须为正数
+        if cost <= Decimal("0"):
+            raise BillingError(f"计算费用异常，费用必须为正数: {cost}")
 
         # 4. 验证配额
         if service_type == "chat":
@@ -251,7 +255,7 @@ class StrictBillingService:
             logger.warning(f"交易状态异常: {transaction.status}")
             return transaction
 
-        quota = self.db.query(TenantQuota).filter_by(id=transaction.quota_id).first()
+        quota = self.db.query(TenantQuota).filter_by(id=transaction.quota_id).with_for_update().first()
 
         # 更新交易状态
         transaction.status = BillingStatus.COMPLETED
@@ -261,10 +265,37 @@ class StrictBillingService:
         # 更新配额
         quota.pending_amount -= transaction.amount
 
-        # 记录配额使用
+        # 计算实际资源使用量（用于配额追踪，单位与 validate_quota 一致）
+        request_params = json.loads(transaction.request_params) if transaction.request_params else {}
+        actual_params = actual_usage or request_params
+        if transaction.service_type == "chat":
+            usage_count = (
+                actual_params.get("input_tokens", 0) + actual_params.get("output_tokens", 0)
+            )
+        elif transaction.service_type == "jimeng_image":
+            resolution = actual_params.get("resolution", "1024x1024")
+            usage_count = {"512x512": 1, "1024x1024": 3, "2048x2048": 8}.get(resolution, 3)
+        elif transaction.service_type == "jimeng_video":
+            duration = actual_params.get("duration", 5)
+            resolution = actual_params.get("resolution", "720p")
+            quota_cost_per_sec = {"720p": 1, "1080p": 2, "4k": 5}.get(resolution, 1)
+            usage_count = duration * quota_cost_per_sec
+        elif transaction.service_type == "jimeng_video_frames":
+            frames = actual_params.get("frames", 150)
+            resolution = actual_params.get("resolution", "720p_30fps")
+            quota_cost_per_frame = {
+                "720p_24fps": 1, "720p_30fps": 1,
+                "1080p_24fps": 2, "1080p_30fps": 2,
+                "4k_24fps": 5, "4k_30fps": 5,
+            }.get(resolution, 1)
+            usage_count = frames * quota_cost_per_frame
+        else:
+            usage_count = 0
+
+        # 记录配额使用（amount 存储实际资源用量，与 validate_quota 的单位一致）
         usage = QuotaUsage(
             quota_id=quota.id,
-            amount=int(transaction.amount * 100),  # 转换为分
+            amount=usage_count,
             operation=transaction.service_type,
             usage_metadata=transaction.actual_usage,
             used_at=datetime.utcnow()
@@ -292,9 +323,7 @@ class StrictBillingService:
             logger.warning(f"交易状态异常: {transaction.status}")
             return transaction
 
-        quota = self.db.query(TenantQuota).filter_by(id=transaction.quota_id).first()
-
-        # 计算退款金额
+        quota = self.db.query(TenantQuota).filter_by(id=transaction.quota_id).with_for_update().first()
         refund_amount = transaction.amount * Decimal(refund_percentage) / Decimal(100)
 
         # 更新交易状态

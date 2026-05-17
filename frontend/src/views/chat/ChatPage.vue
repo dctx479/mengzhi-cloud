@@ -16,6 +16,7 @@
           clearable
           size="small"
           class="search-input"
+          aria-label="搜索对话"
         >
           <template #prefix>
             <el-icon><Search /></el-icon>
@@ -37,7 +38,12 @@
             :key="chat.id"
             class="chat-item"
             :class="{ active: currentChatId === chat.id }"
+            role="button"
+            tabindex="0"
+            :aria-label="`对话：${chat.title}`"
+            :aria-current="currentChatId === chat.id ? 'true' : undefined"
             @click="handleSelectChat(chat.id)"
+            @keydown.enter.space.prevent="handleSelectChat(chat.id)"
           >
             <div class="chat-info">
               <p class="chat-title">{{ chat.title }}</p>
@@ -45,7 +51,11 @@
             </div>
             <el-icon
               class="delete-icon"
+              role="button"
+              tabindex="0"
+              :aria-label="`删除对话：${chat.title}`"
               @click.stop="handleDeleteChat(chat.id)"
+              @keydown.enter.space.prevent.stop="handleDeleteChat(chat.id)"
             >
               <Delete />
             </el-icon>
@@ -113,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Delete } from '@element-plus/icons-vue'
 import { useChatStore } from '@/stores/chat'
@@ -190,11 +200,8 @@ const handleDeleteChat = (chatId: string) => {
         ElMessage.error('删除失败')
       }
     })
-    .catch((error) => {
-      // Only ignore user cancellation, not other errors
-      if (error.response?.status !== 'cancel' && error !== 'cancel') {
-        console.error('Delete chat error:', error)
-      }
+    .catch(() => {
+      // User cancelled — no action needed
     })
 }
 
@@ -223,11 +230,8 @@ const handleClearChat = async () => {
         ElMessage.error('清空失败')
       }
     })
-    .catch((error) => {
-      // Only ignore user cancellation, not other errors
-      if (error.response?.status !== 'cancel' && error !== 'cancel') {
-        console.error('Clear chat error:', error)
-      }
+    .catch(() => {
+      // User cancelled — no action needed
     })
 }
 
@@ -268,6 +272,13 @@ onMounted(async () => {
     }
   } catch (error) {
     ElMessage.error('加载对话列表失败')
+  }
+})
+
+onUnmounted(() => {
+  // Abort any in-flight streaming request to prevent memory leaks
+  if (typeof chatStore.abortStream === 'function') {
+    chatStore.abortStream()
   }
 })
 </script>

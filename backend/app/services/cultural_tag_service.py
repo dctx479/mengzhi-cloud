@@ -35,6 +35,11 @@ class CulturalTagService:
     def __init__(self, db: Session):
         self.db = db
 
+    @staticmethod
+    def _escape_like_pattern(value: str) -> str:
+        """Escape SQL LIKE wildcards to prevent unintended pattern matching."""
+        return value.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
+
     # ==================== CRUD操作 ====================
 
     def create_tag(self, tag_data: CulturalTagCreate) -> CulturalTag:
@@ -120,8 +125,9 @@ class CulturalTagService:
             q = q.filter(CulturalTag.is_active == query.is_active)
 
         if query.keyword:
-            # 搜索标签名称、描述和关键词
-            keyword_pattern = f"%{query.keyword}%"
+            # Escape wildcards before building LIKE pattern
+            escaped = self._escape_like_pattern(query.keyword)
+            keyword_pattern = f"%{escaped}%"
             q = q.filter(
                 or_(
                     CulturalTag.name.like(keyword_pattern),
@@ -317,7 +323,8 @@ class CulturalTagService:
         # 构建搜索条件
         conditions = []
         for keyword in keyword_list:
-            pattern = f"%{keyword}%"
+            escaped = self._escape_like_pattern(keyword)
+            pattern = f"%{escaped}%"
             conditions.append(
                 or_(
                     CulturalTag.name.like(pattern),
@@ -402,27 +409,37 @@ class CulturalTagService:
         new_tag_ids = set(tag_ids) - current_tag_ids
         removed_tag_ids = current_tag_ids - set(tag_ids)
 
-        # 更新usage_count
-        if new_tag_ids:
-            self.db.query(CulturalTag).filter(
-                CulturalTag.id.in_(new_tag_ids)
-            ).update(
-                {CulturalTag.usage_count: CulturalTag.usage_count + 1},
-                synchronize_session=False
-            )
+        # Update usage_count and reassign tags inside a single transaction.
+        # synchronize_session=False means the ORM identity map is NOT updated by the
+        # bulk UPDATE — we must expire affected objects so the next access re-fetches.
+        try:
+            if new_tag_ids:
+                self.db.query(CulturalTag).filter(
+                    CulturalTag.id.in_(new_tag_ids)
+                ).update(
+                    {CulturalTag.usage_count: CulturalTag.usage_count + 1},
+                    synchronize_session=False
+                )
 
-        if removed_tag_ids:
-            self.db.query(CulturalTag).filter(
-                CulturalTag.id.in_(removed_tag_ids)
-            ).update(
-                {CulturalTag.usage_count: func.greatest(CulturalTag.usage_count - 1, 0)},
-                synchronize_session=False
-            )
+            if removed_tag_ids:
+                self.db.query(CulturalTag).filter(
+                    CulturalTag.id.in_(removed_tag_ids)
+                ).update(
+                    {CulturalTag.usage_count: func.greatest(CulturalTag.usage_count - 1, 0)},
+                    synchronize_session=False
+                )
 
-        # 更新产品标签关联
-        product.tags = tags
-        self.db.commit()
-        self.db.refresh(product)
+            # Expire affected ORM objects so stale cached counts are not returned
+            for tag in tags:
+                self.db.expire(tag)
+
+            # Reassign relationship — must happen before commit
+            product.tags = tags
+            self.db.commit()
+            self.db.refresh(product)
+        except Exception:
+            self.db.rollback()
+            raise
 
         logger.info(f"为产品分配标签: product_id={product_id}, tag_ids={tag_ids}")
         return product
@@ -593,17 +610,21 @@ class CulturalTagService:
         ]
 
         created_count = 0
-        for tag_data in default_tags:
-            # 检查是否已存在
-            existing = db.query(CulturalTag).filter(
-                CulturalTag.name == tag_data['name']
-            ).first()
+        try:
+            for tag_data in default_tags:
+                # 检查是否已存在
+                existing = db.query(CulturalTag).filter(
+                    CulturalTag.name == tag_data['name']
+                ).first()
 
-            if not existing:
-                tag = CulturalTag(**tag_data)
-                db.add(tag)
-                created_count += 1
+                if not existing:
+                    tag = CulturalTag(**tag_data)
+                    db.add(tag)
+                    created_count += 1
 
-        db.commit()
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
         logger.info(f"初始化默认文化标签完成: 创建了 {created_count} 个标签")
         return created_count

@@ -61,19 +61,25 @@ export const getProductReviews = async (
   page = 1,
   pageSize = 10
 ): Promise<{ data: Review[]; total: number }> => {
-  const res = await http.get<{ code: number; data: { items: Review[]; total: number }; message: string }>(
+  // 后端参数名为 pageSize（非 page_size），后端返回 data.data（非 data.items）
+  const res = await http.get<{ code: number; data: { data: Review[]; total: number }; message: string }>(
     `/v1/products/${productId}/reviews`,
-    { params: { page, page_size: pageSize } }
+    { params: { page, pageSize } }
   )
-  const inner = unwrap<{ items: Review[]; total: number }>(res)
-  return { data: inner.items || [], total: inner.total || 0 }
+  const inner = unwrap<{ data: Review[]; total: number }>(res)
+  return { data: inner.data || [], total: inner.total || 0 }
 }
 
-export const addProductReview = (
+export const addProductReview = async (
   productId: string,
   data: { rating: number; comment: string }
-): Promise<Review> =>
-  http.post(`/v1/products/${productId}/reviews`, data)
+): Promise<Review> => {
+  const res = await http.post<{ code: number; data: Review; message: string }>(
+    `/v1/products/${productId}/reviews`,
+    data
+  )
+  return unwrap<Review>(res)
+}
 
 export const searchProducts = async (keyword: string): Promise<Product[]> => {
   const res = await http.get<{ code: number; data: { items: Product[] }; message: string }>(

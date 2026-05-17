@@ -63,13 +63,13 @@ class OrderService:
                 message="套餐不存在或已下架"
             )
 
-        # 检查是否存在未支付的同类订单
+        # 检查是否存在未支付的同类订单（with_for_update防止并发重复创建）
         existing_pending = self.db.query(Order).filter(
             Order.user_id == user_id,
             Order.package_id == request.package_id,
             Order.status == OrderStatus.PENDING,
             Order.expired_at > datetime.utcnow()
-        ).first()
+        ).with_for_update().first()
         if existing_pending:
             raise BusinessException(
                 code=ErrorCode.RECORD_ALREADY_EXISTS,
@@ -208,12 +208,25 @@ class OrderService:
         """生成订单号
 
         格式: ORD + YYYYMMDD + 6位安全随机十六进制
-        使用 secrets 模块生成密码学安全的随机数
+        使用 secrets 模块生成密码学安全的随机数，并检查唯一性
 
         Returns:
             订单号
         """
         date_str = datetime.utcnow().strftime("%Y%m%d")
-        # 使用 secrets 生成安全随机数（3字节 = 6个十六进制字符）
-        random_str = secrets.token_hex(3).upper()
-        return f"ORD{date_str}{random_str}"
+        max_retries = 10
+        for attempt in range(max_retries):
+            # 使用 secrets 生成安全随机数（3字节 = 6个十六进制字符）
+            random_str = secrets.token_hex(3).upper()
+            order_no = f"ORD{date_str}{random_str}"
+            # 检查唯一性
+            existing = self.db.query(Order).filter(Order.order_no == order_no).first()
+            if not existing:
+                return order_no
+            logger.warning(f"订单号冲突，重试 {attempt + 1}/{max_retries}: {order_no}")
+        # 重试耗尽，使用UUID后备方案
+        import uuid
+        fallback_id = uuid.uuid4().hex[:6].upper()
+        order_no = f"ORD{date_str}{fallback_id}"
+        logger.warning(f"使用UUID后备方案生成订单号: {order_no}")
+        return order_no

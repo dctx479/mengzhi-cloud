@@ -85,7 +85,7 @@ async def create_permission(
         return success_response(data=PermissionResponse.from_orm(permission).dict(), message="创建权限成功").dict()
 
     except BusinessException as e:
-        if e.code == ErrorCode.RECORD_ALREADY_EXISTS:
+        if e.code == ErrorCode.RESOURCE_ALREADY_EXISTS:
             raise HTTPException(status_code=409, detail=e.message)
         raise HTTPException(status_code=400, detail=e.message)
     except Exception as e:

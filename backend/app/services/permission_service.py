@@ -13,7 +13,7 @@
 """
 
 from typing import List, Optional, Dict, Any
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
 from datetime import datetime
 import logging
@@ -71,9 +71,9 @@ class PermissionService:
         ).first()
         if existing:
             if existing.code == code:
-                raise BusinessException(ErrorCode.RECORD_ALREADY_EXISTS, "角色代码已存在")
+                raise BusinessException(ErrorCode.RESOURCE_ALREADY_EXISTS, "角色代码已存在")
             else:
-                raise BusinessException(ErrorCode.RECORD_ALREADY_EXISTS, "角色名称已存在")
+                raise BusinessException(ErrorCode.RESOURCE_ALREADY_EXISTS, "角色名称已存在")
 
         # 创建角色
         role = Role(
@@ -99,7 +99,7 @@ class PermissionService:
 
     def get_role(self, role_id: int) -> Optional[Role]:
         """
-        获取角色详情
+        获取角色详情（排除软删除记录）
 
         参数:
             role_id: 角色ID
@@ -107,7 +107,10 @@ class PermissionService:
         返回:
             Optional[Role]: 角色对象或None
         """
-        return self.db.query(Role).filter(Role.id == role_id).first()
+        return self.db.query(Role).filter(
+            Role.id == role_id,
+            Role.deleted_at.is_(None)
+        ).first()
 
     def get_role_by_code(self, code: str) -> Optional[Role]:
         """
@@ -239,6 +242,10 @@ class PermissionService:
                 f"该角色仍有 {user_count} 个用户使用，无法删除"
             )
 
+        # 清理角色-权限关联，防止孤儿记录
+        role.permissions = []
+        self.db.flush()
+
         # 软删除
         role.deleted_at = datetime.utcnow()
         self.db.commit()
@@ -361,10 +368,10 @@ class PermissionService:
         异常:
             BusinessException: 角色不存在或权限不存在
         """
-        role = self.get_role(role_id)
         if not permission_ids:
             raise BusinessException(ErrorCode.INVALID_REQUEST, "权限列表不能为空")
 
+        role = self.get_role(role_id)
         if not role:
             raise BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "角色不存在")
         # SECURITY FIX: 系统角色不可修改权限
@@ -416,6 +423,16 @@ class PermissionService:
         if not user:
             raise BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "用户不存在")
 
+        # SECURITY: 超级管理员保护 - 防止剥夺 admin 用户的 ADMIN 角色
+        user_role_str = user.role.value if hasattr(user.role, 'value') else str(user.role) if user.role else None
+        if user_role_str == "admin":
+            admin_rbac_role = self.db.query(Role).filter(Role.code == "ADMIN").first()
+            if admin_rbac_role and admin_rbac_role.id not in role_ids:
+                raise BusinessException(
+                    ErrorCode.OPERATION_FORBIDDEN,
+                    "不能移除超级管理员的 ADMIN 角色"
+                )
+
         # 获取角色
         roles = self.db.query(Role).filter(Role.id.in_(role_ids)).all()
 
@@ -441,7 +458,10 @@ class PermissionService:
         返回:
             List[Permission]: 权限列表（去重）
         """
-        user = self.db.query(User).filter(User.id == user_id).first()
+        # 使用 joinedload 一次性加载 roles 和 permissions，避免 N+1 查询
+        user = self.db.query(User).options(
+            joinedload(User.roles).joinedload(Role.permissions)
+        ).filter(User.id == user_id).first()
         if not user:
             return []
 
@@ -472,7 +492,10 @@ class PermissionService:
         返回:
             bool: 是否有权限
         """
-        user = self.db.query(User).filter(User.id == user_id).first()
+        # 使用 joinedload 避免 N+1 查询
+        user = self.db.query(User).options(
+            joinedload(User.roles).joinedload(Role.permissions)
+        ).filter(User.id == user_id).first()
         if not user:
             return False
 

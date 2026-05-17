@@ -122,9 +122,7 @@
         </div>
       </template>
 
-      <div v-if="loadingHistory" class="text-center">
-        <el-empty description="加载中..."></el-empty>
-      </div>
+      <div v-if="loadingHistory" class="text-center" v-loading="true" style="min-height: 80px"></div>
 
       <div v-else-if="quotaHistory.length === 0" class="text-center">
         <el-empty description="暂无使用记录"></el-empty>
@@ -230,7 +228,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { ElMessage, ElLoading } from 'element-plus'
 import { ShoppingCart, Check } from '@element-plus/icons-vue'
 import { getQuota, getQuotaHistory, createOrderFromPackage } from '@/api/user'
@@ -396,6 +394,12 @@ const loadQuotaHistory = async () => {
 const showUpgradeDialog = () => {
   upgradeDialogVisible.value = true
 }
+
+// 筛选类型变化时重置到第一页并重新加载
+watch(historyFilter, () => {
+  historyPage.value = 1
+  loadQuotaHistory()
+})
 
 const handleUpgrade = async () => {
   try {

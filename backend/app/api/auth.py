@@ -15,11 +15,12 @@
 8. POST /api/v1/auth/reset-password - 重置密码
 """
 
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
 import uuid
+import secrets
 from loguru import logger
 
 from app.core.responses import APIResponse, success_response, error_response
@@ -427,7 +428,12 @@ async def logout(
         # 将Token加入黑名单
         jti = current_user.get("jti")
         if not jti:
-            raise HTTPException(status_code=400, detail="Token 缺少 jti 字段，无法安全登出")
+            logger.warning(f"⚠️ WARNING: logout called with token missing jti, user_id={current_user.get('user_id')}")
+            return APIResponse(
+                code=400,
+                message="Token 缺少 jti 字段，无法安全登出",
+                data=None
+            )
         auth_service.add_token_to_blacklist(jti, 30 * 60)
 
         # 清除用户缓存
@@ -441,12 +447,18 @@ async def logout(
             data={"message": "已成功登出"}
         )
 
-    except Exception as e:
-        # 即使出错也返回成功，因为登出是客户端行为
+    except BusinessException as e:
+        logger.warning(f"登出业务异常: {e.message}")
         return APIResponse(
-            code=200,
-            message="登出成功",
-            data={"message": "已成功登出"}
+            code=e.code,
+            message=e.message,
+            data=None
+        )
+    except Exception as e:
+        logger.error(f"⚠️ WARNING: 登出异常: {str(e)}", exc_info=True)
+        return error_response(
+            code=ErrorCode.SYSTEM_ERROR,
+            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
         )
 
 
@@ -737,8 +749,8 @@ async def change_password(
         if not AuthService.verify_password(request.old_password, user.password_hash):
             raise PasswordIncorrectError()
 
-        # 验证新密码不同于旧密码
-        if request.old_password == request.new_password:
+        # 验证新密码不同于旧密码（使用 compare_digest 防止时序攻击）
+        if secrets.compare_digest(request.old_password, request.new_password):
             raise ValidationError(
                 message="新密码不能与旧密码相同",
                 errors=[{
@@ -868,6 +880,10 @@ async def reset_password(
         if not user:
             raise UserNotFoundError()
 
+        # get_user_by_email/phone 返回 raw SQL Row（命名元组），
+        # 通过列名访问 user_uuid 字段（索引1）
+        user_uuid_val = user.user_uuid if hasattr(user, 'user_uuid') else user[1]
+
         # 加密新密码
         new_password_hash = AuthService.hash_password(request.new_password)
 
@@ -884,7 +900,7 @@ async def reset_password(
             """),
             {
                 "password_hash": new_password_hash,
-                "user_id": user.user_uuid,
+                "user_id": user_uuid_val,
                 "now": now
             }
         )
@@ -954,6 +970,15 @@ async def send_verification_code(
     """
     try:
         captcha_service = CaptchaService()
+
+        # 白名单校验 code_type，防止枚举攻击
+        ALLOWED_CODE_TYPES = {"register", "reset_password", "login", "bind_phone", "bind_email"}
+        if code_type not in ALLOWED_CODE_TYPES:
+            return APIResponse(
+                code=400,
+                message="无效的验证码类型",
+                data=None
+            )
 
         # 判断是邮箱还是手机号
         if "@" in identifier:

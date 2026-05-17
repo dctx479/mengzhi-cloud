@@ -202,6 +202,10 @@ class PaymentService:
 
                 return payment
 
+            except BusinessException:
+                self.db.rollback()
+                track_payment_failure(payment_method, "creation_failed")
+                raise
             except Exception as e:
                 self.db.rollback()
                 logger.error(f"创建支付失败: {str(e)}")
@@ -257,7 +261,7 @@ class PaymentService:
             "payment_no": payment.payment_no,
             "payment_method": payment.payment_method.value,
             "payment_status": payment.status.value,
-            "amount": float(payment.amount),
+            "amount": str(payment.amount),
             "paid": payment.is_success(),
             "paid_at": payment.paid_at.isoformat() if payment.paid_at else None,
             "transaction_id": payment.transaction_id
@@ -338,8 +342,8 @@ class PaymentService:
             # 记录支付成功
             track_payment_success(payment_method, float(payment.amount))
 
-            # 获取订单
-            order = self.db.query(Order).filter(Order.id == payment.order_id).first()
+            # 获取订单并加锁，防止并发回调同时修改订单状态
+            order = self.db.query(Order).filter(Order.id == payment.order_id).with_for_update().first()
             if order:
                 # 更新订单状态
                 order.mark_as_paid()
@@ -357,10 +361,13 @@ class PaymentService:
                     # 提交嵌套事务
                     savepoint.commit()
                 except Exception as quota_error:
-                    # 配额发放失败，回滚保存点
+                    # 配额发放失败，回滚保存点（撤销 mark_as_completed 和配额变更）
                     savepoint.rollback()
                     logger.error(f"支付回调: 配额发放失败，订单未完成 payment_no={payment_no}, error={str(quota_error)}")
-                    # 标记支付失败并回滚
+                    # 将订单重置为待支付状态，允许用户重新发起支付
+                    order.status = OrderStatus.PENDING
+                    order.paid_at = None
+                    # 标记支付失败
                     payment.mark_as_failed(f"配额发放失败: {str(quota_error)}")
                     self.db.commit()
                     track_payment_failure(payment_method, "quota_grant_failed")
@@ -427,8 +434,9 @@ class PaymentService:
                 # 标记支付失败
                 payment.mark_as_failed(f"配额发放失败: {str(quota_error)}")
 
-                # 回滚订单完成状态，重设为已支付状态
-                order.status = OrderStatus.PAID
+                # 将订单重置为待支付状态，允许用户重新发起支付
+                order.status = OrderStatus.PENDING
+                order.paid_at = None
                 order.completed_at = None
 
                 # 提交失败状态到数据库
@@ -537,8 +545,8 @@ class PaymentService:
         start_time = time.time()
 
         try:
-            # P1-6: 验证用户存在性
-            user = self.db.query(User).filter(User.id == order.user_id).first()
+            # P1-6: 验证用户存在性，使用悲观锁防止并发双重配额发放
+            user = self.db.query(User).filter(User.id == order.user_id).with_for_update().first()
             if not user:
                 error_msg = f"配额发放失败: 用户不存在 user_id={order.user_id}, order_id={order.id}"
                 logger.error(error_msg)
@@ -822,7 +830,7 @@ class PaymentService:
             # 构建事件数据
             event_data = {
                 "order_id": order.id,
-                "amount": float(order.amount),
+                "amount": str(order.amount),
                 "payment_method": payment_method,
                 "package_id": getattr(order, 'package_id', None),
                 "package_name": getattr(order, 'package_name', None)

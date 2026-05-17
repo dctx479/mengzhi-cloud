@@ -7,8 +7,11 @@
 更新日期: 2026-01-17
 """
 
+import asyncio
+import time
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Body
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 from typing import Optional, List, Any, Dict
 from loguru import logger
@@ -17,6 +20,14 @@ from app.core.responses import success_response
 from app.services.optimized_content_generation import ContentGenerationServiceFactory
 from app.models.content_record import ContentType, Style, Platform
 from app.api.deps import get_db
+
+# 生成任务超时（秒）
+_GENERATE_TIMEOUT = 60
+
+# 允许的枚举值白名单（用于输入校验错误提示）
+_VALID_CONTENT_TYPES = {e.name.lower() for e in ContentType}
+_VALID_STYLES = {e.name.lower() for e in Style}
+_VALID_PLATFORMS = {e.name.lower() for e in Platform}
 
 # 创建路由（prefix 由 v1/router.py 的 include_router 统一管理）
 router = APIRouter(tags=["内容生成 - Content Generation"])
@@ -38,6 +49,34 @@ class GenerationConfigBody(BaseModel):
     platform: str = "general"
     content_type: str = "copy"
 
+    @field_validator("word_count")
+    @classmethod
+    def validate_word_count(cls, v: int) -> int:
+        if v < 50 or v > 2000:
+            raise ValueError("word_count 必须在 50~2000 之间")
+        return v
+
+    @field_validator("style")
+    @classmethod
+    def validate_style(cls, v: str) -> str:
+        if v.upper() not in {e.name for e in Style}:
+            raise ValueError(f"无效的风格，允许值: {', '.join(e.name.lower() for e in Style)}")
+        return v
+
+    @field_validator("platform")
+    @classmethod
+    def validate_platform(cls, v: str) -> str:
+        if v.upper() not in {e.name for e in Platform}:
+            raise ValueError(f"无效的平台，允许值: {', '.join(e.name.lower() for e in Platform)}")
+        return v
+
+    @field_validator("content_type")
+    @classmethod
+    def validate_content_type(cls, v: str) -> str:
+        if v.upper() not in {e.name for e in ContentType}:
+            raise ValueError(f"无效的内容类型，允许值: {', '.join(e.name.lower() for e in ContentType)}")
+        return v
+
 
 class GenerateContentBody(BaseModel):
     """生成内容请求体（匹配前端 GenerationRequest）"""
@@ -58,7 +97,7 @@ async def generate_content(
     content_type: str = Query("copy", description="内容类型"),
     style: str = Query("casual", description="风格"),
     platform: str = Query("general", description="目标平台"),
-    word_count: int = Query(200, description="目标字数"),
+    word_count: int = Query(200, ge=50, le=2000, description="目标字数（50~2000）"),
     db: Session = Depends(get_db)
 ):
     """
@@ -97,33 +136,53 @@ async def generate_content(
         if not product_id:
             raise HTTPException(status_code=400, detail="缺少 product_id 参数")
 
-        # 参数验证和转换
+        # word_count 范围校验（body 路径可能绕过 Query 约束）
+        if not (50 <= word_count <= 2000):
+            raise HTTPException(status_code=400, detail="word_count 必须在 50~2000 之间")
+
+        # 参数验证和转换（使用白名单，避免回显用户输入）
         try:
             content_type_enum = ContentType[content_type.upper()]
         except KeyError:
-            raise HTTPException(status_code=400, detail=f"无效的内容类型: {content_type}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"无效的内容类型，允许值: {', '.join(e.name.lower() for e in ContentType)}"
+            )
 
         try:
             style_enum = Style[style.upper()]
         except KeyError:
-            raise HTTPException(status_code=400, detail=f"无效的风格: {style}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"无效的风格，允许值: {', '.join(e.name.lower() for e in Style)}"
+            )
 
         try:
             platform_enum = Platform[platform.upper()]
         except KeyError:
-            raise HTTPException(status_code=400, detail=f"无效的平台: {platform}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"无效的平台，允许值: {', '.join(e.name.lower() for e in Platform)}"
+            )
 
         # 获取优化的生成服务
         service = await ContentGenerationServiceFactory.get_service(db)
 
-        # 生成内容
-        generated_content = await service.generate_product_copy(
-            product_id=product_id,
-            content_type=content_type_enum,
-            style=style_enum,
-            platform=platform_enum,
-            word_count=word_count
-        )
+        # 生成内容（带超时保护）
+        try:
+            generated_content = await asyncio.wait_for(
+                service.generate_product_copy(
+                    product_id=product_id,
+                    content_type=content_type_enum,
+                    style=style_enum,
+                    platform=platform_enum,
+                    word_count=word_count
+                ),
+                timeout=_GENERATE_TIMEOUT
+            )
+        except asyncio.TimeoutError:
+            logger.error(f"内容生成超时 (product_id={product_id}, timeout={_GENERATE_TIMEOUT}s)")
+            raise HTTPException(status_code=504, detail="内容生成超时，请稍后重试")
 
         return success_response(
             data={
@@ -150,7 +209,7 @@ async def generate_content_variants(
     content_type: str = Query("copy", description="内容类型"),
     style: str = Query("casual", description="风格"),
     platform: str = Query("general", description="目标平台"),
-    word_count: int = Query(200, description="目标字数"),
+    word_count: int = Query(200, ge=50, le=2000, description="目标字数（50~2000）"),
     db: Session = Depends(get_db)
 ):
     """
@@ -162,7 +221,7 @@ async def generate_content_variants(
     - content_type: 内容类型
     - style: 风格
     - platform: 平台
-    - word_count: 目标字数
+    - word_count: 目标字数（50~2000）
 
     返回：
     - 内容变体列表
@@ -172,30 +231,47 @@ async def generate_content_variants(
         try:
             content_type_enum = ContentType[content_type.upper()]
         except KeyError:
-            raise HTTPException(status_code=400, detail=f"无效的内容类型: {content_type}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"无效的内容类型，允许值: {', '.join(e.name.lower() for e in ContentType)}"
+            )
 
         try:
             style_enum = Style[style.upper()]
         except KeyError:
-            raise HTTPException(status_code=400, detail=f"无效的风格: {style}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"无效的风格，允许值: {', '.join(e.name.lower() for e in Style)}"
+            )
 
         try:
             platform_enum = Platform[platform.upper()]
         except KeyError:
-            raise HTTPException(status_code=400, detail=f"无效的平台: {platform}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"无效的平台，允许值: {', '.join(e.name.lower() for e in Platform)}"
+            )
 
         # 获取服务
         service = await ContentGenerationServiceFactory.get_service(db)
 
-        # 生成多个变体
-        variants = await service.generate_multiple_variants(
-            product_id=product_id,
-            count=count,
-            content_type=content_type_enum,
-            style=style_enum,
-            platform=platform_enum,
-            word_count=word_count
-        )
+        # 生成多个变体（带超时保护，变体数量越多超时越长）
+        variant_timeout = _GENERATE_TIMEOUT * count
+        try:
+            variants = await asyncio.wait_for(
+                service.generate_multiple_variants(
+                    product_id=product_id,
+                    count=count,
+                    content_type=content_type_enum,
+                    style=style_enum,
+                    platform=platform_enum,
+                    word_count=word_count
+                ),
+                timeout=variant_timeout
+            )
+        except asyncio.TimeoutError:
+            logger.error(f"变体生成超时 (product_id={product_id}, count={count}, timeout={variant_timeout}s)")
+            raise HTTPException(status_code=504, detail="内容生成超时，请减少变体数量后重试")
 
         return success_response(
             data={
@@ -309,17 +385,7 @@ async def get_statistics(db: Session = Depends(get_db)):
         ).dict()
     except Exception as e:
         logger.error(f"获取统计数据失败: {str(e)}")
-        return success_response(
-            data={
-                "total_generations": 0,
-                "today_generations": 0,
-                "total_tokens_used": 0,
-                "by_type": {},
-                "by_platform": {},
-                "recent_trend": []
-            },
-            message="获取统计数据成功"
-        ).dict()
+        raise HTTPException(status_code=500, detail="获取统计数据失败")
 
 
 @router.get("/platforms")
@@ -400,8 +466,9 @@ async def get_saved_configs():
 @router.post("/configs")
 async def save_config(body: Optional[Dict[str, Any]] = Body(None)):
     """保存配置（stub）"""
+    config_id = f"config-{int(time.time() * 1000)}"
     return success_response(
-        data={"id": f"config-{__import__('time').time_ns()}", "name": (body or {}).get("name", ""), "config": (body or {}).get("config", {})},
+        data={"id": config_id, "name": (body or {}).get("name", ""), "config": (body or {}).get("config", {})},
         message="配置已保存"
     ).dict()
 

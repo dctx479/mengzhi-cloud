@@ -143,13 +143,13 @@
 
         <el-table-column label="单价" width="120">
           <template #default="{ row }">
-            ¥{{ row.unit_price }}
+            ¥{{ parseFloat(row.unit_price || 0).toFixed(4) }}
           </template>
         </el-table-column>
 
         <el-table-column label="金额" width="120" sortable>
           <template #default="{ row }">
-            <span class="amount">¥{{ row.amount }}</span>
+            <span class="amount">¥{{ parseFloat(row.amount || 0).toFixed(2) }}</span>
           </template>
         </el-table-column>
 
@@ -209,7 +209,7 @@ const router = useRouter()
 
 // 数据
 const records = ref([])
-const dateRange = ref([])
+const dateRange = ref(null)
 const filters = reactive({
   start_date: null,
   end_date: null,
@@ -300,19 +300,20 @@ const loadRecords = async () => {
 
 // 处理日期范围变化
 const handleDateRangeChange = (value) => {
-  if (value && value.length === 2) {
+  if (Array.isArray(value) && value.length === 2) {
     filters.start_date = value[0]
     filters.end_date = value[1]
   } else {
     filters.start_date = null
     filters.end_date = null
   }
+  pagination.page = 1
   loadRecords()
 }
 
 // 重置筛选条件
 const resetFilters = () => {
-  dateRange.value = []
+  dateRange.value = null
   filters.start_date = null
   filters.end_date = null
   filters.billing_mode = null

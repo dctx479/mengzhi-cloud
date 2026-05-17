@@ -132,7 +132,7 @@
               立即支付
             </el-button>
             <el-button
-              v-if="order.status !== 'completed' && order.status !== 'cancelled'"
+              v-if="order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'shipped'"
               link
               type="danger"
               class="action-btn"
@@ -352,7 +352,7 @@ const handleCancel = async (order: Order) => {
     ElMessage.success('订单已取消')
     await loadOrders()
   } catch (error) {
-    if (error?.message !== 'cancel') {
+    if (error !== 'cancel') {
       ElMessage.error('取消订单失败，请重试')
     }
   }

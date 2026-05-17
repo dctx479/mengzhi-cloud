@@ -99,8 +99,8 @@ async def check_risk(
     对用户行为进行实时风险评估，返回风险等级和处理建议。
     """
     try:
-        # 从HTTP请求中提取上下文信息
-        context = request.context or {}
+        # 从HTTP请求中提取上下文信息，合并到请求体中的context
+        context = dict(request.context) if request.context else {}
         context.update({
             "ip_address": http_request.client.host if http_request.client else None,
             "user_agent": http_request.headers.get("user-agent"),

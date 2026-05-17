@@ -223,11 +223,15 @@ class DiversityController:
                              .get('temperature', 0.7) + temperature_boost)
 
             try:
-                # 生成内容
-                content = await generation_func(
-                    temperature=current_temp,
-                    attempt_number=attempt
-                )
+                # Wrap generation in a timeout to prevent indefinite hangs
+                try:
+                    content = await asyncio.wait_for(
+                        generation_func(temperature=current_temp, attempt_number=attempt),
+                        timeout=60.0
+                    )
+                except asyncio.TimeoutError:
+                    logger.warning(f"第 {attempt + 1} 次尝试：生成超时，跳过")
+                    continue
 
                 # 检查是否与现有内容过于相似
                 if await self._is_too_similar(content, variants + existing_contents):
@@ -246,6 +250,10 @@ class DiversityController:
                 logger.error(f"生成变体失败 (尝试 {attempt + 1}): {str(e)}")
                 continue
 
+        if not variants:
+            raise RuntimeError(
+                f"内容变体生成完全失败: 尝试了 {max_attempts} 次，未能生成任何有效变体"
+            )
         if len(variants) < count:
             logger.warning(f"仅生成了 {len(variants)} 个变体，少于请求的 {count} 个")
 
@@ -289,8 +297,8 @@ class DiversityController:
             return False
 
         except Exception as e:
-            logger.error(f"相似度检查失败: {str(e)}")
-            return True  # CRITICAL: Skip on error to prevent duplicates
+            logger.warning(f"⚠️ WARNING: 相似度检查失败，允许内容通过: {str(e)}")
+            return False  # Allow content through — blocking all content on error is worse
 
     async def _has_opening_diversity(
         self,

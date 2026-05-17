@@ -2,14 +2,14 @@
 媒体素材管理 API - Media Management Endpoints
 
 提供：
-- 图片/视频上传
+- 图片/视频上传（含 magic bytes 验证）
 - 媒体列表查询
 - 媒体详情获取
 - 媒体更新和删除
 - 媒体统计
 
-版本: 1.1
-更新日期: 2026-03-25
+版本: 1.2
+更新日期: 2026-05-17
 """
 
 import os
@@ -44,6 +44,49 @@ ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 ALLOWED_VIDEO_MIME_TYPES = {"video/mp4", "video/mpeg", "video/quicktime"}
 ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mpeg", ".mpg", ".mov"}
 
+# Magic bytes signatures for file type verification (防止伪造Content-Type)
+_IMAGE_MAGIC_BYTES: dict = {
+    b"\xff\xd8\xff": "image/jpeg",
+    b"\x89PNG\r\n\x1a\n": "image/png",
+    b"GIF87a": "image/gif",
+    b"GIF89a": "image/gif",
+    b"RIFF": "image/webp",  # RIFF....WEBP — checked further below
+}
+_VIDEO_MAGIC_BYTES: dict = {
+    b"\x00\x00\x00\x18ftyp": "video/mp4",
+    b"\x00\x00\x00\x20ftyp": "video/mp4",
+    b"\x00\x00\x00\x1cftyp": "video/mp4",
+    b"\x00\x00\x00\x14ftyp": "video/mp4",
+    b"\x00\x00\x00\x08ftyp": "video/mp4",
+    b"\x1aE\xdf\xa3": "video/webm",  # WebM/MKV — not in allowed list, will be rejected
+}
+
+
+def _check_magic_bytes(content: bytes, allowed_mime_types: set) -> bool:
+    """Verify file content matches a known magic-byte signature for an allowed MIME type."""
+    # JPEG
+    if content[:3] == b"\xff\xd8\xff" and "image/jpeg" in allowed_mime_types:
+        return True
+    # PNG
+    if content[:8] == b"\x89PNG\r\n\x1a\n" and "image/png" in allowed_mime_types:
+        return True
+    # GIF
+    if content[:6] in (b"GIF87a", b"GIF89a") and "image/gif" in allowed_mime_types:
+        return True
+    # WebP: RIFF????WEBP
+    if content[:4] == b"RIFF" and content[8:12] == b"WEBP" and "image/webp" in allowed_mime_types:
+        return True
+    # MP4/MOV/MPEG — ftyp box at offset 4
+    if len(content) >= 12 and content[4:8] == b"ftyp":
+        ftyp_brand = content[8:12]
+        mp4_brands = {b"isom", b"iso2", b"mp41", b"mp42", b"M4V ", b"M4A ", b"qt  ", b"MSNV"}
+        if ftyp_brand in mp4_brands:
+            return "video/mp4" in allowed_mime_types or "video/quicktime" in allowed_mime_types
+    # MPEG video: starts with 0x000001BA or 0x000001B3
+    if content[:4] in (b"\x00\x00\x01\xba", b"\x00\x00\x01\xb3") and "video/mpeg" in allowed_mime_types:
+        return True
+    return False
+
 
 def _validate_upload_file(
     file: UploadFile,
@@ -52,7 +95,7 @@ def _validate_upload_file(
     allowed_extensions: set,
     max_size: int,
 ) -> None:
-    """Validate uploaded file size, MIME type, and extension.
+    """Validate uploaded file size, MIME type, extension, and magic bytes.
 
     Raises HTTPException on validation failure.
     """
@@ -65,7 +108,7 @@ def _validate_upload_file(
             detail=f"文件过大: {actual_mb:.2f}MB，最大允许 {max_mb:.0f}MB",
         )
 
-    # 2. MIME type check
+    # 2. MIME type check (client-supplied header — not trusted alone)
     if file.content_type not in allowed_mime_types:
         raise HTTPException(
             status_code=400,
@@ -84,6 +127,13 @@ def _validate_upload_file(
                 f"不支持的文件扩展名: {ext}。"
                 f"支持的扩展名: {', '.join(sorted(allowed_extensions))}"
             ),
+        )
+
+    # 4. Magic bytes check — verify actual file content matches declared type
+    if not _check_magic_bytes(content, allowed_mime_types):
+        raise HTTPException(
+            status_code=400,
+            detail="文件内容与声明的类型不符，请上传真实的媒体文件",
         )
 
 

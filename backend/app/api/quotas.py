@@ -174,6 +174,73 @@ async def list_quotas(
     }
 
 
+@router.get("/statistics/summary", response_model=dict)
+async def get_quota_statistics(
+    enterprise_id: Optional[int] = Query(None, description="企业ID"),
+    user_id: Optional[int] = Query(None, description="用户ID"),
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取配额统计信息
+
+    权限：
+    - 管理员：可查询所有统计
+    - 企业管理员：可查询本企业统计
+    - 普通用户：只能查询自己的统计
+    """
+    service = QuotaService(db)
+
+    # 权限检查
+    if current_user["role"] != "admin":
+        user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+
+        if current_user["role"] == "enterprise_admin":
+            if not user.enterprise_id:
+                raise HTTPException(status_code=403, detail="非企业用户")
+            enterprise_id = user.enterprise_id
+            user_id = None
+        else:
+            enterprise_id = None
+            user_id = user.id
+
+    # 获取统计信息
+    statistics = service.get_quota_statistics(
+        enterprise_id=enterprise_id,
+        user_id=user_id
+    )
+
+    return {
+        "code": 200,
+        "message": "查询成功",
+        "data": statistics
+    }
+
+
+@router.post("/batch-reset", response_model=dict)
+async def batch_reset_expired_quotas(
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    批量重置过期配额（管理员）
+
+    权限：仅管理员
+    说明：用于定时任务或手动触发
+    """
+    service = QuotaService(db)
+
+    count = service.reset_expired_quotas()
+
+    return {
+        "code": 200,
+        "message": f"批量重置成功，共重置 {count} 个配额",
+        "data": {"count": count}
+    }
+
+
 @router.get("/{quota_id}", response_model=dict)
 async def get_quota(
     quota_id: int,
@@ -428,71 +495,4 @@ async def get_quota_usage(
             "page": page,
             "page_size": page_size
         }
-    }
-
-
-@router.get("/statistics/summary", response_model=dict)
-async def get_quota_statistics(
-    enterprise_id: Optional[int] = Query(None, description="企业ID"),
-    user_id: Optional[int] = Query(None, description="用户ID"),
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    获取配额统计信息
-
-    权限：
-    - 管理员：可查询所有统计
-    - 企业管理员：可查询本企业统计
-    - 普通用户：只能查询自己的统计
-    """
-    service = QuotaService(db)
-
-    # 权限检查
-    if current_user["role"] != "admin":
-        user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
-        if not user:
-            raise HTTPException(status_code=404, detail="用户不存在")
-
-        if current_user["role"] == "enterprise_admin":
-            if not user.enterprise_id:
-                raise HTTPException(status_code=403, detail="非企业用户")
-            enterprise_id = user.enterprise_id
-            user_id = None
-        else:
-            enterprise_id = None
-            user_id = user.id
-
-    # 获取统计信息
-    statistics = service.get_quota_statistics(
-        enterprise_id=enterprise_id,
-        user_id=user_id
-    )
-
-    return {
-        "code": 200,
-        "message": "查询成功",
-        "data": statistics
-    }
-
-
-@router.post("/batch-reset", response_model=dict)
-async def batch_reset_expired_quotas(
-    current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
-):
-    """
-    批量重置过期配额（管理员）
-
-    权限：仅管理员
-    说明：用于定时任务或手动触发
-    """
-    service = QuotaService(db)
-
-    count = service.reset_expired_quotas()
-
-    return {
-        "code": 200,
-        "message": f"批量重置成功，共重置 {count} 个配额",
-        "data": {"count": count}
     }

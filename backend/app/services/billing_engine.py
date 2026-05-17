@@ -82,9 +82,9 @@ class BillingEngine:
         # 计算费用
         amount = plan.calculate_cost(usage_data)
 
-        # 确定数量和单价
+        # 确定数量和单价（_calculate_unit_price 已返回 Decimal）
         quantity = self._extract_quantity(billing_mode, usage_data)
-        unit_price = self._calculate_unit_price(plan, quantity)
+        unit_price = self._calculate_unit_price(plan, quantity)  # Decimal
 
         # 获取当前日期
         today = date.today()
@@ -96,7 +96,7 @@ class BillingEngine:
             plan_id=plan.id,
             billing_mode=billing_mode,
             usage_data=usage_data,
-            unit_price=Decimal(str(unit_price)),
+            unit_price=unit_price,  # already Decimal from _calculate_unit_price
             quantity=quantity,
             amount=Decimal(str(amount)),
             currency=plan.pricing_rules.get("currency", "CNY"),
@@ -154,7 +154,7 @@ class BillingEngine:
 
         return int(quantity)
 
-    def _calculate_unit_price(self, plan: BillingPlan, quantity: int) -> float:
+    def _calculate_unit_price(self, plan: BillingPlan, quantity: int) -> Decimal:
         """计算单价
 
         参数:
@@ -162,18 +162,19 @@ class BillingEngine:
             quantity: 数量
 
         返回:
-            float: 单价
+            Decimal: 单价
         """
         if plan.billing_mode == BillingMode.TIERED:
-            # 阶梯定价，返回平均单价
+            # 阶梯定价，返回匹配档位的单价
             tiers = plan.pricing_rules.get("tiers", [])
             for tier in sorted(tiers, key=lambda x: x["min"]):
                 if tier["min"] <= quantity:
-                    if tier.get("max") is None or quantity < tier.get("max", float("inf")):
-                        return tier["unit_price"]
-            return 0.0
+                    if tier.get("max") is None or quantity < tier["max"]:
+                        return Decimal(str(tier["unit_price"]))
+            return Decimal("0")
         else:
-            return plan.pricing_rules.get("unit_price", 0) or plan.pricing_rules.get("monthly_fee", 0)
+            price = plan.pricing_rules.get("unit_price", 0) or plan.pricing_rules.get("monthly_fee", 0)
+            return Decimal(str(price))
 
     def generate_invoice(self, user_id: int, period_start: date, period_end: date, due_days: int = 7) -> Invoice:
         """生成账单
@@ -201,6 +202,19 @@ class BillingEngine:
 
         if not records:
             raise ValueError(f"No billing records found for user {user_id} in period {period_start} to {period_end}")
+
+        # 幂等性检查：同一用户同一周期只生成一张账单
+        existing_invoice = (
+            self.db.query(Invoice)
+            .filter(
+                Invoice.user_id == user_id,
+                Invoice.billing_period_start == period_start,
+                Invoice.billing_period_end == period_end,
+            )
+            .first()
+        )
+        if existing_invoice:
+            return existing_invoice
 
         # 生成账单编号
         invoice_number = Invoice.generate_invoice_number(user_id, period_start)
@@ -268,9 +282,9 @@ class BillingEngine:
             summary["by_mode"][mode]["quantity"] += record.quantity
             summary["by_mode"][mode]["amount"] += record.amount
 
-        # 转换Decimal为float以支持JSON序列化
+        # 转换Decimal为字符串以支持JSON序列化（保留精度，避免float精度损失）
         for mode in summary["by_mode"]:
-            summary["by_mode"][mode]["amount"] = float(summary["by_mode"][mode]["amount"])
+            summary["by_mode"][mode]["amount"] = str(summary["by_mode"][mode]["amount"])
 
         return summary
 
@@ -285,7 +299,7 @@ class BillingEngine:
         返回:
             Invoice: 更新后的账单
         """
-        invoice = self.db.query(Invoice).filter(Invoice.id == invoice_id).first()
+        invoice = self.db.query(Invoice).filter(Invoice.id == invoice_id).with_for_update().first()
         if not invoice:
             raise ValueError(f"Invoice {invoice_id} not found")
 
@@ -378,46 +392,46 @@ class BillingEngine:
 
         records = query.all()
 
-        # 统计总费用
-        total_amount = sum(float(record.amount or 0) for record in records)
+        # 统计总费用（使用 Decimal 避免浮点精度损失）
+        total_amount = sum((record.amount or Decimal("0")) for record in records)
 
         # 按计费模式统计
-        by_mode = {}
+        by_mode: Dict[str, Any] = {}
         for record in records:
             mode = record.billing_mode.value
             if mode not in by_mode:
-                by_mode[mode] = {"count": 0, "quantity": 0, "amount": 0.0}
+                by_mode[mode] = {"count": 0, "quantity": 0, "amount": Decimal("0")}
 
             by_mode[mode]["count"] += 1
             by_mode[mode]["quantity"] += record.quantity
-            by_mode[mode]["amount"] += float(record.amount or 0)
+            by_mode[mode]["amount"] += (record.amount or Decimal("0"))
 
         # 按日期统计
-        by_date = {}
+        by_date: Dict[str, Any] = {}
         for record in records:
             date_str = record.billing_date.isoformat()
             if date_str not in by_date:
-                by_date[date_str] = {"count": 0, "amount": 0.0}
+                by_date[date_str] = {"count": 0, "amount": Decimal("0")}
 
             by_date[date_str]["count"] += 1
-            by_date[date_str]["amount"] += float(record.amount or 0)
+            by_date[date_str]["amount"] += (record.amount or Decimal("0"))
 
         # 按月份统计
-        by_month = {}
+        by_month: Dict[str, Any] = {}
         for record in records:
             month = record.billing_month
             if month not in by_month:
-                by_month[month] = {"count": 0, "amount": 0.0}
+                by_month[month] = {"count": 0, "amount": Decimal("0")}
 
             by_month[month]["count"] += 1
-            by_month[month]["amount"] += float(record.amount or 0)
+            by_month[month]["amount"] += (record.amount or Decimal("0"))
 
         return {
             "total_records": len(records),
-            "total_amount": total_amount,
-            "by_mode": by_mode,
-            "by_date": by_date,
-            "by_month": by_month,
+            "total_amount": str(total_amount),
+            "by_mode": {k: {**v, "amount": str(v["amount"])} for k, v in by_mode.items()},
+            "by_date": {k: {**v, "amount": str(v["amount"])} for k, v in by_date.items()},
+            "by_month": {k: {**v, "amount": str(v["amount"])} for k, v in by_month.items()},
             "period": {
                 "start": start_date.isoformat() if start_date else None,
                 "end": end_date.isoformat() if end_date else None,

@@ -14,6 +14,7 @@
 """
 
 import os
+from pathlib import Path
 from fastapi import APIRouter, Depends, Query, HTTPException, status, UploadFile, File
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -29,7 +30,7 @@ from app.schemas.products import (
     CulturalInfoResponse,
     ProductStatus,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import List as TypingList, Dict, Any
 from app.services.product_service import ProductService
 from app.services.file_service import FileService
@@ -37,6 +38,7 @@ from app.schemas.cultural_tags import ProductTagsAssignRequest
 from app.core.errors import BusinessException, ErrorCode
 from app.core.responses import success_response, error_response, paginated_response
 from app.api.deps import get_db, require_admin, get_current_user, get_optional_user
+from app.core.constants import PRODUCT_IMAGE_UPLOAD_DIR
 
 # 创建路由器
 router = APIRouter()
@@ -45,6 +47,42 @@ router = APIRouter()
 MAX_PRODUCT_IMAGE_SIZE = 10 * 1024 * 1024  # 10 MB for product images
 ALLOWED_PRODUCT_IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 ALLOWED_PRODUCT_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+
+# Maximum number of product IDs allowed in a single batch operation
+_BATCH_MAX_IDS = 100
+
+
+def _check_image_magic_bytes(content: bytes) -> bool:
+    """Return True if content starts with a known image magic-byte signature."""
+    if content[:3] == b"\xff\xd8\xff":
+        return True  # JPEG
+    if content[:8] == b"\x89PNG\r\n\x1a\n":
+        return True  # PNG
+    if content[:6] in (b"GIF87a", b"GIF89a"):
+        return True  # GIF
+    if content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+        return True  # WebP
+    return False
+
+
+def _safe_delete_product_image_file(image_url: str) -> None:
+    """Delete a product image file only if it resolves inside the upload directory.
+
+    Prevents path traversal attacks via crafted image_url values.
+    """
+    if not image_url.startswith("/uploads"):
+        return
+    upload_root = Path(PRODUCT_IMAGE_UPLOAD_DIR).resolve()
+    # Strip leading slash and resolve against upload root
+    relative = image_url.lstrip("/")
+    target = Path(relative).resolve()
+    try:
+        target.relative_to(upload_root)
+    except ValueError:
+        # Path escapes the upload directory — refuse silently (log only)
+        logger.warning(f"拒绝删除上传目录外的文件: {image_url}")
+        return
+    FileService.delete_file(str(target))
 
 
 # ============ 辅助端点 ============
@@ -559,6 +597,13 @@ async def upload_product_image(
                 ),
             )
 
+        # 4. Magic bytes check — verify actual file content matches declared type
+        if not _check_image_magic_bytes(content):
+            raise HTTPException(
+                status_code=400,
+                detail="文件内容与声明的类型不符，请上传真实的图片文件",
+            )
+
         # Reset file position so downstream service can read it again
         await file.seek(0)
 
@@ -651,10 +696,8 @@ async def delete_product_image(
         if product.main_image_url == image_url:
             product.main_image_url = images[0] if images else None
 
-        # 删除文件
-        if image_url.startswith("/uploads"):
-            filepath = image_url.lstrip("/")
-            FileService.delete_file(filepath)
+        # 删除文件（路径遍历防护：仅允许删除上传目录内的文件）
+        _safe_delete_product_image_file(image_url)
 
         db.commit()
 
@@ -681,12 +724,24 @@ class BatchDeleteRequest(BaseModel):
 
     ids: TypingList[int]
 
+    @validator("ids")
+    def validate_ids(cls, v):
+        if len(v) > _BATCH_MAX_IDS:
+            raise ValueError(f"单次批量操作最多允许 {_BATCH_MAX_IDS} 个ID")
+        return v
+
 
 class BatchUpdateRequest(BaseModel):
     """批量更新请求"""
 
     ids: TypingList[int]
     data: Dict[str, Any]
+
+    @validator("ids")
+    def validate_ids(cls, v):
+        if len(v) > _BATCH_MAX_IDS:
+            raise ValueError(f"单次批量操作最多允许 {_BATCH_MAX_IDS} 个ID")
+        return v
 
 
 @router.post("/products/batch-delete", response_model=dict, tags=["产品"])

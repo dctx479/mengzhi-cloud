@@ -174,10 +174,20 @@ const rules = {
     { required: true, message: '请输入用户名', trigger: 'blur' },
     { min: 3, max: 20, message: '用户名长度 3-20 位', trigger: 'blur' },
   ],
+  nickname: [
+    { max: 30, message: '昵称最多 30 个字符', trigger: 'blur' },
+  ],
   phone: [
     {
       pattern: /^[0-9\-\+]{7,15}$/,
       message: '手机号格式不正确',
+      trigger: 'blur',
+    },
+  ],
+  website: [
+    {
+      pattern: /^(https?:\/\/)[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?$/,
+      message: '请输入有效的网址（以 http:// 或 https:// 开头）',
       trigger: 'blur',
     },
   ],

@@ -13,6 +13,7 @@ SLA监控服务
 
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
+import threading
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
 from loguru import logger
@@ -33,6 +34,9 @@ from app.core.errors import BusinessException, ErrorCode
 class SLAMonitor:
     """SLA监控服务"""
 
+    # 类级别锁，防止定时任务并发重复执行 monitor_all_agreements
+    _monitor_lock = threading.Lock()
+
     def __init__(self, db: Session):
         """
         初始化SLA监控服务
@@ -50,24 +54,32 @@ class SLAMonitor:
         Returns:
             Dict: 监控结果
         """
-        # 获取所有活跃的协议
-        agreements = (
-            self.db.query(SLAAgreement).filter(SLAAgreement.is_active == True, SLAAgreement.deleted_at.is_(None)).all()
-        )
+        # 使用类级别锁防止定时任务并发重复执行
+        if not SLAMonitor._monitor_lock.acquire(blocking=False):
+            logger.warning("monitor_all_agreements is already running, skipping this invocation")
+            return {"skipped": True, "reason": "concurrent execution prevented"}
 
-        results = {"total_agreements": len(agreements), "compliant": 0, "violations": 0, "details": []}
+        try:
+            # 获取所有活跃的协议
+            agreements = (
+                self.db.query(SLAAgreement).filter(SLAAgreement.is_active == True, SLAAgreement.deleted_at.is_(None)).all()
+            )
 
-        for agreement in agreements:
-            # 监控单个协议
-            result = self.monitor_agreement(agreement.id)
-            results["details"].append(result)
+            results = {"total_agreements": len(agreements), "compliant": 0, "violations": 0, "details": []}
 
-            if result["is_compliant"]:
-                results["compliant"] += 1
-            else:
-                results["violations"] += 1
+            for agreement in agreements:
+                # 监控单个协议
+                result = self.monitor_agreement(agreement.id)
+                results["details"].append(result)
 
-        return results
+                if result.get("is_compliant"):
+                    results["compliant"] += 1
+                else:
+                    results["violations"] += 1
+
+            return results
+        finally:
+            SLAMonitor._monitor_lock.release()
 
     def monitor_agreement(self, agreement_id: int) -> Dict:
         """
@@ -142,16 +154,19 @@ class SLAMonitor:
             is_compliant = False
 
         # P0-015修复: 添加事务管理，确保数据一致性
+        # 收集待发送的告警，commit 成功后再发，避免"告警已发但记录未持久化"
+        pending_alerts: List[tuple] = []  # (agreement, violation_record)
         try:
             if violations:
                 for violation in violations:
-                    self._record_violation(agreement, violation, start_time, end_time)
-    
+                    violation_record = self._record_violation(agreement, violation, start_time, end_time)
+                    if violation_record is not None:
+                        pending_alerts.append((agreement, violation_record))
+
             # 记录指标
             self._record_metrics(
                 agreement, start_time, end_time, availability, response_time, error_rate, throughput, is_compliant
             )
-    
 
             # 提交事务（将所有flush的记录持久化）
             self.db.commit()
@@ -165,6 +180,10 @@ class SLAMonitor:
                 code=ErrorCode.SYSTEM_ERROR,
                 message="SLA evaluation failed"
             )
+
+        # commit 成功后再发送告警，确保持久化与告警一致
+        for alert_agreement, alert_violation in pending_alerts:
+            self._send_alert(alert_agreement, alert_violation)
 
         return {
             "agreement_id": agreement_id,
@@ -389,7 +408,10 @@ class SLAMonitor:
             ViolationSeverity: 严重程度
         """
         # 计算偏差率
-        if metric_type in ["availability", "throughput"]:
+        if target == 0:
+            # 目标为0时无法计算相对偏差，直接按绝对值判断
+            deviation_rate = actual * 100 if metric_type not in ["availability", "throughput"] else 100.0
+        elif metric_type in ["availability", "throughput"]:
             # 这些指标是越高越好
             deviation_rate = ((target - actual) / target) * 100
         else:
@@ -406,15 +428,20 @@ class SLAMonitor:
         else:
             return ViolationSeverity.LOW
 
-    def _record_violation(self, agreement: SLAAgreement, violation: Dict, start_time: datetime, end_time: datetime):
+    def _record_violation(
+        self, agreement: SLAAgreement, violation: Dict, start_time: datetime, end_time: datetime
+    ) -> Optional[SLAViolation]:
         """
-        记录违约
+        记录违约（含去重：同一协议同一指标在同一时间窗口内不重复写入）
 
         Args:
             agreement: SLA协议
             violation: 违约信息
             start_time: 开始时间
             end_time: 结束时间
+
+        Returns:
+            新建的 SLAViolation 记录，若因去重跳过则返回 None
         """
         metric_type_map = {
             "availability": MetricType.AVAILABILITY,
@@ -423,15 +450,36 @@ class SLAMonitor:
             "throughput": MetricType.THROUGHPUT,
         }
 
+        metric_type = metric_type_map[violation["metric"]]
+        start_ts = start_time.isoformat()
+        end_ts = end_time.isoformat()
+
+        # 去重：检查同一协议、同一指标、同一时间窗口内是否已有违约记录
+        existing_violation = self.db.query(SLAViolation).filter(
+            SLAViolation.agreement_id == agreement.id,
+            SLAViolation.metric_type == metric_type,
+            SLAViolation.violation_time >= start_ts,
+            SLAViolation.violation_time <= end_ts,
+            SLAViolation.deleted_at.is_(None),
+        ).first()
+
+        if existing_violation:
+            logger.debug(
+                f"Skipping duplicate violation for agreement={agreement.id}, "
+                f"metric={violation['metric']}, window=[{start_ts}, {end_ts}]"
+            )
+            return None
+
         target = violation["target"]
         actual = violation["actual"]
         deviation = abs(actual - target)
-        deviation_rate = (deviation / target) * 100
+        # Guard against zero target to avoid ZeroDivisionError
+        deviation_rate = (deviation / target) * 100 if target != 0 else 0.0
 
         # 创建违约记录
         violation_record = SLAViolation(
             agreement_id=agreement.id,
-            metric_type=metric_type_map[violation["metric"]],
+            metric_type=metric_type,
             severity=violation["severity"],
             target_value=target,
             actual_value=actual,
@@ -443,10 +491,8 @@ class SLAMonitor:
         )
 
         self.db.add(violation_record)
-        self.db.flush()  # Flush to generate ID before sending alert
-
-        # 发送告警
-        self._send_alert(agreement, violation_record)
+        self.db.flush()  # Flush to generate ID; alert is sent by caller after commit
+        return violation_record
 
     def _record_metrics(
         self,
@@ -572,7 +618,7 @@ SLA违约告警
     @staticmethod
     def _percentile(values: List[float], percentile: int) -> float:
         """
-        计算百分位数
+        计算百分位数（线性插值法，与 numpy.percentile 默认行为一致）
 
         Args:
             values: 已排序的数值列表
@@ -584,9 +630,13 @@ SLA违约告警
         if not values:
             return 0.0
 
-        index = int(len(values) * (percentile / 100))
-        index = min(index, len(values) - 1)
-        return values[index]
+        n = len(values)
+        # 线性插值：index = (p/100) * (n-1)
+        idx = (percentile / 100) * (n - 1)
+        lower = int(idx)
+        upper = min(lower + 1, n - 1)
+        fraction = idx - lower
+        return values[lower] + fraction * (values[upper] - values[lower])
 
     def get_realtime_metrics(self, agreement_id: int) -> Dict:
         """

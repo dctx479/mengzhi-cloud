@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+import asyncio
 import httpx
 import logging
 
@@ -72,10 +73,14 @@ class BaseMediaProviderClient(ABC):
         app_id: Optional[str] = None,
         config: Optional[Dict[str, Any]] = None,
     ):
-        self.api_key = api_key
+        self._api_key = api_key  # 私有存储，避免意外序列化/日志泄露
         self.api_endpoint = api_endpoint
         self.app_id = app_id
         self.config = config or {}
+
+    @property
+    def api_key(self) -> str:
+        return self._api_key
 
     @property
     @abstractmethod
@@ -166,18 +171,78 @@ class BaseMediaProviderClient(ABC):
             )
         return results
 
+    # HTTP 状态码：服务端临时故障，值得重试
+    _RETRYABLE_HTTP_CODES = {429, 500, 502, 503, 504}
+
+    async def _http_post(self, url: str, headers: Dict[str, str], json_body: Dict[str, Any]) -> Dict[str, Any]:
+        """带指数退避重试的 POST 请求（仅对瞬时故障重试）。"""
+        max_retries = 3
+        last_exc: Optional[Exception] = None
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
+                    response = await client.post(url, headers=headers, json=json_body)
+                    if response.status_code in self._RETRYABLE_HTTP_CODES and attempt < max_retries - 1:
+                        wait = 2 ** attempt
+                        logger.warning("HTTP %d，%.0fs 后重试 (尝试 %d/%d)", response.status_code, wait, attempt + 1, max_retries)
+                        await asyncio.sleep(wait)
+                        continue
+                    body_preview = response.text[:300] if response.content else ""
+                    if not response.is_success:
+                        raise httpx.HTTPStatusError(
+                            f"HTTP {response.status_code} {body_preview}",
+                            request=response.request,
+                            response=response,
+                        )
+                    return response.json() if response.content else {}
+            except httpx.TimeoutException as exc:
+                last_exc = exc
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                raise
+        raise last_exc  # type: ignore[misc]
+
+    async def _http_get(self, url: str, headers: Dict[str, str]) -> Dict[str, Any]:
+        """带指数退避重试的 GET 请求（仅对瞬时故障重试）。"""
+        max_retries = 3
+        last_exc: Optional[Exception] = None
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
+                    response = await client.get(url, headers=headers)
+                    if response.status_code in self._RETRYABLE_HTTP_CODES and attempt < max_retries - 1:
+                        wait = 2 ** attempt
+                        logger.warning("HTTP %d，%.0fs 后重试 (尝试 %d/%d)", response.status_code, wait, attempt + 1, max_retries)
+                        await asyncio.sleep(wait)
+                        continue
+                    body_preview = response.text[:300] if response.content else ""
+                    if not response.is_success:
+                        raise httpx.HTTPStatusError(
+                            f"HTTP {response.status_code} {body_preview}",
+                            request=response.request,
+                            response=response,
+                        )
+                    return response.json() if response.content else {}
+            except httpx.TimeoutException as exc:
+                last_exc = exc
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                raise
+        raise last_exc  # type: ignore[misc]
+
     async def validate_config(self) -> tuple[bool, Optional[str], Dict[str, Any]]:
         self._require_api_key()
         return True, None, {"provider_code": self.provider_code}
 
+    @abstractmethod
     async def submit_task(self, request: MediaGenerationRequest) -> MediaGenerationSubmitResult:
-        self._require_api_key()
-        self._ensure_request_type(request)
-        raise MediaProviderError("当前服务商尚未实现真实任务提交")
+        """提交生成任务到服务商，子类必须实现。"""
 
+    @abstractmethod
     async def query_task(self, provider_task_id: str) -> MediaGenerationQueryResult:
-        self._require_api_key()
-        raise MediaProviderError("当前服务商尚未实现任务状态查询")
+        """查询服务商任务状态，子类必须实现。"""
 
 
 class TongyiWanxiangProviderClient(BaseMediaProviderClient):
@@ -217,17 +282,12 @@ class TongyiWanxiangProviderClient(BaseMediaProviderClient):
         if not endpoint:
             return True, None, {"provider_code": self.provider_code, "mode": "local_validation_only"}
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
-                response = await client.get(endpoint, headers={"Authorization": f"Bearer {self.api_key}"})
-                response.raise_for_status()
-                payload = response.json() if response.content else {}
-                return True, None, payload if isinstance(payload, dict) else {"data": payload}
+            payload = await self._http_get(endpoint, headers={"Authorization": f"Bearer {self.api_key}"})
+            return True, None, payload if isinstance(payload, dict) else {"data": payload}
         except httpx.TimeoutException as exc:
             raise MediaProviderError("通义万相配置验证请求超时") from exc
         except httpx.HTTPStatusError as exc:
-            raise MediaProviderError(
-                f"通义万相配置验证失败: HTTP {exc.response.status_code}"
-            ) from exc
+            raise MediaProviderError(f"通义万相配置验证失败: {exc}") from exc
         except Exception as exc:
             logger.warning("通义万相配置验证异常: %s", exc)
             raise MediaProviderError(f"通义万相配置验证失败: {str(exc)[:300]}") from exc
@@ -236,24 +296,19 @@ class TongyiWanxiangProviderClient(BaseMediaProviderClient):
         self._require_api_key()
         self._ensure_request_type(request)
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
-                response = await client.post(
-                    self._get_submit_endpoint(),
-                    headers={
-                        "Authorization": f"Bearer {self.api_key}",
-                        "Content-Type": "application/json",
-                        "X-DashScope-Async": "enable",
-                    },
-                    json=self._build_submit_payload(request),
-                )
-                response.raise_for_status()
-                payload = response.json() if response.content else {}
+            payload = await self._http_post(
+                self._get_submit_endpoint(),
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                    "X-DashScope-Async": "enable",
+                },
+                json_body=self._build_submit_payload(request),
+            )
         except httpx.TimeoutException as exc:
             raise MediaProviderError("通义万相任务提交请求超时") from exc
         except httpx.HTTPStatusError as exc:
-            raise MediaProviderError(
-                f"通义万相任务提交失败: HTTP {exc.response.status_code}"
-            ) from exc
+            raise MediaProviderError(f"通义万相任务提交失败: {exc}") from exc
         except Exception as exc:
             logger.warning("通义万相任务提交异常: %s", exc)
             raise MediaProviderError(f"通义万相任务提交失败: {str(exc)[:300]}") from exc
@@ -277,19 +332,14 @@ class TongyiWanxiangProviderClient(BaseMediaProviderClient):
         if not provider_task_id:
             raise MediaProviderError("通义万相任务ID不能为空")
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
-                response = await client.get(
-                    self._get_query_endpoint(provider_task_id),
-                    headers={"Authorization": f"Bearer {self.api_key}"},
-                )
-                response.raise_for_status()
-                payload = response.json() if response.content else {}
+            payload = await self._http_get(
+                self._get_query_endpoint(provider_task_id),
+                headers={"Authorization": f"Bearer {self.api_key}"},
+            )
         except httpx.TimeoutException as exc:
             raise MediaProviderError("通义万相任务查询请求超时") from exc
         except httpx.HTTPStatusError as exc:
-            raise MediaProviderError(
-                f"通义万相任务查询失败: HTTP {exc.response.status_code}"
-            ) from exc
+            raise MediaProviderError(f"通义万相任务查询失败: {exc}") from exc
         except Exception as exc:
             logger.warning("通义万相任务查询异常: %s", exc)
             raise MediaProviderError(f"通义万相任务查询失败: {str(exc)[:300]}") from exc
@@ -350,17 +400,12 @@ class ConfigurableHttpMediaProviderClient(BaseMediaProviderClient):
         if not endpoint:
             return True, None, {"provider_code": self.provider_code, "mode": "local_validation_only"}
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
-                response = await client.get(endpoint, headers=self._build_headers())
-                response.raise_for_status()
-                payload = response.json() if response.content else {}
-                return True, None, payload if isinstance(payload, dict) else {"data": payload}
+            payload = await self._http_get(endpoint, headers=self._build_headers())
+            return True, None, payload if isinstance(payload, dict) else {"data": payload}
         except httpx.TimeoutException as exc:
             raise MediaProviderError(f"{self.provider_display_name}配置验证请求超时") from exc
         except httpx.HTTPStatusError as exc:
-            raise MediaProviderError(
-                f"{self.provider_display_name}配置验证失败: HTTP {exc.response.status_code}"
-            ) from exc
+            raise MediaProviderError(f"{self.provider_display_name}配置验证失败: {exc}") from exc
         except Exception as exc:
             logger.warning("%s配置验证异常: %s", self.provider_display_name, exc)
             raise MediaProviderError(f"{self.provider_display_name}配置验证失败: {str(exc)[:300]}") from exc
@@ -369,20 +414,15 @@ class ConfigurableHttpMediaProviderClient(BaseMediaProviderClient):
         self._require_api_key()
         self._ensure_request_type(request)
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
-                response = await client.post(
-                    self._get_submit_endpoint(),
-                    headers=self._build_headers(),
-                    json=self._build_submit_payload(request),
-                )
-                response.raise_for_status()
-                payload = response.json() if response.content else {}
+            payload = await self._http_post(
+                self._get_submit_endpoint(),
+                headers=self._build_headers(),
+                json_body=self._build_submit_payload(request),
+            )
         except httpx.TimeoutException as exc:
             raise MediaProviderError(f"{self.provider_display_name}任务提交请求超时") from exc
         except httpx.HTTPStatusError as exc:
-            raise MediaProviderError(
-                f"{self.provider_display_name}任务提交失败: HTTP {exc.response.status_code}"
-            ) from exc
+            raise MediaProviderError(f"{self.provider_display_name}任务提交失败: {exc}") from exc
         except Exception as exc:
             logger.warning("%s任务提交异常: %s", self.provider_display_name, exc)
             raise MediaProviderError(f"{self.provider_display_name}任务提交失败: {str(exc)[:300]}") from exc
@@ -406,19 +446,14 @@ class ConfigurableHttpMediaProviderClient(BaseMediaProviderClient):
         if not provider_task_id:
             raise MediaProviderError(f"{self.provider_display_name}任务ID不能为空")
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
-                response = await client.get(
-                    self._get_query_endpoint(provider_task_id),
-                    headers=self._build_headers(),
-                )
-                response.raise_for_status()
-                payload = response.json() if response.content else {}
+            payload = await self._http_get(
+                self._get_query_endpoint(provider_task_id),
+                headers=self._build_headers(),
+            )
         except httpx.TimeoutException as exc:
             raise MediaProviderError(f"{self.provider_display_name}任务查询请求超时") from exc
         except httpx.HTTPStatusError as exc:
-            raise MediaProviderError(
-                f"{self.provider_display_name}任务查询失败: HTTP {exc.response.status_code}"
-            ) from exc
+            raise MediaProviderError(f"{self.provider_display_name}任务查询失败: {exc}") from exc
         except Exception as exc:
             logger.warning("%s任务查询异常: %s", self.provider_display_name, exc)
             raise MediaProviderError(f"{self.provider_display_name}任务查询失败: {str(exc)[:300]}") from exc

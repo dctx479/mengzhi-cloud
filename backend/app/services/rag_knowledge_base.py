@@ -13,6 +13,7 @@ RAG（检索增强生成）知识库服务 - AI-007 内容生成优化
 
 import json
 import asyncio
+import threading
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
 from loguru import logger
@@ -34,6 +35,12 @@ from app.core.config import settings
 
 class CulturalKnowledgeBase:
     """文化元素知识库 - 支持向量检索"""
+
+    # 防止并发重建索引
+    _build_lock = threading.Lock()
+
+    # top_k 安全上界，防止恶意大值导致内存/超时问题
+    _MAX_TOP_K = 50
 
     def __init__(self):
         """初始化知识库"""
@@ -68,18 +75,23 @@ class CulturalKnowledgeBase:
             logger.info("跳过FAISS索引构建（未安装依赖）")
             return False
 
+        # 防止并发重建索引导致 documents/index 不一致
+        if not CulturalKnowledgeBase._build_lock.acquire(blocking=False):
+            logger.warning("build_index is already running, skipping concurrent invocation")
+            return False
+
         try:
             logger.info("开始构建RAG知识库索引...")
 
             # 1. 加载所有文化数据
-            self.documents = await self._load_cultural_data(db)
+            documents = await self._load_cultural_data(db)
 
-            if not self.documents:
+            if not documents:
                 logger.warning("没有找到文化数据")
                 return False
 
             # 2. 提取文本并生成向量
-            texts = [doc['text'] for doc in self.documents]
+            texts = [doc['text'] for doc in documents]
             logger.info(f"正在对 {len(texts)} 个文档进行向量化...")
 
             # 分批处理大型文档集
@@ -93,8 +105,12 @@ class CulturalKnowledgeBase:
             embeddings = np.vstack(embeddings_list)
 
             # 3. 构建FAISS索引
-            self.index = faiss.IndexFlatL2(self.dimension)
-            self.index.add(embeddings.astype('float32'))
+            new_index = faiss.IndexFlatL2(self.dimension)
+            new_index.add(embeddings.astype('float32'))
+
+            # 原子性替换，避免检索时读到半构建状态
+            self.documents = documents
+            self.index = new_index
 
             logger.info(f"RAG索引构建完成: {len(self.documents)} 个文档已索引")
 
@@ -106,6 +122,8 @@ class CulturalKnowledgeBase:
         except Exception as e:
             logger.error(f"RAG索引构建失败: {str(e)}")
             return False
+        finally:
+            CulturalKnowledgeBase._build_lock.release()
 
     async def retrieve_cultural_context(
         self,
@@ -118,12 +136,14 @@ class CulturalKnowledgeBase:
 
         Args:
             product: 产品对象
-            top_k: 返回的结果数
+            top_k: 返回的结果数（上界 _MAX_TOP_K）
             db: 数据库会话
 
         Returns:
             文化背景结果列表
         """
+        # 防止恶意或错误的超大 top_k 导致内存/超时问题
+        top_k = max(1, min(top_k, self._MAX_TOP_K))
         if not self.documents:
             logger.warning("知识库为空，请先构建索引")
             return await self._fallback_retrieve(product, top_k, db)
@@ -190,6 +210,9 @@ class CulturalKnowledgeBase:
             营销素材列表
         """
         try:
+            # 防止超大 top_k
+            top_k = max(1, min(top_k, self._MAX_TOP_K))
+
             # 构建查询
             query_text = f"营销 {category} {style}"
 
@@ -337,15 +360,20 @@ class CulturalKnowledgeBase:
             return []
 
     async def _save_index(self) -> None:
-        """保存索引到磁盘"""
+        """保存索引和文档列表到磁盘"""
         try:
             if HAS_FAISS and self.index:
                 index_path = self.cache_dir / "faiss_index.bin"
                 meta_path = self.cache_dir / "index_metadata.json"
+                documents_path = self.cache_dir / "documents.json"
 
                 faiss.write_index(self.index, str(index_path))
 
-                # 保存元数据（用于恢复）
+                # 保存文档列表（检索时需要与索引对应）
+                with open(documents_path, 'w', encoding='utf-8') as f:
+                    json.dump(self.documents, f, ensure_ascii=False)
+
+                # 保存元数据
                 metadata = {
                     'dimension': self.dimension,
                     'num_documents': len(self.documents),
@@ -355,24 +383,35 @@ class CulturalKnowledgeBase:
                 with open(meta_path, 'w', encoding='utf-8') as f:
                     json.dump(metadata, f)
 
-                logger.info(f"索引已保存到 {index_path}")
+                logger.info(f"索引已保存到 {index_path}，文档列表已保存到 {documents_path}")
         except Exception as e:
             logger.error(f"保存索引失败: {str(e)}")
 
     async def load_index(self) -> bool:
-        """从磁盘加载索引"""
+        """从磁盘加载索引和文档列表"""
         try:
             if not HAS_FAISS:
                 return False
 
             index_path = self.cache_dir / "faiss_index.bin"
+            documents_path = self.cache_dir / "documents.json"
 
-            if index_path.exists():
-                self.index = faiss.read_index(str(index_path))
-                logger.info(f"索引已从 {index_path} 加载")
-                return True
+            if not index_path.exists():
+                return False
 
-            return False
+            # 必须同时存在文档列表，否则索引无法使用（检索时会 IndexError）
+            if not documents_path.exists():
+                logger.warning(f"FAISS index found but documents file missing at {documents_path}. Skipping load.")
+                return False
+
+            self.index = faiss.read_index(str(index_path))
+
+            with open(documents_path, 'r', encoding='utf-8') as f:
+                self.documents = json.load(f)
+
+            logger.info(f"索引已从 {index_path} 加载，文档数量: {len(self.documents)}")
+            return True
+
         except Exception as e:
             logger.error(f"加载索引失败: {str(e)}")
             return False

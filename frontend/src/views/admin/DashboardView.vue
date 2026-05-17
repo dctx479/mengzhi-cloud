@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard">
+  <div class="dashboard" v-loading="loading">
     <el-row :gutter="20">
       <el-col :span="6" v-for="stat in stats" :key="stat.label">
         <el-card>
@@ -19,14 +19,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { adminApi } from '@/api/admin'
+import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import type { AdminStats, AIUsageData } from '@/types/admin'
 
 const statsData = ref<AdminStats>()
 const usageData = ref<AIUsageData[]>([])
 const chartRef = ref<HTMLElement>()
+const loading = ref(false)
+let chartInstance: echarts.ECharts | null = null
 
 const stats = computed(() => [
   { label: '总用户数', value: statsData.value?.totalUsers || 0 },
@@ -36,6 +39,7 @@ const stats = computed(() => [
 ])
 
 const loadData = async () => {
+  loading.value = true
   try {
     const [statsRes, usageRes] = await Promise.all([
       adminApi.getStats(),
@@ -47,22 +51,41 @@ const loadData = async () => {
       renderChart()
     }
   } catch (error) {
-    console.error('加载数据失败:', error)
+    ElMessage.error(error instanceof Error ? error.message : '加载数据失败')
     usageData.value = []
+  } finally {
+    loading.value = false
   }
 }
 
 const renderChart = () => {
   if (!chartRef.value || !Array.isArray(usageData.value) || usageData.value.length === 0) return
-  const chart = echarts.init(chartRef.value)
-  chart.setOption({
+  // Dispose existing instance before re-initializing to prevent memory leak
+  if (chartInstance) {
+    chartInstance.dispose()
+  }
+  chartInstance = echarts.init(chartRef.value)
+  chartInstance.setOption({
     xAxis: { type: 'category', data: usageData.value.map(d => d.date) },
     yAxis: { type: 'value' },
     series: [{ type: 'line', data: usageData.value.map(d => d.count) }]
   })
 }
 
-onMounted(loadData)
+const handleResize = () => chartInstance?.resize()
+
+onMounted(() => {
+  loadData()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
+})
 </script>
 
 <style scoped>

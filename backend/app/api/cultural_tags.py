@@ -315,6 +315,7 @@ async def get_tag_products(
     tag_id: int,
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页数量"),
+    current_user: Optional[dict] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ) -> dict:
     """获取使用该标签的产品列表
@@ -325,7 +326,7 @@ async def get_tag_products(
         page_size: 每页数量
 
     返回:
-        产品列表
+        产品列表（已登录用户仅返回本企业产品）
     """
     try:
         service = CulturalTagService(db)
@@ -342,6 +343,12 @@ async def get_tag_products(
         ).filter(
             product_tags.c.tag_id == tag_id
         )
+
+        # 企业隔离：已登录用户只能看到本企业的产品
+        if current_user:
+            enterprise_id = current_user.get("enterprise_id") or current_user.get("tenant_id")
+            if enterprise_id and current_user.get("role") != "admin":
+                query = query.filter(Product.enterprise_id == enterprise_id)
 
         total = query.count()
 

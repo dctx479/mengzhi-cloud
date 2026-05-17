@@ -29,6 +29,16 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // Helper: strip sensitive fields before persisting to localStorage
+  const _safeUserForStorage = (u: User): Partial<User> => {
+    // Only persist non-sensitive identity fields
+    const { id, username, email, role, avatar, nickname } = u as User & {
+      avatar?: string
+      nickname?: string
+    }
+    return { id, username, email, role, avatar, nickname }
+  }
+
   // Actions
   const login = async (username: string, password: string) => {
     loading.value = true
@@ -38,7 +48,7 @@ export const useUserStore = defineStore('user', () => {
       user.value = response.user
       isLoggedIn.value = true
       localStorage.setItem('token', response.token)
-      localStorage.setItem('user', JSON.stringify(response.user))
+      localStorage.setItem('user', JSON.stringify(_safeUserForStorage(response.user)))
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Login failed'
       throw err
@@ -89,8 +99,10 @@ export const useUserStore = defineStore('user', () => {
       const userData = await authAPI.getCurrentUser()
       user.value = userData
       isLoggedIn.value = true
-      localStorage.setItem('user', JSON.stringify(userData))
+      localStorage.setItem('user', JSON.stringify(_safeUserForStorage(userData)))
     } catch (err) {
+      // Clear all auth state on fetch failure (token likely expired/invalid)
+      user.value = null
       isLoggedIn.value = false
       localStorage.removeItem('token')
       localStorage.removeItem('user')
@@ -108,7 +120,7 @@ export const useUserStore = defineStore('user', () => {
       // Backend returns only {updated:true}; re-fetch to get fresh user data
       const userData = await authAPI.getCurrentUser()
       user.value = userData
-      localStorage.setItem('user', JSON.stringify(userData))
+      localStorage.setItem('user', JSON.stringify(_safeUserForStorage(userData)))
       return userData
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Update failed'
@@ -130,12 +142,18 @@ export const useUserStore = defineStore('user', () => {
         await fetchCurrentUser()
         return true
       } else {
+        user.value = null
         isLoggedIn.value = false
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
         return false
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Token verification failed'
+      user.value = null
       isLoggedIn.value = false
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
       return false
     }
   }

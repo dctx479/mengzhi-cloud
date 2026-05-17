@@ -107,7 +107,7 @@ export async function generateContent(request: GenerationRequest): Promise<Gener
 export function createGenerationWebSocket(taskId: string): WebSocket {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
   const wsBaseUrl = import.meta.env.VITE_WS_BASE || `${protocol}//${window.location.host}/api`
-  return new WebSocket(`${wsBaseUrl}/content-generation/stream/${taskId}`)
+  return new WebSocket(`${wsBaseUrl}/v1/content-generation/stream/${taskId}`)
 }
 
 /**

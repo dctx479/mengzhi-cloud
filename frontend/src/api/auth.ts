@@ -83,24 +83,11 @@ export const getCurrentUser = (): Promise<User> =>
 
 export const updateProfile = async (data: UpdateProfileRequest): Promise<User> => {
   const res = await http.put<{ code: number; message: string; data: Record<string, unknown> | null }>('/v1/auth/me', data)
-  // PUT /auth/me may return {updated: true} or user data; re-fetch to ensure fresh user
-  if (res.code !== 200 || !res.data || !res.data.id) {
-    // Fallback: re-fetch user profile
-    return getCurrentUser()
+  if (res.code !== 200) {
+    throw new Error(res.message || '更新失败')
   }
-  const u = res.data
-  return {
-    id: (u.user_id as string) ?? '',
-    username: (u.username as string) ?? '',
-    email: (u.email as string) ?? '',
-    phone: u.phone as string | undefined,
-    nickname: u.nickname as string | undefined,
-    avatar: u.avatar_url as string | undefined,
-    status: (u.status as User['status']) ?? 'active',
-    role: (u.role as User['role']) ?? 'user',
-    createdAt: (u.created_at as string) ?? '',
-    updatedAt: '',
-  } as User
+  // PUT /auth/me returns {updated: true}; re-fetch to get fresh user data
+  return getCurrentUser()
 }
 
 export const changePassword = (oldPassword: string, newPassword: string): Promise<void> =>

@@ -59,10 +59,10 @@ class UpdateMediaProviderRequest(BaseModel):
 
 
 class CreateImageTaskRequest(BaseModel):
-    prompt: str
-    negative_prompt: Optional[str] = Field(default=None, alias="negativePrompt")
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    negative_prompt: Optional[str] = Field(default=None, max_length=1000, alias="negativePrompt")
     provider_id: Optional[int] = Field(default=None, alias="providerId")
-    model: Optional[str] = None
+    model: Optional[str] = Field(default=None, max_length=100)
     width: Optional[int] = Field(default=1024, ge=128, le=4096)
     height: Optional[int] = Field(default=1024, ge=128, le=4096)
     result_count: int = Field(default=1, ge=1, le=4, alias="resultCount")
@@ -72,10 +72,10 @@ class CreateImageTaskRequest(BaseModel):
 
 
 class CreateVideoTaskRequest(BaseModel):
-    prompt: str
-    negative_prompt: Optional[str] = Field(default=None, alias="negativePrompt")
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    negative_prompt: Optional[str] = Field(default=None, max_length=1000, alias="negativePrompt")
     provider_id: Optional[int] = Field(default=None, alias="providerId")
-    model: Optional[str] = None
+    model: Optional[str] = Field(default=None, max_length=100)
     width: Optional[int] = Field(default=1280, ge=128, le=4096)
     height: Optional[int] = Field(default=720, ge=128, le=4096)
     duration: int = Field(default=5, ge=1, le=300)
@@ -326,6 +326,15 @@ async def get_generation_task(
         return _json_error(status.HTTP_404_NOT_FOUND, ErrorCode.RECORD_NOT_FOUND, "生成任务不存在")
     if current_user.get("role") != "admin" and task.user_id != user.id:
         return _json_error(status.HTTP_403_FORBIDDEN, ErrorCode.PERMISSION_DENIED, "权限不足")
+
+    # 对于进行中的任务，主动向服务商同步最新状态（轮询场景）
+    if task.status in (MediaTaskStatus.PENDING, MediaTaskStatus.PROCESSING):
+        try:
+            task = await service.sync_task_status(task)
+        except Exception as sync_err:
+            # 同步失败不影响返回已有状态，记录警告即可
+            logger.warning("同步任务状态失败 task_uuid=%s: %s", task_uuid, sync_err)
+
     return success_response(data=task.to_dict()).dict()
 
 

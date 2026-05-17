@@ -213,7 +213,8 @@ const handleEdit = (row: AIConfig) => {
   formData.value = {
     name: row.name,
     provider: row.provider,
-    apiKey: row.apiKey,
+    // 编辑时不回填 API Key，避免明文暴露；用户若不修改则留空，后端应忽略空值
+    apiKey: '',
     endpoint: row.endpoint,
     model: row.model,
     isActive: row.isActive
@@ -250,7 +251,9 @@ const handleDelete = async (row: AIConfig) => {
     ElMessage.success('删除成功');
     loadConfigs();
   } catch (error: any) {
-    if (error !== 'cancel') ElMessage.error(error.message || '删除失败');
+    // ElMessageBox 取消时 reject 值为字符串 'cancel' 或 'close'，不是真正的错误
+    if (error === 'cancel' || error === 'close') return;
+    ElMessage.error(error.message || '删除失败');
   }
 };
 
@@ -277,9 +280,11 @@ const resetForm = () => {
   };
 };
 
-onMounted(() => {
-  loadConfigs();
-  loadProviderSettings();
+onMounted(async () => {
+  await Promise.all([
+    loadConfigs(),
+    loadProviderSettings(),
+  ]);
 });
 </script>
 

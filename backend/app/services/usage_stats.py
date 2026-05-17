@@ -50,15 +50,19 @@ class UsageStatsService:
             output_tokens=output_tokens,
             backend_cost=backend_cost,
 
-            # 利润
+            # 利润（防止除零）
             profit=client_charge - backend_cost,
-            profit_margin=float((client_charge - backend_cost) / client_charge * 100),
+            profit_margin=float((client_charge - backend_cost) / client_charge * 100) if client_charge else 0.0,
 
             created_at=datetime.utcnow()
         )
 
-        self.db.add(stat)
-        self.db.commit()
+        try:
+            self.db.add(stat)
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
 
         return stat
 
@@ -87,13 +91,17 @@ class UsageStatsService:
             backend_cost=backend_cost,
 
             profit=client_charge - backend_cost,
-            profit_margin=float((client_charge - backend_cost) / client_charge * 100),
+            profit_margin=float((client_charge - backend_cost) / client_charge * 100) if client_charge else 0.0,
 
             created_at=datetime.utcnow()
         )
 
-        self.db.add(stat)
-        self.db.commit()
+        try:
+            self.db.add(stat)
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
 
         return stat
 
@@ -124,13 +132,17 @@ class UsageStatsService:
             backend_cost=backend_cost,
 
             profit=client_charge - backend_cost,
-            profit_margin=float((client_charge - backend_cost) / client_charge * 100),
+            profit_margin=float((client_charge - backend_cost) / client_charge * 100) if client_charge else 0.0,
 
             created_at=datetime.utcnow()
         )
 
-        self.db.add(stat)
-        self.db.commit()
+        try:
+            self.db.add(stat)
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
 
         return stat
 

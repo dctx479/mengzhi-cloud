@@ -8,6 +8,7 @@
 from typing import Optional, Dict, Any, List, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func, text
+from sqlalchemy.exc import IntegrityError
 from datetime import datetime, date, timedelta
 from loguru import logger
 from decimal import Decimal
@@ -132,7 +133,15 @@ class ReconciliationService:
         )
 
         self.db.add(reconciliation_record)
-        self.db.commit()
+        try:
+            self.db.commit()
+        except IntegrityError:
+            # 并发场景：另一个请求在检查之后、commit 之前已插入相同日期的记录
+            self.db.rollback()
+            raise BusinessException(
+                code=ErrorCode.DUPLICATE_OPERATION,
+                message=f"日期 {reconciliation_date} 的对账记录已存在（并发冲突）"
+            )
         self.db.refresh(reconciliation_record)
 
         logger.info(f"创建对账记录: {reconciliation_record.batch_no}")
@@ -305,7 +314,8 @@ class ReconciliationService:
         # 构建汇总信息
         total_local_amount = sum((p.amount for p in local_payments), Decimal('0'))
         total_remote_amount = sum((t.amount for t in remote_transactions), Decimal('0'))
-        difference_amount = total_local_amount - matched_amount
+        # difference_amount 表示本地与第三方的净金额差异（绝对值）
+        difference_amount = abs(total_local_amount - total_remote_amount)
 
         summary = ReconciliationSummary(
             total_local_count=len(local_payments),
@@ -626,18 +636,21 @@ class ReconciliationService:
         ).all()
 
         # 构建报告数据
+        # 防御性处理：对账未完成时 count 字段可能为 None
+        total_local_count = record.total_local_count or 0
+        matched_count = record.matched_count or 0
         report = {
             "reconciliation_info": record.to_dict(),
             "summary": {
-                "total_local_count": record.total_local_count,
-                "total_remote_count": record.total_remote_count,
-                "matched_count": record.matched_count,
-                "difference_count": record.difference_count,
-                "match_rate": round(record.matched_count / max(record.total_local_count, 1) * 100, 2),
-                "total_local_amount": float(record.total_local_amount),
-                "total_remote_amount": float(record.total_remote_amount),
-                "matched_amount": float(record.matched_amount),
-                "difference_amount": float(record.difference_amount),
+                "total_local_count": total_local_count,
+                "total_remote_count": record.total_remote_count or 0,
+                "matched_count": matched_count,
+                "difference_count": record.difference_count or 0,
+                "match_rate": round(matched_count / max(total_local_count, 1) * 100, 2),
+                "total_local_amount": float(record.total_local_amount or 0),
+                "total_remote_amount": float(record.total_remote_amount or 0),
+                "matched_amount": float(record.matched_amount or 0),
+                "difference_amount": float(record.difference_amount or 0),
             },
             "differences": [diff.to_dict() for diff in differences],
             "difference_statistics": self._calculate_difference_statistics(differences),

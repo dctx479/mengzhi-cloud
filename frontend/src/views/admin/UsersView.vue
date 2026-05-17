@@ -4,7 +4,14 @@
       <template #header>
         <div class="header">
           <span>用户管理</span>
-          <el-input v-model="search" placeholder="搜索用户" style="width: 200px" @input="loadUsers" clearable />
+          <el-input
+            v-model="search"
+            placeholder="搜索用户"
+            style="width: 200px"
+            clearable
+            @input="onSearchInput"
+            @clear="onSearchInput"
+          />
         </div>
       </template>
 
@@ -16,7 +23,7 @@
         <el-table-column prop="status" label="状态">
           <template #default="{ row }">
             <el-tag :type="row.status === 'active' ? 'success' : 'danger'">
-              {{ row.status }}
+              {{ row.status === 'active' ? '激活' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -24,7 +31,12 @@
         <el-table-column label="操作" width="150">
           <template #default="{ row }">
             <el-button size="small" @click="editUser(row)">编辑</el-button>
-            <el-popconfirm title="确认删除?" @confirm="deleteUser(row.id)">
+            <el-popconfirm
+              title="确认删除该用户？此操作不可恢复。"
+              confirm-button-text="确认删除"
+              cancel-button-text="取消"
+              @confirm="deleteUser(row.id)"
+            >
               <template #reference>
                 <el-button size="small" type="danger">删除</el-button>
               </template>
@@ -32,6 +44,16 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :total="total"
+        :page-sizes="[10, 20, 50]"
+        layout="total, sizes, prev, pager, next"
+        style="margin-top: 16px; display: flex; justify-content: flex-end"
+        @change="loadUsers"
+      />
     </el-card>
 
     <el-dialog v-model="dialogVisible" title="编辑用户" width="500px">
@@ -57,7 +79,7 @@
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveUser">保存</el-button>
+        <el-button type="primary" :loading="saving" @click="saveUser">保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -71,17 +93,35 @@ import type { User } from '@/types/admin'
 
 const users = ref<User[]>([])
 const loading = ref(false)
+const saving = ref(false)
 const search = ref('')
 const dialogVisible = ref(false)
 const editForm = ref<Partial<User>>({})
+const currentPage = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
+let searchTimer: ReturnType<typeof setTimeout> | null = null
+
+const onSearchInput = () => {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1
+    loadUsers()
+  }, 300)
+}
 
 const loadUsers = async () => {
   loading.value = true
   try {
-    const users_data = await adminApi.getUsers({ search: search.value })
-    users.value = users_data
+    const result = await adminApi.getUsers({
+      search: search.value,
+      page: currentPage.value,
+      page_size: pageSize.value,
+    })
+    users.value = result.items
+    total.value = result.total
   } catch (error) {
-    ElMessage.error('加载失败')
+    ElMessage.error(error instanceof Error ? error.message : '加载用户列表失败')
   } finally {
     loading.value = false
   }
@@ -93,13 +133,16 @@ const editUser = (user: User) => {
 }
 
 const saveUser = async () => {
+  saving.value = true
   try {
     await adminApi.updateUser(editForm.value.id!, editForm.value)
     ElMessage.success('保存成功')
     dialogVisible.value = false
-    loadUsers()
+    await loadUsers()
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+  } finally {
+    saving.value = false
   }
 }
 
@@ -107,9 +150,9 @@ const deleteUser = async (id: number) => {
   try {
     await adminApi.deleteUser(id)
     ElMessage.success('删除成功')
-    loadUsers()
+    await loadUsers()
   } catch (error) {
-    ElMessage.error('删除失败')
+    ElMessage.error(error instanceof Error ? error.message : '删除失败')
   }
 }
 

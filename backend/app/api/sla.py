@@ -224,7 +224,7 @@ async def update_agreement(
     agreement = db.query(SLAAgreement).filter(
         SLAAgreement.id == agreement_id,
         SLAAgreement.deleted_at.is_(None)
-    ).first()
+    ).with_for_update().first()
 
     if not agreement:
         raise HTTPException(status_code=404, detail="协议不存在")

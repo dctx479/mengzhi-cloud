@@ -143,14 +143,16 @@ class UploadService:
         # 文件路径
         file_path = category_dir / unique_filename
 
-        # 保存文件
+        # 分块写入，避免将整个大文件加载到内存
+        file_size = 0
         file.file.seek(0)
-        content = await file.read()
         with open(file_path, "wb") as buffer:
-            buffer.write(content)
-
-        # 文件大小
-        file_size = len(content)
+            while True:
+                chunk = file.file.read(1024 * 1024)  # 1MB 块
+                if not chunk:
+                    break
+                buffer.write(chunk)
+                file_size += len(chunk)
 
         # 生成访问URL
         file_url = f"/{settings.UPLOAD_DIR}/{category.value}/{date_path}/{unique_filename}"
@@ -185,6 +187,9 @@ class UploadService:
 
         # 生成对象键
         ext = Path(file.filename).suffix
+        # 安全检查：防止路径遍历攻击（与本地存储保持一致）
+        if "/" in ext or "\\" in ext or ".." in ext:
+            raise HTTPException(status_code=400, detail="文件扩展名包含非法字符")
         unique_filename = f"{uuid.uuid4()}{ext}"
         date_path = datetime.now().strftime("%Y/%m/%d")
         object_key = f"{category.value}/{date_path}/{unique_filename}"
@@ -265,9 +270,10 @@ class UploadService:
                 thumbnail_filename = Path(thumbnail_path).name
                 # 从thumbnail_path中提取相对部分（uploads/category/YYYY/MM/DD/filename_thumb.ext）
                 relative_thumb = str(Path(thumbnail_path)).replace("\\", "/")
-                if relative_thumb.startswith(str(self.upload_dir).replace("\\", "/")):
+                upload_dir_str = str(self.upload_dir).replace("\\", "/")
+                if relative_thumb.startswith(upload_dir_str):
                     # 去掉前缀获取相对路径
-                    thumbnail_url = f"/{relative_thumb[len(str(self.upload_dir).replace('\\\\', '/')):]}"
+                    thumbnail_url = f"/{relative_thumb[len(upload_dir_str):].lstrip('/')}"
                 else:
                     # fallback: 使用基于当前日期的路径（可能不准确但是合理的默认值）
                     date_path = datetime.now().strftime("%Y/%m/%d")

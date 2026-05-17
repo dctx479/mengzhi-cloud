@@ -161,7 +161,7 @@
           :total="logTotal"
           :page-sizes="[5, 10, 20, 50]"
           layout="total, sizes, prev, pager, next"
-          @size-change="loadSecurityLogs"
+          @size-change="handleLogSizeChange"
           @current-change="loadSecurityLogs"
         />
       </div>
@@ -260,7 +260,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="bindPhoneDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleSubmitBindPhone">确定</el-button>
+          <el-button type="primary" @click="handleSubmitBindPhone" :loading="submittingPhone">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -302,7 +302,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="changeEmailDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleSubmitChangeEmail">确定</el-button>
+          <el-button type="primary" @click="handleSubmitChangeEmail" :loading="submittingEmail">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -418,6 +418,8 @@ const loadingDevices = ref(false)
 
 const changingPassword = ref(false)
 const sendingCode = ref(false)
+const submittingPhone = ref(false)
+const submittingEmail = ref(false)
 const countDown = ref(0)
 const activeTimers: ReturnType<typeof setInterval>[] = []
 
@@ -454,6 +456,18 @@ const handleChangePassword = async () => {
       return
     }
     await passwordFormRef.value.validate()
+
+    // Confirm before executing sensitive operation
+    await ElMessageBox.confirm(
+      '确定要修改密码吗？修改后将自动退出登录。',
+      '修改密码确认',
+      {
+        confirmButtonText: '确认修改',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    )
+
     changingPassword.value = true
 
     const data: ChangePasswordRequest = {
@@ -477,8 +491,10 @@ const handleChangePassword = async () => {
       userStore.logout()
     }, 1500)
   } catch (error) {
-    ElMessage.error('密码修改失败，请检查密码是否正确')
-    console.error(error)
+    if (error !== 'cancel') {
+      ElMessage.error('密码修改失败，请检查密码是否正确')
+      console.error(error)
+    }
   } finally {
     changingPassword.value = false
   }
@@ -549,6 +565,7 @@ const handleSubmitBindPhone = async () => {
       return
     }
     await phoneFormRef.value.validate()
+    submittingPhone.value = true
     await bindPhone({
       phone: phoneForm.value.phone,
       verification_code: phoneForm.value.verification_code,
@@ -559,6 +576,8 @@ const handleSubmitBindPhone = async () => {
   } catch (error) {
     ElMessage.error('绑定失败，请检查验证码')
     console.error(error)
+  } finally {
+    submittingPhone.value = false
   }
 }
 
@@ -568,6 +587,7 @@ const handleSubmitChangeEmail = async () => {
       return
     }
     await emailFormRef.value.validate()
+    submittingEmail.value = true
     await bindEmail({
       email: emailForm.value.email,
       verification_code: emailForm.value.verification_code,
@@ -578,6 +598,8 @@ const handleSubmitChangeEmail = async () => {
   } catch (error) {
     ElMessage.error('更改失败，请检查验证码')
     console.error(error)
+  } finally {
+    submittingEmail.value = false
   }
 }
 
@@ -621,6 +643,11 @@ const loadSecurityLogs = async () => {
   } finally {
     loadingLogs.value = false
   }
+}
+
+const handleLogSizeChange = () => {
+  logPage.value = 1
+  loadSecurityLogs()
 }
 
 const loadDevices = async () => {

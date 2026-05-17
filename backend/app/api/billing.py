@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+from loguru import logger
 
 from app.core.responses import APIResponse, success_response, error_response
 from app.core.errors import BusinessException, ErrorCode
@@ -76,7 +77,7 @@ class GenerateInvoiceRequest(BaseModel):
     user_id: int = Field(..., description="用户ID")
     period_start: date = Field(..., description="账单周期开始日期")
     period_end: date = Field(..., description="账单周期结束日期")
-    due_days: int = Field(7, description="到期天数")
+    due_days: int = Field(7, ge=1, le=365, description="到期天数（1-365）")
 
 
 # 创建路由
@@ -135,6 +136,7 @@ async def get_billing_plans(
         )
 
     except Exception as e:
+        logger.error(f"获取计费方案列表失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取计费方案列表失败"
@@ -188,6 +190,7 @@ async def create_billing_plan(
         )
 
     except Exception as e:
+        logger.error(f"创建计费方案失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="创建计费方案失败"
@@ -230,6 +233,7 @@ async def get_billing_plan(
         )
 
     except Exception as e:
+        logger.error(f"获取计费方案详情失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取计费方案详情失败"
@@ -279,6 +283,7 @@ async def update_billing_plan(
             message="计费方案不存在"
         )
     except Exception as e:
+        logger.error(f"更新计费方案失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="更新计费方案失败"
@@ -322,6 +327,7 @@ async def delete_billing_plan(
         )
 
     except Exception as e:
+        logger.error(f"删除计费方案失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="删除计费方案失败"
@@ -364,6 +370,7 @@ async def set_default_plan(
             message="计费方案不存在"
         )
     except Exception as e:
+        logger.error(f"设置默认方案失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="设置默认方案失败"
@@ -450,6 +457,7 @@ async def get_billing_records(
         )
 
     except Exception as e:
+        logger.error(f"获取计费记录失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取计费记录失败"
@@ -503,6 +511,7 @@ async def get_billing_statistics(
         )
 
     except Exception as e:
+        logger.error(f"获取计费统计失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取计费统计失败"
@@ -583,6 +592,7 @@ async def get_invoices(
         )
 
     except Exception as e:
+        logger.error(f"获取账单列表失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取账单列表失败"
@@ -643,6 +653,7 @@ async def get_invoice(
         )
 
     except Exception as e:
+        logger.error(f"获取账单详情失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取账单详情失败"
@@ -723,6 +734,7 @@ async def pay_invoice(
             message="参数验证失败"
         )
     except Exception as e:
+        logger.error(f"支付账单失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="支付账单失败"
@@ -773,6 +785,7 @@ async def generate_invoice(
             message="参数验证失败"
         )
     except Exception as e:
+        logger.error(f"生成账单失败: {e}")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="生成账单失败"

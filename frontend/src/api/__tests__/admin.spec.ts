@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { adminApi } from '../admin'
-import type { AdminStats, User, Enterprise, AIUsageData } from '@/types/admin'
+import type { AdminStats, User, Enterprise } from '@/types/admin'
 
 // Mock axios
 const mockGet = vi.fn()
@@ -12,7 +12,11 @@ vi.mock('axios', () => ({
     create: vi.fn(() => ({
       get: (...args: any[]) => mockGet(...args),
       patch: (...args: any[]) => mockPatch(...args),
-      delete: (...args: any[]) => mockDelete(...args)
+      delete: (...args: any[]) => mockDelete(...args),
+      interceptors: {
+        request: { use: vi.fn() },
+        response: { use: vi.fn() },
+      },
     }))
   }
 }))
@@ -63,28 +67,33 @@ describe('admin API', () => {
     }
   ]
 
-  const mockAIUsage: AIUsageData[] = [
-    { date: '2024-01-01', count: 100 },
-    { date: '2024-01-02', count: 150 },
-    { date: '2024-01-03', count: 200 }
-  ]
+  // mockAIUsage removed — getAIUsage now synthesizes a single aggregate point
 
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   describe('getStats', () => {
+    const mockStatsResponse = { data: { users: { total: 100, active: 75 }, enterprises: { total: 20 } } }
+    const mockUsageResponse = { data: { chat: { message_count: 5000 }, content_generation: { record_count: 0 } } }
+
     it('should fetch admin statistics', async () => {
-      mockGet.mockResolvedValue(mockStats)
+      mockGet
+        .mockResolvedValueOnce(mockStatsResponse)
+        .mockResolvedValueOnce(mockUsageResponse)
 
       const result = await adminApi.getStats()
 
-      expect(mockGet).toHaveBeenCalledWith('/stats')
-      expect(result).toEqual(mockStats)
+      expect(result.totalUsers).toBe(100)
+      expect(result.totalEnterprises).toBe(20)
+      expect(result.activeUsers).toBe(75)
+      expect(result.totalAIUsage).toBe(5000)
     })
 
     it('should return correct stats structure', async () => {
-      mockGet.mockResolvedValue(mockStats)
+      mockGet
+        .mockResolvedValueOnce(mockStatsResponse)
+        .mockResolvedValueOnce(mockUsageResponse)
 
       const result = await adminApi.getStats()
 
@@ -102,7 +111,9 @@ describe('admin API', () => {
     })
 
     it('should return numeric values', async () => {
-      mockGet.mockResolvedValue(mockStats)
+      mockGet
+        .mockResolvedValueOnce(mockStatsResponse)
+        .mockResolvedValueOnce(mockUsageResponse)
 
       const result = await adminApi.getStats()
 
@@ -114,39 +125,43 @@ describe('admin API', () => {
   })
 
   describe('getUsers', () => {
+    const mockUsersResponse = { data: { items: mockUsers, total: 2 } }
+
     it('should fetch users without search params', async () => {
-      mockGet.mockResolvedValue(mockUsers)
+      mockGet.mockResolvedValue(mockUsersResponse)
 
       const result = await adminApi.getUsers()
 
       expect(mockGet).toHaveBeenCalledWith('/users', { params: undefined })
-      expect(result).toEqual(mockUsers)
+      expect(result.items).toEqual(mockUsers)
+      expect(result.total).toBe(2)
     })
 
     it('should fetch users with search params', async () => {
-      mockGet.mockResolvedValue(mockUsers)
+      mockGet.mockResolvedValue(mockUsersResponse)
 
       const result = await adminApi.getUsers({ search: 'john' })
 
       expect(mockGet).toHaveBeenCalledWith('/users', { params: { search: 'john' } })
-      expect(result).toEqual(mockUsers)
+      expect(result.items).toEqual(mockUsers)
     })
 
     it('should return array of users', async () => {
-      mockGet.mockResolvedValue(mockUsers)
+      mockGet.mockResolvedValue(mockUsersResponse)
 
       const result = await adminApi.getUsers()
 
-      expect(Array.isArray(result)).toBe(true)
-      expect(result.length).toBe(2)
+      expect(Array.isArray(result.items)).toBe(true)
+      expect(result.items.length).toBe(2)
     })
 
     it('should handle empty users list', async () => {
-      mockGet.mockResolvedValue([])
+      mockGet.mockResolvedValue({ data: { items: [], total: 0 } })
 
       const result = await adminApi.getUsers()
 
-      expect(result).toEqual([])
+      expect(result.items).toEqual([])
+      expect(result.total).toBe(0)
     })
 
     it('should handle users fetch error', async () => {
@@ -157,11 +172,11 @@ describe('admin API', () => {
     })
 
     it('should return users with correct structure', async () => {
-      mockGet.mockResolvedValue(mockUsers)
+      mockGet.mockResolvedValue(mockUsersResponse)
 
       const result = await adminApi.getUsers()
 
-      result.forEach(user => {
+      result.items.forEach((user: User) => {
         expect(user).toHaveProperty('id')
         expect(user).toHaveProperty('username')
         expect(user).toHaveProperty('email')
@@ -257,39 +272,43 @@ describe('admin API', () => {
   })
 
   describe('getEnterprises', () => {
+    const mockEnterprisesResponse = { data: { items: mockEnterprises, total: 2 } }
+
     it('should fetch enterprises without search params', async () => {
-      mockGet.mockResolvedValue(mockEnterprises)
+      mockGet.mockResolvedValue(mockEnterprisesResponse)
 
       const result = await adminApi.getEnterprises()
 
       expect(mockGet).toHaveBeenCalledWith('/enterprises', { params: undefined })
-      expect(result).toEqual(mockEnterprises)
+      expect(result.items).toEqual(mockEnterprises)
+      expect(result.total).toBe(2)
     })
 
     it('should fetch enterprises with search params', async () => {
-      mockGet.mockResolvedValue(mockEnterprises)
+      mockGet.mockResolvedValue(mockEnterprisesResponse)
 
       const result = await adminApi.getEnterprises({ search: 'Tech' })
 
       expect(mockGet).toHaveBeenCalledWith('/enterprises', { params: { search: 'Tech' } })
-      expect(result).toEqual(mockEnterprises)
+      expect(result.items).toEqual(mockEnterprises)
     })
 
     it('should return array of enterprises', async () => {
-      mockGet.mockResolvedValue(mockEnterprises)
+      mockGet.mockResolvedValue(mockEnterprisesResponse)
 
       const result = await adminApi.getEnterprises()
 
-      expect(Array.isArray(result)).toBe(true)
-      expect(result.length).toBe(2)
+      expect(Array.isArray(result.items)).toBe(true)
+      expect(result.items.length).toBe(2)
     })
 
     it('should handle empty enterprises list', async () => {
-      mockGet.mockResolvedValue([])
+      mockGet.mockResolvedValue({ data: { items: [], total: 0 } })
 
       const result = await adminApi.getEnterprises()
 
-      expect(result).toEqual([])
+      expect(result.items).toEqual([])
+      expect(result.total).toBe(0)
     })
 
     it('should handle enterprises fetch error', async () => {
@@ -300,11 +319,11 @@ describe('admin API', () => {
     })
 
     it('should return enterprises with correct structure', async () => {
-      mockGet.mockResolvedValue(mockEnterprises)
+      mockGet.mockResolvedValue(mockEnterprisesResponse)
 
       const result = await adminApi.getEnterprises()
 
-      result.forEach(enterprise => {
+      result.items.forEach((enterprise: Enterprise) => {
         expect(enterprise).toHaveProperty('id')
         expect(enterprise).toHaveProperty('name')
         expect(enterprise).toHaveProperty('contactPerson')
@@ -400,26 +419,30 @@ describe('admin API', () => {
   })
 
   describe('getAIUsage', () => {
+    const mockUsageResponse = { data: { chat: { message_count: 100 }, content_generation: { record_count: 50 } } }
+
     it('should fetch AI usage data', async () => {
-      mockGet.mockResolvedValue(mockAIUsage)
+      mockGet.mockResolvedValue(mockUsageResponse)
 
       const result = await adminApi.getAIUsage()
 
       expect(mockGet).toHaveBeenCalledWith('/ai-usage')
-      expect(result).toEqual(mockAIUsage)
+      expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBe(1)
+      expect(result[0].count).toBe(150)
     })
 
     it('should return array of usage data', async () => {
-      mockGet.mockResolvedValue(mockAIUsage)
+      mockGet.mockResolvedValue(mockUsageResponse)
 
       const result = await adminApi.getAIUsage()
 
       expect(Array.isArray(result)).toBe(true)
-      expect(result.length).toBe(3)
+      expect(result.length).toBe(1)
     })
 
     it('should handle empty usage data', async () => {
-      mockGet.mockResolvedValue([])
+      mockGet.mockResolvedValue({ data: { chat: { message_count: 0 }, content_generation: { record_count: 0 } } })
 
       const result = await adminApi.getAIUsage()
 
@@ -434,7 +457,7 @@ describe('admin API', () => {
     })
 
     it('should return usage data with correct structure', async () => {
-      mockGet.mockResolvedValue(mockAIUsage)
+      mockGet.mockResolvedValue(mockUsageResponse)
 
       const result = await adminApi.getAIUsage()
 
@@ -446,14 +469,14 @@ describe('admin API', () => {
       })
     })
 
-    it('should return chronological data', async () => {
-      mockGet.mockResolvedValue(mockAIUsage)
+    it("should return today's aggregated data point", async () => {
+      mockGet.mockResolvedValue(mockUsageResponse)
 
       const result = await adminApi.getAIUsage()
 
-      expect(result[0].date).toBe('2024-01-01')
-      expect(result[1].date).toBe('2024-01-02')
-      expect(result[2].date).toBe('2024-01-03')
+      const today = new Date().toISOString().split('T')[0]
+      expect(result[0].date).toBe(today)
+      expect(result[0].count).toBe(150)
     })
   })
 
@@ -510,27 +533,27 @@ describe('admin API', () => {
     })
 
     it('should return correctly typed users', async () => {
-      mockGet.mockResolvedValue(mockUsers)
+      mockGet.mockResolvedValue({ data: { items: mockUsers, total: 2 } })
 
       const result = await adminApi.getUsers()
 
-      expect(result[0]).toHaveProperty('id')
-      expect(result[0]).toHaveProperty('username')
-      expect(result[0]).toHaveProperty('email')
-      expect(result[0]).toHaveProperty('role')
-      expect(result[0]).toHaveProperty('status')
+      expect(result.items[0]).toHaveProperty('id')
+      expect(result.items[0]).toHaveProperty('username')
+      expect(result.items[0]).toHaveProperty('email')
+      expect(result.items[0]).toHaveProperty('role')
+      expect(result.items[0]).toHaveProperty('status')
     })
 
     it('should return correctly typed enterprises', async () => {
-      mockGet.mockResolvedValue(mockEnterprises)
+      mockGet.mockResolvedValue({ data: { items: mockEnterprises, total: 2 } })
 
       const result = await adminApi.getEnterprises()
 
-      expect(result[0]).toHaveProperty('id')
-      expect(result[0]).toHaveProperty('name')
-      expect(result[0]).toHaveProperty('contactPerson')
-      expect(result[0]).toHaveProperty('email')
-      expect(result[0]).toHaveProperty('status')
+      expect(result.items[0]).toHaveProperty('id')
+      expect(result.items[0]).toHaveProperty('name')
+      expect(result.items[0]).toHaveProperty('contactPerson')
+      expect(result.items[0]).toHaveProperty('email')
+      expect(result.items[0]).toHaveProperty('status')
     })
   })
 })

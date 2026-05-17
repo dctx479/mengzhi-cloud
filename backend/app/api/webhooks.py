@@ -30,6 +30,13 @@ def verify_alertmanager_auth(credentials: HTTPBasicCredentials = Depends(securit
     correct_username = os.getenv("ALERTMANAGER_WEBHOOK_USER", "alertmanager")
     correct_password = os.getenv("ALERTMANAGER_WEBHOOK_SECRET", "changeme")
 
+    # 生产环境默认密码告警
+    if correct_password == "changeme":
+        logger.warning(
+            "⚠️ WARNING: ALERTMANAGER_WEBHOOK_SECRET is using the default value 'changeme'. "
+            "Set this environment variable to a strong secret in production."
+        )
+
     # 使用 secrets.compare_digest() 防止timing attack
     username_match = secrets.compare_digest(
         credentials.username.encode(), correct_username.encode()
@@ -85,8 +92,9 @@ async def receive_alerts(
     }
     """
     try:
-        # 验证Content-Type
-        if request.headers.get("content-type") and "application/json" not in request.headers.get("content-type", ""):
+        # 验证Content-Type必须为application/json
+        content_type = request.headers.get("content-type", "")
+        if "application/json" not in content_type:
             raise HTTPException(
                 status_code=400,
                 detail="Content-Type must be application/json"
@@ -135,8 +143,9 @@ async def receive_critical_alerts(
 ):
     """接收严重告警"""
     try:
-        # 验证Content-Type
-        if request.headers.get("content-type") and "application/json" not in request.headers.get("content-type", ""):
+        # 验证Content-Type必须为application/json
+        content_type = request.headers.get("content-type", "")
+        if "application/json" not in content_type:
             raise HTTPException(
                 status_code=400,
                 detail="Content-Type must be application/json"
@@ -177,8 +186,9 @@ async def receive_warning_alerts(
 ):
     """接收警告告警"""
     try:
-        # 验证Content-Type
-        if request.headers.get("content-type") and "application/json" not in request.headers.get("content-type", ""):
+        # 验证Content-Type必须为application/json
+        content_type = request.headers.get("content-type", "")
+        if "application/json" not in content_type:
             raise HTTPException(
                 status_code=400,
                 detail="Content-Type must be application/json"
@@ -219,8 +229,9 @@ async def receive_info_alerts(
 ):
     """接收信息告警"""
     try:
-        # 验证Content-Type
-        if request.headers.get("content-type") and "application/json" not in request.headers.get("content-type", ""):
+        # 验证Content-Type必须为application/json
+        content_type = request.headers.get("content-type", "")
+        if "application/json" not in content_type:
             raise HTTPException(
                 status_code=400,
                 detail="Content-Type must be application/json"

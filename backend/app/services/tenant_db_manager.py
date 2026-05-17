@@ -118,7 +118,8 @@ class TenantDatabaseManager:
         self,
         enterprise_id: int,
         db: Session,
-        initialize_schema: bool = True
+        initialize_schema: bool = True,
+        _skip_mode_check: bool = False
     ) -> Dict:
         """
         创建租户数据库
@@ -140,7 +141,7 @@ class TenantDatabaseManager:
             if not enterprise:
                 raise ValueError(f"Enterprise {enterprise_id} not found")
 
-            if enterprise.isolation_mode != IsolationMode.ISOLATED:
+            if enterprise.isolation_mode != IsolationMode.ISOLATED and not _skip_mode_check:
                 raise ValueError(f"Enterprise {enterprise_id} is not in isolated mode")
 
             if enterprise.database_name:
@@ -258,8 +259,8 @@ class TenantDatabaseManager:
 
             logger.info(f"Starting migration to isolated mode for enterprise {enterprise_id}")
 
-            # 1. 创建租户数据库
-            self.create_tenant_database(enterprise_id, db, initialize_schema=True)
+            # 1. 创建租户数据库（跳过隔离模式检查，迁移完成后再更新模式）
+            self.create_tenant_database(enterprise_id, db, initialize_schema=True, _skip_mode_check=True)
 
             # 2. 获取租户数据库会话
             tenant_db = self.router.get_session(enterprise_id)
@@ -451,13 +452,15 @@ class TenantDatabaseManager:
                 "-h", settings.TENANT_DB_HOST,
                 "-P", str(settings.TENANT_DB_PORT),
                 "-u", settings.TENANT_DB_USER,
-                f"-p{settings.TENANT_DB_PASSWORD}",
                 enterprise.database_name,
                 "--result-file", backup_file
             ]
 
             # S-P0-002: 禁用 shell=True，使用列表参数防止命令注入
-            result = subprocess.run(cmd, capture_output=True, text=True, shell=False)
+            # 密码通过环境变量传递，避免在进程列表中暴露
+            backup_env = os.environ.copy()
+            backup_env["MYSQL_PWD"] = settings.TENANT_DB_PASSWORD
+            result = subprocess.run(cmd, capture_output=True, text=True, shell=False, env=backup_env)
 
             if result.returncode != 0:
                 raise RuntimeError(f"Backup failed: {result.stderr}")
@@ -533,13 +536,14 @@ class TenantDatabaseManager:
                 "-h", settings.TENANT_DB_HOST,
                 "-P", str(settings.TENANT_DB_PORT),
                 "-u", settings.TENANT_DB_USER,
-                f"-p{settings.TENANT_DB_PASSWORD}",
                 enterprise.database_name
             ]
 
             with open(backup_file, 'r', encoding='utf-8') as f:
-                # S-P0-002: 禁用 shell=True，使用列表参数防止命令注入
-                result = subprocess.run(cmd, stdin=f, capture_output=True, text=True, shell=False)
+                # S-P0-002: 禁用 shell=True，密码通过环境变量传递
+                restore_env = os.environ.copy()
+                restore_env["MYSQL_PWD"] = settings.TENANT_DB_PASSWORD
+                result = subprocess.run(cmd, stdin=f, capture_output=True, text=True, shell=False, env=restore_env)
 
             if result.returncode != 0:
                 raise RuntimeError(f"Restore failed: {result.stderr}")

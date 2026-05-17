@@ -363,7 +363,7 @@ class AuditService:
 
             if username:
                 safe_username = username.replace("%", "\\%").replace("_", "\\_")
-                query = query.filter(AuditLog.username.like(f"%{safe_username}%"))
+                query = query.filter(AuditLog.username.like(f"%{safe_username}%", escape="\\"))
 
             if action:
                 query = query.filter(AuditLog.action == action)
@@ -506,9 +506,15 @@ class AuditService:
             # 总操作数
             total_operations = query.count()
 
-            # 成功/失败统计
-            success_count = query.filter(AuditLog.is_success == 1).count()
-            failure_count = query.filter(AuditLog.is_success == 0).count()
+            # 成功/失败统计 — 基于独立的 filter，避免复用同一 query 对象叠加条件
+            base_query = db.query(AuditLog)
+            if start_date:
+                base_query = base_query.filter(AuditLog.created_at >= start_date)
+            if end_date:
+                base_query = base_query.filter(AuditLog.created_at <= end_date)
+
+            success_count = base_query.filter(AuditLog.is_success == 1).count()
+            failure_count = base_query.filter(AuditLog.is_success == 0).count()
 
             # 按操作类型统计
             action_query = db.query(
@@ -611,33 +617,38 @@ class AuditService:
             if end_date:
                 query = query.filter(AuditLog.created_at <= end_date)
 
-            # 获取日志
-            logs = query.order_by(AuditLog.created_at.desc()).limit(limit).all()
-
-            # 转换为字典列表
+            # 分批加载，避免大数据量时 OOM（每批 1000 条）
+            BATCH = 1000
             log_list = []
-            for log in logs:
-                log_dict = {
-                    "id": log.id,
-                    "user_id": log.user_id,
-                    "username": log.username,
-                    "action": log.action,
-                    "resource": log.resource,
-                    "resource_id": log.resource_id,
-                    "details": log.details,
-                    "changes": _safe_json_loads(log.changes) if log.changes else None,
-                    "before_data": _safe_json_loads(log.before_data) if log.before_data else None,
-                    "after_data": _safe_json_loads(log.after_data) if log.after_data else None,
-                    "ip_address": log.ip_address,
-                    "user_agent": log.user_agent,
-                    "request_method": log.request_method,
-                    "request_path": log.request_path,
-                    "status_code": log.status_code,
-                    "is_success": bool(log.is_success),
-                    "error_message": log.error_message,
-                    "created_at": log.created_at.isoformat() if log.created_at else None
-                }
-                log_list.append(log_dict)
+            fetched = 0
+            while fetched < limit:
+                batch_size = min(BATCH, limit - fetched)
+                batch = query.order_by(AuditLog.created_at.desc()).offset(fetched).limit(batch_size).all()
+                if not batch:
+                    break
+                for log in batch:
+                    log_dict = {
+                        "id": log.id,
+                        "user_id": log.user_id,
+                        "username": log.username,
+                        "action": log.action,
+                        "resource": log.resource,
+                        "resource_id": log.resource_id,
+                        "details": log.details,
+                        "changes": _safe_json_loads(log.changes) if log.changes else None,
+                        "before_data": _safe_json_loads(log.before_data) if log.before_data else None,
+                        "after_data": _safe_json_loads(log.after_data) if log.after_data else None,
+                        "ip_address": log.ip_address,
+                        "user_agent": log.user_agent,
+                        "request_method": log.request_method,
+                        "request_path": log.request_path,
+                        "status_code": log.status_code,
+                        "is_success": bool(log.is_success),
+                        "error_message": log.error_message,
+                        "created_at": log.created_at.isoformat() if log.created_at else None
+                    }
+                    log_list.append(log_dict)
+                fetched += len(batch)
 
             if format == "csv":
                 # 转换为CSV格式

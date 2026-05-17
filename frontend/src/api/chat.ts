@@ -144,7 +144,8 @@ export async function sendMessageStream(
   chatId: string,
   content: string,
   onChunk: (chunk: StreamMessage) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
+  signal?: AbortSignal
 ): Promise<void> {
   const token = localStorage.getItem('token')
   let response: Response
@@ -159,8 +160,10 @@ export async function sendMessageStream(
         content,
         conversation_id: chatId ? Number(chatId) : undefined,
       }),
+      signal,
     })
   } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') return
     const error = err instanceof Error ? err : new Error('Stream request failed')
     if (onError) onError(error)
     throw error
@@ -193,9 +196,10 @@ export async function sendMessageStream(
 
   const decoder = new TextDecoder()
   let buffer = ''
+  let doneCalled = false
 
   try {
-    while (true) {
+    outer: while (true) {
       const { done, value } = await reader.read()
       if (done) break
       buffer += decoder.decode(value, { stream: true })
@@ -211,6 +215,8 @@ export async function sendMessageStream(
           const parsed = JSON.parse(data)
           if (parsed.status === 'completed') {
             onChunk({ type: 'done' })
+            doneCalled = true
+            break outer
           } else if (parsed.error) {
             onChunk({ type: 'error', error: parsed.message || 'Stream error' })
           } else {
@@ -233,8 +239,9 @@ export async function sendMessageStream(
         }
       }
     }
-    onChunk({ type: 'done' })
+    if (!doneCalled) onChunk({ type: 'done' })
   } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') return
     const error = err instanceof Error ? err : new Error('Stream read error')
     if (onError) onError(error)
     throw error
@@ -282,15 +289,8 @@ export async function getChatHistory(
   const response = await chatAPI.get(`/conversations/${chatId}`, {
     params: { page, page_size: pageSize },
   })
-  const conv = response.data as BackendConversation
-  
-  // Type-safe extraction of total: prefer backend total field if it exists
-  let total = conv.messages?.length ?? 0
-  if (response.data && typeof response.data === 'object' && 'total' in response.data) {
-    const backendTotal = (response.data as any).total
-    if (typeof backendTotal === 'number') total = backendTotal
-  }
-  
+  const conv = response.data as BackendConversation & { total?: number }
+  const total = typeof conv.total === 'number' ? conv.total : (conv.messages?.length ?? 0)
   return { data: (conv.messages || []).map(mapMessage), total }
 }
 

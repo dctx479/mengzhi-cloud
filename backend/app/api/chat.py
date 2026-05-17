@@ -465,10 +465,16 @@ async def add_feedback(request: FeedbackRequest, user_id: int = Depends(get_user
     try:
         service = ChatService(db)
 
-        # 从message_id查找conversation_id
+        # 从message_id查找conversation_id，同时验证该消息属于当前用户（通过join Conversation）
         from app.models.message import Message
+        from app.models.conversation import Conversation
 
-        message = db.query(Message).filter(Message.id == request.message_id).first()
+        message = (
+            db.query(Message)
+            .join(Conversation, Message.conversation_id == Conversation.id)
+            .filter(Message.id == request.message_id, Conversation.user_id == user_id)
+            .first()
+        )
 
         if not message:
             raise BusinessException(code=ErrorCode.RECORD_NOT_FOUND, message="Message not found")
@@ -546,8 +552,19 @@ async def export_conversation_json(
 ):
     """导出对话为JSON（stub）"""
     from app.models.conversation import Conversation
+    from app.services.auth_service import AuthService
+    from app.models.user import User
 
-    conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    # 解析当前用户整数ID
+    user_uuid = current_user.get("user_id")
+    user_obj = db.query(User).filter(User.user_uuid == user_uuid).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    conv = db.query(Conversation).filter(
+        Conversation.id == conversation_id,
+        Conversation.user_id == user_obj.id,
+    ).first()
     if not conv:
         raise HTTPException(status_code=404, detail="对话不存在")
     data = conv.to_dict()
@@ -563,8 +580,17 @@ async def export_conversation_markdown(
 ):
     """导出对话为Markdown（stub）"""
     from app.models.conversation import Conversation
+    from app.models.user import User
 
-    conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    user_uuid = current_user.get("user_id")
+    user_obj = db.query(User).filter(User.user_uuid == user_uuid).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    conv = db.query(Conversation).filter(
+        Conversation.id == conversation_id,
+        Conversation.user_id == user_obj.id,
+    ).first()
     if not conv:
         raise HTTPException(status_code=404, detail="对话不存在")
     lines = [f"# {conv.title or '对话记录'}\n"]
