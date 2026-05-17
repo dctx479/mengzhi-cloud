@@ -86,6 +86,7 @@
         <el-menu-item index="/admin/dashboard">管理面板</el-menu-item>
         <el-menu-item index="/admin/users">用户管理</el-menu-item>
         <el-menu-item index="/admin/enterprises">企业管理</el-menu-item>
+        <el-menu-item index="/admin/ai-media">AI 媒体生成</el-menu-item>
       </el-sub-menu>
     </el-menu>
   </div>

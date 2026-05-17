@@ -119,7 +119,7 @@ async def get_billing_plans(
                 mode_enum = BillingMode(billing_mode)
             except ValueError:
                 return error_response(
-                    code=ErrorCode.VALIDATION_ERROR,
+                    code=ErrorCode.PARAM_VALIDATION_FAILED,
                     message=f"无效的计费模式: {billing_mode}"
                 )
 
@@ -171,7 +171,7 @@ async def create_billing_plan(
             billing_mode = BillingMode(request.billing_mode)
         except ValueError:
             return error_response(
-                code=ErrorCode.VALIDATION_ERROR,
+                code=ErrorCode.PARAM_VALIDATION_FAILED,
                 message=f"无效的计费模式: {request.billing_mode}"
             )
 
@@ -220,7 +220,7 @@ async def get_billing_plan(
 
         if not plan:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message=f"计费方案不存在: {plan_id}"
             )
 
@@ -263,7 +263,7 @@ async def update_billing_plan(
         manager = BillingPlanManager(db)
 
         # 准备更新数据（排除None值）
-        update_data = {k: v for k, v in request.dict().items() if v is not None}
+        update_data = {k: v for k, v in request.dict(exclude_unset=True).items()}
 
         # 更新方案
         plan = manager.update_plan(plan_id, update_data)
@@ -275,7 +275,7 @@ async def update_billing_plan(
 
     except ValueError as e:
         return error_response(
-            code=ErrorCode.NOT_FOUND,
+            code=ErrorCode.RECORD_NOT_FOUND,
             message="计费方案不存在"
         )
     except Exception as e:
@@ -312,7 +312,7 @@ async def delete_billing_plan(
 
         if not success:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message=f"计费方案不存在: {plan_id}"
             )
 
@@ -360,7 +360,7 @@ async def set_default_plan(
 
     except ValueError as e:
         return error_response(
-            code=ErrorCode.NOT_FOUND,
+            code=ErrorCode.RECORD_NOT_FOUND,
             message="计费方案不存在"
         )
     except Exception as e:
@@ -406,7 +406,7 @@ async def get_billing_records(
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if not user:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message="用户不存在"
             )
 
@@ -419,7 +419,7 @@ async def get_billing_records(
                 mode_enum = BillingMode(billing_mode)
             except ValueError:
                 return error_response(
-                    code=ErrorCode.VALIDATION_ERROR,
+                    code=ErrorCode.PARAM_VALIDATION_FAILED,
                     message=f"无效的计费模式: {billing_mode}"
                 )
 
@@ -484,7 +484,7 @@ async def get_billing_statistics(
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if not user:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message="用户不存在"
             )
 
@@ -541,7 +541,7 @@ async def get_invoices(
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if not user:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message="用户不存在"
             )
 
@@ -554,7 +554,7 @@ async def get_invoices(
                 status_enum = InvoiceStatus(status)
             except ValueError:
                 return error_response(
-                    code=ErrorCode.VALIDATION_ERROR,
+                    code=ErrorCode.PARAM_VALIDATION_FAILED,
                     message=f"无效的账单状态: {status}"
                 )
 
@@ -617,7 +617,7 @@ async def get_invoice(
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if not user:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message="用户不存在"
             )
 
@@ -629,7 +629,7 @@ async def get_invoice(
 
         if not invoice:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message=f"账单不存在: {invoice_id}"
             )
 
@@ -679,7 +679,7 @@ async def pay_invoice(
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if not user:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message="用户不存在"
             )
 
@@ -691,7 +691,7 @@ async def pay_invoice(
 
         if not invoice:
             return error_response(
-                code=ErrorCode.NOT_FOUND,
+                code=ErrorCode.RECORD_NOT_FOUND,
                 message=f"账单不存在: {invoice_id}"
             )
 
@@ -700,7 +700,7 @@ async def pay_invoice(
             payment_method = PaymentMethod(request.payment_method)
         except ValueError:
             return error_response(
-                code=ErrorCode.VALIDATION_ERROR,
+                code=ErrorCode.PARAM_VALIDATION_FAILED,
                 message=f"无效的支付方式: {request.payment_method}"
             )
 
@@ -719,7 +719,7 @@ async def pay_invoice(
 
     except ValueError as e:
         return error_response(
-            code=ErrorCode.VALIDATION_ERROR,
+            code=ErrorCode.PARAM_VALIDATION_FAILED,
             message="参数验证失败"
         )
     except Exception as e:
@@ -769,7 +769,7 @@ async def generate_invoice(
 
     except ValueError as e:
         return error_response(
-            code=ErrorCode.VALIDATION_ERROR,
+            code=ErrorCode.PARAM_VALIDATION_FAILED,
             message="参数验证失败"
         )
     except Exception as e:

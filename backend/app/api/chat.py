@@ -7,7 +7,7 @@
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
@@ -122,8 +122,8 @@ async def send_message(
             cost=cost,
             model="deepseek-chat",
             finish_reason="stop",
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
 
         return ChatNonStreamResponse(
@@ -254,7 +254,10 @@ async def get_conversations(
         total, conversations = service.get_conversations(user_id=user_id, page=page, page_size=page_size, status=status)
 
         return ConversationListResponse(
-            total=total, page=page, page_size=page_size, items=[ConversationResponse.model_validate(conv) for conv in conversations]
+            total=total,
+            page=page,
+            page_size=page_size,
+            items=[ConversationResponse.model_validate(conv) for conv in conversations],
         )
 
     except BusinessException as e:
@@ -336,11 +339,12 @@ async def clear_conversation(conversation_id: str, user_id: int = Depends(get_us
         from app.models.conversation import Conversation
         from app.models.message import Message
 
-        conv = (
-            db.query(Conversation)
-            .filter(Conversation.id == int(conversation_id), Conversation.user_id == user_id)
-            .first()
-        )
+        try:
+            conv_id = int(conversation_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="conversation_id 必须为整数")
+
+        conv = db.query(Conversation).filter(Conversation.id == conv_id, Conversation.user_id == user_id).first()
 
         if not conv:
             raise HTTPException(status_code=404, detail="对话不存在")
@@ -379,16 +383,18 @@ async def delete_message(
         from app.models.conversation import Conversation
         from app.models.message import Message
 
-        conv = (
-            db.query(Conversation)
-            .filter(Conversation.id == int(conversation_id), Conversation.user_id == user_id)
-            .first()
-        )
+        try:
+            conv_id = int(conversation_id)
+            msg_id = int(message_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="conversation_id 和 message_id 必须为整数")
+
+        conv = db.query(Conversation).filter(Conversation.id == conv_id, Conversation.user_id == user_id).first()
 
         if not conv:
             raise HTTPException(status_code=404, detail="对话不存在")
 
-        msg = db.query(Message).filter(Message.id == int(message_id), Message.conversation_id == conv.id).first()
+        msg = db.query(Message).filter(Message.id == msg_id, Message.conversation_id == conv.id).first()
 
         if not msg:
             raise HTTPException(status_code=404, detail="消息不存在")
@@ -505,13 +511,17 @@ async def health_check(db: Session = Depends(get_db)):
 
         return {
             "status": "healthy" if api_healthy else "degraded",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "services": {"database": "connected", "deepseek_api": "connected" if api_healthy else "degraded"},
         }
 
     except Exception as e:
         logger.error(f"Health check error: {str(e)}")
-        return {"status": "unhealthy", "timestamp": datetime.utcnow().isoformat(), "error": "Health check failed"}
+        return {
+            "status": "unhealthy",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "error": "Health check failed",
+        }
 
 
 # ==================== Stub 端点（前端已调用，后端尚未完整实现） ====================

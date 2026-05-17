@@ -120,6 +120,12 @@ const routes: RouteRecordRaw[] = [
             name: 'AdminEnterprises',
             component: () => import('@/views/admin/EnterprisesView.vue'),
           },
+          {
+            path: 'ai-media',
+            name: 'AdminAIMedia',
+            component: () => import('@/views/admin/AIMediaView.vue'),
+            meta: { requiresAuth: true, requiresAdmin: true },
+          },
         ],
       },
       // 企业配置

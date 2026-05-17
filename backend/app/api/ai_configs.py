@@ -5,6 +5,7 @@
 import base64
 import hashlib
 
+from loguru import logger
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -92,6 +93,7 @@ async def list_ai_configs(
         return success_response(data=[config.to_dict() for config in configs], message="获取配置列表成功").dict()
 
     except Exception as e:
+        logger.error(f"AI config operation failed: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(ErrorCode.SYSTEM_ERROR, "获取配置失败").dict(),
@@ -149,6 +151,7 @@ async def create_ai_config(
         return success_response(data=config.to_dict(), message="创建配置成功").dict()
 
     except Exception as e:
+        logger.error(f"AI config operation failed: {str(e)}")
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -199,6 +202,7 @@ async def update_ai_config(
         return success_response(data=config.to_dict(), message="更新配置成功").dict()
 
     except Exception as e:
+        logger.error(f"AI config operation failed: {str(e)}")
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -236,6 +240,7 @@ async def delete_ai_config(
         return success_response(message="删除配置成功").dict()
 
     except Exception as e:
+        logger.error(f"AI config operation failed: {str(e)}")
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -280,6 +285,7 @@ async def test_ai_config(
         ).dict()
 
     except Exception as e:
+        logger.error(f"AI config operation failed: {str(e)}")
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

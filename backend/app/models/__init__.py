@@ -77,6 +77,17 @@ from .risk_control import (
 # 租户AI配置模型
 from .tenant_ai_config import TenantAIConfig, HealthStatus
 
+# AI媒体生成模型
+from .ai_media_generation import (
+    MediaProvider,
+    MediaProviderType,
+    MediaProviderCode,
+    MediaGenerationTask,
+    MediaTaskStatus,
+    MediaGenerationResult,
+    MediaGenerationCost,
+)
+
 # 系统配置模型
 from .system_config import SystemConfig
 
@@ -186,6 +197,14 @@ __all__ = [
     # 租户AI配置
     "TenantAIConfig",
     "HealthStatus",
+    # AI媒体生成
+    "MediaProvider",
+    "MediaProviderType",
+    "MediaProviderCode",
+    "MediaGenerationTask",
+    "MediaTaskStatus",
+    "MediaGenerationResult",
+    "MediaGenerationCost",
     # 系统配置
     "SystemConfig",
     # 审计日志

@@ -13,13 +13,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
-from ..database import get_db
-from ..services.risk_control_service import get_risk_control_service, RiskControlService
-from ..models.risk_control import (
+from app.api.deps import get_db, get_current_user, require_permission
+from app.services.risk_control_service import get_risk_control_service, RiskControlService
+from app.models.risk_control import (
     RiskRule, RiskEvent, RiskBlacklist,
     RiskLevel, RiskAction, RuleType, EventType, BlacklistType
 )
-from .deps import get_current_user, require_permission
 
 router = APIRouter(tags=["风控系统"])
 
@@ -103,7 +102,7 @@ async def check_risk(
         # 从HTTP请求中提取上下文信息
         context = request.context or {}
         context.update({
-            "ip_address": http_request.client.host,
+            "ip_address": http_request.client.host if http_request.client else None,
             "user_agent": http_request.headers.get("user-agent"),
         })
 
@@ -272,7 +271,7 @@ async def update_rule(
         if request.action and request.action not in [e.value for e in RiskAction]:
             raise HTTPException(status_code=400, detail="无效的处理动作")
 
-        rule_data = {k: v for k, v in request.dict().items() if v is not None}
+        rule_data = request.dict(exclude_unset=True)
 
         rule = risk_service.update_rule(rule_id, rule_data)
 

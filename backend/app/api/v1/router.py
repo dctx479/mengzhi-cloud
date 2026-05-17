@@ -105,7 +105,15 @@ api_router.include_router(prompts_router, prefix="/prompts", tags=["提示词模
 # ==================== 优化内容生成模块 ====================
 from app.api.optimized_content import router as optimized_content_router
 
-api_router.include_router(optimized_content_router, prefix="/content-generation", tags=["内容生成 - Content Generation"])
+api_router.include_router(
+    optimized_content_router, prefix="/content-generation", tags=["内容生成 - Content Generation"]
+)
+
+
+# ==================== AI媒体生成模块 ====================
+from app.api.ai_media import router as ai_media_router
+
+api_router.include_router(ai_media_router, prefix="/ai-media", tags=["AI媒体生成 - AI Media Generation"])
 
 
 __all__ = ["api_router"]

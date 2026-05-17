@@ -288,11 +288,37 @@ test_change_password_success
 
 **测试用例数**: ~15个
 
+### AI 媒体生成测试 (test_ai_media_providers.py)
+
+**覆盖功能**:
+- 通义万相提交 payload 构造
+- 异步提交任务成功解析
+- 处理中任务缺少服务商任务 ID 时失败
+- 查询任务成功结果解析
+- 未知服务商状态失败
+- 嵌套错误消息提取
+- 查询地址缺失配置校验
+
+**测试用例数**: 7个
+
+**关键测试**:
+```python
+# Provider payload
+TestTongyiWanxiangProviderClient.test_build_submit_payload
+
+# Provider submit/query
+TestTongyiWanxiangProviderClient.test_submit_task_success
+TestTongyiWanxiangProviderClient.test_query_task_success_with_results
+
+# Provider error handling
+TestTongyiWanxiangProviderClient.test_submit_task_requires_provider_task_id_for_processing
+TestTongyiWanxiangProviderClient.test_unknown_status_raises_error
+TestTongyiWanxiangProviderClient.test_query_endpoint_must_be_configured
+```
+
 ---
 
 ## Fixtures说明
-
-### 数据库Fixtures
 
 ```python
 # 测试数据库引擎（会话级别）

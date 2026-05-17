@@ -9,23 +9,23 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Optional
 import logging
 
 from app.api.deps import get_db, require_admin
 from app.schemas.roles import (
-    PermissionCreate, PermissionUpdate, PermissionResponse,
-    PermissionListQuery
+    PermissionCreate, PermissionUpdate, PermissionResponse
 )
-from app.schemas.common import PageInfo, PaginatedResponse
+from app.schemas.common import PageInfo
 from app.services.permission_service import PermissionService
 from app.core.errors import BusinessException, ErrorCode
+from app.core.responses import success_response
 
 router = APIRouter(prefix="/permissions", tags=["权限管理-权限"])
 logger = logging.getLogger(__name__)
 
 
-@router.get("", response_model=PaginatedResponse[PermissionResponse])
+@router.get("")
 async def list_permissions(
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页数量"),
@@ -34,17 +34,7 @@ async def list_permissions(
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
-    """
-    获取权限列表（管理员）
-
-    权限要求：管理员
-
-    查询参数：
-    - page: 页码（默认1）
-    - page_size: 每页数量（默认20，最大100）
-    - resource: 资源筛选（如：product、user、chat）
-    - action: 操作筛选（如：create、read、update、delete）
-    """
+    """获取权限列表（管理员）"""
     try:
         service = PermissionService(db)
         permissions, total = service.list_permissions(
@@ -54,7 +44,6 @@ async def list_permissions(
             action=action
         )
 
-        # 计算分页信息
         total_pages = (total + page_size - 1) // page_size
         pagination = PageInfo(
             page=page,
@@ -65,10 +54,10 @@ async def list_permissions(
             has_prev=page > 1
         )
 
-        return PaginatedResponse(
-            data=[PermissionResponse.from_orm(perm) for perm in permissions],
-            pagination=pagination
-        )
+        return success_response(data={
+            "items": [PermissionResponse.from_orm(perm).dict() for perm in permissions],
+            "pagination": pagination.dict()
+        }).dict()
 
     except BusinessException as e:
         raise HTTPException(status_code=400, detail=e.message)
@@ -77,25 +66,13 @@ async def list_permissions(
         raise HTTPException(status_code=500, detail="获取权限列表失败")
 
 
-@router.post("", response_model=PermissionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def create_permission(
     permission_data: PermissionCreate,
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
-    """
-    创建权限（管理员）
-
-    权限要求：管理员
-
-    请求体：
-    - resource: 资源名称（必填，小写字母和下划线）
-    - action: 操作名称（必填，如：create、read、update、delete）
-    - name: 权限显示名称（必填）
-    - description: 权限描述（可选）
-
-    注意：resource + action 组合必须唯一
-    """
+    """创建权限（管理员）"""
     try:
         service = PermissionService(db)
         permission = service.create_permission(
@@ -105,10 +82,10 @@ async def create_permission(
             description=permission_data.description
         )
 
-        return PermissionResponse.from_orm(permission)
+        return success_response(data=PermissionResponse.from_orm(permission).dict(), message="创建权限成功").dict()
 
     except BusinessException as e:
-        if e.code == ErrorCode.RESOURCE_ALREADY_EXISTS:
+        if e.code == ErrorCode.RECORD_ALREADY_EXISTS:
             raise HTTPException(status_code=409, detail=e.message)
         raise HTTPException(status_code=400, detail=e.message)
     except Exception as e:
@@ -116,20 +93,29 @@ async def create_permission(
         raise HTTPException(status_code=500, detail="创建权限失败")
 
 
-@router.get("/{permission_id}", response_model=PermissionResponse)
+@router.get("/resources/list")
+async def list_resources(
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """获取所有资源列表（管理员）"""
+    try:
+        from app.models import Permission
+        resources = db.query(Permission.resource).distinct().all()
+        return success_response(data={"resources": [r[0] for r in resources]}).dict()
+
+    except Exception as e:
+        logger.error(f"Failed to list resources: {str(e)}")
+        raise HTTPException(status_code=500, detail="获取资源列表失败")
+
+
+@router.get("/{permission_id}")
 async def get_permission(
     permission_id: int,
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
-    """
-    获取权限详情（管理员）
-
-    权限要求：管理员
-
-    路径参数：
-    - permission_id: 权限ID
-    """
+    """获取权限详情（管理员）"""
     try:
         service = PermissionService(db)
         permission = service.get_permission(permission_id)
@@ -137,7 +123,7 @@ async def get_permission(
         if not permission:
             raise HTTPException(status_code=404, detail="权限不存在")
 
-        return PermissionResponse.from_orm(permission)
+        return success_response(data=PermissionResponse.from_orm(permission).dict()).dict()
 
     except HTTPException:
         raise
@@ -146,26 +132,40 @@ async def get_permission(
         raise HTTPException(status_code=500, detail="获取权限详情失败")
 
 
-@router.get("/resources/list", response_model=List[str])
-async def list_resources(
+@router.put("/{permission_id}")
+async def update_permission(
+    permission_id: int,
+    permission_data: PermissionUpdate,
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
-    """
-    获取所有资源列表（管理员）
-
-    权限要求：管理员
-
-    返回系统中所有不重复的资源名称
-    """
+    """更新权限（管理员）"""
     try:
-        from app.models import Permission
-        resources = db.query(Permission.resource).distinct().all()
-        return [r[0] for r in resources]
+        service = PermissionService(db)
+        permission = service.get_permission(permission_id)
 
+        if not permission:
+            raise HTTPException(status_code=404, detail="权限不存在")
+
+        update_fields = permission_data.dict(exclude_unset=True)
+        if not update_fields:
+            raise HTTPException(status_code=400, detail="请求体不能为空")
+
+        for field, value in update_fields.items():
+            setattr(permission, field, value)
+
+        db.commit()
+        db.refresh(permission)
+
+        return success_response(data=PermissionResponse.from_orm(permission).dict(), message="更新权限成功").dict()
+
+    except HTTPException:
+        raise
+    except BusinessException as e:
+        raise HTTPException(status_code=400, detail=e.message)
     except Exception as e:
-        logger.error(f"Failed to list resources: {str(e)}")
-        raise HTTPException(status_code=500, detail="获取资源列表失败")
+        logger.error(f"Failed to update permission {permission_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="更新权限失败")
 
 
 __all__ = ["router"]

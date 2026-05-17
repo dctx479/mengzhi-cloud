@@ -14,6 +14,7 @@ SLA API端点
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Path, Body
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
 
 from app.api.deps import get_db, get_current_user
@@ -97,7 +98,7 @@ class SLAAgreementResponse(BaseModel):
 async def create_agreement(
     agreement: SLAAgreementCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     创建SLA协议
@@ -142,7 +143,7 @@ async def list_agreements(
     level: Optional[SLALevel] = None,
     is_active: Optional[bool] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取SLA协议列表
@@ -180,7 +181,7 @@ async def list_agreements(
 async def get_agreement(
     agreement_id: int = Path(..., description="协议ID"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取SLA协议详情
@@ -213,7 +214,7 @@ async def update_agreement(
     agreement_id: int = Path(..., description="协议ID"),
     agreement_update: SLAAgreementUpdate = Body(..., description="更新数据"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     更新SLA协议
@@ -253,7 +254,7 @@ async def update_agreement(
 async def delete_agreement(
     agreement_id: int = Path(..., description="协议ID"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     删除SLA协议（软删除）
@@ -272,7 +273,6 @@ async def delete_agreement(
         raise HTTPException(status_code=404, detail="协议不存在")
 
     # 软删除
-    from datetime import datetime
     agreement.deleted_at = datetime.utcnow()
     db.commit()
 
@@ -285,7 +285,7 @@ async def delete_agreement(
 async def get_realtime_metrics(
     agreement_id: int = Path(..., description="协议ID"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取实时SLA指标
@@ -324,7 +324,7 @@ async def get_metrics_history(
     days: int = Query(7, ge=1, le=90, description="查询天数"),
     metric_type: Optional[MetricType] = Query(None, description="指标类型"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取历史指标数据
@@ -351,7 +351,6 @@ async def get_metrics_history(
                 raise HTTPException(status_code=403, detail="权限不足")
 
     # 查询历史指标
-    from datetime import datetime, timedelta
     start_time = datetime.utcnow() - timedelta(days=days)
 
     query = db.query(SLAMetric).filter(
@@ -377,7 +376,7 @@ async def get_violations(
     severity: Optional[ViolationSeverity] = Query(None, description="严重程度"),
     is_resolved: Optional[bool] = Query(None, description="是否已解决"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取违约记录
@@ -423,7 +422,7 @@ async def get_daily_report(
     agreement_id: int = Path(..., description="协议ID"),
     date: Optional[str] = Query(None, description="日期(YYYY-MM-DD)"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取日报
@@ -456,7 +455,7 @@ async def get_weekly_report(
     agreement_id: int = Path(..., description="协议ID"),
     week_start: Optional[str] = Query(None, description="周开始日期(YYYY-MM-DD)"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取周报
@@ -490,7 +489,7 @@ async def get_monthly_report(
     year: Optional[int] = Query(None, description="年份"),
     month: Optional[int] = Query(None, ge=1, le=12, description="月份"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取月报
@@ -523,7 +522,7 @@ async def get_achievement_summary(
     agreement_id: int = Path(..., description="协议ID"),
     days: int = Query(30, ge=1, le=365, description="统计天数"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取达成率汇总
@@ -556,7 +555,7 @@ async def get_achievement_summary(
 @router.post("/monitor/run")
 async def run_monitor(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     手动触发SLA监控
@@ -575,7 +574,7 @@ async def run_monitor(
 @router.get("/dashboard/overview")
 async def get_dashboard_overview(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取SLA仪表盘概览
@@ -605,7 +604,6 @@ async def get_dashboard_overview(
 
     for agreement in agreements:
         # 获取最近的违约记录
-        from datetime import datetime, timedelta
         recent_violations = db.query(SLAViolation).filter(
             SLAViolation.agreement_id == agreement.id,
             SLAViolation.violation_time >= (datetime.utcnow() - timedelta(hours=24)).isoformat(),
