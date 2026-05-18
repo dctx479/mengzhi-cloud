@@ -94,6 +94,13 @@ def encrypt_api_key(api_key: str) -> str:
     return _cipher.encrypt(api_key.encode()).decode()
 
 
+def _safe_config_dict(config) -> dict:
+    """返回配置字典，过滤掉 api_key_encrypted 字段，防止泄露给前端"""
+    d = config.to_dict()
+    d.pop("api_key_encrypted", None)
+    return d
+
+
 def check_enterprise_admin(user_id: str, enterprise_id: int, db: Session) -> bool:
     """检查用户是否为企业管理员"""
     user = db.query(User).filter(User.user_uuid == user_id).first()
@@ -116,7 +123,7 @@ async def list_ai_configs(
 
         configs = db.query(TenantAIConfig).filter(TenantAIConfig.enterprise_id == enterprise_id).all()
 
-        return success_response(data=[config.to_dict() for config in configs], message="获取配置列表成功").dict()
+        return success_response(data=[_safe_config_dict(config) for config in configs], message="获取配置列表成功").dict()
 
     except Exception as e:
         logger.error(f"AI config operation failed: {str(e)}")
@@ -174,7 +181,7 @@ async def create_ai_config(
         db.commit()
         db.refresh(config)
 
-        return success_response(data=config.to_dict(), message="创建配置成功").dict()
+        return success_response(data=_safe_config_dict(config), message="创建配置成功").dict()
 
     except Exception as e:
         logger.error(f"AI config operation failed: {str(e)}")
@@ -225,7 +232,7 @@ async def update_ai_config(
         db.commit()
         db.refresh(config)
 
-        return success_response(data=config.to_dict(), message="更新配置成功").dict()
+        return success_response(data=_safe_config_dict(config), message="更新配置成功").dict()
 
     except Exception as e:
         logger.error(f"AI config operation failed: {str(e)}")

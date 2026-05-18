@@ -7,7 +7,7 @@
 创建日期: 2026-01-22
 """
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -21,6 +21,12 @@ from app.core.errors import ErrorCode
 from app.core.logging_config import logger
 
 router = APIRouter()
+
+# 允许通过路径参数查询的资源类型白名单
+ALLOWED_RESOURCES = {
+    "user", "enterprise", "product", "order",
+    "quota", "ai_config", "content", "billing", "system"
+}
 
 
 def _parse_date_range(
@@ -300,6 +306,8 @@ async def get_resource_audit_logs(
 
     需要管理员权限
     """
+    if resource not in ALLOWED_RESOURCES:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="无效的资源类型")
     try:
         result = AuditService.query_logs(
             db=db,
@@ -327,7 +335,7 @@ async def get_resource_audit_logs(
 
 
 @router.get("/action-types", response_model=dict, tags=["审计日志"])
-async def get_action_types(current_user: dict = Depends(get_current_user)):
+async def get_action_types(current_user: dict = Depends(require_admin)):
     """获取可用的操作类型列表"""
     return success_response(
         data=[
@@ -347,7 +355,7 @@ async def get_action_types(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/resource-types", response_model=dict, tags=["审计日志"])
-async def get_resource_types(current_user: dict = Depends(get_current_user)):
+async def get_resource_types(current_user: dict = Depends(require_admin)):
     """获取可用的资源类型列表"""
     return success_response(
         data=[

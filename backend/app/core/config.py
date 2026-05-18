@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"  # development/production/test
 
     # 数据库配置
-    DATABASE_URL: str = "mysql+pymysql://root:root123@localhost:3306/agri_platform?charset=utf8mb4"
+    DATABASE_URL: str = ""  # 必须通过环境变量配置，禁止硬编码凭据
 
     # P1修复: 验证数据库URL安全性
     @field_validator('DATABASE_URL')
@@ -31,13 +31,29 @@ class Settings(BaseSettings):
     def validate_database_url(cls, v: str, info) -> str:
         """验证数据库URL的安全性
 
-        生产环境不允许使用默认的弱密码
+        生产环境不允许使用默认的弱密码；DATABASE_URL 必须通过环境变量提供
         """
-        environment = os.getenv('ENVIRONMENT', 'development')
+        # 使用 info.data 获取同一 Settings 实例的 ENVIRONMENT 字段，避免与 os.getenv 不一致
+        environment = info.data.get('ENVIRONMENT', 'development') if info and info.data else 'development'
         app_env = os.getenv('APP_ENV', '')
 
         # 测试环境跳过验证
         if environment == 'test' or app_env == 'test' or os.getenv('TEST_MODE') == 'True':
+            return v
+
+        # 生产环境不允许空 URL
+        if not v:
+            if environment == 'production' or app_env == 'production':
+                raise ValueError(
+                    "生产环境必须通过环境变量配置 DATABASE_URL！\n"
+                    "请在.env文件中设置:\n"
+                    "  DATABASE_URL=mysql+pymysql://user:strong_password@host:port/db"
+                )
+            else:
+                warnings.warn(
+                    "DATABASE_URL 未配置，请在.env文件中设置数据库连接字符串",
+                    UserWarning
+                )
             return v
 
         # 默认弱密码列表
@@ -74,7 +90,7 @@ class Settings(BaseSettings):
     @classmethod
     def validate_tenant_db_password(cls, v: str, info) -> str:
         """验证租户数据库密码的安全性"""
-        environment = os.getenv('ENVIRONMENT', 'development')
+        environment = info.data.get('ENVIRONMENT', 'development') if info and info.data else 'development'
         app_env = os.getenv('APP_ENV', '')
 
         if environment == 'test' or app_env == 'test' or os.getenv('TEST_MODE') == 'True':
@@ -130,7 +146,7 @@ class Settings(BaseSettings):
         python scripts/generate_secret_key.py
         """
         # 获取环境变量，检查是否为测试环境
-        environment = os.getenv('ENVIRONMENT', 'development')
+        environment = info.data.get('ENVIRONMENT', 'development') if info and info.data else 'development'
         app_env = os.getenv('APP_ENV', '')
 
         # 测试环境跳过严格验证
@@ -206,7 +222,7 @@ class Settings(BaseSettings):
 
         开发和测试环境可以使用占位符密钥
         """
-        environment = os.getenv('ENVIRONMENT', 'development')
+        environment = info.data.get('ENVIRONMENT', 'development') if info and info.data else 'development'
         app_env = os.getenv('APP_ENV', '')
 
         # 测试环境跳过严格验证

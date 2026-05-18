@@ -22,21 +22,8 @@ export const useProductStore = defineStore('product', () => {
 
   // Computed
   const hasMore = computed(() => currentPage.value * pageSize.value < total.value)
-  const filteredProducts = computed(() => {
-    let filtered = products.value
-    if (selectedCategory.value) {
-      filtered = filtered.filter((p) => p.categoryId === selectedCategory.value)
-    }
-    if (searchKeyword.value) {
-      const keyword = searchKeyword.value.toLowerCase()
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(keyword) ||
-          (p.description || '').toLowerCase().includes(keyword)
-      )
-    }
-    return filtered
-  })
+  // 直接返回服务端已过滤的结果，避免与 fetchProducts 的服务端过滤产生双重过滤
+  const filteredProducts = computed(() => products.value)
 
   // Actions
   const fetchProducts = async () => {

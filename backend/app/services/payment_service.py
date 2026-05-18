@@ -141,25 +141,18 @@ class PaymentService:
             elif risk_result["action"] == RiskAction.DELAY.value:
                 logger.info(f"支付延迟处理: order_id={order_id}, user_id={user_id}, risk_score={risk_result['risk_score']}")
                 track_payment_request(payment_method, "risk_delay")
-                # 延迟一段时间后继续处理
-                # P0-001修复: 使用异步事件循环执行延迟，避免阻塞请求线程
-                try:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        # 在已运行的事件循环中，创建任务但不阻塞
-                        logger.info(f"风控延迟处理: 记录延迟标记，后续异步处理")
-                    else:
-                        loop.run_until_complete(asyncio.sleep(2))
-                except RuntimeError:
-                    # 没有事件循环时，使用同步延迟（仅用于非异步上下文）
-                    logger.warning("无法使用异步延迟，使用同步延迟（非生产环境）")
-                    time.sleep(2)
+                # 风控延迟策略: 记录风控事件，由后台任务异步处理延迟逻辑
+                # FastAPI 异步上下文中 loop.is_running() 始终为 True，time.sleep 会阻塞事件循环
+                # 此处仅记录风控事件，不执行阻塞延迟
+                logger.warning(f"风控延迟事件已记录: order_id={order_id}, user_id={user_id}, risk_score={risk_result['risk_score']}")
 
             try:
                 # 检查是否已有待支付的支付记录（使用悲观锁防止并发重复创建）
+                # 同时过滤 payment_method，避免返回不同支付方式的记录
                 existing_payment = self.db.query(Payment).filter(
                     Payment.order_id == order_id,
-                    Payment.status == PaymentStatus.PENDING
+                    Payment.status == PaymentStatus.PENDING,
+                    Payment.payment_method == payment_method_enum
                 ).with_for_update().first()
 
                 if existing_payment:
@@ -335,22 +328,23 @@ class PaymentService:
 
             track_amount_verification("success", payment_method)
 
-            # 更新支付状态
-            payment.mark_as_success(callback_data.get("transaction_id"))
-            payment.channel_response = json.dumps(callback_data)
-
-            # 记录支付成功
-            track_payment_success(payment_method, float(payment.amount))
-
             # 获取订单并加锁，防止并发回调同时修改订单状态
             order = self.db.query(Order).filter(Order.id == payment.order_id).with_for_update().first()
             if order:
-                # 更新订单状态
-                order.mark_as_paid()
-
-                # 创建保存点保护配额发放
+                # 创建保存点，将 mark_as_success、mark_as_paid、配额发放、mark_as_completed 一起保护
+                # 确保任意步骤失败时可完整回滚，payment 状态不会悬空在 SUCCESS
                 savepoint = self.db.begin_nested()
                 try:
+                    # 更新支付状态（在 savepoint 内部，失败时可回滚）
+                    payment.mark_as_success(callback_data.get("transaction_id"))
+                    payment.channel_response = json.dumps(callback_data)
+
+                    # 记录支付成功
+                    track_payment_success(payment_method, float(payment.amount))
+
+                    # 更新订单状态
+                    order.mark_as_paid()
+
                     # 发放配额
                     self._grant_quota(order)
 
@@ -361,19 +355,24 @@ class PaymentService:
                     # 提交嵌套事务
                     savepoint.commit()
                 except Exception as quota_error:
-                    # 配额发放失败，回滚保存点（撤销 mark_as_completed 和配额变更）
+                    # 回滚保存点（撤销 mark_as_success、mark_as_paid、mark_as_completed 和配额变更）
                     savepoint.rollback()
                     logger.error(f"支付回调: 配额发放失败，订单未完成 payment_no={payment_no}, error={str(quota_error)}")
                     # 将订单重置为待支付状态，允许用户重新发起支付
                     order.status = OrderStatus.PENDING
                     order.paid_at = None
-                    # 标记支付失败
+                    # savepoint 已回滚，payment 状态已恢复为 PENDING，可以安全调用 mark_as_failed
                     payment.mark_as_failed(f"配额发放失败: {str(quota_error)}")
                     self.db.commit()
                     track_payment_failure(payment_method, "quota_grant_failed")
                     duration = time.time() - start_time
                     track_payment_callback(payment_method, "quota_failed", duration)
                     return False
+            else:
+                # 订单不存在时，仍然标记支付成功（无配额可发放）
+                payment.mark_as_success(callback_data.get("transaction_id"))
+                payment.channel_response = json.dumps(callback_data)
+                track_payment_success(payment_method, float(payment.amount))
 
             self.db.commit()
             logger.info(f"支付回调处理成功: {payment_no}")
@@ -647,9 +646,9 @@ class PaymentService:
             # 转换支付金额为Decimal
             payment_amount = Decimal(str(payment.amount))
 
-            # 比较金额（允许0.01元误差）
+            # 比较金额（金融场景要求精确匹配，不允许误差）
             amount_diff = abs(callback_amount - payment_amount)
-            tolerance = Decimal('0.01')
+            tolerance = Decimal('0')
 
             if amount_diff > tolerance:
                 logger.error(

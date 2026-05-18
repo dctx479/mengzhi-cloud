@@ -43,7 +43,7 @@ class AddFeedbackRequest(BaseModel):
 
     message_id: int = Field(..., description="消息ID")
     rating: int = Field(..., ge=1, le=5, description="评分（1-5）")
-    feedback: Optional[str] = Field(None, max_length=1000, description="反馈内容")
+    feedback: Optional[str] = Field(None, max_length=2000, description="反馈内容")
     feedback_type: Optional[str] = Field(
         None,
         description="反馈类型: helpful/unhelpful/incorrect"

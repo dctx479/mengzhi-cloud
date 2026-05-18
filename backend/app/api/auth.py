@@ -23,6 +23,7 @@ import uuid
 import secrets
 from loguru import logger
 
+from app.core.config import settings
 from app.core.responses import APIResponse, success_response, error_response
 from app.core.errors import (
     BusinessException,
@@ -119,7 +120,15 @@ async def register(
     try:
         auth_service = AuthService(db)
 
-        # 1. 验证验证码（开发环境下可选）
+        # 1. 验证验证码（开发环境下可选，生产环境强制要求）
+        if not settings.DEBUG and not request.verification_code:
+            raise ValidationError(
+                message="验证码不能为空",
+                errors=[{
+                    "field": "verification_code",
+                    "message": "验证码不能为空"
+                }]
+            )
         if request.verification_code:
             identifier = request.email or request.phone
             try:
@@ -170,17 +179,15 @@ async def register(
         raise
     except BusinessException as e:
         db.rollback()
-        return APIResponse(
-            code=e.code,
-            message=e.message,
-            data=None
+        raise HTTPException(
+            status_code=ERROR_HTTP_STATUS.get(e.code, 400),
+            detail=e.message
         )
     except Exception as e:
         db.rollback()
-        return APIResponse(
-            code=ErrorCode.SYSTEM_ERROR,
-            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
-            data=None
+        raise HTTPException(
+            status_code=500,
+            detail=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
         )
 
 
@@ -253,15 +260,15 @@ async def login(
         # 3. 验证密码
         auth_service._validate_credentials(user, request.password)
 
-        # 4. 生成Token
+        # 4. 更新登录信息（在 token 生成前调用，避免 token 生成失败时累积失败计数）
+        auth_service._update_successful_login(user.id)
+
+        # 5. 生成Token
         access_token, refresh_token = auth_service._generate_login_tokens(
             user,
             device_id=request.device_id,
             ip_address=req.client.host if req else None
         )
-
-        # 5. 更新登录信息
-        auth_service._update_successful_login(user.id)
 
         # 6. 构建响应 (normalize enum values to lowercase for frontend)
         user_data = UserResponse(
@@ -294,16 +301,14 @@ async def login(
         )
 
     except BusinessException as e:
-        return APIResponse(
-            code=e.code,
-            message=e.message,
-            data=None
+        raise HTTPException(
+            status_code=ERROR_HTTP_STATUS.get(e.code, 400),
+            detail=e.message
         )
     except Exception as e:
-        return APIResponse(
-            code=ErrorCode.SYSTEM_ERROR,
-            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
-            data=None
+        raise HTTPException(
+            status_code=500,
+            detail=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
         )
 
 
@@ -434,7 +439,8 @@ async def logout(
                 message="Token 缺少 jti 字段，无法安全登出",
                 data=None
             )
-        auth_service.add_token_to_blacklist(jti, 30 * 60)
+        ttl = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        auth_service.add_token_to_blacklist(jti, ttl)
 
         # 清除用户缓存
         user_id = current_user.get("user_id")
@@ -749,8 +755,8 @@ async def change_password(
         if not AuthService.verify_password(request.old_password, user.password_hash):
             raise PasswordIncorrectError()
 
-        # 验证新密码不同于旧密码（使用 compare_digest 防止时序攻击）
-        if secrets.compare_digest(request.old_password, request.new_password):
+        # 验证新密码不同于旧密码
+        if request.old_password == request.new_password:
             raise ValidationError(
                 message="新密码不能与旧密码相同",
                 errors=[{
@@ -880,9 +886,15 @@ async def reset_password(
         if not user:
             raise UserNotFoundError()
 
-        # get_user_by_email/phone 返回 raw SQL Row（命名元组），
-        # 通过列名访问 user_uuid 字段（索引1）
-        user_uuid_val = user.user_uuid if hasattr(user, 'user_uuid') else user[1]
+        # get_user_by_email/phone 返回 ORM Row 或 dict，使用命名访问
+        if hasattr(user, 'user_uuid'):
+            user_uuid_val = user.user_uuid
+        elif hasattr(user, '_mapping'):
+            user_uuid_val = user._mapping.get('user_uuid')
+        else:
+            user_uuid_val = user.get('user_uuid') if isinstance(user, dict) else None
+        if not user_uuid_val:
+            raise UserNotFoundError()
 
         # 加密新密码
         new_password_hash = AuthService.hash_password(request.new_password)

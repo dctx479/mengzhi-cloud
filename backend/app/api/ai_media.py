@@ -3,13 +3,15 @@ AI媒体生成API
 """
 
 import asyncio
+import ipaddress
 import logging
+import urllib.parse
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db, require_admin
@@ -43,6 +45,25 @@ class CreateMediaProviderRequest(BaseModel):
     config: Optional[Dict[str, Any]] = None
 
     model_config = {"populate_by_name": True}
+
+    @validator('api_endpoint')
+    def validate_endpoint_not_private(cls, v):
+        if v:
+            try:
+                parsed = urllib.parse.urlparse(v)
+                host = parsed.hostname
+                if host:
+                    try:
+                        ip = ipaddress.ip_address(host)
+                        if ip.is_private or ip.is_loopback or ip.is_link_local:
+                            raise ValueError('不允许使用内网地址')
+                    except ValueError as e:
+                        if '不允许' in str(e):
+                            raise
+            except Exception as e:
+                if '不允许' in str(e):
+                    raise
+        return v
 
 
 class UpdateMediaProviderRequest(BaseModel):
@@ -120,7 +141,7 @@ def _json_error(http_status: int, code: ErrorCode, message: str) -> JSONResponse
 @router.get("/admin/media-providers")
 async def list_media_providers(
     provider_type: Optional[MediaProviderType] = Query(default=None, alias="providerType"),
-    include_inactive: bool = Query(default=True, alias="includeInactive"),
+    include_inactive: bool = Query(default=False, alias="includeInactive"),
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -279,8 +300,9 @@ async def _create_generation_task(current_user: dict, db: Session, media_type: M
         except MediaProviderError as submit_err:
             logger.warning("媒体服务商提交任务失败 (MediaProviderError): %s", submit_err)
             service.db.rollback()
+            task = service.db.merge(task)  # rollback 后重新附加到 session，防止 DetachedInstanceError
             task.status = MediaTaskStatus.FAILED
-            task.error_message = str(submit_err)[:500]
+            task.error_message = "服务商提交失败"
             task.completed_at = datetime.now(timezone.utc)
             service.db.commit()
             service.db.refresh(task)
@@ -288,9 +310,9 @@ async def _create_generation_task(current_user: dict, db: Session, media_type: M
             logger.exception("媒体服务商提交任务发生未知错误: %s", submit_err)
             service.db.rollback()
             return _json_error(
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
-                ErrorCode.SYSTEM_ERROR,
-                f"服务商提交失败: {str(submit_err)[:200]}",
+                status.HTTP_502_BAD_GATEWAY,
+                ErrorCode.SERVICE_UNAVAILABLE,
+                "媒体生成服务暂时不可用，请稍后重试",
             )
         return success_response(data=task.to_dict(), message="生成任务已创建").dict()
     except Exception as exc:

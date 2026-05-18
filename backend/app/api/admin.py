@@ -293,6 +293,18 @@ async def delete_enterprise(
         if not enterprise:
             return APIResponse(code=404, message="企业不存在", data=None)
 
+        # 检查企业下是否还有活跃用户，防止产生孤儿数据
+        user_count = db.query(User).filter(
+            User.enterprise_id == enterprise_id,
+            User.deleted_at.is_(None)
+        ).count()
+        if user_count > 0:
+            return APIResponse(
+                code=400,
+                message=f"企业下还有 {user_count} 个活跃用户，请先处理后再删除企业",
+                data=None
+            )
+
         enterprise.deleted_at = datetime.utcnow()
         db.commit()
 
@@ -418,7 +430,7 @@ PROVIDER_SETTINGS_KEY = "enabled_providers"
 def _get_enabled_providers(db: Session) -> list:
     """获取已启用的提供商列表"""
     config = db.query(SystemConfig).filter(SystemConfig.config_key == PROVIDER_SETTINGS_KEY).first()
-    if config and config.config_value:
+    if config and isinstance(config.config_value, list):
         return config.config_value
     # 默认全部启用
     return [p["id"] for p in ALL_PROVIDERS]

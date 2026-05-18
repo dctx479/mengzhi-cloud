@@ -151,15 +151,20 @@ async def get_order(
         订单详细信息
     """
     # P1-10: 移除重复的异常处理
-    service = OrderService(db)
-    order = service.get_order_by_id(order_id)
+    from app.models.order import Order as OrderModel
+
+    # 先获取当前用户，再以 user_id 作为过滤条件一次性查询订单
+    # 避免先查订单再验权限导致的订单存在性枚举漏洞
+    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+    if not current_user_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="用户不存在")
+
+    order = db.query(OrderModel).filter(
+        OrderModel.id == order_id,
+        OrderModel.user_id == current_user_obj.id
+    ).first()
     if not order:
         raise HTTPException(status_code=404, detail="订单不存在")
-
-    # 验证订单所有权
-    current_user_obj = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
-    if not current_user_obj or order.user_id != current_user_obj.id:
-        raise BusinessException(code=ErrorCode.PERMISSION_DENIED, message="无权访问此订单")
 
     # 转换为响应对象
     response_data = {

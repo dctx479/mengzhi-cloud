@@ -211,10 +211,8 @@ async def create_rule(
         if request.action not in [e.value for e in RiskAction]:
             raise HTTPException(status_code=400, detail="无效的处理动作")
 
-        rule_data = request.dict()
+        rule_data = request.model_dump()
         rule_data["created_by"] = current_user["user_id"]
-
-        rule = risk_service.create_rule(rule_data)
 
         return {
             "message": "规则创建成功",
@@ -271,7 +269,7 @@ async def update_rule(
         if request.action and request.action not in [e.value for e in RiskAction]:
             raise HTTPException(status_code=400, detail="无效的处理动作")
 
-        rule_data = request.dict(exclude_unset=True)
+        rule_data = request.model_dump(exclude_unset=True)
 
         rule = risk_service.update_rule(rule_id, rule_data)
 
@@ -334,7 +332,7 @@ async def add_to_blacklist(
         if request.risk_level not in [e.value for e in RiskLevel]:
             raise HTTPException(status_code=400, detail="无效的风险等级")
 
-        blacklist_data = request.dict()
+        blacklist_data = request.model_dump()
         blacklist_data["created_by"] = current_user["user_id"]
 
         blacklist = risk_service.add_to_blacklist(blacklist_data)

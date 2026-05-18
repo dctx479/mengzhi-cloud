@@ -198,18 +198,35 @@ class AuthService:
         Args:
             jti: Token ID
             ttl_seconds: 生存时间（秒）
+
+        Raises:
+            BusinessException: Redis不可用或写入失败时抛出，确保调用方感知失败
         """
         if self.redis_client is None:
-            logger.warning("Redis不可用，无法将Token加入黑名单")
-            return
+            logger.error(
+                "SECURITY: Redis不可用，无法将Token加入黑名单，登出操作被拒绝。"
+                "请立即检查Redis连接！"
+            )
+            raise BusinessException(
+                code=ErrorCode.SYSTEM_ERROR,
+                message="登出服务暂时不可用，请稍后重试"
+            )
 
         try:
             key = f"token_blacklist:{jti}"
             self.redis_client.setex(key, ttl_seconds, "revoked")
         except redis.ConnectionError as e:
-            logger.error(f"Redis连接错误: {e}")
+            logger.error(f"SECURITY: Redis连接错误，Token无法加入黑名单: {e}")
+            raise BusinessException(
+                code=ErrorCode.SYSTEM_ERROR,
+                message="登出服务暂时不可用，请稍后重试"
+            )
         except Exception as e:
-            logger.error(f"加入黑名单失败: {e}")
+            logger.error(f"SECURITY: 加入黑名单失败: {e}")
+            raise BusinessException(
+                code=ErrorCode.SYSTEM_ERROR,
+                message="登出服务暂时不可用，请稍后重试"
+            )
 
     def is_token_blacklisted(self, jti: str) -> bool:
         """
@@ -285,7 +302,23 @@ class AuthService:
             if not user:
                 raise UserNotFoundError()
 
-            # 5. 生成新Token对
+            # 5. 先将旧 Refresh Token 加入黑名单（防止 Token 重放攻击）
+            # 必须在生成新 Token 之前完成，若写入失败则不生成新 Token
+            exp_val = payload.get("exp")
+            if isinstance(exp_val, datetime):
+                exp_ts = int(exp_val.timestamp())
+            else:
+                exp_ts = int(exp_val)
+            ttl = exp_ts - int(datetime.utcnow().timestamp())
+            if ttl > 0:
+                if self.redis_client is None:
+                    raise BusinessException(
+                        code=ErrorCode.SYSTEM_ERROR,
+                        message="Token刷新服务暂时不可用（Redis不可用）"
+                    )
+                self.add_token_to_blacklist(jti, ttl)
+
+            # 6. 生成新 Token 对
             user_type_val = user.user_type.value if hasattr(user.user_type, 'value') else str(user.user_type).lower()
             role_val = user.role.value if hasattr(user.role, 'value') else str(user.role).lower()
             new_access_token = self.create_access_token(
@@ -298,17 +331,6 @@ class AuthService:
                 user_id=user.user_uuid,
                 device_id=payload.get("device_id")
             )
-
-            # 6. 将旧Refresh Token加入黑名单
-            # payload["exp"] 是 jose 解码后的 Unix timestamp int，不是 datetime 对象
-            exp_val = payload.get("exp")
-            if isinstance(exp_val, datetime):
-                exp_ts = int(exp_val.timestamp())
-            else:
-                exp_ts = int(exp_val)
-            ttl = exp_ts - int(datetime.utcnow().timestamp())
-            if ttl > 0:
-                self.add_token_to_blacklist(jti, ttl)
 
             return new_access_token, new_refresh_token
 
@@ -463,8 +485,14 @@ class AuthService:
             AccountDisabledError: 账号已禁用
             AccountLockedError: 账号已锁定
         """
-        status_val = user.status.value if hasattr(user.status, 'value') else str(user.status).lower()
-        if status_val == "banned":
+        # 兼容 Row 对象（raw SQL 返回字符串）和 ORM 对象（返回 Enum）
+        if hasattr(user, '_mapping'):
+            status_val = str(user._mapping['status']).lower()
+        else:
+            status_val = user.status.value if hasattr(user.status, 'value') else str(user.status).lower()
+
+        # 白名单检查：只有 'active' 状态允许登录，其余状态（banned/inactive/disabled 等）一律拒绝
+        if status_val not in ('active',):
             raise AccountDisabledError()
 
         if user.locked_until:
@@ -901,15 +929,24 @@ class AuthService:
         验证用户凭据（密码）
 
         Args:
-            user: 用户对象
+            user: 用户对象（可能是 SQLAlchemy Row 或 ORM 对象）
             password: 输入的密码
 
         Raises:
             PasswordIncorrectError: 密码错误
         """
-        if not self.verify_password(password, user.password_hash):
+        # 兼容 Row 对象（raw SQL）和 ORM 对象：统一使用 _mapping 显式列名访问
+        # 避免依赖列顺序或属性访问歧义
+        if hasattr(user, '_mapping'):
+            password_hash = user._mapping['password_hash']
+            user_id = user._mapping['id']
+        else:
+            password_hash = user.password_hash
+            user_id = user.id
+
+        if not self.verify_password(password, password_hash):
             # 记录失败尝试
-            self.check_and_update_login_attempts(user.id, success=False)
+            self.check_and_update_login_attempts(user_id, success=False)
             raise PasswordIncorrectError()
 
     def _generate_login_tokens(

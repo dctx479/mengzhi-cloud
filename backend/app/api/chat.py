@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from loguru import logger
@@ -33,6 +33,8 @@ from app.schemas.chat import (
     ErrorResponse,
 )
 from app.services.chat_service import ChatService
+from app.services.quota_service import QuotaService
+from app.models.quota import QuotaResourceType
 from app.core.config import settings
 from app.core.errors import BusinessException, ErrorCode
 from app.api.deps import get_db, get_current_user
@@ -103,6 +105,16 @@ async def send_message(
         对话响应
     """
     try:
+        # 配额检查：发送消息前验证用户消息配额
+        quota_service = QuotaService(db)
+        is_sufficient, _, quota_message = quota_service.check_quota(
+            resource_type=QuotaResourceType.MESSAGE,
+            required_amount=1,
+            user_id=user_id,
+        )
+        if not is_sufficient:
+            raise HTTPException(status_code=429, detail=quota_message or "消息配额已用尽")
+
         service = ChatService(db)
 
         conversation_id, response_text, input_tokens, output_tokens, cost = await service.send_message(
@@ -160,20 +172,39 @@ async def send_message_stream(
     Returns:
         流式响应（SSE）
     """
-    service = ChatService(db)
-
     async def event_generator():
         """生成SSE事件流"""
+        # 配额检查：流式发送前验证用户消息配额
+        quota_service = QuotaService(db)
+        is_sufficient, _, quota_message = quota_service.check_quota(
+            resource_type=QuotaResourceType.MESSAGE,
+            required_amount=1,
+            user_id=user_id,
+        )
+        if not is_sufficient:
+            error_data = json.dumps({"error": True, "code": "429", "message": quota_message or "消息配额已用尽"})
+            yield f"data: {error_data}\n\n"
+            return
+
+        # 在生成器内部实例化 ChatService，确保 db Session 在整个流式传输期间有效
+        service = ChatService(db)
         try:
             async for chunk in service.send_message_stream(
                 user_id=user_id, content=request.content, conversation_id=request.conversation_id, temperature=0.7
             ):
-                # 发送数据块
-                yield f"data: {chunk}\n\n"
+                # 确保 chunk 是单行 JSON，防止换行符破坏 SSE 协议
+                if isinstance(chunk, str):
+                    safe_chunk = chunk.replace('\n', '\\n')
+                else:
+                    safe_chunk = json.dumps(chunk, ensure_ascii=False)
+                yield f"data: {safe_chunk}\n\n"
 
             # 发送完成信号
             yield f"data: {json.dumps({'status': 'completed'})}\n\n"
 
+        except GeneratorExit:
+            logger.info("Client disconnected, cleaning up stream")
+            raise
         except BusinessException as e:
             logger.error(f"Stream error: {e.message}")
             error_data = json.dumps({"error": True, "code": str(e.code), "message": e.message})
@@ -344,7 +375,7 @@ async def clear_conversation(conversation_id: str, user_id: int = Depends(get_us
         if not conv:
             raise HTTPException(status_code=404, detail="对话不存在")
 
-        db.query(Message).filter(Message.conversation_id == conv.id).delete()
+        db.query(Message).filter(Message.conversation_id == conv.id).delete(synchronize_session='fetch')
         conv.message_count = 0
         db.commit()
 
@@ -518,11 +549,14 @@ async def health_check(db: Session = Depends(get_db)):
 
     except Exception as e:
         logger.error(f"Health check error: {str(e)}")
-        return {
-            "status": "unhealthy",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "error": "Health check failed",
-        }
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "error": "Health check failed",
+            },
+        )
 
 
 # ==================== Stub 端点（前端已调用，后端尚未完整实现） ====================

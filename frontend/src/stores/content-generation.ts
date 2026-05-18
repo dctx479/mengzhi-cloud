@@ -175,7 +175,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
         template_id: config.value.template_id,
         product_id: config.value.product_ids[index % config.value.product_ids.length],
         content: String(r.content ?? ''),
-        word_count: Math.max(0, (String(r.content ?? '') || '').split(/\s+/).filter(Boolean).length),
+        word_count: Math.max(0, (String(r.content ?? '')).replace(/\s/g, '').length),
         rating: 0,
         edited: false,
         created_at: new Date().toISOString(),
@@ -205,7 +205,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
         results.value[index] = {
           ...result,
           content: String(newResult.content ?? ''),
-          word_count: Math.max(0, (String(newResult.content ?? '') || '').split(/\s+/).filter(Boolean).length),
+          word_count: Math.max(0, (String(newResult.content ?? '')).replace(/\s/g, '').length),
           edited: false,
           updated_at: new Date().toISOString(),
         }
@@ -221,7 +221,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     const result = results.value.find((r) => r.id === resultId)
     if (result) {
       result.content = content
-      result.word_count = Math.max(0, (content || '').split(/\s+/).filter(Boolean).length)
+      result.word_count = Math.max(0, (content || '').replace(/\s/g, '').length)
       result.edited = true
       result.updated_at = new Date().toISOString()
     }

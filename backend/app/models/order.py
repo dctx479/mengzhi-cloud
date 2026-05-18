@@ -223,9 +223,9 @@ class Order(BaseModel):
             "package_id": self.package_id,
             "package_name": self.package_name,
             "package_type": self.package_type,
-            "amount": float(self.amount) if self.amount else 0,
-            "original_amount": float(self.original_amount) if self.original_amount else None,
-            "discount_amount": float(self.discount_amount) if self.discount_amount else 0,
+            "amount": str(self.amount) if self.amount else "0",
+            "original_amount": str(self.original_amount) if self.original_amount else None,
+            "discount_amount": str(self.discount_amount) if self.discount_amount else "0",
             "quotas": {
                 "chat": self.chat_quota,
                 "generation": self.generation_quota,

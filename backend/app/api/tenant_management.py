@@ -12,8 +12,11 @@
 - 查询租户信息
 """
 
+import logging
 import os
 from typing import List, Optional
+
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
@@ -144,18 +147,26 @@ async def create_tenant(
             detail="无效的隔离模式"
         )
 
-    # 更新企业隔离模式
+    # 更新企业隔离模式（暂不 commit，等数据库操作成功后再提交）
     enterprise.isolation_mode = IsolationMode(request.isolation_mode)
-    db.commit()
 
     # 如果是独立模式，创建数据库
     if request.isolation_mode == "isolated":
         manager = get_tenant_db_manager()
-        result = manager.create_tenant_database(
-            request.enterprise_id,
-            db,
-            initialize_schema=request.initialize_schema
-        )
+        try:
+            result = manager.create_tenant_database(
+                request.enterprise_id,
+                db,
+                initialize_schema=request.initialize_schema
+            )
+        except Exception:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="创建租户数据库失败，操作已回滚"
+            )
+        # 数据库创建成功后再提交 isolation_mode 变更
+        db.commit()
 
         return TenantCreateResponse(
             success=result["success"],
@@ -165,6 +176,7 @@ async def create_tenant(
             created_at=result["created_at"]
         )
     else:
+        db.commit()
         return TenantCreateResponse(
             success=True,
             enterprise_id=request.enterprise_id,
@@ -228,6 +240,10 @@ async def delete_tenant(
             backup_file=result.get("backup_file")
         )
     else:
+        # 共享模式：无独立数据库，直接软删除 Enterprise 记录
+        from datetime import datetime as _dt
+        enterprise.deleted_at = _dt.utcnow()
+        db.commit()
         return TenantDeleteResponse(
             success=True,
             enterprise_id=enterprise_id,
@@ -284,10 +300,17 @@ async def migrate_tenant(
     # 执行迁移
     manager = get_tenant_db_manager()
 
-    if to_mode == "isolated":
-        result = manager.migrate_to_isolated(enterprise_id, db)
-    else:
-        result = manager.migrate_to_shared(enterprise_id, db)
+    try:
+        if to_mode == "isolated":
+            result = manager.migrate_to_isolated(enterprise_id, db)
+        else:
+            result = manager.migrate_to_shared(enterprise_id, db)
+    except Exception:
+        logger.exception("租户迁移失败 enterprise_id=%s", enterprise_id)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="迁移失败: 请联系管理员"
+        )
 
     return TenantMigrateResponse(
         success=result["success"],
@@ -442,10 +465,24 @@ async def list_tenants(
     query = db.query(Enterprise)
 
     if isolation_mode:
-        query = query.filter(Enterprise.isolation_mode == IsolationMode(isolation_mode))
+        try:
+            mode = IsolationMode(isolation_mode)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"无效的隔离模式，允许的值: {[m.value for m in IsolationMode]}"
+            )
+        query = query.filter(Enterprise.isolation_mode == mode)
 
     if plan_type:
-        query = query.filter(Enterprise.plan_type == PlanType(plan_type))
+        try:
+            ptype = PlanType(plan_type)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"无效的套餐类型，允许的值: {[p.value for p in PlanType]}"
+            )
+        query = query.filter(Enterprise.plan_type == ptype)
 
     # 分页
     enterprises = query.offset(skip).limit(limit).all()

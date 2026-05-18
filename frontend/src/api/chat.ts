@@ -148,14 +148,15 @@ export async function sendMessageStream(
   signal?: AbortSignal
 ): Promise<void> {
   const token = localStorage.getItem('token')
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
   let response: Response
   try {
     response = await fetch(`${API_BASE}/v1/chat/stream`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
       body: JSON.stringify({
         content,
         conversation_id: chatId ? Number(chatId) : undefined,

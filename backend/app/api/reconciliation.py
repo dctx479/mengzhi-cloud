@@ -5,12 +5,13 @@
 创建日期: 2026-01-23
 """
 
-from typing import Optional, List
+from typing import Optional, List, Literal
 from fastapi import APIRouter, Body, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from decimal import Decimal
+import logging
 
 from app.api.deps import get_db, get_current_user, require_admin
 from app.models.reconciliation import (
@@ -21,6 +22,9 @@ from app.models.reconciliation import (
 from app.services.reconciliation_service import ReconciliationService
 from app.core.errors import BusinessException, RecordNotFoundError, ErrorCode
 from app.core.responses import success_response, error_response
+
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(tags=["对账系统"])
@@ -63,7 +67,9 @@ class StartReconciliationRequest(BaseModel):
 
 class FixDifferenceRequest(BaseModel):
     """修复差异请求"""
-    action: str = Field(..., description="修复动作 (auto_supplement, manual_supplement, ignore)")
+    action: Literal['auto_supplement', 'manual_supplement', 'ignore'] = Field(
+        ..., description="修复动作 (auto_supplement, manual_supplement, ignore)"
+    )
     remark: Optional[str] = Field(None, description="备注")
 
 
@@ -197,6 +203,7 @@ async def start_reconciliation(
             message=e.message
         ).dict()
     except Exception as e:
+        logger.exception("启动对账失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="启动对账失败"
@@ -261,6 +268,7 @@ async def get_reconciliation_records(
         return success_response(data=response_data).dict()
 
     except Exception as e:
+        logger.exception("查询对账记录失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="查询对账记录失败"
@@ -300,6 +308,7 @@ async def get_reconciliation_record(
         ).dict()
 
     except Exception as e:
+        logger.exception("获取对账记录失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取对账记录失败"
@@ -358,6 +367,7 @@ async def get_reconciliation_differences(
         return success_response(data=response_data).dict()
 
     except Exception as e:
+        logger.exception("查询差异记录失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="查询差异记录失败"
@@ -397,6 +407,7 @@ async def get_reconciliation_difference(
         ).dict()
 
     except Exception as e:
+        logger.exception("获取差异记录失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取差异记录失败"
@@ -448,6 +459,7 @@ async def fix_difference(
             message=e.message
         ).dict()
     except Exception as e:
+        logger.exception("修复差异失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="修复差异失败"
@@ -457,7 +469,7 @@ async def fix_difference(
 @router.get("/records/{record_id}/report", summary="生成对账报告")
 async def generate_reconciliation_report(
     record_id: int = Path(..., description="对账记录ID"),
-    format_type: str = Query("json", description="报告格式 (json, excel, pdf)"),
+    format_type: Literal['json', 'excel', 'pdf'] = Query('json', description="报告格式 (json, excel, pdf)"),
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
@@ -491,6 +503,7 @@ async def generate_reconciliation_report(
             message="记录不存在"
         ).dict()
     except Exception as e:
+        logger.exception("生成对账报告失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="生成对账报告失败"
@@ -532,6 +545,7 @@ async def get_daily_reconciliation_status(
             ).dict()
 
     except Exception as e:
+        logger.exception("获取对账状态失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取对账状态失败"
@@ -575,6 +589,7 @@ async def retry_failed_reconciliation(
             message=e.message
         ).dict()
     except Exception as e:
+        logger.exception("重试对账失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="重试对账失败"
@@ -643,6 +658,7 @@ async def get_reconciliation_statistics(
         return success_response(data=statistics).dict()
 
     except Exception as e:
+        logger.exception("获取统计信息失败")
         return error_response(
             code=ErrorCode.INTERNAL_ERROR,
             message="获取统计信息失败"

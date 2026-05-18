@@ -47,7 +47,7 @@ export const useUserStore = defineStore('user', () => {
       const response = await authAPI.login({ username, password })
       user.value = response.user
       isLoggedIn.value = true
-      localStorage.setItem('token', response.token)
+      // token 已由 auth.ts login() 写入 localStorage，此处只持久化用户信息
       localStorage.setItem('user', JSON.stringify(_safeUserForStorage(response.user)))
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Login failed'
@@ -137,23 +137,11 @@ export const useUserStore = defineStore('user', () => {
       return false
     }
     try {
-      const isValid = await authAPI.verifyToken()
-      if (isValid) {
-        await fetchCurrentUser()
-        return true
-      } else {
-        user.value = null
-        isLoggedIn.value = false
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        return false
-      }
+      // fetchCurrentUser 内部调用 getCurrentUser()，成功则更新状态，失败则清理
+      await fetchCurrentUser()
+      return isLoggedIn.value
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Token verification failed'
-      user.value = null
-      isLoggedIn.value = false
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
       return false
     }
   }

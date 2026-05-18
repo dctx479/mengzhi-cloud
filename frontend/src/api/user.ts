@@ -34,7 +34,7 @@ interface ApiResponse<T> {
  * 处理 http.get/post 返回的 {code, data, message} 格式
  */
 function extractData<T>(response: ApiResponse<T>): T {
-  return (response as any)?.data
+  return response.data
 }
 
 /**

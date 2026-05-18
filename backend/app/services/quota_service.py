@@ -166,8 +166,14 @@ class QuotaService:
             return False, quota, "配额已禁用"
 
         if quota.is_expired():
-            # 自动重置过期配额
+            # 自动重置过期配额；reset_quota 只 flush，此处负责提交
             self.reset_quota(quota.id)
+            try:
+                self.db.commit()
+            except Exception as e:
+                self.db.rollback()
+                logger.error(f"自动重置过期配额提交失败: {e}")
+                raise
             quota = self.db.query(TenantQuota).filter(TenantQuota.id == quota.id).first()
 
         if not quota.is_sufficient(required_amount):
@@ -248,8 +254,21 @@ class QuotaService:
                 user_id, enterprise_id, resource_type, period_type
             )
 
-            # 从 Redis 获取已使用量
-            used = int(self.redis.get(cache_key) or 0)
+            # 从 Redis 获取已使用量；缓存未命中时从数据库加载并预热，避免假设 used=0
+            raw_used = self.redis.get(cache_key)
+            if raw_used is None:
+                # 缓存未命中：从数据库读取真实已使用量并写入 Redis
+                db_used = self._get_quota_used_from_db(
+                    resource_type, period_type, enterprise_id, user_id
+                )
+                used = db_used if db_used is not None else 0
+                ttl = self._get_redis_ttl_seconds(period_type)
+                try:
+                    self.redis.set(cache_key, used, ex=ttl, nx=True)
+                except RedisError:
+                    pass  # 预热失败不影响本次检查结果
+            else:
+                used = int(raw_used)
 
             # 获取配额限制
             quota_limit = self._get_quota_limit_from_db(
@@ -429,6 +448,36 @@ class QuotaService:
 
         quota = query.first()
         return quota.quota_limit if quota else None
+
+    def _get_quota_used_from_db(
+        self,
+        resource_type: QuotaResourceType,
+        period_type: QuotaPeriodType,
+        enterprise_id: Optional[int] = None,
+        user_id: Optional[int] = None
+    ) -> Optional[int]:
+        """从数据库获取当前已使用量（用于 Redis 缓存预热）"""
+        today = date.today()
+
+        query = self.db.query(TenantQuota).filter(
+            and_(
+                TenantQuota.resource_type == resource_type,
+                TenantQuota.period_type == period_type,
+                TenantQuota.period_start <= today,
+                TenantQuota.period_end >= today,
+                TenantQuota.is_active == 1
+            )
+        )
+
+        if enterprise_id:
+            query = query.filter(TenantQuota.enterprise_id == enterprise_id)
+        elif user_id:
+            query = query.filter(TenantQuota.user_id == user_id)
+        else:
+            return None
+
+        quota = query.first()
+        return quota.quota_used if quota else None
 
     def _record_quota_usage_async(
         self,
@@ -724,7 +773,7 @@ class QuotaService:
             quota.period_start = date(today.year, 1, 1)
             quota.period_end = date(today.year, 12, 31)
 
-        self.db.commit()
+        self.db.flush()
 
         logger.info(f"配额重置成功: {quota_id}")
         return True
@@ -751,6 +800,15 @@ class QuotaService:
         for quota in expired_quotas:
             if self.reset_quota(quota.id):
                 count += 1
+
+        # reset_quota 只 flush，由此处统一提交，保证批量操作的原子性
+        if count > 0:
+            try:
+                self.db.commit()
+            except Exception as e:
+                self.db.rollback()
+                logger.error(f"批量重置配额提交失败: {e}")
+                raise
 
         logger.info(f"批量重置过期配额: {count} 个")
         return count

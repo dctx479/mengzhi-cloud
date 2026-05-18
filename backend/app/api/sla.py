@@ -15,7 +15,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Path, Body
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.api.deps import get_db, get_current_user
 from app.models.user import User
@@ -47,12 +47,30 @@ class SLAAgreementCreate(BaseModel):
     description: Optional[str] = Field(None, description="协议描述")
     start_date: str = Field(..., description="开始日期")
     end_date: str = Field(..., description="结束日期")
-    availability_target: float = Field(99.5, description="可用性目标(%)")
-    response_time_target: int = Field(2000, description="响应时间目标(ms)")
-    error_rate_target: float = Field(0.1, description="错误率目标(%)")
-    throughput_target: int = Field(100, description="吞吐量目标(req/s)")
+    availability_target: float = Field(99.5, ge=0.0, le=100.0, description="可用性目标(%)")
+    response_time_target: int = Field(2000, ge=1, description="响应时间目标(ms)")
+    error_rate_target: float = Field(0.1, ge=0.0, le=100.0, description="错误率目标(%)")
+    throughput_target: int = Field(100, ge=1, description="吞吐量目标(req/s)")
     compensation_enabled: bool = Field(True, description="是否启用补偿")
     compensation_rules: Optional[dict] = Field(None, description="补偿规则")
+
+    @field_validator("start_date", "end_date")
+    @classmethod
+    def validate_date_format(cls, v: str) -> str:
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(f"无效的日期格式: '{v}'，要求格式为 YYYY-MM-DD")
+        return v
+
+    @model_validator(mode="after")
+    def validate_date_range(self) -> "SLAAgreementCreate":
+        if self.start_date and self.end_date:
+            start = datetime.strptime(self.start_date, "%Y-%m-%d")
+            end = datetime.strptime(self.end_date, "%Y-%m-%d")
+            if end <= start:
+                raise ValueError("end_date 必须晚于 start_date")
+        return self
 
 
 class SLAAgreementUpdate(BaseModel):
@@ -240,9 +258,15 @@ async def update_agreement(
                 raise HTTPException(status_code=403, detail="权限不足")
 
     # 更新字段
-    update_data = agreement_update.dict(exclude_unset=True)
+    update_data = agreement_update.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(agreement, field, value)
+
+    # 校验更新后的日期一致性
+    final_start = update_data.get('start_date', agreement.start_date)
+    final_end = update_data.get('end_date', agreement.end_date)
+    if final_start and final_end and final_end <= final_start:
+        raise HTTPException(status_code=400, detail="end_date 必须晚于 start_date")
 
     db.commit()
     db.refresh(agreement)
@@ -355,7 +379,7 @@ async def get_metrics_history(
 
     query = db.query(SLAMetric).filter(
         SLAMetric.agreement_id == agreement_id,
-        SLAMetric.period_start >= start_time.isoformat(),
+        SLAMetric.period_start >= start_time,
         SLAMetric.deleted_at.is_(None)
     )
 
@@ -606,7 +630,7 @@ async def get_dashboard_overview(
         # 获取最近的违约记录
         recent_violations = db.query(SLAViolation).filter(
             SLAViolation.agreement_id == agreement.id,
-            SLAViolation.violation_time >= (datetime.utcnow() - timedelta(hours=24)).isoformat(),
+            SLAViolation.violation_time >= (datetime.utcnow() - timedelta(hours=24)),
             SLAViolation.deleted_at.is_(None)
         ).count()
 

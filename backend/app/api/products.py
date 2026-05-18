@@ -30,7 +30,7 @@ from app.schemas.products import (
     CulturalInfoResponse,
     ProductStatus,
 )
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 from typing import List as TypingList, Dict, Any
 from app.services.product_service import ProductService
 from app.services.file_service import FileService
@@ -73,9 +73,9 @@ def _safe_delete_product_image_file(image_url: str) -> None:
     if not image_url.startswith("/uploads"):
         return
     upload_root = Path(PRODUCT_IMAGE_UPLOAD_DIR).resolve()
-    # Strip leading slash and resolve against upload root
+    # Strip leading slash and resolve against upload root (not CWD)
     relative = image_url.lstrip("/")
-    target = Path(relative).resolve()
+    target = (upload_root / relative).resolve()
     try:
         target.relative_to(upload_root)
     except ValueError:
@@ -201,7 +201,7 @@ async def list_products(
     search: Optional[str] = Query(None, max_length=100, description="搜索关键词"),
     category: Optional[str] = Query(None, max_length=100, description="产品类别"),
     region: Optional[str] = Query(None, max_length=100, description="产地区域"),
-    status: Optional[str] = Query(None, description="产品状态"),
+    product_status: Optional[str] = Query(None, description="产品状态"),
     is_featured: Optional[bool] = Query(None, description="是否精选"),
     sort_by: str = Query("created_at", description="排序字段"),
     sort_order: str = Query("desc", description="排序顺序"),
@@ -242,7 +242,7 @@ async def list_products(
             search=search,
             category=category,
             region=region,
-            status=status,
+            status=product_status,
             is_featured=is_featured,
             sort_by=sort_by,
             sort_order=sort_order,
@@ -291,7 +291,7 @@ async def get_product_reviews(
 
 @router.post("/products/{product_id}/reviews", response_model=dict, tags=["产品"])
 async def add_product_review(
-    product_id: int, request: dict, current_user: dict = Depends(get_optional_user), db: Session = Depends(get_db)
+    product_id: int, request: AddReviewRequest, current_user: dict = Depends(get_optional_user), db: Session = Depends(get_db)
 ) -> dict:
     """添加产品评论
 
@@ -302,8 +302,8 @@ async def add_product_review(
         data={
             "id": "",
             "productId": str(product_id),
-            "rating": request.get("rating", 5),
-            "comment": request.get("comment", ""),
+            "rating": request.rating,
+            "comment": request.comment,
         },
         message="评论提交成功（功能待完善）",
     ).dict()
@@ -719,6 +719,13 @@ async def delete_product_image(
 # ============ 批量操作 (BUG-027修复) ============
 
 
+class AddReviewRequest(BaseModel):
+    """添加评论请求"""
+
+    rating: int = Field(..., ge=1, le=5, description="评分（1-5）")
+    comment: str = Field(..., min_length=1, max_length=1000, description="评论内容")
+
+
 class BatchDeleteRequest(BaseModel):
     """批量删除请求"""
 
@@ -773,6 +780,15 @@ async def batch_delete_products(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content=error_response(code=ErrorCode.PARAM_ERROR, message="产品ID列表不能为空").dict(),
             )
+
+        # 删除前先查询所有产品，清理关联图片文件
+        products_to_delete = db.query(Product).filter(Product.id.in_(request.ids)).all()
+        for product in products_to_delete:
+            if product.image_urls and isinstance(product.image_urls, list):
+                for image_url in product.image_urls:
+                    _safe_delete_product_image_file(image_url)
+            if product.main_image_url:
+                _safe_delete_product_image_file(product.main_image_url)
 
         # 硬删除产品
         deleted_count = db.query(Product).filter(Product.id.in_(request.ids)).delete(synchronize_session=False)
@@ -842,6 +858,22 @@ async def batch_update_products(
         for key, value in request.data.items():
             if key in allowed_fields:
                 update_data[key] = value
+
+        # price 字段单独验证：必须是非负数
+        if "price" in update_data:
+            try:
+                price_val = float(update_data["price"])
+            except (TypeError, ValueError):
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content=error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 必须是数字").dict(),
+                )
+            if price_val < 0:
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content=error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 不能为负数").dict(),
+                )
+            update_data["price"] = price_val
 
         if not update_data:
             return JSONResponse(

@@ -175,7 +175,7 @@ class Payment(BaseModel):
             "id": self.id,
             "payment_no": self.payment_no,
             "order_id": self.order_id,
-            "amount": float(self.amount) if self.amount else 0,
+            "amount": str(self.amount) if self.amount else "0",
             "payment_method": self.payment_method.value if self.payment_method else None,
             "status": self.status.value if self.status else None,
             "transaction_id": self.transaction_id,

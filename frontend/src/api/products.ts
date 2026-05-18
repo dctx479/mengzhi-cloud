@@ -15,8 +15,9 @@ import type {
 
 /** 解包后端 { code, data, message } 包装，提取 data 字段 */
 function unwrap<T>(res: unknown): T {
-  const r = res as { data?: T } & T
-  return r.data !== undefined ? r.data : r
+  const r = res as { data?: T | null }
+  if (r.data !== undefined && r.data !== null) return r.data
+  return res as T
 }
 
 export const getProductList = async (params: ProductListRequest): Promise<ProductListResponse> => {

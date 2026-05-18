@@ -98,6 +98,7 @@ async def generate_content(
     style: str = Query("casual", description="风格"),
     platform: str = Query("general", description="目标平台"),
     word_count: int = Query(200, ge=50, le=2000, description="目标字数（50~2000）"),
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -125,7 +126,7 @@ async def generate_content(
                 content_type = cfg.content_type or content_type
                 style = cfg.style or style
                 platform = cfg.platform or platform
-                word_count = cfg.word_count or word_count
+                word_count = cfg.word_count if cfg.word_count is not None else word_count
             elif body.product_id:
                 product_id = body.product_id
                 content_type = body.content_type or content_type
@@ -210,6 +211,7 @@ async def generate_content_variants(
     style: str = Query("casual", description="风格"),
     platform: str = Query("general", description="目标平台"),
     word_count: int = Query(200, ge=50, le=2000, description="目标字数（50~2000）"),
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -255,8 +257,8 @@ async def generate_content_variants(
         # 获取服务
         service = await ContentGenerationServiceFactory.get_service(db)
 
-        # 生成多个变体（带超时保护，变体数量越多超时越长）
-        variant_timeout = _GENERATE_TIMEOUT * count
+        # 生成多个变体（带超时保护，最多 3 分钟，防止 DoS）
+        variant_timeout = min(_GENERATE_TIMEOUT * count, 180)
         try:
             variants = await asyncio.wait_for(
                 service.generate_multiple_variants(
@@ -373,7 +375,10 @@ async def get_history(
 
 
 @router.get("/statistics")
-async def get_statistics(db: Session = Depends(get_db)):
+async def get_statistics(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
     获取内容生成统计数据
     """

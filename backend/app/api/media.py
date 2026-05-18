@@ -254,6 +254,9 @@ async def upload_video(
     except Exception as e:
         logger.error(f"视频上传失败: {str(e)}")
         raise HTTPException(status_code=500, detail="上传失败")
+
+
+@router.get("", response_model=MediaListResponse)
 async def list_media(
     media_type: Optional[MediaTypeSchema] = Query(None, description="媒体类型筛选"),
     category: Optional[MediaCategory] = Query(None, description="分类筛选"),
@@ -429,8 +432,11 @@ async def assign_media_to_product(
     if not media:
         raise HTTPException(status_code=404, detail="媒体不存在")
 
+    # 缓存用户整数 ID，避免重复查询数据库
+    current_user_int_id = _get_user_int_id(current_user, db)
+
     # 验证媒体所有权
-    if media.user_id != _get_user_int_id(current_user, db) and current_user.get("role", "") != "admin":
+    if media.user_id != current_user_int_id and current_user.get("role", "") != "admin":
         raise HTTPException(status_code=403, detail="无权操作此媒体")
 
     # 验证产品存在
@@ -439,7 +445,7 @@ async def assign_media_to_product(
         raise HTTPException(status_code=404, detail="产品不存在")
 
     # 验证产品所有权
-    if product.created_by != _get_user_int_id(current_user, db) and current_user.get("role", "") != "admin":
+    if product.created_by != current_user_int_id and current_user.get("role", "") != "admin":
         raise HTTPException(status_code=403, detail="无权操作此产品")
 
     # 关联产品
