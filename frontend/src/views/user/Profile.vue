@@ -30,8 +30,8 @@
             label-width="100px"
             class="profile-form"
           >
-            <el-form-item label="用户名" prop="username">
-              <el-input v-model="editForm.username" />
+            <el-form-item label="用户名">
+              <el-input :model-value="editForm.username" disabled />
             </el-form-item>
 
             <el-form-item label="昵称" prop="nickname">
@@ -42,8 +42,8 @@
               <el-input v-model="editForm.email" disabled />
             </el-form-item>
 
-            <el-form-item label="手机" prop="phone">
-              <el-input v-model="editForm.phone" placeholder="可选" />
+            <el-form-item label="手机">
+              <el-input :model-value="editForm.phone" disabled placeholder="请前往安全中心绑定或修改" />
             </el-form-item>
 
             <el-form-item label="个人简介" prop="bio">
@@ -122,7 +122,7 @@
       <el-col :xs="24" :sm="8">
         <el-card class="stat-card">
           <div class="stat-content">
-            <div class="stat-value">{{ userStore.user?.totalChats || 0 }}</div>
+            <div class="stat-value">{{ userStore.userProfile?.totalChats ?? 0 }}</div>
             <div class="stat-label">AI对话次数</div>
           </div>
         </el-card>
@@ -131,7 +131,7 @@
       <el-col :xs="24" :sm="8">
         <el-card class="stat-card">
           <div class="stat-content">
-            <div class="stat-value">{{ userStore.user?.totalProducts || 0 }}</div>
+            <div class="stat-value">{{ userStore.userProfile?.totalProducts ?? 0 }}</div>
             <div class="stat-label">浏览产品</div>
           </div>
         </el-card>
@@ -170,19 +170,8 @@ const editForm = reactive({
 })
 
 const rules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '用户名长度 3-20 位', trigger: 'blur' },
-  ],
   nickname: [
     { max: 30, message: '昵称最多 30 个字符', trigger: 'blur' },
-  ],
-  phone: [
-    {
-      pattern: /^[0-9\-\+]{7,15}$/,
-      message: '手机号格式不正确',
-      trigger: 'blur',
-    },
   ],
   website: [
     {
@@ -241,9 +230,7 @@ const handleSave = async () => {
     saving.value = true
 
     await userStore.updateProfile({
-      username: editForm.username,
       nickname: editForm.nickname,
-      phone: editForm.phone,
       bio: editForm.bio,
       location: editForm.location,
       website: editForm.website,

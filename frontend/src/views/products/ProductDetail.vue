@@ -202,12 +202,11 @@ const formatDate = (dateStr: string) => {
 }
 
 const handleAddToCart = () => {
-  ElMessage.success(`已将 ${quantity.value} 件商品加入购物车`)
-  quantity.value = 1
+  ElMessage.info('购物车功能暂未开放，如需采购请联系客服')
 }
 
 const handleAddToFavorite = () => {
-  ElMessage.success('已加入收藏')
+  ElMessage.info('收藏功能暂未开放')
 }
 
 const goToList = () => {

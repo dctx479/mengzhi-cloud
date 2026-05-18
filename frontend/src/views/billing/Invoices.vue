@@ -105,17 +105,17 @@
                   {{ row.due_date }}
                 </el-descriptions-item>
                 <el-descriptions-item label="小计">
-                  ¥{{ parseFloat(row.amounts?.subtotal || 0).toFixed(2) }}
+                  ¥{{ Number(row.amounts?.subtotal || 0).toFixed(2) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="折扣">
-                  ¥{{ parseFloat(row.amounts?.discount || 0).toFixed(2) }}
+                  ¥{{ Number(row.amounts?.discount || 0).toFixed(2) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="税费">
-                  ¥{{ parseFloat(row.amounts?.tax || 0).toFixed(2) }}
+                  ¥{{ Number(row.amounts?.tax || 0).toFixed(2) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="总金额">
                   <span class="total-amount">
-                    ¥{{ parseFloat(row.amounts?.total || 0).toFixed(2) }}
+                    ¥{{ Number(row.amounts?.total || 0).toFixed(2) }}
                   </span>
                 </el-descriptions-item>
                 <el-descriptions-item v-if="row.payment?.method" label="支付方式">
@@ -170,7 +170,7 @@
 
         <el-table-column label="金额" width="120" sortable>
           <template #default="{ row }">
-            <span class="amount">¥{{ parseFloat(row.amounts?.total || 0).toFixed(2) }}</span>
+            <span class="amount">¥{{ Number(row.amounts?.total || 0).toFixed(2) }}</span>
           </template>
         </el-table-column>
 
@@ -202,7 +202,7 @@
               type="primary"
               link
               size="small"
-              @click="viewInvoiceDetail(row.id)"
+              @click="viewInvoiceDetail()"
             >
               查看详情
             </el-button>
@@ -255,7 +255,7 @@
           </el-descriptions-item>
           <el-descriptions-item label="应付金额">
             <span class="payment-amount">
-              ¥{{ parseFloat(selectedInvoice.amounts?.total || 0).toFixed(2) }}
+              ¥{{ Number(selectedInvoice.amounts?.total || 0).toFixed(2) }}
             </span>
           </el-descriptions-item>
         </el-descriptions>
@@ -314,109 +314,168 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, h } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import http from '@/utils/http'
 
-const router = useRouter()
+interface InvoiceBillingPeriod {
+  start?: string
+  end?: string
+}
 
-// 数据
-const invoices = ref([])
-const filters = reactive({
-  status: null
+interface InvoiceAmounts {
+  subtotal?: number | string
+  discount?: number | string
+  tax?: number | string
+  total?: number | string
+}
+
+interface InvoicePayment {
+  method?: PaymentMethod
+  paid_at?: string
+  transaction_id?: string
+}
+
+interface InvoiceUsageSummary {
+  total_tokens?: number
+  total_messages?: number
+  total_api_calls?: number
+}
+
+interface InvoiceRecord {
+  billing_date?: string
+  billing_mode: BillingMode
+  quantity?: number | string
+  amount?: number | string
+}
+
+type InvoiceStatus = 'pending' | 'paid' | 'overdue' | 'cancelled' | 'refunded'
+type PaymentMethod = 'wechat' | 'alipay' | 'bank' | 'balance' | 'other'
+type BillingMode = 'token' | 'message' | 'api_call' | 'monthly' | 'tiered'
+
+interface InvoiceItem {
+  id: string
+  invoice_uuid?: string
+  invoice_number: string
+  billing_period?: InvoiceBillingPeriod
+  due_date?: string
+  amounts?: InvoiceAmounts
+  payment?: InvoicePayment
+  notes?: string
+  usage_summary?: InvoiceUsageSummary
+  status: InvoiceStatus
+  created_at?: string
+  records?: InvoiceRecord[]
+}
+
+interface InvoicesResponse {
+  invoices?: InvoiceItem[]
+  pagination?: {
+    total?: number
+  }
+}
+
+interface BillingApiResponse<T> {
+  code?: number
+  data?: T
+  message?: string
+}
+
+const invoices = ref<InvoiceItem[]>([])
+const filters = reactive<{
+  status: InvoiceStatus | null
+}>({
+  status: null,
 })
 const pagination = reactive({
   page: 1,
   page_size: 20,
-  total: 0
+  total: 0,
 })
-const statusCounts = reactive({
+const statusCounts = reactive<Record<InvoiceStatus, number>>({
   pending: 0,
   paid: 0,
   overdue: 0,
   cancelled: 0,
-  refunded: 0
+  refunded: 0,
 })
 
-// 支付相关
 const showPaymentDialog = ref(false)
-const selectedInvoice = ref(null)
-const paymentForm = reactive({
+const selectedInvoice = ref<InvoiceItem | null>(null)
+const paymentForm = reactive<{
+  payment_method: PaymentMethod
+  transaction_id: string
+}>({
   payment_method: 'wechat',
-  transaction_id: ''
+  transaction_id: '',
 })
 const paymentLoading = ref(false)
-
-// 加载状态
 const loading = ref(false)
 
-// 计算属性
 const totalAmount = computed(() => {
   return invoices.value.reduce((sum, invoice) => {
-    return sum + parseFloat(invoice.amounts?.total || 0)
+    return sum + Number(invoice.amounts?.total || 0)
   }, 0)
 })
 
-// 状态映射
-const invoiceStatusMap = {
+const invoiceStatusMap: Record<InvoiceStatus, string> = {
   pending: '待支付',
   paid: '已支付',
   overdue: '已逾期',
   cancelled: '已取消',
-  refunded: '已退款'
+  refunded: '已退款',
 }
 
-const invoiceStatusTypeMap = {
+const invoiceStatusTypeMap: Record<InvoiceStatus, string> = {
   pending: 'warning',
   paid: 'success',
   overdue: 'danger',
   cancelled: 'info',
-  refunded: 'info'
+  refunded: 'info',
 }
 
-const paymentMethodMap = {
+const paymentMethodMap: Record<PaymentMethod, string> = {
   wechat: '微信支付',
   alipay: '支付宝',
   bank: '银行转账',
   balance: '余额支付',
-  other: '其他'
+  other: '其他',
 }
 
-// 方法
-const getInvoiceStatusText = (status) => invoiceStatusMap[status] || status
-const getInvoiceStatusType = (status) => invoiceStatusTypeMap[status] || 'info'
-const getPaymentMethodText = (method) => paymentMethodMap[method] || method
+const getInvoiceStatusText = (status: InvoiceStatus) => invoiceStatusMap[status] || status
+const getInvoiceStatusType = (status: InvoiceStatus) => invoiceStatusTypeMap[status] || 'info'
+const getPaymentMethodText = (method: PaymentMethod) => paymentMethodMap[method] || method
 
-const formatDateTime = (dateTime) => {
+const formatDateTime = (dateTime?: string) => {
   if (!dateTime) return '-'
   return new Date(dateTime).toLocaleString('zh-CN')
 }
 
-const isOverdue = (invoice) => {
-  if (invoice.status === 'paid') return false
+const isOverdue = (invoice: InvoiceItem) => {
+  if (invoice.status === 'paid' || !invoice.due_date) return false
   return new Date(invoice.due_date) < new Date()
 }
 
-// 加载账单列表
 const loadInvoices = async () => {
   try {
     loading.value = true
 
-    const params = {
+    const params: {
+      page: number
+      page_size: number
+      status?: InvoiceStatus
+    } = {
       page: pagination.page,
-      page_size: pagination.page_size
+      page_size: pagination.page_size,
     }
 
     if (filters.status) params.status = filters.status
 
-    const res = await http.get('/v1/billing/invoices', { params })
+    const res = await http.get<BillingApiResponse<InvoicesResponse>>('/v1/billing/invoices', { params }) as BillingApiResponse<InvoicesResponse>
 
     if (res.code === 200) {
       invoices.value = res.data?.invoices || []
       pagination.total = res.data?.pagination?.total || 0
-
-      // 更新状态统计
       updateStatusCounts()
     }
   } catch (error) {
@@ -427,80 +486,39 @@ const loadInvoices = async () => {
   }
 }
 
-// 更新状态统计（基于当前页数据，仅供参考）
 const updateStatusCounts = () => {
-  const counts = {
+  const counts: Record<InvoiceStatus, number> = {
     pending: 0,
     paid: 0,
     overdue: 0,
     cancelled: 0,
-    refunded: 0
+    refunded: 0,
   }
 
-  invoices.value.forEach(invoice => {
-    const status = invoice.status
-    if (Object.prototype.hasOwnProperty.call(counts, status)) {
-      counts[status]++
-    }
+  invoices.value.forEach((invoice) => {
+    counts[invoice.status] += 1
   })
 
   Object.assign(statusCounts, counts)
 }
 
-// 重置筛选条件
 const resetFilters = () => {
   filters.status = null
   pagination.page = 1
   loadInvoices()
 }
 
-// 查看账单详情
-const viewInvoiceDetail = async (invoiceId) => {
-  try {
-    const res = await http.get(`/v1/billing/invoices/${invoiceId}`)
-
-    if (res.code === 200) {
-      const invoice = res.data
-
-      // 显示详情对话框
-      ElMessageBox.alert(
-        h('div', { style: 'max-height: 500px; overflow-y: auto;' }, [
-          h('h3', '账单详情'),
-          h('p', [h('strong', '账单编号:'), ` ${invoice.invoice_number || '-'}`]),
-          h('p', [h('strong', '账单周期:'), ` ${invoice.billing_period?.start || '-'} ~ ${invoice.billing_period?.end || '-'}`]),
-          h('p', [h('strong', '总金额:'), ` ¥${parseFloat(invoice.amounts?.total || 0).toFixed(2)}`]),
-          h('p', [h('strong', '状态:'), ` ${getInvoiceStatusText(invoice.status)}`]),
-          h('h4', `计费记录 (${invoice.records?.length || 0}条)`),
-          ...(invoice.records?.map(record =>
-            h('div', { style: 'border: 1px solid #eee; padding: 8px; margin: 4px 0; border-radius: 4px;' }, [
-              h('p', [h('strong', '日期:'), ` ${record.billing_date || '-'}`]),
-              h('p', [h('strong', '模式:'), ` ${getBillingModeText(record.billing_mode)}`]),
-              h('p', [h('strong', '数量:'), ` ${record.quantity}`]),
-              h('p', [h('strong', '金额:'), ` ¥${record.amount || '0.00'}`]),
-            ])
-          ) || [h('p', '暂无记录')]),
-        ]),
-        '账单详情',
-        {
-          confirmButtonText: '关闭'
-        }
-      )
-    }
-  } catch (error) {
-    console.error('加载账单详情失败:', error)
-    ElMessage.error('加载账单详情失败')
-  }
+const viewInvoiceDetail = () => {
+  ElMessage.info('账单详情请在当前列表展开查看')
 }
 
-// 显示支付对话框
-const showPayDialog = (invoice) => {
+const showPayDialog = (invoice: InvoiceItem) => {
   selectedInvoice.value = invoice
   paymentForm.payment_method = 'wechat'
   paymentForm.transaction_id = ''
   showPaymentDialog.value = true
 }
 
-// 确认支付
 const confirmPayment = async () => {
   try {
     if (!paymentForm.payment_method) {
@@ -513,15 +531,20 @@ const confirmPayment = async () => {
       return
     }
 
+    if (!selectedInvoice.value) {
+      ElMessage.warning('未选择账单')
+      return
+    }
+
     paymentLoading.value = true
 
-    const res = await http.post(
+    const res = await http.post<BillingApiResponse<unknown>>(
       `/v1/billing/invoices/${selectedInvoice.value.id}/pay`,
       {
         payment_method: paymentForm.payment_method,
-        transaction_id: paymentForm.transaction_id || undefined
+        transaction_id: paymentForm.transaction_id || undefined,
       }
-    )
+    ) as BillingApiResponse<unknown>
 
     if (res.code === 200) {
       ElMessage.success('支付成功')
@@ -530,20 +553,19 @@ const confirmPayment = async () => {
     }
   } catch (error) {
     console.error('支付失败:', error)
-    ElMessage.error(error.response?.data?.message || '支付失败')
+    const message = error instanceof Error ? error.message : '支付失败'
+    ElMessage.error(message)
   } finally {
     paymentLoading.value = false
   }
 }
 
-// 下载账单
-const downloadInvoice = async (invoiceId) => {
+const downloadInvoice = async (invoiceId: string) => {
   try {
-    const res = await http.get(`/v1/billing/invoices/${invoiceId}/download`, {
-      responseType: 'blob'
+    const res = await http.get<Blob>(`/v1/billing/invoices/${invoiceId}/download`, {
+      responseType: 'blob',
     })
-    // http interceptor returns response.data; for blob responseType that is already the Blob
-    const blob = res instanceof Blob ? res : new Blob([res as any], { type: 'application/pdf' })
+    const blob = res instanceof Blob ? res : new Blob([res as BlobPart], { type: 'application/pdf' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -558,18 +580,6 @@ const downloadInvoice = async (invoiceId) => {
   }
 }
 
-const getBillingModeText = (mode) => {
-  const map = {
-    token: 'Token',
-    message: '消息',
-    api_call: 'API调用',
-    monthly: '包月',
-    tiered: '阶梯'
-  }
-  return map[mode] || mode
-}
-
-// 初始化
 onMounted(() => {
   loadInvoices()
 })

@@ -153,6 +153,8 @@ async def send_message(
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")
         raise HTTPException(status_code=e.get_http_status(), detail=e.message)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -192,15 +194,13 @@ async def send_message_stream(
             async for chunk in service.send_message_stream(
                 user_id=user_id, content=request.content, conversation_id=request.conversation_id, temperature=0.7
             ):
-                # 确保 chunk 是单行 JSON，防止换行符破坏 SSE 协议
                 if isinstance(chunk, str):
-                    safe_chunk = chunk.replace('\n', '\\n')
+                    payload = {"type": "chunk", "content": chunk}
                 else:
-                    safe_chunk = json.dumps(chunk, ensure_ascii=False)
-                yield f"data: {safe_chunk}\n\n"
+                    payload = chunk
+                yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
-            # 发送完成信号
-            yield f"data: {json.dumps({'status': 'completed'})}\n\n"
+            yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
 
         except GeneratorExit:
             logger.info("Client disconnected, cleaning up stream")
@@ -244,6 +244,8 @@ async def create_conversation(
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")
         raise HTTPException(status_code=e.get_http_status(), detail=e.message)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -289,6 +291,8 @@ async def get_conversations(
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")
         raise HTTPException(status_code=e.get_http_status(), detail=e.message)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -316,6 +320,8 @@ async def get_conversation(conversation_id: str, user_id: int = Depends(get_user
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")
         raise HTTPException(status_code=e.get_http_status(), detail=e.message)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -343,6 +349,8 @@ async def delete_conversation(conversation_id: str, user_id: int = Depends(get_u
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")
         raise HTTPException(status_code=e.get_http_status(), detail=e.message)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -470,6 +478,8 @@ async def update_conversation(
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")
         raise HTTPException(status_code=e.get_http_status(), detail=e.message)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -518,6 +528,8 @@ async def add_feedback(request: FeedbackRequest, user_id: int = Depends(get_user
     except BusinessException as e:
         logger.error(f"Business error: {e.message}")
         raise HTTPException(status_code=e.get_http_status(), detail=e.message)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

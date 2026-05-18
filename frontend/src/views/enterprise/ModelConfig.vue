@@ -50,13 +50,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/user'
 import ModelConfigForm from './components/ModelConfigForm.vue'
 import { getModelConfigs, saveModelConfig } from '@/api/modelConfig'
 
+const userStore = useUserStore()
 const activeTab = ref('deepseek')
-const isEnterprise = ref(false)
+const hasEnterpriseAccess = computed(() => {
+  return userStore.user?.enterpriseId ? String(userStore.user.enterpriseId) : ''
+})
+const isEnterprise = computed(() => Boolean(hasEnterpriseAccess.value))
 const configs = ref({
   deepseek: null,
   qwen: null,
@@ -66,13 +71,25 @@ const configs = ref({
 
 onMounted(async () => {
   await loadConfigs()
-  checkEnterpriseStatus()
 })
 
+const resetConfigs = () => {
+  configs.value = {
+    deepseek: null,
+    qwen: null,
+    zhipu: null,
+    custom: null
+  }
+}
+
 const loadConfigs = async () => {
+  if (!hasEnterpriseAccess.value) {
+    resetConfigs()
+    return
+  }
+
   try {
-    const res = await getModelConfigs()
-    // 后端统一响应格式: {code, data, message}，需要解包 .data
+    const res = await getModelConfigs(hasEnterpriseAccess.value)
     const data = res?.data ?? res
     if (data && typeof data === 'object') {
       configs.value = data
@@ -82,15 +99,14 @@ const loadConfigs = async () => {
   }
 }
 
-const checkEnterpriseStatus = () => {
-  // 检查是否企业版
-  const tier = localStorage.getItem('quota_tier')
-  isEnterprise.value = tier === 'enterprise_tier'
-}
-
 const saveConfig = async (provider, config) => {
+  if (!hasEnterpriseAccess.value) {
+    ElMessage.warning('当前账号未关联企业，无法保存模型配置')
+    return
+  }
+
   try {
-    await saveModelConfig(provider, config)
+    await saveModelConfig(hasEnterpriseAccess.value, provider, config)
     ElMessage.success('保存成功')
     await loadConfigs()
   } catch (error) {

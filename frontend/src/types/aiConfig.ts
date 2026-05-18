@@ -19,3 +19,14 @@ export interface AIConfigForm {
   model: string;
   isActive: boolean;
 }
+
+export interface AIConfigApiItem {
+  id: string | number;
+  name?: string | null;
+  provider: AIProvider;
+  api_key?: string | null;
+  base_url?: string | null;
+  default_model?: string | null;
+  is_active?: boolean | null;
+  created_at?: string | null;
+}

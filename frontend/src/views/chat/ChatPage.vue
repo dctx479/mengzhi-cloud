@@ -276,10 +276,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  // Abort any in-flight streaming request to prevent memory leaks
-  if (typeof chatStore.abortStream === 'function') {
-    chatStore.abortStream()
-  }
+  chatStore.resetState()
 })
 </script>
 

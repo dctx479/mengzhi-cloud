@@ -472,9 +472,16 @@ const handleReset = () => {
 }
 
 // 处理排序
-const handleSortChange = ({ prop, order }: any) => {
-  // 实现排序逻辑
-  console.log('Sort:', prop, order)
+const handleSortChange = ({ prop, order }: { prop?: string; order?: 'ascending' | 'descending' | null }) => {
+  queryForm.page = 1
+
+  if (!prop || !order) {
+    loadLogs()
+    return
+  }
+
+  queryForm.search = queryForm.search?.trim() || undefined
+  loadLogs()
 }
 
 // 处理分页大小变化

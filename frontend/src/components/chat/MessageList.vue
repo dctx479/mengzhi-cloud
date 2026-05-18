@@ -123,7 +123,7 @@ const scrollToMessage = (messageId: string) => {
 const handleScroll = () => {
   if (!listContainer.value) return
 
-  const { scrollTop, scrollHeight, clientHeight } = listContainer.value
+  const { scrollTop } = listContainer.value
   currentScrollPosition.value = scrollTop
 
   // 检查是否滚动到顶部附近（距顶部 100px 以内），加载更多消息

@@ -91,8 +91,8 @@
 
       <el-form label-width="120px" class="settings-form">
         <el-form-item label="数据导出">
-          <el-button @click="handleExportData">导出我的数据</el-button>
-          <span class="form-hint">导出您的所有个人数据为 ZIP 文件</span>
+          <el-button disabled>导出我的数据</el-button>
+          <span class="form-hint">数据导出功能暂未开放</span>
         </el-form-item>
 
         <el-form-item label="清空缓存">
@@ -101,9 +101,9 @@
         </el-form-item>
 
         <el-form-item label="账户注销">
-          <el-button type="danger" @click="handleDeleteAccount">注销账户</el-button>
+          <el-button type="danger" disabled>注销账户</el-button>
           <span class="form-hint">
-            <span style="color: #f56c6c; font-weight: bold">此操作无法撤销，请谨慎操作</span>
+            <span style="color: #f56c6c; font-weight: bold">账户注销功能暂未开放</span>
           </span>
         </el-form-item>
       </el-form>
@@ -180,16 +180,6 @@ const handleResetSettings = async () => {
   }
 }
 
-const handleExportData = async () => {
-  try {
-    ElMessage.info('数据导出功能开发中，敬请期待')
-    // TODO: 实现数据导出功能
-  } catch (error) {
-    ElMessage.error('导出失败，请重试')
-    console.error(error)
-  }
-}
-
 const handleClearCache = async () => {
   try {
     await ElMessageBox.confirm('确定要清空所有缓存吗？', '提示', {
@@ -198,38 +188,13 @@ const handleClearCache = async () => {
       type: 'warning',
     })
 
-    // 清空 localStorage
     localStorage.clear()
-    // 清空 sessionStorage
     sessionStorage.clear()
 
     ElMessage.success('缓存已清空，页面将刷新')
     setTimeout(() => {
       window.location.reload()
     }, 1000)
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error(error)
-    }
-  }
-}
-
-const handleDeleteAccount = async () => {
-  try {
-    await ElMessageBox.prompt(
-      '注销账户是一项严肃的决定。您的所有数据将被永久删除，此操作无法撤销。',
-      '注销账户',
-      {
-        confirmButtonText: '注销',
-        cancelButtonText: '取消',
-        type: 'warning',
-        
-        inputPlaceholder: '请输入您的用户名',
-      }
-    )
-
-    ElMessage.info('账户注销功能开发中，敬请期待')
-    // TODO: 实现账户注销功能
   } catch (error) {
     if (error !== 'cancel') {
       console.error(error)

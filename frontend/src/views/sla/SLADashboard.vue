@@ -267,7 +267,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Document, CircleCheck, TrendCharts, Warning, Refresh, Plus } from '@element-plus/icons-vue'
 import http from '@/utils/http'
 
@@ -408,9 +408,15 @@ const viewMetrics = async (agreement: SLAAgreement) => {
 const viewReport = async (agreement: SLAAgreement) => {
   try {
     const res = await http.get(`/v1/sla/reports/daily/${agreement.id}`)
-    // TODO: 显示报告详情
-    console.log('Report:', (res as any).data ?? res)
-    ElMessage.success('报告生成成功')
+    const report = (res as any).data ?? res
+    ElMessageBox.alert(
+      `<pre style="white-space: pre-wrap; word-break: break-word; margin: 0;">${JSON.stringify(report, null, 2)}</pre>`,
+      `SLA报告 - ${agreement.name}`,
+      {
+        dangerouslyUseHTMLString: true,
+        confirmButtonText: '关闭',
+      }
+    )
   } catch (error) {
     ElMessage.error('生成报告失败')
   }

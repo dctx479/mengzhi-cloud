@@ -152,7 +152,6 @@ export function usePayment(options: UsePaymentOptions = {}) {
 
     const scheduleNextCheck = () => {
       if (pollAttempts >= POLL_CONFIG.MAX_ATTEMPTS) {
-        console.log('达到最大轮询次数，停止轮询')
         stopStatusCheck()
         return
       }
@@ -165,7 +164,6 @@ export function usePayment(options: UsePaymentOptions = {}) {
       )
 
       pollAttempts++
-      console.log(`第 ${pollAttempts} 次轮询，间隔 ${interval}ms`)
 
       statusCheckTimer = setTimeout(async () => {
         await checkPaymentStatus(orderId)

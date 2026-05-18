@@ -16,6 +16,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime, date
+from decimal import Decimal
 from typing import Optional, Dict, Any, List
 import enum
 
@@ -701,13 +702,8 @@ class Invoice(BaseModel):
 
     def calculate_totals(self):
         """计算账单总额"""
-        # 计算小计
-        self.subtotal = sum(
-            float(record.amount or 0) for record in self.records
-        )
-
-        # 计算总额
-        self.total = self.subtotal - self.discount + self.tax
+        self.subtotal = sum((record.amount or Decimal("0")) for record in self.records)
+        self.total = self.subtotal - (self.discount or Decimal("0")) + (self.tax or Decimal("0"))
 
     @staticmethod
     def generate_invoice_number(user_id: int, period_start: date) -> str:

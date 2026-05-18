@@ -272,7 +272,9 @@ class PaymentService:
     def handle_payment_callback(
         self,
         payment_no: str,
-        callback_data: Dict[str, Any]
+        callback_data: Dict[str, Any],
+        expected_order_id: Optional[int] = None,
+        transaction_id: Optional[str] = None,
     ) -> bool:
         """处理支付回调
 
@@ -295,6 +297,14 @@ class PaymentService:
             return False
 
         payment_method = payment.payment_method.value
+
+        if expected_order_id is not None and payment.order_id != expected_order_id:
+            logger.error(
+                f"支付回调订单不匹配: payment_no={payment_no}, expected_order_id={expected_order_id}, actual_order_id={payment.order_id}"
+            )
+            return False
+
+        resolved_transaction_id = transaction_id or callback_data.get("transaction_id")
 
         # 如果已经支付成功，直接返回
         if payment.is_success():
@@ -345,7 +355,7 @@ class PaymentService:
                 savepoint = self.db.begin_nested()
                 try:
                     # 更新支付状态（在 savepoint 内部，失败时可回滚）
-                    payment.mark_as_success(callback_data.get("transaction_id"))
+                    payment.mark_as_success(resolved_transaction_id)
                     payment.channel_response = json.dumps(callback_data)
 
                     # 记录支付成功
@@ -379,7 +389,7 @@ class PaymentService:
                     return False
             else:
                 # 订单不存在时，仍然标记支付成功（无配额可发放）
-                payment.mark_as_success(callback_data.get("transaction_id"))
+                payment.mark_as_success(resolved_transaction_id)
                 payment.channel_response = json.dumps(callback_data)
                 track_payment_success(payment_method, float(payment.amount))
 

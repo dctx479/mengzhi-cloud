@@ -214,7 +214,7 @@ export async function sendMessageStream(
 
         try {
           const parsed = JSON.parse(data)
-          if (parsed.status === 'completed') {
+          if (parsed.type === 'done' || parsed.status === 'completed') {
             onChunk({ type: 'done' })
             doneCalled = true
             break outer

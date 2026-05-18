@@ -38,24 +38,25 @@
 </template>
 
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import type { Product } from '@/types/product'
 import VirtualList from './VirtualList.vue'
 
-// 定义Props
 interface Props {
-  products: any[]
+  products: Product[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
-// 方法
+const router = useRouter()
+
 const viewDetail = (productId: string) => {
-  console.log('查看产品详情:', productId)
-  // 导航到产品详情页
+  router.push(`/products/${productId}`)
 }
 
-const addToCart = (productId: string) => {
-  console.log('添加到购物车:', productId)
-  // 添加到购物车逻辑
+const addToCart = (_productId: string) => {
+  ElMessage.info('当前列表暂不支持直接加入购物车，请前往商品详情页操作')
 }
 </script>
 

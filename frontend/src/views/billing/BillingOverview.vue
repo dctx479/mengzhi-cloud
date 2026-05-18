@@ -73,10 +73,10 @@
           <div v-else class="simple-pricing">
             <el-descriptions :column="2" border size="small">
               <el-descriptions-item v-if="currentPlan.pricing_rules?.unit_price" label="单价">
-                {{ parseFloat(currentPlan.pricing_rules?.unit_price || 0).toFixed(2) }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                {{ Number(currentPlan.pricing_rules?.unit_price || 0).toFixed(2) }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
               </el-descriptions-item>
               <el-descriptions-item v-if="currentPlan.pricing_rules?.monthly_fee" label="月费">
-                {{ parseFloat(currentPlan.pricing_rules?.monthly_fee || 0).toFixed(2) }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
+                {{ Number(currentPlan.pricing_rules?.monthly_fee || 0).toFixed(2) }} {{ currentPlan.pricing_rules?.currency || 'CNY' }}
               </el-descriptions-item>
               <el-descriptions-item v-if="currentPlan.pricing_rules?.included_tokens" label="包含Token">
                 {{ currentPlan.pricing_rules?.included_tokens }}
@@ -111,7 +111,7 @@
               <div class="stat-icon">💰</div>
               <div class="stat-info">
                 <div class="stat-label">总费用</div>
-                <div class="stat-value">¥{{ parseFloat(statistics.total_amount || 0).toFixed(2) }}</div>
+                <div class="stat-value">¥{{ Number(statistics.total_amount || 0).toFixed(2) }}</div>
               </div>
             </div>
           </el-col>
@@ -130,7 +130,7 @@
               <div class="stat-info">
                 <div class="stat-label">日均费用</div>
                 <div class="stat-value">
-                  ¥{{ (parseFloat(statistics.total_amount || 0) / getDaysInMonth()).toFixed(2) }}
+                  ¥{{ (Number(statistics.total_amount || 0) / getDaysInMonth()).toFixed(2) }}
                 </div>
               </div>
             </div>
@@ -152,7 +152,7 @@
             <el-table-column prop="quantity" label="使用量" width="120" />
             <el-table-column label="费用">
               <template #default="{ row }">
-                ¥{{ parseFloat(row.amount || 0).toFixed(2) }}
+                ¥{{ Number(row.amount || 0).toFixed(2) }}
               </template>
             </el-table-column>
           </el-table>
@@ -185,7 +185,7 @@
         </el-table-column>
         <el-table-column label="金额" width="120">
           <template #default="{ row }">
-            ¥{{ parseFloat(row.amounts?.total || 0).toFixed(2) }}
+            ¥{{ Number(row.amounts?.total || 0).toFixed(2) }}
           </template>
         </el-table-column>
         <el-table-column label="状态" width="100">
@@ -206,7 +206,7 @@
               type="primary"
               link
               size="small"
-              @click="viewInvoiceDetail(row.id)"
+              @click="viewInvoiceDetail()"
             >
               查看详情
             </el-button>
@@ -215,7 +215,7 @@
               type="primary"
               link
               size="small"
-              @click="payInvoice(row.id)"
+              @click="payInvoice()"
             >
               支付
             </el-button>
@@ -274,80 +274,138 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import http from '@/utils/http'
 
+interface BillingPlanTier {
+  min?: number
+  max?: number | null
+  unit_price?: number | string
+}
+
+interface BillingPlanPricingRules {
+  currency?: string
+  tiers?: BillingPlanTier[]
+  unit_price?: number | string
+  monthly_fee?: number | string
+  included_tokens?: number
+}
+
+type BillingMode = 'token' | 'message' | 'api_call' | 'monthly' | 'tiered'
+type PricingType = 'fixed' | 'unit' | 'tiered'
+type InvoiceStatus = 'pending' | 'paid' | 'overdue' | 'cancelled' | 'refunded'
+
+interface BillingPlan {
+  id: string
+  name: string
+  description: string
+  is_default: boolean
+  billing_mode: BillingMode
+  pricing_type: PricingType
+  pricing_rules?: BillingPlanPricingRules
+}
+
+interface BillingModeStatistic {
+  count?: number
+  quantity?: number
+  amount?: number | string
+}
+
+interface BillingStatistics {
+  total_amount: number | string
+  total_records: number
+  by_mode: Record<string, BillingModeStatistic>
+}
+
+interface InvoiceBillingPeriod {
+  start?: string
+  end?: string
+}
+
+interface InvoiceAmounts {
+  total?: number | string
+}
+
+interface InvoiceItem {
+  id: string
+  invoice_number: string
+  billing_period?: InvoiceBillingPeriod
+  amounts?: InvoiceAmounts
+  status: InvoiceStatus
+  due_date?: string
+}
+
+interface BillingApiResponse<T> {
+  code?: number
+  data?: T
+  message?: string
+}
+
 const router = useRouter()
 
-// 数据
-const currentPlan = ref(null)
-const availablePlans = ref([])
-const statistics = reactive({
+const currentPlan = ref<BillingPlan | null>(null)
+const availablePlans = ref<BillingPlan[]>([])
+const statistics = reactive<BillingStatistics>({
   total_amount: 0,
   total_records: 0,
-  by_mode: {}
+  by_mode: {},
 })
-const recentInvoices = ref([])
+const recentInvoices = ref<InvoiceItem[]>([])
 const selectedMonth = ref(new Date())
 
-// 加载状态
 const plansLoading = ref(false)
 const statisticsLoading = ref(false)
 const invoicesLoading = ref(false)
 
-// 对话框
 const showPlansDialog = ref(false)
 
-// 计费模式文本映射
-const billingModeMap = {
+const billingModeMap: Record<BillingMode, string> = {
   token: '按Token计费',
   message: '按消息计费',
   api_call: '按API调用计费',
   monthly: '包月套餐',
-  tiered: '阶梯定价'
+  tiered: '阶梯定价',
 }
 
-// 定价类型文本映射
-const pricingTypeMap = {
+const pricingTypeMap: Record<PricingType, string> = {
   fixed: '固定价格',
   unit: '单价',
-  tiered: '阶梯价格'
+  tiered: '阶梯价格',
 }
 
-// 账单状态文本映射
-const invoiceStatusMap = {
+const invoiceStatusMap: Record<InvoiceStatus, string> = {
   pending: '待支付',
   paid: '已支付',
   overdue: '已逾期',
   cancelled: '已取消',
-  refunded: '已退款'
+  refunded: '已退款',
 }
 
-// 方法
-const getBillingModeText = (mode) => billingModeMap[mode] || mode
-const getPricingTypeText = (type) => pricingTypeMap[type] || type
-const getInvoiceStatusText = (status) => invoiceStatusMap[status] || status
+const getBillingModeText = (mode: string) => billingModeMap[mode as BillingMode] || mode
+const getPricingTypeText = (type: string) => pricingTypeMap[type as PricingType] || type
+const getInvoiceStatusText = (status: string) => invoiceStatusMap[status as InvoiceStatus] || status
 
-const getInvoiceStatusType = (status) => {
-  const typeMap = {
+const getInvoiceStatusType = (status: string) => {
+  const typeMap: Record<InvoiceStatus, string> = {
     pending: 'warning',
     paid: 'success',
     overdue: 'danger',
     cancelled: 'info',
-    refunded: 'info'
+    refunded: 'info',
   }
-  return typeMap[status] || 'info'
+  return typeMap[status as InvoiceStatus] || 'info'
 }
 
-const getPlanPriceText = (plan) => {
+const getPlanPriceText = (plan: BillingPlan) => {
   const rules = plan.pricing_rules
   if (!rules) return '-'
 
   if (rules.monthly_fee) {
     return `¥${Number(rules.monthly_fee).toFixed(2)}/月`
-  } else if (rules.unit_price) {
+  }
+  if (rules.unit_price) {
     return `¥${Number(rules.unit_price).toFixed(2)}/单位`
   }
   return '阶梯定价'
@@ -356,30 +414,28 @@ const getPlanPriceText = (plan) => {
 const getDaysInMonth = () => {
   const date = new Date(selectedMonth.value)
   const days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
-  return Math.max(days, 1)  // 确保最小值为1，防止除以0
+  return Math.max(days, 1)
 }
 
 const getModeStatsData = () => {
   return Object.entries(statistics.by_mode).map(([mode, data]) => ({
     mode,
-    ...data
+    count: data?.count ?? 0,
+    quantity: data?.quantity ?? 0,
+    amount: data?.amount ?? 0,
   }))
 }
 
-// 加载计费方案（当前方案 + 可用方案列表）
 const loadPlans = async () => {
   try {
     plansLoading.value = true
-    const res = await http.get('/v1/billing/plans', {
-      params: { is_active: true }
+    const res = await http.get<BillingApiResponse<BillingPlan[]>>('/v1/billing/plans', {
+      params: { is_active: true },
     })
 
-    if (res.code === 200) {
-      const plans = res.data || []
-      availablePlans.value = plans
-      // 获取默认方案作为当前方案
-      currentPlan.value = plans.find(p => p.is_default) || plans[0] || null
-    }
+    const plans = res.data || []
+    availablePlans.value = plans
+    currentPlan.value = plans.find((plan) => plan.is_default) || plans[0] || null
   } catch (error) {
     console.error('加载计费方案失败:', error)
   } finally {
@@ -387,7 +443,6 @@ const loadPlans = async () => {
   }
 }
 
-// 加载统计数据
 const loadStatistics = async () => {
   try {
     statisticsLoading.value = true
@@ -395,81 +450,67 @@ const loadStatistics = async () => {
     const startDate = new Date(date.getFullYear(), date.getMonth(), 1)
     const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
 
-    const res = await http.get('/v1/billing/records/statistics', {
+    const res = await http.get<BillingApiResponse<Partial<BillingStatistics>>>('/v1/billing/records/statistics', {
       params: {
         start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0]
-      }
+        end_date: endDate.toISOString().split('T')[0],
+      },
     })
 
-    if (res.code === 200 && res.data) {
-      statistics.total_amount = res.data.total_amount ?? 0
-      statistics.total_records = res.data.total_records ?? 0
-      statistics.by_mode = res.data.by_mode ?? {}
-    }  } catch (error) {
+    statistics.total_amount = res.data?.total_amount ?? 0
+    statistics.total_records = res.data?.total_records ?? 0
+    statistics.by_mode = res.data?.by_mode ?? {}
+  } catch (error) {
     console.error('加载统计数据失败:', error)
   } finally {
     statisticsLoading.value = false
   }
 }
 
-// 加载最近账单
 const loadRecentInvoices = async () => {
   try {
     invoicesLoading.value = true
-    const res = await http.get('/v1/billing/invoices', {
+    const res = await http.get<BillingApiResponse<{ items?: InvoiceItem[] } | InvoiceItem[]>>('/v1/billing/invoices', {
       params: {
         page: 1,
-        page_size: 5
-      }
+        size: 5,
+      },
     })
 
-    if (res.code === 200 && res.data) {
-      recentInvoices.value = res.data.invoices || []
-    }
+    const invoiceData = res.data
+    recentInvoices.value = Array.isArray(invoiceData) ? invoiceData : invoiceData?.items || []
   } catch (error) {
-    console.error('加载账单失败:', error)
+    console.error('加载最近账单失败:', error)
   } finally {
     invoicesLoading.value = false
   }
 }
 
-// 选择计费方案
-const selectPlan = async (plan) => {
+const selectPlan = async (plan: BillingPlan) => {
   try {
-    await ElMessageBox.confirm(
-      `确定要切换到 "${plan.name}" 方案吗？`,
-      '确认切换',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定切换到方案「${plan.name}」吗？`, '确认切换', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
 
-    // TODO: 实现切换方案的API
-    ElMessage.success('切换方案成功')
-    currentPlan.value = plan
+    ElMessage.info('当前页面暂不支持直接切换方案，请联系管理员在计费方案管理中设置默认方案。')
     showPlansDialog.value = false
   } catch (error) {
-    if (error !== 'cancel') {
-      console.error('切换方案失败:', error)
-      ElMessage.error('切换方案失败')
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('切换方案提示失败:', error)
     }
   }
 }
 
-// 查看账单详情
-const viewInvoiceDetail = (invoiceId) => {
-  router.push(`/billing/invoices/${invoiceId}`)
+const viewInvoiceDetail = () => {
+  router.push('/billing/invoices')
 }
 
-// 支付账单
-const payInvoice = async (invoiceId) => {
-  router.push(`/billing/invoices/${invoiceId}/pay`)
+const payInvoice = () => {
+  router.push('/billing/invoices')
 }
 
-// 初始化
 onMounted(() => {
   loadPlans()
   loadStatistics()

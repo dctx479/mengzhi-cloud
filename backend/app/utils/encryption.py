@@ -3,7 +3,7 @@ API密钥加密工具
 """
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 import base64
 import os
@@ -12,10 +12,12 @@ class APIKeyEncryption:
     def __init__(self, master_key: str = None):
         """初始化加密器"""
         if master_key is None:
-            master_key = os.getenv("ENCRYPTION_KEY", "default-master-key-change-in-production")
+            master_key = os.getenv("ENCRYPTION_KEY")
+        if not master_key:
+            raise RuntimeError("ENCRYPTION_KEY environment variable is required")
 
         # 使用PBKDF2派生密钥
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=b"agri-platform-salt",

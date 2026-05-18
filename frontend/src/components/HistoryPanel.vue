@@ -132,21 +132,22 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useContentGenerationStore } from '@/stores/content-generation'
+import type { HistoryRecord } from '@/types/content-generation'
 
 const contentStore = useContentGenerationStore()
 
-const historyRecords = ref<any[]>([])
+const historyRecords = ref<HistoryRecord[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
 const detailDialogVisible = ref(false)
-const selectedRecord = ref<any>(null)
+const selectedRecord = ref<HistoryRecord | null>(null)
 
 const filteredHistory = computed(() => {
   if (!searchKeyword.value) return historyRecords.value
   const keyword = searchKeyword.value.toLowerCase()
   return historyRecords.value.filter((record) =>
     record.config.template_id.toLowerCase().includes(keyword) ||
-    record.results.some((r: any) => r.content.toLowerCase().includes(keyword))
+    record.results.some((r) => r.content.toLowerCase().includes(keyword))
   )
 })
 
@@ -156,7 +157,7 @@ const refreshHistory = async () => {
     const response = await import('@/api/content-generation').then((mod) =>
       mod.getHistory(20, 0)
     )
-    historyRecords.value = response.data || []
+    historyRecords.value = (response.items || []) as HistoryRecord[]
   } catch (err) {
     ElMessage.error('加载历史记录失败')
   } finally {
@@ -191,12 +192,12 @@ const formatDateTime = (dateString: string): string => {
   return date.toLocaleString('zh-CN')
 }
 
-const viewHistoryRecord = (record: any) => {
+const viewHistoryRecord = (record: HistoryRecord) => {
   selectedRecord.value = record
   detailDialogVisible.value = true
 }
 
-const restoreFromHistory = (record: any) => {
+const restoreFromHistory = (record: HistoryRecord) => {
   contentStore.updateConfig(record.config)
   ElMessage.success('配置已恢复')
 }

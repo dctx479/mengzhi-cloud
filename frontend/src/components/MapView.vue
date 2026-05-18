@@ -26,7 +26,7 @@
         </el-select>
 
         <el-button v-if="viewMode === 'map'" type="primary" @click="handleRefreshMap">
-          刷新地图
+          重置筛选
         </el-button>
       </div>
     </div>
@@ -168,8 +168,8 @@ const handleViewModeChange = (newMode: string) => {
 }
 
 const handleRefreshMap = () => {
-  // 刷新地图数据
-  console.log('刷新地图')
+  selectedRegion.value = ''
+  emit('region-change', '')
 }
 
 const handleViewMapProductDetail = () => {

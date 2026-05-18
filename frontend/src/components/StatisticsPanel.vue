@@ -128,23 +128,39 @@ const platformTableData = computed(() =>
   Object.entries(stats.value.by_platform).map(([name, count]) => ({ name, count }))
 )
 
+type StatisticsResponse = {
+  code?: number
+  data?: {
+    total_generations?: number
+    today_generations?: number
+    total_tokens_used?: number
+    by_type?: Record<string, number>
+    by_platform?: Record<string, number>
+    recent_trend?: Array<{ date: string; count: number }>
+  }
+  total_generations?: number
+  today_generations?: number
+  total_tokens_used?: number
+  by_type?: Record<string, number>
+  by_platform?: Record<string, number>
+  recent_trend?: Array<{ date: string; count: number }>
+}
+
 const refreshStatistics = async () => {
   loading.value = true
   try {
     const response = await import('@/api/content-generation').then((mod) =>
       mod.getStatistics()
     )
-    // Backend returns success_response wrapper: {code, data: {...}, message}
-    // contentAPI uses separate axios, response.data = HTTP body = {code, data, message}
-    const raw = response?.data ?? response
+    const payload = (response as StatisticsResponse).data ?? (response as StatisticsResponse)
     stats.value = {
-      total_generated: raw.total_generations ?? 0,
-      today_generated: raw.today_generations ?? 0,
-      total_tokens: raw.total_tokens_used ?? 0,
-      type_count: Object.keys(raw.by_type ?? {}).length,
-      by_type: raw.by_type ?? {},
-      by_platform: raw.by_platform ?? {},
-      recent_trend: raw.recent_trend ?? [],
+      total_generated: payload.total_generations ?? 0,
+      today_generated: payload.today_generations ?? 0,
+      total_tokens: payload.total_tokens_used ?? 0,
+      type_count: Object.keys(payload.by_type ?? {}).length,
+      by_type: payload.by_type ?? {},
+      by_platform: payload.by_platform ?? {},
+      recent_trend: payload.recent_trend ?? [],
     }
   } catch (err) {
     ElMessage.error('加载统计数据失败')

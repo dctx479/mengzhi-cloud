@@ -1,10 +1,23 @@
 import request from '@/utils/request';
-import type { AIConfig, AIConfigForm } from '@/types/aiConfig';
+import type { AIConfig, AIConfigApiItem, AIConfigForm } from '@/types/aiConfig';
 
 /** 从后端 success_response 包装中提取内层 data */
 function unwrap<T>(res: unknown): T {
   const r = res as { data?: T }
   return r.data !== undefined ? r.data : res as T
+}
+
+function normalizeAIConfig(item: AIConfigApiItem): AIConfig {
+  return {
+    id: String(item.id),
+    name: item.name?.trim() || item.provider,
+    provider: item.provider,
+    apiKey: item.api_key || '',
+    endpoint: item.base_url || '',
+    model: item.default_model || '',
+    isActive: item.is_active ?? true,
+    createdAt: item.created_at || '',
+  }
 }
 
 export interface ProviderInfo {
@@ -15,19 +28,19 @@ export interface ProviderInfo {
 }
 
 export const getAIConfigs = async (enterpriseId: string): Promise<AIConfig[]> => {
-  const res = await request.get<{ code: number; data: AIConfig[]; message: string }>(`/v1/enterprises/${enterpriseId}/ai-configs`)
-  const items = unwrap<AIConfig[]>(res)
-  return Array.isArray(items) ? items : []
+  const res = await request.get<{ code: number; data: AIConfigApiItem[]; message: string }>(`/v1/enterprises/${enterpriseId}/ai-configs`)
+  const items = unwrap<AIConfigApiItem[]>(res)
+  return Array.isArray(items) ? items.map(normalizeAIConfig) : []
 }
 
 export const createAIConfig = async (enterpriseId: string, data: AIConfigForm): Promise<AIConfig> => {
-  const res = await request.post<{ code: number; data: AIConfig; message: string }>(`/v1/enterprises/${enterpriseId}/ai-configs`, data)
-  return unwrap<AIConfig>(res)
+  const res = await request.post<{ code: number; data: AIConfigApiItem; message: string }>(`/v1/enterprises/${enterpriseId}/ai-configs`, data)
+  return normalizeAIConfig(unwrap<AIConfigApiItem>(res))
 }
 
 export const updateAIConfig = async (enterpriseId: string, configId: string, data: Partial<AIConfigForm>): Promise<AIConfig> => {
-  const res = await request.patch<{ code: number; data: AIConfig; message: string }>(`/v1/enterprises/${enterpriseId}/ai-configs/${configId}`, data)
-  return unwrap<AIConfig>(res)
+  const res = await request.patch<{ code: number; data: AIConfigApiItem; message: string }>(`/v1/enterprises/${enterpriseId}/ai-configs/${configId}`, data)
+  return normalizeAIConfig(unwrap<AIConfigApiItem>(res))
 }
 
 export const deleteAIConfig = (enterpriseId: string, configId: string) =>

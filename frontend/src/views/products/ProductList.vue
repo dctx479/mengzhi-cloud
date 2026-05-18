@@ -125,9 +125,9 @@ const handleApplyAdvancedFilters = (filters: AdvancedFiltersType) => {
 }
 
 // 处理地区变化
-const handleRegionChange = (region: string) => {
-  console.log('Selected region:', region)
-  // 可以在这里添加地区筛选逻辑
+const handleRegionChange = async () => {
+  productStore.currentPage = 1
+  await productStore.fetchProducts()
 }
 
 // 快速预览

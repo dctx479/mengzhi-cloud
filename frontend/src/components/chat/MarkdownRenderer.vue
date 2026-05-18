@@ -7,7 +7,7 @@
 import { computed } from 'vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
-import DOMPurify from 'dompurify'
+import DOMPurify, { type Config } from 'dompurify'
 import 'highlight.js/styles/atom-one-light.css'
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {})
 
 // DOMPurify 清理配置（局部传入，避免污染全局配置）
-const PURIFY_CONFIG = {
+const PURIFY_CONFIG: Config = {
   ALLOWED_TAGS: [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'p', 'br', 'hr',
@@ -32,7 +32,7 @@ const PURIFY_CONFIG = {
   ],
   ALLOW_DATA_ATTR: false,
   ADD_ATTR: ['target', 'rel'],
-} as const
+}
 
 // 初始化 Markdown 渲染器
 const md: MarkdownIt = new MarkdownIt({

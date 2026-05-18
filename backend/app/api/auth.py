@@ -18,6 +18,7 @@
 from fastapi import APIRouter, Depends, status, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+from jose import jwt
 from datetime import datetime
 import uuid
 import secrets
@@ -280,11 +281,18 @@ async def login(
             username=user.username,
             email=auth_service.mask_email(user.email),
             phone=auth_service.mask_phone(user.phone),
+            nickname=user.nickname,
+            avatar_url=user.avatar_url,
+            gender=user.gender or 0,
+            enterprise_id=user.enterprise_id,
             user_type=_enum_val(user.user_type),
             status=_enum_val(user.status),
             role=_enum_val(user.role),
             created_at=user.created_at,
-            last_login_at=user.last_login_at
+            last_login_at=user.last_login_at,
+            bio=user.bio,
+            location=user.location,
+            website=user.website
         )
 
         tokens = TokenResponse(
@@ -382,9 +390,11 @@ async def refresh(
 
     except BusinessException as e:
         raise HTTPException(
-            status_code=e.http_status,
+            status_code=e.get_http_status(),
             detail=e.message
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Token刷新失败: {str(e)}")
         raise HTTPException(
@@ -404,6 +414,7 @@ async def refresh(
     tags=["认证"]
 )
 async def logout(
+    request: Request,
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> APIResponse:
@@ -443,6 +454,18 @@ async def logout(
                 data=None
             )
         ttl = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        authorization = request.headers.get("Authorization", "")
+        token = authorization[7:] if authorization.startswith("Bearer ") else None
+        if token:
+            try:
+                payload = jwt.get_unverified_claims(token)
+                exp_val = payload.get("exp")
+                exp_ts = int(exp_val.timestamp()) if isinstance(exp_val, datetime) else int(exp_val)
+                remaining_ttl = exp_ts - int(datetime.utcnow().timestamp())
+                if remaining_ttl > 0:
+                    ttl = remaining_ttl
+            except Exception as e:
+                logger.warning(f"⚠️ WARNING: failed to parse logout token expiry, fallback to configured TTL: {e}")
         auth_service.add_token_to_blacklist(jti, ttl)
 
         # 清除用户缓存
@@ -537,11 +560,18 @@ async def get_me(
             username=_attr(user, 'username'),
             email=auth_service.mask_email(_attr(user, 'email')),
             phone=auth_service.mask_phone(_attr(user, 'phone')),
+            nickname=_attr(user, 'nickname'),
+            avatar_url=_attr(user, 'avatar_url'),
+            gender=_attr(user, 'gender', 0) or 0,
+            enterprise_id=_attr(user, 'enterprise_id'),
             user_type=_enum_val(_attr(user, 'user_type', 'personal')),
             status=_enum_val(_attr(user, 'status', 'active')),
             role=_enum_val(_attr(user, 'role', 'user')),
             created_at=_attr(user, 'created_at'),
-            last_login_at=_attr(user, 'last_login_at')
+            last_login_at=_attr(user, 'last_login_at'),
+            bio=_attr(user, 'bio'),
+            location=_attr(user, 'location'),
+            website=_attr(user, 'website')
         )
 
         return APIResponse(

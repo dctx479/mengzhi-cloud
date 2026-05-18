@@ -93,6 +93,8 @@ async def list_users(
             message="success",
             data={"items": [u.to_dict() for u in users], "total": total, "page": page, "page_size": page_size},
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("⚠️ WARNING: list_users 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
@@ -143,6 +145,8 @@ async def update_user(
         db.commit()
 
         return APIResponse(code=200, message="更新成功", data=user.to_dict())
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         logger.error("⚠️ WARNING: update_user 失败: %s", str(e), exc_info=True)
@@ -170,6 +174,8 @@ async def delete_user(
         db.commit()
 
         return APIResponse(code=200, message="删除成功", data={"id": user_id})
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         logger.error("⚠️ WARNING: delete_user 失败: %s", str(e), exc_info=True)
@@ -218,6 +224,8 @@ async def list_enterprises(
             message="success",
             data={"items": [e.to_dict() for e in enterprises], "total": total, "page": page, "page_size": page_size},
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("⚠️ WARNING: list_enterprises 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
@@ -271,6 +279,8 @@ async def update_enterprise(
         db.commit()
 
         return APIResponse(code=200, message="更新成功", data=enterprise.to_dict())
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         logger.error("⚠️ WARNING: update_enterprise 失败: %s", str(e), exc_info=True)
@@ -309,6 +319,8 @@ async def delete_enterprise(
         db.commit()
 
         return APIResponse(code=200, message="删除成功", data={"id": enterprise_id})
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         logger.error("⚠️ WARNING: delete_enterprise 失败: %s", str(e), exc_info=True)
@@ -350,6 +362,8 @@ async def get_stats(current_user: dict = Depends(require_admin), db: Session = D
                 "enterprises": {"total": total_enterprises, "verified": verified_enterprises},
             },
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("⚠️ WARNING: get_stats 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
@@ -403,6 +417,8 @@ async def get_ai_usage(
                 "total_tokens": total_tokens,
             },
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("⚠️ WARNING: get_ai_usage 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
@@ -447,6 +463,8 @@ async def get_provider_settings(
         for p in ALL_PROVIDERS:
             providers.append({**p, "enabled": p["id"] in enabled})
         return APIResponse(code=200, message="success", data={"providers": providers, "enabled_ids": enabled})
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("⚠️ WARNING: get_provider_settings 失败: %s", str(e), exc_info=True)
         return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
@@ -490,6 +508,8 @@ async def update_provider_settings(
         db.commit()
 
         return APIResponse(code=200, message="提供商设置已更新", data={"enabled_ids": enabled_ids})
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         logger.error("⚠️ WARNING: update_provider_settings 失败: %s", str(e), exc_info=True)

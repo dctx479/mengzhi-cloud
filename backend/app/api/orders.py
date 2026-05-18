@@ -305,7 +305,12 @@ async def payment_callback(
 
     # 处理支付回调
     service = PaymentService(db)
-    success = service.handle_payment_callback(payment_no=request.payment_no, callback_data=request.callback_data)
+    success = service.handle_payment_callback(
+        payment_no=request.payment_no,
+        callback_data=request.callback_data,
+        expected_order_id=order_id,
+        transaction_id=request.transaction_id,
+    )
 
     if success:
         logger.info(f"支付回调处理成功: payment_no={request.payment_no}")

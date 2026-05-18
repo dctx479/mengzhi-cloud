@@ -175,7 +175,7 @@
               type="primary"
               link
               size="small"
-              @click="viewInvoice(row.invoice_id)"
+              @click="viewInvoice()"
             >
               查看账单
             </el-button>
@@ -206,86 +206,124 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import http from '@/utils/http'
 
+interface BillingRecordItem {
+  id: string
+  record_uuid?: string
+  plan_id?: string | null
+  resource_type?: string | null
+  resource_id?: string | null
+  invoice_id?: string | null
+  notes?: string | null
+  usage_data?: Record<string, unknown> | null
+  billing_date?: string
+  billing_mode: 'token' | 'message' | 'api_call' | 'monthly' | 'tiered'
+  quantity: number | string
+  unit_price?: number | string
+  amount?: number | string
+  currency?: string
+  created_at?: string
+}
+
+interface BillingRecordsResponse {
+  records?: BillingRecordItem[]
+  pagination?: {
+    total?: number
+  }
+}
+
+interface BillingApiResponse<T> {
+  code?: number
+  data?: T
+  message?: string
+}
+
+type BillingMode = BillingRecordItem['billing_mode']
+type DateRangeValue = [string, string] | null
+
 const router = useRouter()
 
-// 数据
-const records = ref([])
-const dateRange = ref(null)
-const filters = reactive({
+const records = ref<BillingRecordItem[]>([])
+const dateRange = ref<DateRangeValue>(null)
+const filters = reactive<{
+  start_date: string | null
+  end_date: string | null
+  billing_mode: BillingMode | null
+}>({
   start_date: null,
   end_date: null,
-  billing_mode: null
+  billing_mode: null,
 })
 const pagination = reactive({
   page: 1,
   page_size: 20,
-  total: 0
+  total: 0,
 })
 
-// 加载状态
 const loading = ref(false)
 
-// 计算属性
 const totalAmount = computed(() => {
-  return records.value.reduce((sum, record) => sum + parseFloat(record.amount || 0), 0)
+  return records.value.reduce((sum, record) => sum + Number(record.amount || 0), 0)
 })
 
 const totalRecords = computed(() => {
   return pagination.total
 })
 
-// 计费模式映射
-const billingModeMap = {
+const billingModeMap: Record<BillingMode, string> = {
   token: 'Token',
   message: '消息',
   api_call: 'API调用',
   monthly: '包月',
-  tiered: '阶梯'
+  tiered: '阶梯',
 }
 
-const billingModeTypeMap = {
+const billingModeTypeMap: Record<BillingMode, string> = {
   token: 'primary',
   message: 'success',
   api_call: 'warning',
   monthly: 'danger',
-  tiered: 'info'
+  tiered: 'info',
 }
 
-// 方法
-const getBillingModeText = (mode) => billingModeMap[mode] || mode
-const getBillingModeType = (mode) => billingModeTypeMap[mode] || 'info'
+const getBillingModeText = (mode: BillingMode) => billingModeMap[mode] || mode
+const getBillingModeType = (mode: BillingMode) => billingModeTypeMap[mode] || 'info'
 
-const getUsageUnit = (mode) => {
-  const unitMap = {
+const getUsageUnit = (mode: BillingMode) => {
+  const unitMap: Record<BillingMode, string> = {
     token: 'tokens',
     message: '条',
     api_call: '次',
     monthly: '月',
-    tiered: '单位'
+    tiered: '单位',
   }
   return unitMap[mode] || ''
 }
 
-const formatDateTime = (dateTime) => {
+const formatDateTime = (dateTime?: string) => {
   if (!dateTime) return '-'
   return new Date(dateTime).toLocaleString('zh-CN')
 }
 
-// 加载计费记录
 const loadRecords = async () => {
   try {
     loading.value = true
 
-    const params = {
+    const params: {
+      page: number
+      page_size: number
+      start_date?: string
+      end_date?: string
+      billing_mode?: BillingMode
+    } = {
       page: pagination.page,
-      page_size: pagination.page_size
+      page_size: pagination.page_size,
     }
 
     if (filters.start_date) params.start_date = filters.start_date
     if (filters.end_date) params.end_date = filters.end_date
     if (filters.billing_mode) params.billing_mode = filters.billing_mode
 
-    const res = await http.get('/v1/billing/records', { params })
+    const res = await http.get<BillingApiResponse<BillingRecordsResponse>>('/v1/billing/records', { params }) as BillingApiResponse<BillingRecordsResponse>
 
     if (res.code === 200) {
       records.value = res.data?.records || []
@@ -299,8 +337,7 @@ const loadRecords = async () => {
   }
 }
 
-// 处理日期范围变化
-const handleDateRangeChange = (value) => {
+const handleDateRangeChange = (value: DateRangeValue) => {
   if (Array.isArray(value) && value.length === 2) {
     filters.start_date = value[0]
     filters.end_date = value[1]
@@ -312,7 +349,6 @@ const handleDateRangeChange = (value) => {
   loadRecords()
 }
 
-// 重置筛选条件
 const resetFilters = () => {
   dateRange.value = null
   filters.start_date = null
@@ -322,35 +358,27 @@ const resetFilters = () => {
   loadRecords()
 }
 
-// 导出记录
 const exportRecords = async () => {
-  try {
-    ElMessage.info('导出功能开发中...')
-    // TODO: 实现导出功能
-  } catch (error) {
-    console.error('导出失败:', error)
-    ElMessage.error('导出失败')
-  }
+  router.push('/billing/invoices')
 }
 
-// 查看账单
-const viewInvoice = (invoiceId) => {
-  router.push(`/billing/invoices/${invoiceId}`)
+const viewInvoice = () => {
+  router.push('/billing/invoices')
 }
 
-// 初始化
 onMounted(() => {
-  // 默认加载最近30天的记录
   const endDate = new Date()
   const startDate = new Date()
   startDate.setDate(startDate.getDate() - 30)
 
-  dateRange.value = [
+  const initialRange: [string, string] = [
     startDate.toISOString().split('T')[0],
-    endDate.toISOString().split('T')[0]
+    endDate.toISOString().split('T')[0],
   ]
-  filters.start_date = dateRange.value[0]
-  filters.end_date = dateRange.value[1]
+
+  dateRange.value = initialRange
+  filters.start_date = initialRange[0]
+  filters.end_date = initialRange[1]
 
   loadRecords()
 })

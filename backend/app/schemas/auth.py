@@ -295,6 +295,10 @@ class UserResponse(BaseModel):
         default=0,
         description="性别"
     )
+    enterprise_id: Optional[int] = Field(
+        default=None,
+        description="企业ID"
+    )
     user_type: str = Field(
         ...,
         description="用户类型：personal/enterprise"

@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import AIConfigForm from '@/components/enterprise/AIConfigForm.vue';
 import {
@@ -107,12 +107,11 @@ import {
 import type { AIConfig, AIConfigForm as AIConfigFormType } from '@/types/aiConfig';
 import { useUserStore } from '@/stores/user';
 
-const userStore = useUserStore();
+const userStore = useUserStore()
 const enterpriseId = computed(() => {
-  // 优先使用enterprise_id，其次tenant_id，再次user.id
-  const id = userStore.user?.enterprise_id || userStore.user?.tenant_id || userStore.user?.id
-  return String(id ?? 'default')
-});
+  return userStore.user?.enterpriseId ? String(userStore.user.enterpriseId) : ''
+})
+const hasEnterpriseAccess = computed(() => Boolean(enterpriseId.value))
 const configs = ref<AIConfig[]>([]);
 const loading = ref(false);
 const dialogVisible = ref(false);
@@ -191,17 +190,27 @@ const saveProviderSettings = async () => {
 };
 
 const loadConfigs = async () => {
-  loading.value = true;
-  try {
-    configs.value = await getAIConfigs(enterpriseId.value);
-  } catch (error: any) {
-    ElMessage.error(error.message || '加载失败');
-  } finally {
-    loading.value = false;
+  if (!enterpriseId.value) {
+    configs.value = []
+    return
   }
-};
+
+  loading.value = true
+  try {
+    configs.value = await getAIConfigs(enterpriseId.value)
+  } catch (error: any) {
+    ElMessage.error(error.message || '加载失败')
+  } finally {
+    loading.value = false
+  }
+}
 
 const handleAdd = () => {
+  if (!hasEnterpriseAccess.value) {
+    ElMessage.warning('当前账号未关联企业，无法添加AI配置')
+    return
+  }
+
   dialogTitle.value = '添加AI配置';
   editingId.value = undefined;
   dialogVisible.value = true;
@@ -223,6 +232,11 @@ const handleEdit = (row: AIConfig) => {
 };
 
 const handleSubmit = async () => {
+  if (!enterpriseId.value) {
+    ElMessage.warning('当前账号未关联企业，无法保存AI配置')
+    return
+  }
+
   try {
     await formRef.value?.validate();
     submitting.value = true;
@@ -279,6 +293,14 @@ const resetForm = () => {
     isActive: true
   };
 };
+
+watch(enterpriseId, (value) => {
+  if (value) {
+    loadConfigs()
+    return
+  }
+  configs.value = []
+})
 
 onMounted(async () => {
   await Promise.all([

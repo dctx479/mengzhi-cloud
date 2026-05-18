@@ -12,7 +12,7 @@
         <div class="main-image-wrapper">
           <img :src="currentImage" :alt="product.name" class="main-image" />
           <div class="image-controls">
-            <el-button circle icon="ZoomIn" @click="handleZoom" />
+            <el-button circle icon="ZoomIn" @click="handleOpenImage" />
             <el-button circle icon="Download" @click="handleDownloadImage" />
           </div>
         </div>
@@ -194,8 +194,10 @@ const handleClose = () => {
   visible.value = false
 }
 
-const handleZoom = () => {
-  ElMessage.info('图片放大功能开发中...')
+const handleOpenImage = () => {
+  if (currentImage.value) {
+    window.open(currentImage.value, '_blank', 'noopener,noreferrer')
+  }
 }
 
 const handleDownloadImage = () => {

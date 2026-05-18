@@ -12,8 +12,10 @@ export interface User {
   bio?: string
   location?: string
   website?: string
+  enterpriseId?: number | null
+  userType?: 'personal' | 'enterprise'
   status: 'active' | 'inactive' | 'banned'
-  role: 'user' | 'admin' | 'manager'
+  role: 'user' | 'admin' | 'manager' | 'enterprise_admin'
   createdAt: string
   updatedAt: string
 }

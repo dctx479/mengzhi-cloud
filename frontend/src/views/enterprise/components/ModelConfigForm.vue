@@ -84,8 +84,7 @@ const handleSave = () => {
 }
 
 const handleTest = async () => {
-  ElMessage.info('测试连接中...')
-  // TODO: 调用测试接口
+  ElMessage.info('当前页面暂不支持测试连接，请前往企业AI配置页使用测试功能')
 }
 </script>
 

@@ -331,6 +331,9 @@ class QuotaService:
         返回:
             (是否成功, 消息)
         """
+        if amount <= 0:
+            return False, "扣减数量必须大于0"
+
         # 如果 Redis 不可用，降级到数据库
         if not self.redis or not self.deduct_script:
             if use_fallback:
@@ -676,6 +679,9 @@ class QuotaService:
         返回:
             (是否成功, 消息)
         """
+        if amount <= 0:
+            return False, "扣减数量必须大于0"
+
         # 检查配额
         is_sufficient, quota, message = self.check_quota(
             resource_type=resource_type,
