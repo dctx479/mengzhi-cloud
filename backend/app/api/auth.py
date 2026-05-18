@@ -381,16 +381,15 @@ async def refresh(
         )
 
     except BusinessException as e:
-        return APIResponse(
-            code=e.code,
-            message=e.message,
-            data=None
+        raise HTTPException(
+            status_code=e.http_status,
+            detail=e.message
         )
     except Exception as e:
-        return APIResponse(
-            code=ErrorCode.SYSTEM_ERROR,
-            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
-            data=None
+        logger.error(f"Token刷新失败: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR]
         )
 
 

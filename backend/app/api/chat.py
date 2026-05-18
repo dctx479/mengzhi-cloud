@@ -105,14 +105,15 @@ async def send_message(
         对话响应
     """
     try:
-        # 配额检查：发送消息前验证用户消息配额
+        # 配额扣减：发送消息前原子检查+扣减用户消息配额
         quota_service = QuotaService(db)
-        is_sufficient, _, quota_message = quota_service.check_quota(
+        deducted, quota_message = quota_service.deduct_quota(
             resource_type=QuotaResourceType.MESSAGE,
-            required_amount=1,
+            amount=1,
             user_id=user_id,
+            operation="chat_message",
         )
-        if not is_sufficient:
+        if not deducted:
             raise HTTPException(status_code=429, detail=quota_message or "消息配额已用尽")
 
         service = ChatService(db)
@@ -172,14 +173,15 @@ async def send_message_stream(
     Returns:
         流式响应（SSE）
     """
-    # 配额检查在生成器外部执行，确保 fail-fast（DB session 此时仍有效）
+    # 配额扣减在生成器外部执行，确保 fail-fast（DB session 此时仍有效）
     quota_service = QuotaService(db)
-    is_sufficient, _, quota_message = quota_service.check_quota(
+    deducted, quota_message = quota_service.deduct_quota(
         resource_type=QuotaResourceType.MESSAGE,
-        required_amount=1,
+        amount=1,
         user_id=user_id,
+        operation="chat_stream",
     )
-    if not is_sufficient:
+    if not deducted:
         raise HTTPException(status_code=429, detail=quota_message or "消息配额已用尽")
 
     async def event_generator():
