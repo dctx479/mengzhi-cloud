@@ -264,10 +264,14 @@ async def login(
         auth_service._update_successful_login(user.id)
 
         # 5. 生成Token
+        # req.client may be None behind certain proxies/test clients
+        ip_address = None
+        if req is not None and req.client is not None:
+            ip_address = req.client.host
         access_token, refresh_token = auth_service._generate_login_tokens(
             user,
             device_id=request.device_id,
-            ip_address=req.client.host if req else None
+            ip_address=ip_address
         )
 
         # 6. 构建响应 (normalize enum values to lowercase for frontend)
@@ -992,6 +996,14 @@ async def send_verification_code(
                 data=None
             )
 
+        # 校验 identifier 长度，防止超长输入滥用
+        if not identifier or len(identifier) > 254:
+            return APIResponse(
+                code=400,
+                message="identifier 格式无效",
+                data=None
+            )
+
         # 判断是邮箱还是手机号
         if "@" in identifier:
             # 邮箱验证码
@@ -1074,16 +1086,17 @@ async def get_captcha(
         )
 
     except BusinessException as e:
-        return APIResponse(
-            code=e.code,
-            message=e.message,
-            data=None
+        # get_captcha returns StreamingResponse on success; on error return a JSON response
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=e.get_http_status(),
+            content={"code": e.code, "message": e.message, "data": None}
         )
     except Exception as e:
-        return APIResponse(
-            code=ErrorCode.SYSTEM_ERROR,
-            message=ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR],
-            data=None
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=500,
+            content={"code": ErrorCode.SYSTEM_ERROR, "message": ERROR_MESSAGES[ErrorCode.SYSTEM_ERROR], "data": None}
         )
 
 

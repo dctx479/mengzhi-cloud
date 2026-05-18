@@ -109,6 +109,9 @@ class RiskControlService:
             # 6. 生成建议
             risk_result["recommendations"] = self._generate_recommendations(risk_result)
 
+            # Commit all flushed changes (blacklist hit_count, rule hit_count, risk event)
+            self.db.commit()
+
             self.logger.info(f"风险检查完成: user_id={user_id}, risk_score={risk_result['risk_score']}, action={risk_result['action']}")
             return risk_result
 
@@ -208,7 +211,6 @@ class RiskControlService:
 
         except Exception as e:
             self.logger.error(f"黑名单检查失败: {str(e)}")
-            self.db.rollback()
             raise
 
         return {"hits": hits, "score": score}
@@ -263,7 +265,6 @@ class RiskControlService:
 
         except Exception as e:
             self.logger.error(f"规则检查失败: {str(e)}")
-            self.db.rollback()
             raise
 
         return {"triggered": triggered, "score": score}
@@ -568,7 +569,7 @@ class RiskControlService:
         context: Optional[Dict[str, Any]],
         risk_result: Dict[str, Any]
     ) -> str:
-        """记录风险事件"""
+        """记录风险事件（flush only — caller is responsible for commit）"""
         try:
             event = RiskEvent(
                 event_type=event_type,
@@ -585,13 +586,12 @@ class RiskControlService:
             )
 
             self.db.add(event)
-            self.db.commit()
+            self.db.flush()  # flush to get event.id; outer check_risk commits
 
             return event.id
 
         except Exception as e:
             self.logger.error(f"记录风险事件失败: {str(e)}")
-            self.db.rollback()
             raise
 
     def _generate_recommendations(self, risk_result: Dict[str, Any]) -> List[str]:

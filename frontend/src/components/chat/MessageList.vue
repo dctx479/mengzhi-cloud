@@ -148,7 +148,7 @@ const handleDelete = (messageId: string) => {
     })
     .catch((error: any) => {
       // Only ignore cancel action, not errors
-      if (error?.action !== 'cancel') {
+      if (error !== 'cancel') {
         console.error('Delete message error:', error)
       }
     })
@@ -170,7 +170,7 @@ const handleRegenerate = (message: Message) => {
     })
     .catch((error: any) => {
       // Only ignore cancel action, not errors
-      if (error?.action !== 'cancel') {
+      if (error !== 'cancel') {
         console.error('Regenerate message error:', error)
       }
     })

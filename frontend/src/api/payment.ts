@@ -70,7 +70,7 @@ export async function paymentCallback(data: {
   order_id: number
   payment_no: string
   transaction_id?: string
-  callback_data: Record<string, any>
+  callback_data: Record<string, unknown>
 }): Promise<{ processed: boolean }> {
   const res = await http.post<{ code: number; data: { processed: boolean }; message: string }>(`/v1/orders/${data.order_id}/payment-callback`, {
     payment_no: data.payment_no,

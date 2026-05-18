@@ -174,7 +174,7 @@ class UsageStatsService:
             'total_revenue': float(stats.total_revenue or 0),
             'total_cost': float(stats.total_cost or 0),
             'total_profit': float(stats.total_profit or 0),
-            'profit_margin': float(stats.total_profit / stats.total_revenue * 100) if stats.total_revenue else 0,
+            'profit_margin': float((stats.total_profit or 0) / stats.total_revenue * 100) if stats.total_revenue else 0,
             'total_input_tokens': stats.total_input_tokens or 0,
             'total_output_tokens': stats.total_output_tokens or 0
         }

@@ -417,7 +417,7 @@ class Settings(BaseSettings):
             )
 
         # 检查 CORS 配置
-        if is_production and '*' in str(self.CORS_ORIGINS):
+        if is_production and ('*' in self.CORS_ORIGINS or any(o.strip() == '*' for o in self.CORS_ORIGINS)):
             security_issues.append(
                 "生产环境不应允许所有来源的 CORS 请求！请配置具体的域名"
             )

@@ -63,16 +63,14 @@ class RedisCache:
             return json.dumps(str(value))
 
     def get_client(self) -> Optional[redis.Redis]:
-        """获取Redis客户端，支持重连"""
+        """获取Redis客户端，支持重连
+        
+        注意: 不在每次调用时 ping()，避免高并发下额外网络开销。
+        连接健康由 pool_pre_ping=False + socket_keepalive=True 保障；
+        操作失败时由调用方的 except 触发重连。
+        """
         if RedisCache._client is None:
             self._initialize()
-        elif RedisCache._client is not None:
-            try:
-                RedisCache._client.ping()
-            except Exception as e:
-                logger.warning(f"Redis连接检测失败，尝试重新连接: {str(e)}")
-                RedisCache._client = None
-                self._initialize()
         return RedisCache._client
 
     def set(self, key: str, value: Any, ttl_seconds: int = 300) -> bool:
@@ -101,10 +99,10 @@ class RedisCache:
             # 设置缓存
             result = client.setex(
                 key,
-                ttl_seconds,  # setex expects integer seconds, not timedelta
+                int(ttl_seconds),  # 确保是整数
                 serialized_value
             )
-            return result
+            return bool(result)
         except Exception as e:
             logger.error(f"设置缓存失败 [{key}]: {str(e)}")
             return False

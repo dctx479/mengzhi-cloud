@@ -473,6 +473,10 @@ async def get_quota_usage(
         except ValueError:
             raise HTTPException(status_code=400, detail="无效的结束日期格式")
 
+    # 验证日期范围
+    if start_date_obj and end_date_obj and end_date_obj < start_date_obj:
+        raise HTTPException(status_code=400, detail="结束日期不能早于开始日期")
+
     # 查询使用记录
     records, total = service.get_quota_usage_records(
         quota_id=quota_id,

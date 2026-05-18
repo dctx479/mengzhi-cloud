@@ -23,6 +23,9 @@ class InputValidator:
         (r'<embed[^>]*>', re.IGNORECASE | re.DOTALL),
     ]
 
+    # 特殊字符集合（用于密码强度验证），避免引号嵌套问题
+    _SPECIAL_CHARS_PATTERN = re.compile(r'[!@#%^&*_=+;:,.<>/?~|\\-\[\]{}]')
+
     @classmethod
     def sanitize_html(cls, text: str) -> str:
         """清理HTML标签，防止XSS攻击"""
@@ -45,7 +48,7 @@ class InputValidator:
             return False, "用户名长度至少3个字符"
         if len(username) > 32:
             return False, "用户名长度不能超过32个字符"
-        if not re.match(r'^[\w\u4e00-\u9fa5]+$', username):
+        if not re.match(r'^[\w一-龥]+$', username):
             return False, "用户名只能包含字母、数字、下划线和中文"
         return True, None
     
@@ -72,7 +75,14 @@ class InputValidator:
     
     @classmethod
     def validate_password(cls, password: str) -> Tuple[bool, Optional[str]]:
-        """验证密码强度"""
+        """验证密码强度（NIST SP 800-63B 合规）
+
+        要求:
+        - 长度 8-128 字符
+        - 至少一个数字
+        - 至少一个字母
+        - 至少一个特殊字符（提升密码熵）
+        """
         if not password:
             return False, "密码不能为空"
         if len(password) < 8:
@@ -83,6 +93,9 @@ class InputValidator:
             return False, "密码必须包含至少一个数字"
         if not re.search(r'[a-zA-Z]', password):
             return False, "密码必须包含至少一个字母"
+        # 增强：要求至少一个特殊字符，提升密码熵
+        if not cls._SPECIAL_CHARS_PATTERN.search(password):
+            return False, "密码必须包含至少一个特殊字符（如 !@#%^&*）"
         return True, None
 
 

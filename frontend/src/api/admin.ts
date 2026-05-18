@@ -35,6 +35,7 @@ interface AIUsageInner {
 
 const _api = axios.create({
   baseURL: '/api/admin',
+  timeout: 15000,
 })
 
 // Request interceptor — attach auth token

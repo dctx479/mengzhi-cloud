@@ -73,6 +73,8 @@ class BaseAIProvider(ABC):
 
     async def validate_config(self) -> bool:
         """验证配置是否有效"""
+        import logging
+        _log = logging.getLogger(__name__)
         try:
             test_request = ChatCompletionRequest(
                 messages=[ChatMessage(role="user", content="test")],
@@ -80,5 +82,6 @@ class BaseAIProvider(ABC):
             )
             await self.chat(test_request)
             return True
-        except Exception:
+        except Exception as exc:
+            _log.warning("Provider %s config validation failed: %s", self.name, exc)
             return False

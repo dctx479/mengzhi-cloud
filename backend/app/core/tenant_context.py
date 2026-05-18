@@ -11,7 +11,7 @@
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Generator, Optional
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -86,7 +86,7 @@ def get_current_tenant(
 
 def get_tenant_database(
     tenant_context: TenantContext = Depends(get_current_tenant)
-) -> Session:
+) -> Generator[Session, None, None]:
     """
     获取租户数据库会话（根据隔离模式路由）
 

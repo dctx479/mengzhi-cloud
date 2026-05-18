@@ -684,8 +684,6 @@ async def pay_invoice(
         支付后的账单
     """
     try:
-        from app.models.billing import Invoice
-
         # 获取用户ID
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if not user:
@@ -703,38 +701,40 @@ async def pay_invoice(
                 message=f"无效的支付方式: {request.payment_method}"
             )
 
-        # 验证账单所有权，并用 with_for_update() 加行锁防止并发重复支付
-        invoice = db.query(Invoice).filter(
+        # 验证账单所有权（不加锁，仅做归属校验）
+        from app.models.billing import Invoice
+        invoice_check = db.query(Invoice).filter(
             Invoice.id == invoice_id,
             Invoice.user_id == user.id
-        ).with_for_update().first()
+        ).first()
 
-        if not invoice:
+        if not invoice_check:
             return error_response(
                 code=ErrorCode.RECORD_NOT_FOUND,
                 message=f"账单不存在: {invoice_id}"
             )
 
-        # 幂等检查：已支付的账单不允许重复支付
-        if invoice.status == InvoiceStatus.PAID:
-            return error_response(
-                code=ErrorCode.PARAM_VALUE_INVALID,
-                message="账单已支付，请勿重复操作"
-            )
-
-        if invoice.status == InvoiceStatus.CANCELLED:
-            return error_response(
-                code=ErrorCode.PARAM_VALUE_INVALID,
-                message="账单已取消，无法支付"
-            )
-
-        # 支付账单
+        # 支付账单（engine 内部使用 with_for_update() 加行锁，保证原子性）
         engine = BillingEngine(db)
-        invoice = engine.pay_invoice(
-            invoice_id=invoice_id,
-            payment_method=payment_method,
-            transaction_id=request.transaction_id
-        )
+        try:
+            invoice = engine.pay_invoice(
+                invoice_id=invoice_id,
+                payment_method=payment_method,
+                transaction_id=request.transaction_id
+            )
+        except ValueError as e:
+            err_msg = str(e)
+            if "already paid" in err_msg:
+                return error_response(
+                    code=ErrorCode.PARAM_VALUE_INVALID,
+                    message="账单已支付，请勿重复操作"
+                )
+            if "cancelled" in err_msg.lower() or "not found" in err_msg.lower():
+                return error_response(
+                    code=ErrorCode.PARAM_VALUE_INVALID,
+                    message="账单状态异常，无法支付"
+                )
+            raise
 
         return success_response(
             data=invoice.to_dict(),
@@ -793,9 +793,10 @@ async def generate_invoice(
         )
 
     except ValueError as e:
+        logger.warning(f"生成账单参数验证失败: {e}")
         return error_response(
             code=ErrorCode.PARAM_VALIDATION_FAILED,
-            message="参数验证失败"
+            message=str(e) if str(e) else "参数验证失败"
         )
     except Exception as e:
         logger.error(f"生成账单失败: {e}")

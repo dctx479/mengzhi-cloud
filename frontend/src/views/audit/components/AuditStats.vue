@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { Document, SuccessFilled, CircleCloseFilled, User } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import type { AuditStats } from '@/types/auditLog'
@@ -380,7 +380,6 @@ onMounted(() => {
 })
 
 // 清理
-import { onBeforeUnmount } from 'vue'
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
   actionPieInstance?.dispose()

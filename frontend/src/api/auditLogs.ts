@@ -24,7 +24,8 @@ interface BackendListResponse {
 }
 
 const _api = axios.create({
-  baseURL: '/api/v1/audit-logs'
+  baseURL: '/api/v1/audit-logs',
+  timeout: 15000,
 })
 
 _api.interceptors.request.use((config) => {
@@ -108,7 +109,7 @@ export const auditLogsApi = {
       const res = await _api.get<ApiResponse<Array<{ value: string; label: string }> | string[]>>('/action-types')
       const inner = unwrapInner<Array<{ value: string; label: string }> | string[]>(res)
       const arr = Array.isArray(inner) ? inner : []
-      return { data: arr.map((item: any) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
+      return { data: arr.map((item: { value: string } | string) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
     } catch {
       return { data: [] }
     }
@@ -124,7 +125,7 @@ export const auditLogsApi = {
       const res = await _api.get<ApiResponse<Array<{ value: string; label: string }> | string[]>>('/resource-types')
       const inner = unwrapInner<Array<{ value: string; label: string }> | string[]>(res)
       const arr = Array.isArray(inner) ? inner : []
-      return { data: arr.map((item: any) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
+      return { data: arr.map((item: { value: string } | string) => typeof item === 'string' ? item : item.value).filter(Boolean) as string[] }
     } catch {
       return { data: [] }
     }

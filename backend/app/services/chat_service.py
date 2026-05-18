@@ -5,6 +5,7 @@ from typing import Tuple, List, Optional, Dict, Any, AsyncGenerator
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc
 from datetime import datetime, date
+from decimal import Decimal
 from loguru import logger
 
 from app.models.conversation import Conversation, ConversationStatus, AgentType
@@ -92,7 +93,7 @@ class ChatService:
         # 更新对话统计
         conv.message_count = (conv.message_count or 0) + 2
         conv.total_tokens = (conv.total_tokens or 0) + total_tokens
-        conv.total_cost = (conv.total_cost or 0) + cost
+        conv.total_cost = Decimal(str(conv.total_cost or 0)) + Decimal(str(cost))
 
         # 更新配额（先用后扣，AI 成功才扣减）
         quota.increment_chat_usage()
@@ -186,7 +187,7 @@ class ChatService:
         # 更新对话统计
         conv.message_count = (conv.message_count or 0) + 2
         conv.total_tokens = (conv.total_tokens or 0) + total_tokens
-        conv.total_cost = (conv.total_cost or 0) + cost
+        conv.total_cost = Decimal(str(conv.total_cost or 0)) + Decimal(str(cost))
 
         # 更新配额（AI 成功才扣减）
         quota.increment_chat_usage()
@@ -310,14 +311,14 @@ class ChatService:
         return msg.to_dict()
 
     def _get_or_create_quota(self, user_id: int) -> UserQuota:
-        """获取或创建用户配额"""
+        """获取或创建用户配额（with_for_update 防止并发重复创建）"""
         today = date.today()
         quota = self.db.query(UserQuota).filter(
             UserQuota.user_id == user_id,
             UserQuota.quota_type == QuotaType.DAILY,
             UserQuota.period_start <= today,
             UserQuota.period_end >= today
-        ).first()
+        ).with_for_update().first()
 
         if not quota:
             quota = UserQuota.create_daily_quota(user_id, today)

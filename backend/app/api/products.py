@@ -85,6 +85,41 @@ def _safe_delete_product_image_file(image_url: str) -> None:
     FileService.delete_file(str(target))
 
 
+# ============ 请求体模型（必须在路由定义之前声明） ============
+
+
+class AddReviewRequest(BaseModel):
+    """添加评论请求"""
+
+    rating: int = Field(..., ge=1, le=5, description="评分（1-5）")
+    comment: str = Field(..., min_length=1, max_length=1000, description="评论内容")
+
+
+class BatchDeleteRequest(BaseModel):
+    """批量删除请求"""
+
+    ids: TypingList[int]
+
+    @validator("ids")
+    def validate_ids(cls, v):
+        if len(v) > _BATCH_MAX_IDS:
+            raise ValueError(f"单次批量操作最多允许 {_BATCH_MAX_IDS} 个ID")
+        return v
+
+
+class BatchUpdateRequest(BaseModel):
+    """批量更新请求"""
+
+    ids: TypingList[int]
+    data: Dict[str, Any]
+
+    @validator("ids")
+    def validate_ids(cls, v):
+        if len(v) > _BATCH_MAX_IDS:
+            raise ValueError(f"单次批量操作最多允许 {_BATCH_MAX_IDS} 个ID")
+        return v
+
+
 # ============ 辅助端点 ============
 
 # 注意：这些端点使用查询参数来避免与 /products/{product_id} 路由冲突
@@ -719,38 +754,6 @@ async def delete_product_image(
 # ============ 批量操作 (BUG-027修复) ============
 
 
-class AddReviewRequest(BaseModel):
-    """添加评论请求"""
-
-    rating: int = Field(..., ge=1, le=5, description="评分（1-5）")
-    comment: str = Field(..., min_length=1, max_length=1000, description="评论内容")
-
-
-class BatchDeleteRequest(BaseModel):
-    """批量删除请求"""
-
-    ids: TypingList[int]
-
-    @validator("ids")
-    def validate_ids(cls, v):
-        if len(v) > _BATCH_MAX_IDS:
-            raise ValueError(f"单次批量操作最多允许 {_BATCH_MAX_IDS} 个ID")
-        return v
-
-
-class BatchUpdateRequest(BaseModel):
-    """批量更新请求"""
-
-    ids: TypingList[int]
-    data: Dict[str, Any]
-
-    @validator("ids")
-    def validate_ids(cls, v):
-        if len(v) > _BATCH_MAX_IDS:
-            raise ValueError(f"单次批量操作最多允许 {_BATCH_MAX_IDS} 个ID")
-        return v
-
-
 @router.post("/products/batch-delete", response_model=dict, tags=["产品"])
 async def batch_delete_products(
     request: BatchDeleteRequest, current_user: dict = Depends(require_admin), db: Session = Depends(get_db)
@@ -773,7 +776,6 @@ async def batch_delete_products(
     """
     try:
         from app.models.product import Product
-        from datetime import datetime
 
         if not request.ids:
             return JSONResponse(

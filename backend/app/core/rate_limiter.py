@@ -83,7 +83,7 @@ class RateLimiter:
             result = script(keys=[rate_key], args=[max_requests, window_seconds])
             current, _ = int(result[0]), int(result[1])
 
-            if current > max_requests:
+            if current >= max_requests:
                 return False, 0
 
             remaining = max(0, max_requests - current)

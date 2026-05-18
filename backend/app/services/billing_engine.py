@@ -306,6 +306,9 @@ class BillingEngine:
         if invoice.status == InvoiceStatus.PAID:
             raise ValueError(f"Invoice {invoice_id} is already paid")
 
+        if invoice.status == InvoiceStatus.CANCELLED:
+            raise ValueError(f"Invoice {invoice_id} is cancelled and cannot be paid")
+
         invoice.mark_as_paid(payment_method, transaction_id)
         self.db.commit()
         self.db.refresh(invoice)
@@ -622,14 +625,18 @@ class BillingPlanManager:
         返回:
             BillingPlan: 设置后的方案
         """
-        # 取消其他默认方案
-        self.db.query(BillingPlan).filter(BillingPlan.is_default == True).update({"is_default": False})
-
-        # 设置新的默认方案
-        plan = self.get_plan(plan_id)
+        # 先加锁获取目标方案，确认存在后再修改其他记录
+        plan = self.db.query(BillingPlan).filter(BillingPlan.id == plan_id).with_for_update().first()
         if not plan:
             raise ValueError(f"Plan {plan_id} not found")
 
+        # 取消其他默认方案（在持有目标方案行锁的事务内执行，防止并发竞态）
+        self.db.query(BillingPlan).filter(
+            BillingPlan.is_default == True,
+            BillingPlan.id != plan_id
+        ).update({"is_default": False})
+
+        # 设置新的默认方案
         plan.is_default = True
         self.db.commit()
         self.db.refresh(plan)

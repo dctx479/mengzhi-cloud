@@ -228,7 +228,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { ElMessage, ElLoading } from 'element-plus'
 import { ShoppingCart, Check } from '@element-plus/icons-vue'
 import { getQuota, getQuotaHistory, createOrderFromPackage } from '@/api/user'
@@ -254,6 +254,8 @@ const upgradeDialogVisible = ref(false)
 const selectedPlan = ref(1)
 const paymentDialogVisible = ref(false)
 const orderToPay = ref<Order | null>(null)
+// Track active loading overlay so it can be closed if component unmounts mid-request
+let activeLoadingInstance: ReturnType<typeof ElLoading.service> | null = null
 
 const upgradePlans = [
   {
@@ -413,13 +415,13 @@ const handleUpgrade = async () => {
       text: '创建订单中...',
       background: 'rgba(0, 0, 0, 0.7)',
     })
+    activeLoadingInstance = loading
 
     // 创建订单
     const order = await createOrderFromPackage(selectedPlan.value)
 
     loading.close()
-
-    // 关闭升级对话框
+    activeLoadingInstance = null
     upgradeDialogVisible.value = false
 
     // 打开支付对话框
@@ -428,6 +430,8 @@ const handleUpgrade = async () => {
 
     ElMessage.success('订单创建成功，请完成支付')
   } catch (error: any) {
+    activeLoadingInstance?.close()
+    activeLoadingInstance = null
     ElMessage.error(error.message || '创建订单失败，请重试')
     console.error(error)
   }
@@ -441,6 +445,11 @@ const handlePaymentSuccess = async () => {
 onMounted(() => {
   loadQuota()
   loadQuotaHistory()
+})
+
+onUnmounted(() => {
+  activeLoadingInstance?.close()
+  activeLoadingInstance = null
 })
 </script>
 

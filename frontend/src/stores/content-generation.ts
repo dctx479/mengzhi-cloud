@@ -380,13 +380,13 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   }
 
   // WebSocket utilities
-  const connectWebSocket = (taskId: string, onMessage: (data: any) => void, onError: (error: Event) => void) => {
+  const connectWebSocket = (taskId: string, onMessage: (data: Record<string, unknown>) => void, onError: (error: Event) => void) => {
     try {
       wsConnection = contentAPI.createGenerationWebSocket(taskId)
 
       wsConnection.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data)
+          const data = JSON.parse(event.data as string) as Record<string, unknown>
           onMessage(data)
         } catch {
           generationError.value = 'Received malformed WebSocket message'

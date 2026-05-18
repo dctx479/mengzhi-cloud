@@ -66,13 +66,13 @@ async def list_users(
     try:
         query = db.query(User).filter(User.deleted_at.is_(None))
 
-        # 搜索（使用 contains 避免 SQL 注入）
+        # 搜索（使用 escape 参数正确转义 LIKE 特殊字符，防止 SQL 注入）
         if search:
-            safe_search = search.replace("%", "\\%").replace("_", "\\_")
+            safe_search = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
             query = query.filter(
-                (User.username.like(f"%{safe_search}%"))
-                | (User.email.like(f"%{safe_search}%"))
-                | (User.phone.like(f"%{safe_search}%"))
+                (User.username.like(f"%{safe_search}%", escape="\\"))
+                | (User.email.like(f"%{safe_search}%", escape="\\"))
+                | (User.phone.like(f"%{safe_search}%", escape="\\"))
             )
 
         # 筛选
@@ -193,11 +193,11 @@ async def list_enterprises(
     try:
         query = db.query(Enterprise).filter(Enterprise.deleted_at.is_(None))
 
-        # 搜索（转义 LIKE 特殊字符）
+        # 搜索（转义 LIKE 特殊字符，使用 escape 参数确保数据库正确解释）
         if search:
-            safe_search = search.replace("%", "\\%").replace("_", "\\_")
+            safe_search = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
             query = query.filter(
-                (Enterprise.name.like(f"%{safe_search}%")) | (Enterprise.license_no.like(f"%{safe_search}%"))
+                (Enterprise.name.like(f"%{safe_search}%", escape="\\")) | (Enterprise.license_no.like(f"%{safe_search}%", escape="\\"))
             )
 
         # 筛选

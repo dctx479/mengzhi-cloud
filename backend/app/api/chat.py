@@ -172,20 +172,18 @@ async def send_message_stream(
     Returns:
         流式响应（SSE）
     """
+    # 配额检查在生成器外部执行，确保 fail-fast（DB session 此时仍有效）
+    quota_service = QuotaService(db)
+    is_sufficient, _, quota_message = quota_service.check_quota(
+        resource_type=QuotaResourceType.MESSAGE,
+        required_amount=1,
+        user_id=user_id,
+    )
+    if not is_sufficient:
+        raise HTTPException(status_code=429, detail=quota_message or "消息配额已用尽")
+
     async def event_generator():
         """生成SSE事件流"""
-        # 配额检查：流式发送前验证用户消息配额
-        quota_service = QuotaService(db)
-        is_sufficient, _, quota_message = quota_service.check_quota(
-            resource_type=QuotaResourceType.MESSAGE,
-            required_amount=1,
-            user_id=user_id,
-        )
-        if not is_sufficient:
-            error_data = json.dumps({"error": True, "code": "429", "message": quota_message or "消息配额已用尽"})
-            yield f"data: {error_data}\n\n"
-            return
-
         # 在生成器内部实例化 ChatService，确保 db Session 在整个流式传输期间有效
         service = ChatService(db)
         try:
@@ -596,8 +594,12 @@ async def export_conversation_json(
     ).first()
     if not conv:
         raise HTTPException(status_code=404, detail="对话不存在")
-    data = conv.to_dict()
-    data["messages"] = [m.to_dict() for m in conv.messages] if hasattr(conv, "messages") else []
+    data = conv.to_dict() if hasattr(conv, "to_dict") else {"id": conv.id, "title": getattr(conv, "title", "")}
+    messages = conv.messages if hasattr(conv, "messages") else []
+    data["messages"] = [
+        m.to_dict() if hasattr(m, "to_dict") else {"id": m.id, "role": str(getattr(m, "role", "")), "content": getattr(m, "content", "")}
+        for m in messages
+    ]
     return data
 
 
@@ -625,7 +627,8 @@ async def export_conversation_markdown(
     lines = [f"# {conv.title or '对话记录'}\n"]
     for msg in (conv.messages if hasattr(conv, "messages") else []):
         role = msg.role.value if hasattr(msg.role, "value") else str(msg.role)
-        lines.append(f"**{role}**: {msg.content}\n")
+        content = getattr(msg, "content", "") or ""
+        lines.append(f"**{role}**: {content}\n")
     from fastapi.responses import PlainTextResponse
 
     return PlainTextResponse("\n".join(lines), media_type="text/markdown")

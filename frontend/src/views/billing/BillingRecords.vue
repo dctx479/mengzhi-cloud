@@ -172,7 +172,8 @@
           <template #default="{ row }">
             <el-button
               v-if="row.invoice_id"
-              type="text"
+              type="primary"
+              link
               size="small"
               @click="viewInvoice(row.invoice_id)"
             >
@@ -199,7 +200,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'

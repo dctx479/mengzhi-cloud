@@ -179,19 +179,28 @@ class PaymentService:
                 logger.info(f"支付创建成功: {payment.payment_no} (order_id={order_id}, method={payment_method}, risk_score={risk_result['risk_score']})")
                 track_payment_request(payment_method, "created")
 
-                # 根据支付方式处理
+                # 根据支付方式处理（第三方支付调用失败时标记支付失败，避免 PENDING 记录悬空）
                 if settings.PAYMENT_DEV_MODE:
                     # 开发模式：自动完成支付
                     logger.info(f"开发模式：自动完成支付 {payment.payment_no}")
                     self._process_dev_payment(payment, order)
                 else:
                     # 生产模式：调用第三方支付
-                    if payment_method_enum == PaymentMethod.ALIPAY:
-                        self._process_alipay(payment, order)
-                    elif payment_method_enum == PaymentMethod.WECHAT:
-                        self._process_wechat(payment, order)
-                    elif payment_method_enum == PaymentMethod.BALANCE:
-                        self._process_balance(payment, order, user_id)
+                    try:
+                        if payment_method_enum == PaymentMethod.ALIPAY:
+                            self._process_alipay(payment, order)
+                        elif payment_method_enum == PaymentMethod.WECHAT:
+                            self._process_wechat(payment, order)
+                        elif payment_method_enum == PaymentMethod.BALANCE:
+                            self._process_balance(payment, order, user_id)
+                    except BusinessException:
+                        # 第三方支付调用失败：将已 commit 的 PENDING 记录标记为失败，避免悬空
+                        try:
+                            payment.mark_as_failed("支付渠道不可用")
+                            self.db.commit()
+                        except Exception as mark_err:
+                            logger.error(f"标记支付失败状态异常: {mark_err}")
+                        raise
 
                 return payment
 

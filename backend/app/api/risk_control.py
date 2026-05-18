@@ -214,6 +214,8 @@ async def create_rule(
         rule_data = request.model_dump()
         rule_data["created_by"] = current_user["user_id"]
 
+        rule = risk_service.create_rule(rule_data)
+
         return {
             "message": "规则创建成功",
             "rule": rule.to_dict()

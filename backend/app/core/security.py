@@ -140,4 +140,21 @@ def decrypt_api_key(encrypted: str) -> str:
         raise ValueError(f"API密钥解密失败: {type(e).__name__}") from e
 
 
-__all__ = ["get_client_ip", "verify_callback_ip", "decrypt_api_key"]
+def get_real_ip(request: Request) -> str:
+    """获取直连客户端IP（不信任任何代理头）
+
+    用于安全敏感场景（速率限制、IP封禁等），防止 X-Forwarded-For 伪造绕过。
+    如果应用部署在反向代理后，此函数返回代理服务器IP，需在代理层做速率限制。
+
+    Args:
+        request: FastAPI请求对象
+
+    Returns:
+        直连客户端IP地址
+    """
+    if request.client:
+        return request.client.host
+    return "unknown"
+
+
+__all__ = ["get_client_ip", "get_real_ip", "verify_callback_ip", "decrypt_api_key"]

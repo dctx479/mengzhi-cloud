@@ -435,11 +435,18 @@ class ConfigManager:
             enterprise_id: 企业ID
 
         Returns:
-            Dict[str, Any]: 配置数据
+            Dict[str, Any]: 配置数据（不含敏感字段）
         """
         try:
             from datetime import datetime
-            providers = self.list_enterprise_providers(enterprise_id, include_inactive=True)
+            providers_raw = self.list_enterprise_providers(enterprise_id, include_inactive=True)
+
+            # 移除敏感字段，避免 API 密钥等信息通过导出接口泄露
+            _SENSITIVE_FIELDS = {"api_key_encrypted", "api_key", "secret_key", "token"}
+            providers = [
+                {k: v for k, v in p.items() if k not in _SENSITIVE_FIELDS}
+                for p in providers_raw
+            ]
 
             logger.info(f"Exporting config for enterprise {enterprise_id}")
 

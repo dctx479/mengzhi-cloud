@@ -60,7 +60,7 @@ class TenantDatabaseRouter:
 
     def get_engine(self, tenant_id: int, create_if_not_exists: bool = True):
         """
-        获取租户数据库引擎
+        获取租户数据库引擎（线程安全）
 
         参数:
             tenant_id: 租户ID
@@ -71,49 +71,66 @@ class TenantDatabaseRouter:
         """
         cache_key = f"tenant_{tenant_id}"
 
-        # 检查缓存
+        # 快速路径：无锁读取缓存（已存在则直接返回）
         if cache_key in self._engines:
             self._last_used[cache_key] = datetime.now()
             return self._engines[cache_key]
 
-        # 创建新引擎
-        database_url = self.get_database_url(tenant_id)
+        # 慢路径：加锁创建引擎，防止多线程重复创建
+        with self._creation_lock:
+            # Double-check: 另一个线程可能已经创建
+            if cache_key in self._engines:
+                self._last_used[cache_key] = datetime.now()
+                return self._engines[cache_key]
 
-        try:
-            engine = create_engine(
-                database_url,
-                echo=settings.DEBUG,
-                pool_size=settings.TENANT_DB_POOL_SIZE,
-                max_overflow=settings.TENANT_DB_MAX_OVERFLOW,
-                pool_timeout=settings.TENANT_DB_POOL_TIMEOUT,
-                pool_recycle=settings.TENANT_DB_POOL_RECYCLE,
-                pool_pre_ping=True,  # 连接前检查
-                poolclass=QueuePool
-            )
+            database_url = self.get_database_url(tenant_id)
 
-            # 测试连接
-            with engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
+            try:
+                engine = create_engine(
+                    database_url,
+                    echo=settings.DEBUG,
+                    pool_size=settings.TENANT_DB_POOL_SIZE,
+                    max_overflow=settings.TENANT_DB_MAX_OVERFLOW,
+                    pool_timeout=settings.TENANT_DB_POOL_TIMEOUT,
+                    pool_recycle=settings.TENANT_DB_POOL_RECYCLE,
+                    pool_pre_ping=True,
+                    poolclass=QueuePool
+                )
 
-            # 缓存引擎
-            self._engines[cache_key] = engine
-            self._last_used[cache_key] = datetime.now()
+                # 测试连接
+                with engine.connect() as conn:
+                    conn.execute(text("SELECT 1"))
 
-            logger.info(f"Created database engine for tenant {tenant_id}")
-            return engine
+                # 写入缓存（在锁内，线程安全）
+                self._engines[cache_key] = engine
+                self._last_used[cache_key] = datetime.now()
 
-        except Exception as e:
-            if create_if_not_exists and "Unknown database" in str(e):
-                logger.info(f"Database for tenant {tenant_id} not found, creating...")
-                # BUG FIX #2: Use lock to prevent race condition when multiple threads try to create same DB
-                with self._creation_lock:
-                    # Double-check pattern: ensure database was not created by another thread
-                    if cache_key not in self._engines:
-                        self._create_tenant_database(tenant_id)
-                return self.get_engine(tenant_id, create_if_not_exists=False)
-            else:
-                logger.error(f"Failed to create engine for tenant {tenant_id}: {e}")
-                raise
+                logger.info(f"Created database engine for tenant {tenant_id}")
+                return engine
+
+            except Exception as e:
+                if create_if_not_exists and "Unknown database" in str(e):
+                    logger.info(f"Database for tenant {tenant_id} not found, creating...")
+                    self._create_tenant_database(tenant_id)
+                    # 递归调用时 create_if_not_exists=False 避免无限循环
+                    # 此时已在锁内，需要直接创建引擎而非递归（避免死锁）
+                    database_url2 = self.get_database_url(tenant_id)
+                    engine2 = create_engine(
+                        database_url2,
+                        echo=settings.DEBUG,
+                        pool_size=settings.TENANT_DB_POOL_SIZE,
+                        max_overflow=settings.TENANT_DB_MAX_OVERFLOW,
+                        pool_timeout=settings.TENANT_DB_POOL_TIMEOUT,
+                        pool_recycle=settings.TENANT_DB_POOL_RECYCLE,
+                        pool_pre_ping=True,
+                        poolclass=QueuePool
+                    )
+                    self._engines[cache_key] = engine2
+                    self._last_used[cache_key] = datetime.now()
+                    return engine2
+                else:
+                    logger.error(f"Failed to create engine for tenant {tenant_id}: {e}")
+                    raise
 
     def get_session_factory(self, tenant_id: int) -> sessionmaker:
         """
@@ -211,7 +228,7 @@ class TenantDatabaseRouter:
 
     def drop_tenant_database(self, tenant_id: int):
         """
-        删除租户数据库
+        删除租户数据库（线程安全）
 
         参数:
             tenant_id: 租户ID
@@ -219,16 +236,17 @@ class TenantDatabaseRouter:
         database_name = f"{settings.TENANT_DB_PREFIX}{tenant_id}"
         cache_key = f"tenant_{tenant_id}"
 
-        # 关闭并移除缓存的连接
-        if cache_key in self._engines:
-            self._engines[cache_key].dispose()
-            del self._engines[cache_key]
+        # 加锁清理缓存，防止并发访问已销毁的引擎
+        with self._creation_lock:
+            if cache_key in self._engines:
+                self._engines[cache_key].dispose()
+                del self._engines[cache_key]
 
-        if cache_key in self._session_factories:
-            del self._session_factories[cache_key]
+            if cache_key in self._session_factories:
+                del self._session_factories[cache_key]
 
-        if cache_key in self._last_used:
-            del self._last_used[cache_key]
+            if cache_key in self._last_used:
+                del self._last_used[cache_key]
 
         # 连接到MySQL服务器
         server_url = (
@@ -252,25 +270,26 @@ class TenantDatabaseRouter:
             engine.dispose()
 
     def cleanup_idle_connections(self):
-        """清理空闲连接"""
+        """清理空闲连接（线程安全）"""
         now = datetime.now()
-        idle_keys = []
 
-        for key, last_used in self._last_used.items():
-            if now - last_used > self._max_idle_time:
-                idle_keys.append(key)
+        with self._creation_lock:
+            idle_keys = [
+                key for key, last_used in self._last_used.items()
+                if now - last_used > self._max_idle_time
+            ]
 
-        for key in idle_keys:
-            logger.info(f"Cleaning up idle connection: {key}")
+            for key in idle_keys:
+                logger.info(f"Cleaning up idle connection: {key}")
 
-            if key in self._engines:
-                self._engines[key].dispose()
-                del self._engines[key]
+                if key in self._engines:
+                    self._engines[key].dispose()
+                    del self._engines[key]
 
-            if key in self._session_factories:
-                del self._session_factories[key]
+                if key in self._session_factories:
+                    del self._session_factories[key]
 
-            del self._last_used[key]
+                del self._last_used[key]
 
     def get_connection_stats(self) -> Dict:
         """

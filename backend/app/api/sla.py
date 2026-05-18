@@ -88,6 +88,16 @@ class SLAAgreementUpdate(BaseModel):
     compensation_rules: Optional[dict] = None
     is_active: Optional[bool] = None
 
+    @field_validator("start_date", "end_date")
+    @classmethod
+    def validate_date_format(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            try:
+                datetime.strptime(v, "%Y-%m-%d")
+            except ValueError:
+                raise ValueError(f"无效的日期格式: '{v}'，要求格式为 YYYY-MM-DD")
+        return v
+
 
 class SLAAgreementResponse(BaseModel):
     """SLA协议响应"""

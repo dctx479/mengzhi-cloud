@@ -51,6 +51,8 @@ class CreateMediaProviderRequest(BaseModel):
         if v:
             try:
                 parsed = urllib.parse.urlparse(v)
+                if not parsed.scheme or not parsed.netloc:
+                    raise ValueError('api_endpoint 必须是合法的 URL（含 scheme 和 host）')
                 host = parsed.hostname
                 if host:
                     try:
@@ -60,9 +62,11 @@ class CreateMediaProviderRequest(BaseModel):
                     except ValueError as e:
                         if '不允许' in str(e):
                             raise
+                        # host is a domain name, not an IP — allowed
+            except ValueError:
+                raise
             except Exception as e:
-                if '不允许' in str(e):
-                    raise
+                raise ValueError(f'api_endpoint 格式无效: {e}')
         return v
 
 

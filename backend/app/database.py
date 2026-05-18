@@ -28,8 +28,8 @@ else:
         settings.DATABASE_URL,
         poolclass=QueuePool,
         echo=settings.DEBUG,
-        pool_size=20,
-        max_overflow=40,
+        pool_size=5,       # 合理化: 避免耗尽MySQL max_connections
+        max_overflow=10,    # 合理化: pool_size+max_overflow=15，为租户DB留余量
         pool_pre_ping=True,
         pool_recycle=3600,  # 重要: 回收连接防止MySQL 8小时超时
         pool_timeout=30,    # 连接池等待超时（秒）
@@ -57,5 +57,8 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()

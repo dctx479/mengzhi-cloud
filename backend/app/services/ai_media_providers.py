@@ -177,7 +177,7 @@ class BaseMediaProviderClient(ABC):
     async def _http_post(self, url: str, headers: Dict[str, str], json_body: Dict[str, Any]) -> Dict[str, Any]:
         """带指数退避重试的 POST 请求（仅对瞬时故障重试）。"""
         max_retries = 3
-        last_exc: Optional[Exception] = None
+        last_exc: Exception = RuntimeError("_http_post: no attempts made")
         for attempt in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
@@ -201,12 +201,12 @@ class BaseMediaProviderClient(ABC):
                     await asyncio.sleep(2 ** attempt)
                     continue
                 raise
-        raise last_exc  # type: ignore[misc]
+        raise last_exc
 
     async def _http_get(self, url: str, headers: Dict[str, str]) -> Dict[str, Any]:
         """带指数退避重试的 GET 请求（仅对瞬时故障重试）。"""
         max_retries = 3
-        last_exc: Optional[Exception] = None
+        last_exc: Exception = RuntimeError("_http_get: no attempts made")
         for attempt in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=httpx.Timeout(self._get_timeout())) as client:
@@ -230,7 +230,7 @@ class BaseMediaProviderClient(ABC):
                     await asyncio.sleep(2 ** attempt)
                     continue
                 raise
-        raise last_exc  # type: ignore[misc]
+        raise last_exc
 
     async def validate_config(self) -> tuple[bool, Optional[str], Dict[str, Any]]:
         self._require_api_key()

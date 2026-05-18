@@ -50,7 +50,8 @@ class OptimizedContentGenerationService:
     _cache_lock = threading.Lock()
 
     # Timeout for a single AI generation call (seconds)
-    _AI_TIMEOUT = 30
+    # 大模型生成长文本可能需要较长时间，设为 60s；可通过 settings 覆盖
+    _AI_TIMEOUT = getattr(settings, 'AI_GENERATION_TIMEOUT', 60)
 
     def __init__(self, db: Session):
         """初始化"""
@@ -479,11 +480,18 @@ class OptimizedContentGenerationService:
 class ContentGenerationServiceFactory:
     """内容生成服务工厂"""
 
+    # 按 db 身份缓存服务实例（同一请求内复用，跨请求不共享以避免 db session 泄漏）
     _instance: Optional[OptimizedContentGenerationService] = None
+    _instance_lock = threading.Lock()
 
     @classmethod
     async def get_service(cls, db: Session) -> OptimizedContentGenerationService:
-        """获取或创建服务实例"""
+        """获取或创建服务实例
+
+        注意：每次传入不同的 db session 时会创建新实例，
+        以确保 SQLAlchemy session 不跨请求共享。
+        """
+        # 每次请求都创建新实例，保证 db session 隔离
         service = OptimizedContentGenerationService(db)
         await service.initialize()
         return service

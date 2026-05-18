@@ -116,9 +116,8 @@ export const useUserStore = defineStore('user', () => {
     loading.value = true
     error.value = null
     try {
-      await authAPI.updateProfile(profileData)
-      // Backend returns only {updated:true}; re-fetch to get fresh user data
-      const userData = await authAPI.getCurrentUser()
+      // authAPI.updateProfile already re-fetches the user internally after PUT /auth/me
+      const userData = await authAPI.updateProfile(profileData)
       user.value = userData
       localStorage.setItem('user', JSON.stringify(_safeUserForStorage(userData)))
       return userData

@@ -65,7 +65,10 @@ class AIProviderFactory:
         Returns:
             BaseAIProvider: Provider实例
         """
-        cache_key = f"{provider_type}:{api_key[-8:]}"
+        import hashlib as _hashlib
+        # 用完整 api_key 的 SHA-256 前 16 字节作为缓存键，避免尾部 8 字符碰撞
+        _key_hash = _hashlib.sha256(api_key.encode()).hexdigest()[:16]
+        cache_key = f"{provider_type}:{_key_hash}"
 
         # 先不加锁检查（快速路径）
         if cache_key in cls._instances:
@@ -116,7 +119,9 @@ class AIProviderFactory:
         enterprise_id: int,
         request: ChatCompletionRequest,
         strategy: FailoverStrategy = FailoverStrategy.PRIORITY_BASED,
-        max_retries: int = 3
+        max_retries: int = 3,
+        circuit_breaker_threshold: int = 5,
+        circuit_breaker_duration: int = 300,
     ) -> Tuple[ChatCompletionResponse, TenantAIConfig]:
         """带故障转移的对话请求
 
@@ -126,6 +131,8 @@ class AIProviderFactory:
             request: 对话请求
             strategy: 故障转移策略
             max_retries: 最大重试次数
+            circuit_breaker_threshold: 触发熔断的连续失败次数
+            circuit_breaker_duration: 熔断持续时间（秒）
 
         Returns:
             Tuple[ChatCompletionResponse, TenantAIConfig]: 响应和使用的配置
@@ -215,8 +222,8 @@ class AIProviderFactory:
                     config.update_health_status()
 
                     # 检查是否需要开启熔断器
-                    if config.error_count >= 5:
-                        config.open_circuit_breaker(duration_seconds=300)
+                    if config.error_count >= circuit_breaker_threshold:
+                        config.open_circuit_breaker(duration_seconds=circuit_breaker_duration)
                         logger.error(
                             f"Circuit breaker opened for provider {config.provider} "
                             f"(ID: {config.id})"
@@ -242,7 +249,9 @@ class AIProviderFactory:
         enterprise_id: int,
         request: ChatCompletionRequest,
         strategy: FailoverStrategy = FailoverStrategy.PRIORITY_BASED,
-        max_retries: int = 3
+        max_retries: int = 3,
+        circuit_breaker_threshold: int = 5,
+        circuit_breaker_duration: int = 300,
     ):
         """带故障转移的流式对话请求
 
@@ -354,8 +363,8 @@ class AIProviderFactory:
             )
             config.record_failure(str(stream_error))
             config.update_health_status()
-            if config.error_count >= 5:
-                config.open_circuit_breaker(duration_seconds=300)
+            if config.error_count >= circuit_breaker_threshold:
+                config.open_circuit_breaker(duration_seconds=circuit_breaker_duration)
                 logger.error(
                     f"Circuit breaker opened for provider {config.provider} "
                     f"(ID: {config.id})"

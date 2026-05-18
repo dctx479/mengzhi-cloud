@@ -199,7 +199,8 @@
         <el-table-column label="操作" fixed="right" width="200">
           <template #default="{ row }">
             <el-button
-              type="text"
+              type="primary"
+              link
               size="small"
               @click="viewInvoiceDetail(row.id)"
             >
@@ -207,14 +208,16 @@
             </el-button>
             <el-button
               v-if="row.status === 'pending'"
-              type="text"
+              type="primary"
+              link
               size="small"
               @click="showPayDialog(row)"
             >
               支付
             </el-button>
             <el-button
-              type="text"
+              type="primary"
+              link
               size="small"
               @click="downloadInvoice(row.id)"
             >
@@ -310,7 +313,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed, h } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'

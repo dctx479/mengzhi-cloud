@@ -165,7 +165,7 @@
       <template #header>
         <div class="card-header">
           <span class="card-title">最近账单</span>
-          <el-button type="text" size="small" @click="$router.push('/billing/invoices')">
+          <el-button type="primary" link size="small" @click="$router.push('/billing/invoices')">
             查看全部
           </el-button>
         </div>
@@ -203,7 +203,8 @@
         <el-table-column label="操作" fixed="right" width="150">
           <template #default="{ row }">
             <el-button
-              type="text"
+              type="primary"
+              link
               size="small"
               @click="viewInvoiceDetail(row.id)"
             >
@@ -211,7 +212,8 @@
             </el-button>
             <el-button
               v-if="row.status === 'pending'"
-              type="text"
+              type="primary"
+              link
               size="small"
               @click="payInvoice(row.id)"
             >
@@ -271,7 +273,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'

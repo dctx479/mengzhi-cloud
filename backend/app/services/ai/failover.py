@@ -373,21 +373,28 @@ class FailoverManager:
             )
             return None
 
-        # 根据策略选择备用Provider（从已过滤的列表中选择）
+        # 根据策略从已过滤列表（排除失败 provider）中选择备用
         for attempt in range(max_retries):
-            # Avoid infinite loop by verifying backup is from filtered list
-            backup = self.select_provider(enterprise_id, strategy)
+            if not configs:
+                break
 
-            if backup and backup.id != failed_config_id:
-                logger.info(
-                    f"Failover to provider {backup.provider} (ID: {backup.id}) "
-                    f"for enterprise {enterprise_id}, attempt {attempt + 1}"
-                )
-                return backup
-            
-            # If backup is None or is the same failed provider, log and continue
-            if not backup:
-                logger.debug(f"No provider selected in failover attempt {attempt + 1}")
+            if strategy == FailoverStrategy.ROUND_ROBIN:
+                # 轮询：按 ID 排序后取下一个
+                configs.sort(key=lambda x: x.id)
+                current_index = self._round_robin_index.get(enterprise_id, 0)
+                backup = configs[current_index % len(configs)]
+                self._round_robin_index[enterprise_id] = (current_index + 1) % len(configs)
+            elif strategy in (FailoverStrategy.PRIORITY_BASED, FailoverStrategy.PRIMARY_BACKUP):
+                configs.sort(key=lambda x: x.priority, reverse=True)
+                backup = configs[0]
+            else:
+                backup = configs[0]
+
+            logger.info(
+                f"Failover to provider {backup.provider} (ID: {backup.id}) "
+                f"for enterprise {enterprise_id}, attempt {attempt + 1}"
+            )
+            return backup
 
         logger.error(
             f"Failed to find backup provider after {max_retries} attempts "

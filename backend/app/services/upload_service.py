@@ -421,7 +421,14 @@ class UploadService:
 
             # 删除缩略图
             if media.thumbnail_url:
-                thumbnail_path = Path(settings.UPLOAD_DIR) / media.thumbnail_url.lstrip("/")
+                # thumbnail_url is like "/{UPLOAD_DIR}/category/date/file_thumb.ext"
+                # Strip the leading "/" to get a path relative to the filesystem root,
+                # then resolve against the filesystem root (i.e. use it as-is).
+                thumb_rel = media.thumbnail_url.lstrip("/")
+                thumbnail_path = Path(thumb_rel)
+                if not thumbnail_path.is_absolute():
+                    # Relative path: resolve against CWD (same convention as file_url)
+                    thumbnail_path = Path(thumb_rel)
                 if thumbnail_path.exists():
                     try:
                         thumbnail_path.unlink()
@@ -436,6 +443,7 @@ class UploadService:
                 bucket = oss2.Bucket(auth, settings.OSS_ENDPOINT, settings.OSS_BUCKET)
                 bucket.delete_object(media.file_path)
                 if media.thumbnail_url:
+                    # thumbnail_url for OSS is stored as the object key (no leading slash)
                     thumbnail_key = media.thumbnail_url.lstrip("/")
                     bucket.delete_object(thumbnail_key)
             except Exception as e:
@@ -481,11 +489,12 @@ class UploadService:
         """
         from sqlalchemy import func
 
+        from sqlalchemy import case
         query = self.db.query(
             func.count(Media.id).label("total_count"),
             func.sum(Media.file_size).label("total_size"),
-            func.count(func.nullif(Media.media_type != MediaType.IMAGE, True)).label("image_count"),
-            func.count(func.nullif(Media.media_type != MediaType.VIDEO, True)).label("video_count"),
+            func.sum(case((Media.media_type == MediaType.IMAGE, 1), else_=0)).label("image_count"),
+            func.sum(case((Media.media_type == MediaType.VIDEO, 1), else_=0)).label("video_count"),
         ).filter(Media.user_id == user_id)
 
         result = query.first()

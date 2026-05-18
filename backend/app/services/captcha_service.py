@@ -214,6 +214,26 @@ class CaptchaService:
                     message="今日发送次数已达上限，请明日再试"
                 )
 
+        except BusinessException:
+            raise
+        except Exception as e:
+            logger.warning(f"频率限制检查失败（降级跳过）: {e}")
+
+    def _mark_send_rate_limit(self, identifier: str, code_type: str) -> None:
+        """
+        发送成功后记录频率限制计数（与 _check_send_rate_limit 配对使用）
+
+        Args:
+            identifier: 邮箱或手机号
+            code_type: 验证码类型
+        """
+        if self.redis_client is None:
+            return
+
+        try:
+            cooldown_key = f"code_cooldown:{identifier}:{code_type}"
+            daily_key = f"code_daily:{identifier}"
+
             # 设置冷却期（60 秒）
             self.redis_client.setex(cooldown_key, 60, "1")
 
@@ -222,11 +242,8 @@ class CaptchaService:
             pipe.incr(daily_key)
             pipe.expire(daily_key, 86400)
             pipe.execute()
-
-        except BusinessException:
-            raise
         except Exception as e:
-            logger.warning(f"频率限制检查失败（降级跳过）: {e}")
+            logger.warning(f"记录频率限制计数失败（降级跳过）: {e}")
 
     def send_email_code(self, email: str, code_type: str = "register") -> str:
         """
@@ -258,6 +275,9 @@ class CaptchaService:
             # 调用邮件服务发送验证码
             from app.services.notification_service import email_service
             email_service.send_verification_email(email, code)
+
+            # 发送成功后才记录频率限制（避免发送失败时用户被锁60秒）
+            self._mark_send_rate_limit(email, code_type)
 
             # 安全日志：不记录完整验证码 (Security: never log full verification codes)
             code_masked = self._get_code_hash(code)
@@ -302,6 +322,9 @@ class CaptchaService:
             # 调用短信服务发送验证码
             from app.services.notification_service import sms_service
             sms_service.send_verification_sms(phone, code)
+
+            # 发送成功后才记录频率限制（避免发送失败时用户被锁60秒）
+            self._mark_send_rate_limit(phone, code_type)
 
             # 安全日志：不记录完整验证码 (Security: never log full verification codes)
             code_masked = self._get_code_hash(code)

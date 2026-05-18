@@ -258,6 +258,8 @@ class StrictBillingService:
             return transaction
 
         quota = self.db.query(TenantQuota).filter_by(id=transaction.quota_id).with_for_update().first()
+        if not quota:
+            raise BillingError(f"未找到配额记录: quota_id={transaction.quota_id}, transaction_id={transaction_id}")
 
         # 更新交易状态
         transaction.status = BillingStatus.COMPLETED
@@ -328,6 +330,8 @@ class StrictBillingService:
             return transaction
 
         quota = self.db.query(TenantQuota).filter_by(id=transaction.quota_id).with_for_update().first()
+        if not quota:
+            raise BillingError(f"未找到配额记录: quota_id={transaction.quota_id}, transaction_id={transaction_id}")
         tx_amount = Decimal(str(transaction.amount)) if not isinstance(transaction.amount, Decimal) else transaction.amount
         refund_amount = tx_amount * Decimal(refund_percentage) / Decimal(100)
 
