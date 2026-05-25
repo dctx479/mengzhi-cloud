@@ -436,7 +436,8 @@ class AuthService:
             text("""
                 SELECT id, user_uuid, username, email, phone, password_hash,
                        user_type, status, role, enterprise_id, login_attempts,
-                       locked_until, created_at, last_login_at
+                       locked_until, created_at, last_login_at,
+                       nickname, avatar_url, gender
                 FROM users
                 WHERE username = :username AND deleted_at IS NULL
             """),
@@ -450,7 +451,8 @@ class AuthService:
             text("""
                 SELECT id, user_uuid, username, email, phone, password_hash,
                        user_type, status, role, enterprise_id, login_attempts,
-                       locked_until, created_at, last_login_at
+                       locked_until, created_at, last_login_at,
+                       nickname, avatar_url, gender
                 FROM users
                 WHERE email = :email AND deleted_at IS NULL
             """),
@@ -464,7 +466,8 @@ class AuthService:
             text("""
                 SELECT id, user_uuid, username, email, phone, password_hash,
                        user_type, status, role, enterprise_id, login_attempts,
-                       locked_until, created_at, last_login_at
+                       locked_until, created_at, last_login_at,
+                       nickname, avatar_url, gender
                 FROM users
                 WHERE phone = :phone AND deleted_at IS NULL
             """),

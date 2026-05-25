@@ -77,6 +77,11 @@ from app.api.sla import router as sla_router
 
 api_router.include_router(sla_router, prefix="/sla", tags=["SLA保障 - SLA"])
 
+# ==================== 京东联盟导入模块 ====================
+from app.api.jd_import import router as jd_import_router
+
+api_router.include_router(jd_import_router, tags=["京东联盟导入 - JD Import"])
+
 # ==================== 租户管理模块 ====================
 from app.api.tenant_management import router as tenant_router
 
@@ -114,6 +119,12 @@ api_router.include_router(
 from app.api.ai_media import router as ai_media_router
 
 api_router.include_router(ai_media_router, prefix="/ai-media", tags=["AI媒体生成 - AI Media Generation"])
+
+
+# ==================== 智能客服模块 ====================
+from app.api.kefu import router as kefu_router
+
+api_router.include_router(kefu_router, prefix="/kefu", tags=["智能客服 - Customer Service"])
 
 
 __all__ = ["api_router"]

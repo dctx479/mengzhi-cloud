@@ -75,6 +75,16 @@
           <el-icon><TrendCharts /></el-icon>
           <template #title>SLA 监控</template>
         </el-menu-item>
+
+        <el-menu-item index="/kefu">
+          <el-icon><Service /></el-icon>
+          <template #title>客服中心</template>
+        </el-menu-item>
+
+        <el-menu-item index="/kefu/tickets">
+          <el-icon><Tickets /></el-icon>
+          <template #title>我的工单</template>
+        </el-menu-item>
       </template>
 
       <!-- 管理员菜单 -->
@@ -87,6 +97,7 @@
         <el-menu-item index="/admin/users">用户管理</el-menu-item>
         <el-menu-item index="/admin/enterprises">企业管理</el-menu-item>
         <el-menu-item index="/admin/ai-media">AI 媒体生成</el-menu-item>
+        <el-menu-item index="/admin/jd-import">京东商品导入</el-menu-item>
       </el-sub-menu>
     </el-menu>
   </div>
@@ -108,6 +119,8 @@ import {
   ArrowLeft,
   ArrowRight,
   Cpu,
+  Service,
+  Tickets,
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 

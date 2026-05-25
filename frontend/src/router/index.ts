@@ -51,12 +51,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/products/ProductDetail.vue'),
         meta: { requiresAuth: false },
       },
-      // AI 对话
+      // AI 对话（公开，提示登录引导）
       {
         path: 'chat',
         name: 'Chat',
         component: () => import('@/views/chat/ChatPage.vue'),
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: false },
       },
       // 内容生成工作台
       {
@@ -81,11 +81,13 @@ const routes: RouteRecordRaw[] = [
             path: 'orders',
             name: 'UserOrders',
             component: () => import('@/views/user/Orders.vue'),
+            meta: { requiresAuth: false },
           },
           {
             path: 'quota',
             name: 'UserQuota',
             component: () => import('@/views/user/Quota.vue'),
+            meta: { requiresAuth: false },
           },
           {
             path: 'settings',
@@ -125,6 +127,12 @@ const routes: RouteRecordRaw[] = [
             path: 'ai-media',
             name: 'AdminAIMedia',
             component: () => import('@/views/admin/AIMediaView.vue'),
+            meta: { requiresAuth: true, requiresAdmin: true },
+          },
+          {
+            path: 'jd-import',
+            name: 'AdminJDImport',
+            component: () => import('@/views/admin/JDImportView.vue'),
             meta: { requiresAuth: true, requiresAdmin: true },
           },
         ],
@@ -183,6 +191,19 @@ const routes: RouteRecordRaw[] = [
         path: 'sla',
         name: 'SLADashboard',
         component: () => import('@/views/sla/SLADashboard.vue'),
+        meta: { requiresAuth: true },
+      },
+      // 智能客服
+      {
+        path: 'kefu',
+        name: 'KefuChat',
+        component: () => import('@/views/kefu/KefuChatView.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'kefu/tickets',
+        name: 'KefuTickets',
+        component: () => import('@/views/kefu/KefuTicketView.vue'),
         meta: { requiresAuth: true },
       },
     ],

@@ -88,7 +88,7 @@
         <div class="order-items">
           <div v-for="item in order.items" :key="item.id" class="order-item">
             <img
-              :src="item.product?.image || 'https://via.placeholder.com/80'"
+              :src="item.product?.image || '/img/product-placeholder.svg'"
               alt=""
               class="item-image"
             />

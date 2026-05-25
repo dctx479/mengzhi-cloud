@@ -8,13 +8,6 @@
         </router-link>
       </div>
 
-      <!-- Navigation Menu -->
-      <nav class="header-nav">
-        <router-link to="/" class="nav-item">首页</router-link>
-        <router-link to="/products" class="nav-item">产品</router-link>
-        <router-link to="/chat" class="nav-item">AI助手</router-link>
-      </nav>
-
       <!-- User Menu -->
       <div class="header-user">
         <el-input

@@ -376,6 +376,11 @@ class Settings(BaseSettings):
         ]
     )
 
+    # 京东联盟开放平台配置
+    # 申请地址: https://union.jd.com → 开发者中心 → 创建应用
+    JD_APP_KEY: Optional[str] = None
+    JD_SECRET_KEY: Optional[str] = None
+
     class Config:
         env_file = ".env"
         case_sensitive = True

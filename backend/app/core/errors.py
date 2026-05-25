@@ -205,13 +205,18 @@ class BusinessException(Exception):
 
     def __init__(
         self,
-        code: ErrorCode,
+        code,  # ErrorCode enum OR plain string message
         message: Optional[str] = None,
         errors: Optional[List[dict]] = None,
         request_id: Optional[str] = None
     ):
-        self.code = code
-        self.message = message or ERROR_MESSAGES.get(code, "未知错误")
+        # Allow callers to pass a plain string as the first arg (treated as message)
+        if isinstance(code, str):
+            self.code = ErrorCode.RECORD_NOT_FOUND  # generic 404 for plain-string raises
+            self.message = code
+        else:
+            self.code = code
+            self.message = message or ERROR_MESSAGES.get(code, "未知错误")
         self.errors = errors
         self.request_id = request_id
         super().__init__(self.message)

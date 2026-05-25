@@ -227,13 +227,13 @@ class ChatService:
         user_id: int
     ) -> Conversation:
         """获取对话详情"""
-        # 修复 N+1 查询：预加载消息关系
-        conv = self.db.query(Conversation).options(
-            joinedload(Conversation.messages)
-        ).filter(
-            Conversation.conversation_uuid == conversation_id,
-            Conversation.user_id == user_id
-        ).first()
+        q = self.db.query(Conversation).options(joinedload(Conversation.messages))
+        # Accept both integer id and UUID string
+        if conversation_id.isdigit():
+            q = q.filter(Conversation.id == int(conversation_id), Conversation.user_id == user_id)
+        else:
+            q = q.filter(Conversation.conversation_uuid == conversation_id, Conversation.user_id == user_id)
+        conv = q.first()
 
         if not conv:
             raise BusinessException("对话不存在")
@@ -246,10 +246,12 @@ class ChatService:
         user_id: int
     ) -> None:
         """删除对话"""
-        conv = self.db.query(Conversation).filter(
-            Conversation.conversation_uuid == conversation_id,
-            Conversation.user_id == user_id
-        ).first()
+        q = self.db.query(Conversation)
+        if conversation_id.isdigit():
+            q = q.filter(Conversation.id == int(conversation_id), Conversation.user_id == user_id)
+        else:
+            q = q.filter(Conversation.conversation_uuid == conversation_id, Conversation.user_id == user_id)
+        conv = q.first()
 
         if not conv:
             raise BusinessException("对话不存在")
@@ -265,10 +267,12 @@ class ChatService:
         is_favorited: Optional[bool] = None
     ) -> Dict[str, Any]:
         """更新对话"""
-        conv = self.db.query(Conversation).filter(
-            Conversation.conversation_uuid == conversation_id,
-            Conversation.user_id == user_id
-        ).first()
+        q = self.db.query(Conversation)
+        if conversation_id.isdigit():
+            q = q.filter(Conversation.id == int(conversation_id), Conversation.user_id == user_id)
+        else:
+            q = q.filter(Conversation.conversation_uuid == conversation_id, Conversation.user_id == user_id)
+        conv = q.first()
 
         if not conv:
             raise BusinessException("对话不存在")

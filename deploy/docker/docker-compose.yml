@@ -59,6 +59,12 @@ services:
     environment:
       - DATABASE_URL=mysql+pymysql://root:root123@mysql:3306/agri_platform
       - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-please-change-in-production-env-32chars}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - DEEPSEEK_API_BASE=${DEEPSEEK_API_BASE:-https://api.deepseek.com}
+      - JD_APP_KEY=${JD_APP_KEY:-}
+      - JD_SECRET_KEY=${JD_SECRET_KEY:-}
     volumes:
       - backend_logs:/app/logs
       - backend_uploads:/app/uploads

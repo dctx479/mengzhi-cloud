@@ -16,6 +16,7 @@
 import os
 from pathlib import Path
 from fastapi import APIRouter, Depends, Query, HTTPException, status, UploadFile, File
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from loguru import logger
@@ -145,7 +146,7 @@ async def get_categories(db: Session = Depends(get_db)) -> dict:
         logger.error(f"获取类别列表异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -176,7 +177,7 @@ async def get_popular_products(
         logger.error(f"获取热门产品异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -199,7 +200,7 @@ async def get_regions(db: Session = Depends(get_db)) -> dict:
         logger.error(f"获取地区列表异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -222,7 +223,7 @@ async def get_statistics(db: Session = Depends(get_db)) -> dict:
         logger.error(f"获取统计信息异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -258,13 +259,13 @@ async def list_products(
         if sort_by not in ["created_at", "price", "name", "updated_at"]:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="排序字段不支持").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="排序字段不支持")),
             )
 
         if sort_order not in ["asc", "desc"]:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="排序顺序不支持").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="排序顺序不支持")),
             )
 
         # 创建服务实例
@@ -296,13 +297,13 @@ async def list_products(
     except BusinessException as e:
         logger.error(f"获取产品列表失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"获取产品列表异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -369,13 +370,13 @@ async def get_product(product_id: int, db: Session = Depends(get_db)) -> dict:
     except BusinessException as e:
         logger.warning(f"获取产品详情失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"获取产品详情异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -411,13 +412,13 @@ async def get_cultural_info(product_id: int, db: Session = Depends(get_db)) -> d
     except BusinessException as e:
         logger.warning(f"获取文化信息失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"获取文化信息异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -447,7 +448,7 @@ async def create_product(
         if not user:
             return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
-                content=error_response(code=ErrorCode.USER_NOT_FOUND, message="用户不存在").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.USER_NOT_FOUND, message="用户不存在")),
             )
 
         product = service.create_product(request, user.id)
@@ -457,19 +458,19 @@ async def create_product(
 
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
-            content=success_response(data=response_data.dict(), message="产品创建成功").dict(),
+            content=jsonable_encoder(success_response(data=response_data.dict(), message="产品创建成功")),
         )
 
     except BusinessException as e:
         logger.warning(f"产品创建失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"产品创建异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -499,7 +500,7 @@ async def update_product(
         if not request.dict(exclude_unset=True):
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(code=ErrorCode.PARAM_ERROR, message="请求体不能为空").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.PARAM_ERROR, message="请求体不能为空")),
             )
 
         from app.models import User
@@ -510,7 +511,7 @@ async def update_product(
         if not user:
             return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
-                content=error_response(code=ErrorCode.USER_NOT_FOUND, message="用户不存在").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.USER_NOT_FOUND, message="用户不存在")),
             )
 
         product = service.update_product(product_id, request, user.id)
@@ -523,13 +524,13 @@ async def update_product(
     except BusinessException as e:
         logger.warning(f"产品更新失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"产品更新异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -559,13 +560,13 @@ async def delete_product(
     except BusinessException as e:
         logger.warning(f"产品删除失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"产品删除异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )
 
 
@@ -673,7 +674,7 @@ async def upload_product_image(
     except BusinessException as e:
         logger.warning(f"产品图片上传失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except HTTPException:
         raise
@@ -681,7 +682,7 @@ async def upload_product_image(
         logger.error(f"产品图片上传异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="产品图片上传失败").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="产品图片上传失败")),
         )
 
 
@@ -713,7 +714,7 @@ async def delete_product_image(
         if not product.image_urls:
             return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
-                content=error_response(code=ErrorCode.RECORD_NOT_FOUND, message="产品没有图片").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.RECORD_NOT_FOUND, message="产品没有图片")),
             )
 
         # 从产品图片列表中移除
@@ -721,7 +722,7 @@ async def delete_product_image(
         if image_url not in images:
             return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
-                content=error_response(code=ErrorCode.RECORD_NOT_FOUND, message="图片不存在").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.RECORD_NOT_FOUND, message="图片不存在")),
             )
 
         images.remove(image_url)
@@ -741,13 +742,13 @@ async def delete_product_image(
     except BusinessException as e:
         logger.warning(f"产品图片删除失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"产品图片删除异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="产品图片删除失败").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="产品图片删除失败")),
         )
 
 
@@ -780,7 +781,7 @@ async def batch_delete_products(
         if not request.ids:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(code=ErrorCode.PARAM_ERROR, message="产品ID列表不能为空").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.PARAM_ERROR, message="产品ID列表不能为空")),
             )
 
         # 删除前先查询所有产品，清理关联图片文件
@@ -809,7 +810,7 @@ async def batch_delete_products(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="批量删除失败").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="批量删除失败")),
         )
 
 
@@ -844,13 +845,13 @@ async def batch_update_products(
         if not request.ids:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(code=ErrorCode.PARAM_ERROR, message="产品ID列表不能为空").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.PARAM_ERROR, message="产品ID列表不能为空")),
             )
 
         if not request.data:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(code=ErrorCode.PARAM_ERROR, message="更新数据不能为空").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.PARAM_ERROR, message="更新数据不能为空")),
             )
 
         # 允许批量更新的字段白名单
@@ -868,21 +869,21 @@ async def batch_update_products(
             except (TypeError, ValueError):
                 return JSONResponse(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    content=error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 必须是数字").dict(),
+                    content=jsonable_encoder(error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 必须是数字")),
                 )
             if price_val < 0:
                 return JSONResponse(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    content=error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 不能为负数").dict(),
+                    content=jsonable_encoder(error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 不能为负数")),
                 )
             update_data["price"] = price_val
 
         if not update_data:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(
+                content=jsonable_encoder(error_response(
                     code=ErrorCode.PARAM_ERROR, message=f"没有可更新的字段。允许的字段: {', '.join(allowed_fields)}"
-                ).dict(),
+                )),
             )
 
         # 添加更新时间
@@ -911,7 +912,7 @@ async def batch_update_products(
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="批量更新失败").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="批量更新失败")),
         )
 
 
@@ -947,14 +948,14 @@ async def assign_tags_to_product(
         if not tag_ids:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(code=ErrorCode.PARAM_ERROR, message="标签ID列表不能为空").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.PARAM_ERROR, message="标签ID列表不能为空")),
             )
 
         # 验证标签ID列表唯一性
         if len(tag_ids) != len(set(tag_ids)):
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response(code=ErrorCode.PARAM_ERROR, message="标签ID列表中存在重复").dict(),
+                content=jsonable_encoder(error_response(code=ErrorCode.PARAM_ERROR, message="标签ID列表中存在重复")),
             )
 
         service = CulturalTagService(db)
@@ -970,14 +971,14 @@ async def assign_tags_to_product(
     except BusinessException as e:
         logger.warning(f"产品标签分配失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"产品标签分配异常: {str(e)}")
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="产品标签分配失败").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="产品标签分配失败")),
         )
 
 
@@ -1013,14 +1014,14 @@ async def remove_tag_from_product(
     except BusinessException as e:
         logger.warning(f"产品标签移除失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"产品标签移除异常: {str(e)}")
         db.rollback()
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="产品标签移除失败").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="产品标签移除失败")),
         )
 
 
@@ -1052,11 +1053,11 @@ async def get_product_tags(product_id: int, db: Session = Depends(get_db)) -> di
     except BusinessException as e:
         logger.warning(f"获取产品标签失败: {e.message}")
         return JSONResponse(
-            status_code=e.get_http_status(), content=error_response(code=e.code, message=e.message).dict()
+            status_code=e.get_http_status(), content=jsonable_encoder(error_response(code=e.code, message=e.message))
         )
     except Exception as e:
         logger.error(f"获取产品标签异常: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误").dict(),
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
         )

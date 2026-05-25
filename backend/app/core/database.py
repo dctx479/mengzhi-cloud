@@ -57,8 +57,8 @@ DATABASE_URL = settings.DATABASE_URL
 engine = create_engine(
     DATABASE_URL,
     poolclass=QueuePool,
-    pool_size=5,       # 合理化: 避免耗尽MySQL max_connections
-    max_overflow=10,    # 合理化: 与 app/database.py 保持一致
+    pool_size=5,  # 合理化: 避免耗尽MySQL max_connections
+    max_overflow=10,  # 合理化: 与 app/database.py 保持一致
     pool_pre_ping=True,
     pool_recycle=3600,
     pool_timeout=30,
@@ -105,7 +105,7 @@ def init_db() -> None:
     创建所有表并进行初始化设置
     """
     try:
-        # 创建所有表
+        # 创建所有表（connect事件监听器已设置FOREIGN_KEY_CHECKS=0）
         Base.metadata.create_all(bind=engine)
         logger.info("✓ 数据库表创建成功")
 
@@ -202,16 +202,8 @@ def get_table_info() -> dict:
 
 # SQLAlchemy事件监听器
 @event.listens_for(engine, "connect")
-def set_sqlite_pragma(dbapi_conn, connection_record):
-    """MySQL连接时设置参数"""
-    # 可以在这里设置MySQL特定的参数
-    pass
-
-
-@event.listens_for(engine, "connect")
-def receive_pool_connect(dbapi_conn, connection_record):
-    """连接池连接事件"""
-    # 连接成功时的回调
+def set_mysql_session_vars(dbapi_conn, connection_record):
+    """MySQL连接时设置会话参数"""
     pass
 
 

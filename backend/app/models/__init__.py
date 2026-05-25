@@ -100,6 +100,21 @@ from .usage_stats import UsageStatistics, StatType
 # 计费模型
 from .billing import BillingPlan, BillingRecord, Invoice, BillingMode, PricingType, InvoiceStatus
 
+# 客服工单模型
+from .kefu_ticket import (
+    KefuTicket,
+    KefuTicketMessage,
+    TicketStatus,
+    TicketPriority,
+    TicketCategory,
+)
+
+# 客服转人工记录
+from .kefu_escalation import KefuEscalation, EscalationStatus
+
+# 客服会话模型
+from .kefu_conversation import KefuConversation, KefuMessage, KefuConversationStatus
+
 # 导出所有模型
 __all__ = [
     # 基类
@@ -219,4 +234,17 @@ __all__ = [
     "BillingMode",
     "PricingType",
     "InvoiceStatus",
+    # 客服工单
+    "KefuTicket",
+    "KefuTicketMessage",
+    "TicketStatus",
+    "TicketPriority",
+    "TicketCategory",
+    # 客服转人工
+    "KefuEscalation",
+    "EscalationStatus",
+    # 客服会话
+    "KefuConversation",
+    "KefuMessage",
+    "KefuConversationStatus",
 ]

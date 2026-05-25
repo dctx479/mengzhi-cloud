@@ -13,6 +13,7 @@ services:
       - "${MYSQL_PORT:-3307}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./init/mysql:/docker-entrypoint-initdb.d
     command: >
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
@@ -32,7 +33,7 @@ services:
     image: redis:7-alpine
     container_name: agri-redis
     ports:
-      - "${REDIS_PORT:-6380}:6379"
+      - "${REDIS_HOST_PORT:-6380}:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
@@ -60,6 +61,9 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-development}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-please-change-in-production-env-32chars}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_API_BASE: ${DEEPSEEK_API_BASE:-https://api.deepseek.com}
+      JD_APP_KEY: ${JD_APP_KEY:-}
+      JD_SECRET_KEY: ${JD_SECRET_KEY:-}
       TZ: Asia/Shanghai
     ports:
       - "${BACKEND_PORT:-8000}:8000"
@@ -75,7 +79,7 @@ services:
       - agri-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health', timeout=2)"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
       interval: 30s
       timeout: 5s
       retries: 3

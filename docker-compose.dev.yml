@@ -55,11 +55,19 @@ services:
     container_name: agri-backend
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - DATABASE_URL=mysql+pymysql://root:root123@mysql:3306/agri_platform
       - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
       - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=development
+      - SECRET_KEY=dev-secret-key-please-change-in-production-env-32chars
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - DEEPSEEK_API_BASE=${DEEPSEEK_API_BASE:-https://api.deepseek.com}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
+      - JD_APP_KEY=${JD_APP_KEY:-}
+      - JD_SECRET_KEY=${JD_SECRET_KEY:-}
     volumes:
       - ./backend:/app
       - backend_logs:/app/logs

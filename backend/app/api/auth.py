@@ -276,23 +276,24 @@ async def login(
         )
 
         # 6. 构建响应 (normalize enum values to lowercase for frontend)
+        _m = user._mapping if hasattr(user, '_mapping') else {}
         user_data = UserResponse(
             user_id=user.user_uuid,
             username=user.username,
             email=auth_service.mask_email(user.email),
             phone=auth_service.mask_phone(user.phone),
-            nickname=user.nickname,
-            avatar_url=user.avatar_url,
-            gender=user.gender or 0,
+            nickname=_m.get('nickname'),
+            avatar_url=_m.get('avatar_url'),
+            gender=(_m.get('gender') or 0),
             enterprise_id=user.enterprise_id,
             user_type=_enum_val(user.user_type),
             status=_enum_val(user.status),
             role=_enum_val(user.role),
             created_at=user.created_at,
             last_login_at=user.last_login_at,
-            bio=user.bio,
-            location=user.location,
-            website=user.website
+            bio=_m.get('bio'),
+            location=_m.get('location'),
+            website=_m.get('website')
         )
 
         tokens = TokenResponse(
