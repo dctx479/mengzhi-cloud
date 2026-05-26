@@ -1,325 +1,298 @@
-# 内蒙古农畜产品品牌营销AI赋能云平台
+# 蒙智云 MengZhi Cloud
 
-> 基于AI技术的农畜产品品牌营销智能化平台，助力内蒙古特色农畜产品走向全国
+> 内蒙古农畜产品 AI 赋能云平台 — 集成智能客服、用户画像蒸馏、RAG 知识库与全链路电商运营
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![Vue](https://img.shields.io/badge/vue-3.4+-green.svg)](https://vuejs.org/)
 [![FastAPI](https://img.shields.io/badge/fastapi-0.109-green.svg)](https://fastapi.tiangolo.com/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
 
-## 📖 项目简介
+## 平台定位
 
-本平台是一个面向内蒙古农畜产品的AI赋能营销云平台，通过人工智能技术帮助企业和个人：
+蒙智云是面向内蒙古草原农畜产品产业的 **AI 赋能 SaaS 平台**，为牛羊肉、奶制品、藜麦、杂粮等特色农产品提供从品牌营销、智能客服到订单履约的一站式数字化解决方案。
 
-- 🤖 **AI智能对话** - 基于DeepSeek的智能客服和产品咨询
-- 📝 **内容智能生成** - 自动生成营销文案、产品描述、推广方案
-- 🔍 **产品智能检索** - RAG技术支持的语义搜索和推荐
-- 📊 **数据分析洞察** - 产品数据分析和市场趋势预测
-- 🎨 **多平台适配** - 支持小红书、抖音、微信等多平台内容生成
+**核心理念**：让 AI 真正深入业务——不是简单的问答机器人，而是能理解用户情绪、记住用户偏好、自主创建工单、个性化推荐产品的智能 Agent。
 
 ---
 
-## ✨ 核心功能
+## 功能全景
 
-### 1. AI智能对话系统
-- 多Agent对话支持（助手、营销专家、文化顾问）
-- 流式响应，实时交互
-- 对话历史管理和导出
-- 文件上传和多模态对话
-
-### 2. 产品管理系统
-- 产品CRUD和批量操作
-- 高级搜索和筛选
-- 产品分类和标签管理
-- 文化标签和故事关联
-
-### 3. 内容生成工作室
-- 多种内容类型（文案、视频脚本、直播脚本）
-- 多平台风格适配
-- 批量生成和任务管理
-- 内容优化和质量评估
-
-### 4. 用户中心
-- 个人信息管理
-- 配额和订单管理
-- 安全设置（密码、手机、邮箱）
-- 操作历史和审计日志
-
-### 5. 权限管理系统
-- RBAC角色权限控制
-- 细粒度资源权限
-- 操作审计和日志追踪
-
----
-
-## 🛠️ 技术栈
-
-### 后端技术
-- **框架**: FastAPI 0.109 (异步高性能)
-- **数据库**: MySQL 8.0 + SQLAlchemy 2.0
-- **缓存**: Redis 5.0
-- **AI集成**: DeepSeek API + sentence-transformers
-- **向量检索**: FAISS 1.7
-- **认证**: JWT (python-jose)
-- **任务队列**: Celery (可选)
-
-### 前端技术
-- **框架**: Vue 3.4 (Composition API)
-- **构建工具**: Vite 5.0
-- **UI组件**: Element Plus 2.5
-- **状态管理**: Pinia 2.1
-- **路由**: Vue Router 4.2
-- **HTTP客户端**: Axios 1.6
-- **类型检查**: TypeScript 5.3
-
-### 基础设施
-- **容器化**: Docker + Docker Compose
-- **Web服务器**: Nginx
-- **应用服务器**: Uvicorn (ASGI)
-- **数据库迁移**: Alembic
-
----
-
-## 🚀 快速开始
-
-### 前置要求
-
-- Python 3.9+
-- Node.js 18+
-- MySQL 8.0+
-- Redis 5.0+
-- Docker (可选)
-
-### 方式一：Docker部署（推荐）
-
-```bash
-# 1. 克隆项目
-git clone <repository-url>
-cd AI赋能云平台
-
-# 2. 配置环境变量
-cp backend/.env.example backend/.env
-# 编辑 backend/.env，配置数据库和API密钥
-
-# 3. 启动服务
-cd deploy/docker
-docker-compose up -d
-
-# 4. 访问应用
-# 前端: http://localhost
-# 后端API: http://localhost/api
-# API文档: http://localhost/api/docs
+```
+┌─────────────────────────────────────────────────────────┐
+│                      蒙 智 云                            │
+├──────────┬──────────┬──────────┬──────────┬──────────────┤
+│  AI 客服  │ 用户画像  │ 电商运营  │ 内容营销  │  管理后台    │
+├──────────┼──────────┼──────────┼──────────┼──────────────┤
+│ 意图分类  │ 5层Persona│ 产品管理  │ AI内容生成│  用户管理    │
+│ 情绪识别  │ 对话蒸馏  │ 订单管理  │ 媒体生成  │  多租户      │
+│ RAG知识库 │ 策略翻译  │ 配额计费  │ 提示词模板│  RBAC权限    │
+│ 工单系统  │ 纠正机制  │ 京东导入  │ 文化标签  │  审计日志    │
+│ 转人工    │ 增量Merge │ 对账管理  │ 产品溯源  │  风控/SLA    │
+│ MCP工具   │ 评分体系  │ 支付回调  │          │  系统监控    │
+└──────────┴──────────┴──────────┴──────────┴──────────────┘
 ```
 
-### 方式二：本地开发
+### AI 智能客服
 
-**后端启动**:
+- **15 类意图识别**：产品咨询、价格查询、退款/退货/换货、物流追踪、投诉等
+- **7 类情绪分析**：积极、中性、困惑、烦躁、愤怒、焦虑、悲伤
+- **6 种路由策略**：问候 → RAG 检索 → 工具调用 → 工单创建 → 转人工 → LLM 兜底
+- **RAG 知识库**：FAISS 向量检索 + MiniLM 多语言嵌入，覆盖产品、政策、物流、品牌等 7 大知识领域
+- **MCP 工具**：7 个 LangChain @tool，支持主平台 Agent 发现和调用
+- **情绪安抚**：高负面情绪自动注入安抚前缀，超阈值自动转人工
+
+### 5 层用户画像（Persona 蒸馏模型）
+
+借鉴蒸馏 Skill 的分层结构与"记忆自然流露"原则：
+
+| 层级 | 名称 | 数据来源 |
+|------|------|---------|
+| Layer 0 | 身份锚定 | 注册信息、会员天数、用户类型 |
+| Layer 1 | 购买风格 | 订单模式、偏好品类、消费水平、活跃度 |
+| Layer 2 | 沟通偏好 | 消息长度、活跃时段、话题分布、表达风格 |
+| Layer 3 | 情绪模式 | 情绪分布、升级倾向、负面比例 |
+| Layer 4 | 服务历史 | 工单模式、解决率、满意度 |
+
+- **综合评分**（0-100）→ 高价值 / 活跃 / 潜力 / 普通 四级用户
+- **策略翻译**：标签自动映射为客服话术规则（语气、推荐策略、情绪应对）
+- **Session Summary**：每 5 条消息自动蒸馏对话摘要，增量 merge 到用户档案
+- **Correction 纠正**：用户可反馈意图/情绪/回答错误，持续优化画像精度
+
+### 电商与运营
+
+- 产品管理（支持京东 API 批量导入）
+- 订单全生命周期管理
+- 配额计费 & 套餐包
+- 多租户隔离（企业级 SaaS）
+- RBAC 细粒度权限控制
+- 审计日志 & 风控 & SLA 监控
+
+---
+
+## 技术架构
+
+```
+                    ┌──────────────┐
+                    │   Nginx/CDN  │
+                    └──────┬───────┘
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+     ┌────────▼────────┐    ┌──────────▼──────────┐
+     │   Vue 3 前端     │    │   FastAPI 后端       │
+     │ Element Plus     │    │ SQLAlchemy + Alembic │
+     │ Pinia + Router   │    │ LangChain + DeepSeek │
+     │ ECharts          │    │ FAISS RAG            │
+     │ TypeScript       │    │ Prometheus           │
+     └─────────────────┘    └───┬─────────┬────────┘
+                                │         │
+                        ┌───────▼──┐  ┌───▼────┐
+                        │ MySQL 8  │  │ Redis 7│
+                        └──────────┘  └────────┘
+```
+
+### 技术栈
+
+| 层级 | 技术 |
+|------|------|
+| **前端** | Vue 3.4 · TypeScript 5 · Element Plus 2.5 · Vite 5 · Pinia · ECharts 6 |
+| **后端** | FastAPI 0.109 · SQLAlchemy 2.0 · Pydantic · Uvicorn |
+| **AI/ML** | LangChain · DeepSeek API · FAISS · sentence-transformers · scikit-learn |
+| **数据** | MySQL 8.0 · Redis 7 · Alembic |
+| **部署** | Docker Compose · Nginx |
+| **监控** | Prometheus · Loguru · APScheduler |
+
+---
+
+## 快速开始
+
+### 环境要求
+
+- Docker & Docker Compose
+- （可选）DeepSeek API Key — 用于 LLM 智能回答
+- （可选）京东开放平台 API Key — 用于商品导入
+
+### 一键启动
+
 ```bash
-cd backend
+# 克隆项目
+git clone https://github.com/your-org/mengzhi-cloud.git
+cd mengzhi-cloud
 
-# 安装依赖
+# 配置环境变量（可选）
+cp .env.docker .env
+# 编辑 .env，填入 DEEPSEEK_API_KEY 等
+
+# 启动所有服务
+docker compose -f docker-compose.dev.yml up -d
+
+# 等待服务就绪（约 30 秒）
+# 前端:  http://localhost:5173
+# 后端:  http://localhost:8001
+# 文档:  http://localhost:8001/docs
+# 默认管理员: admin / admin123
+```
+
+### 本地开发
+
+```bash
+# 后端
+cd backend
 pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env 文件
-
-# 数据库迁移
-alembic upgrade head
-
-# 启动服务
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**前端启动**:
-```bash
+# 前端
 cd frontend
-
-# 安装依赖
-npm install
-
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env 文件
-
-# 启动开发服务器
-npm run dev
+pnpm install
+pnpm dev
 ```
-
-访问 http://localhost:5173
 
 ---
 
-## 📁 项目结构
+## 客服 Agent 处理流程
 
 ```
-AI赋能云平台/
-├── backend/                 # 后端应用
+用户消息
+  │
+  ├─→ 加载用户画像 (5层 Persona → 策略注入 system prompt)
+  │
+  ├─→ 意图分类 + 情绪识别 (规则优先 → LLM 兜底)
+  │
+  ├─→ 路由分发
+  │     ├── 问候 ──────→ 随机欢迎语
+  │     ├── RAG 查询 ──→ FAISS 检索 → LLM 生成回答
+  │     ├── 工具调用 ──→ 查订单/查产品/查物流
+  │     ├── 创建工单 ──→ 自动归类 + 优先级判定
+  │     ├── 转人工 ────→ 创建高优工单 + 通知
+  │     └── LLM 兜底 ──→ DeepSeek 生成回答
+  │
+  ├─→ 情绪安抚前缀注入 (愤怒/焦虑/困惑 → 共情话术)
+  │
+  ├─→ 保存对话历史
+  │
+  └─→ 每 5 条消息 → 自动蒸馏 Session Summary → 增量 Merge
+```
+
+---
+
+## 项目结构
+
+```
+mengzhi-cloud/
+├── backend/
 │   ├── app/
-│   │   ├── api/            # API路由层 (13个模块)
-│   │   ├── services/       # 业务逻辑层 (16个服务)
-│   │   ├── models/         # 数据模型层 (16个模型)
-│   │   ├── schemas/        # 数据验证层
-│   │   ├── core/           # 核心配置和工具
-│   │   └── utils.py        # 工具函数
-│   ├── tests/              # 测试
-│   ├── alembic/            # 数据库迁移
-│   └── requirements.txt    # Python依赖
-│
-├── frontend/               # 前端应用
+│   │   ├── api/                # API 路由（25+ 模块）
+│   │   │   ├── auth.py         #   认证登录
+│   │   │   ├── kefu.py         #   智能客服
+│   │   │   ├── products.py     #   产品管理
+│   │   │   ├── orders.py       #   订单管理
+│   │   │   └── ...
+│   │   ├── core/               # 核心配置
+│   │   │   ├── config.py       #   应用配置
+│   │   │   ├── database.py     #   数据库连接
+│   │   │   └── redis_client.py
+│   │   ├── models/             # ORM 模型（33 个）
+│   │   ├── services/           # 业务服务层
+│   │   │   ├── kefu_agent.py          # 客服 Agent 编排
+│   │   │   ├── kefu_classifier.py     # 意图/情绪分类器
+│   │   │   ├── kefu_rag.py            # RAG 知识库
+│   │   │   ├── user_profile_service.py    # 5 层用户画像
+│   │   │   └── ...
+│   │   └── data/kefu_kb/       # 知识库文档（7 篇）
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
 │   ├── src/
-│   │   ├── api/           # API客户端 (9个模块)
-│   │   ├── components/    # Vue组件 (35+个)
-│   │   ├── views/         # 页面组件 (8+个)
-│   │   ├── stores/        # Pinia状态管理 (5个)
-│   │   ├── router/        # 路由配置
-│   │   ├── types/         # TypeScript类型
-│   │   └── utils/         # 工具函数
-│   ├── tests/             # 测试
-│   └── package.json       # Node依赖
-│
-├── deploy/                # 部署配置
-│   ├── docker/           # Docker配置
-│   └── nginx/            # Nginx配置
-│
-├── docs/                  # 文档
-│   ├── api/              # API文档
-│   ├── deployment/       # 部署文档
-│   └── testing/          # 测试文档
-│
-└── data/                  # 数据文件
-    ├── products/         # 产品数据
-    └── cultural/         # 文化数据
+│   │   ├── api/                # API 客户端
+│   │   ├── views/              # 页面组件
+│   │   │   ├── kefu/           #   客服聊天 & 工单
+│   │   │   ├── admin/          #   管理后台
+│   │   │   └── user/           #   用户中心
+│   │   ├── stores/             # Pinia 状态管理
+│   │   ├── router/             # 路由配置
+│   │   └── components/         # 公共组件
+│   ├── package.json
+│   └── vite.config.ts
+├── deploy/docker/              # 部署配置
+│   ├── docker-compose.yml
+│   └── init/mysql/             # 数据库初始化脚本
+├── docker-compose.dev.yml      # 开发环境
+└── README.md
 ```
 
 ---
 
-## 📚 文档
+## API 概览
 
-- [API文档](docs/api/00-overview.md) - 完整的API接口文档
-- [部署指南](docs/deployment/DEPLOYMENT.md) - 部署和运维指南
-- [开发指南](docs/development/DEVELOPMENT.md) - 开发规范和最佳实践
-- [测试报告](docs/testing/TEST_REPORT.md) - 测试覆盖和质量报告
+| 模块 | 端点前缀 | 说明 |
+|------|---------|------|
+| 认证 | `/api/v1/auth` | 登录、注册、JWT 刷新、登出 |
+| 客服 | `/api/v1/kefu` | 聊天、会话、工单、蒸馏、画像、纠正 |
+| 产品 | `/api/v1/products` | 产品 CRUD、搜索 |
+| 订单 | `/api/v1/orders` | 订单管理 |
+| 配额 | `/api/v1/quotas` | 使用量统计、套餐包 |
+| 计费 | `/api/v1/billing` | 账单、发票 |
+| 内容 | `/api/v1/content-generation` | AI 内容生成 |
+| 管理 | `/api/admin` | 用户管理、统计、AI 配额 |
+| 审计 | `/api/v1/audit-logs` | 操作日志查询、导出 |
 
----
-
-## 🔧 开发指南
-
-### 代码规范
-
-- **Python**: PEP 8 + Black格式化
-- **TypeScript**: ESLint + Prettier
-- **提交信息**: Conventional Commits
-
-### 测试
-
-```bash
-# 后端测试
-cd backend
-pytest tests/ -v --cov=app
-
-# 前端测试
-cd frontend
-npm run test
-npm run test:e2e
-```
-
-### 数据库迁移
-
-```bash
-# 创建迁移
-alembic revision --autogenerate -m "描述"
-
-# 执行迁移
-alembic upgrade head
-
-# 回滚迁移
-alembic downgrade -1
-```
+完整 API 文档访问：`http://localhost:8001/docs`（Swagger UI）
 
 ---
 
-## 🌟 核心特性
+## 环境变量
 
-### 性能优化
-- ✅ 数据库连接池 (20个连接)
-- ✅ Redis缓存 (80%+命中率)
-- ✅ N+1查询优化
-- ✅ 虚拟滚动列表
-- ✅ 图片懒加载和压缩
-
-### 安全特性
-- ✅ JWT认证和Token黑名单
-- ✅ 密码加密 (bcrypt)
-- ✅ CORS白名单
-- ✅ SQL注入防护
-- ✅ XSS防护
-- ✅ 操作审计日志
-
-### 可扩展性
-- ✅ 微服务架构设计
-- ✅ 可插拔的存储后端 (本地/OSS)
-- ✅ 可配置的AI服务商
-- ✅ 多租户支持 (预留)
+| 变量 | 必填 | 说明 |
+|------|------|------|
+| `DATABASE_URL` | 是 | MySQL 连接串 |
+| `REDIS_HOST` | 是 | Redis 主机地址 |
+| `SECRET_KEY` | 是 | JWT 签名密钥（生产环境必须修改） |
+| `DEEPSEEK_API_KEY` | 否 | DeepSeek API 密钥（LLM 智能回答） |
+| `DEEPSEEK_API_BASE` | 否 | DeepSeek API 地址，默认 `https://api.deepseek.com` |
+| `JD_APP_KEY` | 否 | 京东开放平台 AppKey（商品导入） |
+| `JD_SECRET_KEY` | 否 | 京东开放平台 Secret |
 
 ---
 
-## 📊 项目状态
+## 数据库
 
-### 当前版本: v1.0.0
+平台共包含 **33+ 张数据表**，核心表如下：
 
-- ✅ 核心功能完整实现
-- ✅ API可用率 100%
-- ✅ 代码质量评分 90/100
-- ⚠️ 测试覆盖率 37% (目标80%)
-- ⚠️ 文档完整度 80%
-
-### 近期更新 (2026-01-21)
-
-- ✅ 修复P0阻塞问题 (3个)
-- ✅ 完善后端核心模块 (10个)
-- ✅ 提升代码质量和性能 (15个优化)
-- ✅ 补充邮件和短信服务
-- ✅ 生成完整API文档
+| 分组 | 表名 | 说明 |
+|------|------|------|
+| 用户 | `users`, `roles`, `permissions` | 用户体系 + RBAC |
+| 产品 | `products`, `cultural_tags` | 产品与文化标签 |
+| 订单 | `orders`, `payments`, `billing_records` | 交易链路 |
+| AI | `conversations`, `messages`, `content_records` | AI 对话与内容 |
+| 客服 | `kefu_conversations`, `kefu_messages`, `kefu_tickets` | 客服系统 |
+| 配额 | `user_quotas`, `quota_packages`, `quota_logs` | 用量计费 |
+| 运维 | `audit_logs`, `system_configs` | 审计与配置 |
 
 ---
 
-## 🤝 贡献指南
+## 安全特性
 
-欢迎贡献代码、报告问题或提出建议！
-
-1. Fork本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启Pull Request
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+- JWT 认证 + Token 黑名单（Redis）
+- bcrypt 密码加密
+- SQL 注入防护（SQLAlchemy 参数化查询）
+- CORS 白名单
+- 操作审计日志
+- 细粒度 RBAC 权限控制
 
 ---
 
-## 👥 团队
+## 致谢
 
-- **项目负责人**: [姓名]
-- **后端开发**: [团队成员]
-- **前端开发**: [团队成员]
-- **产品设计**: [团队成员]
-
----
-
-## 📞 联系我们
-
-- **项目主页**: [项目网站]
-- **问题反馈**: [GitHub Issues]
-- **邮箱**: [联系邮箱]
-- **微信**: [微信号]
+- [SKILL-kefu](https://github.com/liangdabiao/SKILL-kefu) — 智能客服系统参考架构
+- [yourself-skill](https://github.com/notdog1998/yourself-skill) — 5 层 Persona 分层模型 & 标签翻译表
+- [ex-skill](https://github.com/therealXiaomanChu/ex-skill) — Session Summary 蒸馏 & 增量 Merge & Correction 机制
+- [DeepSeek](https://www.deepseek.com) — 大语言模型 API
+- [LangChain](https://langchain.com) — AI Agent 工具链
 
 ---
 
-**⭐ 如果这个项目对你有帮助，请给我们一个Star！**
+## 许可证
+
+MIT License
