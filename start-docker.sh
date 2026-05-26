@@ -6,11 +6,11 @@ set -e
 echo "🐳 启动 Docker 部署环境..."
 echo ""
 
-# 如果根目录没有 .env，从 .env.docker 复制
-if [ ! -f .env ]; then
-    echo "📋 未找到 .env，从 .env.docker 复制..."
-    cp .env.docker .env
-    echo "   已创建 .env，请按需修改其中的密钥后重新运行"
+# 如果根目录没有 .env.docker，从模板复制
+if [ ! -f .env.docker ]; then
+    echo "📋 未找到 .env.docker，从 .env.docker.example 复制..."
+    cp .env.docker.example .env.docker
+    echo "   已创建 .env.docker，请编辑其中的密钥后重新运行"
     echo ""
 fi
 

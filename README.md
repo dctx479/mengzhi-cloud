@@ -122,8 +122,8 @@ git clone https://github.com/your-org/mengzhi-cloud.git
 cd mengzhi-cloud
 
 # 配置环境变量（可选）
-cp .env.docker .env
-# 编辑 .env，填入 DEEPSEEK_API_KEY 等
+cp .env.docker.example .env.docker
+# 编辑 .env.docker，填入 DEEPSEEK_API_KEY 等
 
 # 启动所有服务
 docker compose -f docker-compose.dev.yml up -d
