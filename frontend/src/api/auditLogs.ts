@@ -52,7 +52,20 @@ export const auditLogsApi = {
    * 返回 { data: AuditLogListResponse } 以供调用方 const { data } = await ... 使用
    */
   getAuditLogs: async (params: AuditLogQuery): Promise<{ data: AuditLogListResponse }> => {
-    const res = await _api.get<ApiResponse<BackendListResponse>>('/', { params })
+    // 将前端 camelCase 字段映射为后端 snake_case 参数
+    const backendParams: Record<string, unknown> = {
+      page: params.page,
+      page_size: params.pageSize,
+      user_id: params.userId,
+      action: params.action,
+      resource: params.resourceType,   // 后端参数名为 resource
+      resource_id: params.resourceId,  // 后端参数名为 resource_id
+      start_date: params.startTime,
+      end_date: params.endTime,
+    }
+    // 移除 undefined 值
+    Object.keys(backendParams).forEach(k => backendParams[k] === undefined && delete backendParams[k])
+    const res = await _api.get<ApiResponse<BackendListResponse>>('/', { params: backendParams })
     const inner = unwrapInner<BackendListResponse>(res)
     return {
       data: {

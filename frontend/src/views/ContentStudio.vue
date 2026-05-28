@@ -31,11 +31,6 @@
         </div>
       </el-tab-pane>
 
-      <!-- Batch Tasks Tab -->
-      <el-tab-pane name="tasks" label="批量任务">
-        <BatchTaskManager />
-      </el-tab-pane>
-
       <!-- History Tab -->
       <el-tab-pane name="history" label="历史记录">
         <HistoryPanel />
@@ -50,41 +45,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useContentGenerationStore } from '@/stores/content-generation'
+import { useProductStore } from '@/stores/product'
 import TemplateSelector from '@/components/TemplateSelector.vue'
 import ConfigPanel from '@/components/ConfigPanel.vue'
 import ResultsPanel from '@/components/ResultsPanel.vue'
-import BatchTaskManager from '@/components/BatchTaskManager.vue'
 import HistoryPanel from '@/components/HistoryPanel.vue'
 import StatisticsPanel from '@/components/StatisticsPanel.vue'
 
 const contentStore = useContentGenerationStore()
+const productStore = useProductStore()
 
 const activeTab = ref('generation')
 
 onMounted(async () => {
-  // Fetch initial data with error handling
   try {
     await Promise.all([
       contentStore.fetchTemplates().catch((err) => {
         console.error('Failed to fetch templates:', err)
       }),
-      contentStore.fetchBatchTasks().catch((err) => {
-        console.error('Failed to fetch batch tasks:', err)
-      }),
       contentStore.fetchSavedConfigs().catch((err) => {
         console.error('Failed to fetch saved configs:', err)
+      }),
+      productStore.fetchProducts().catch((err) => {
+        console.error('Failed to fetch products:', err)
       }),
     ])
   } catch (err) {
     console.error('Error during component initialization:', err)
   }
-})
-
-onUnmounted(() => {
-  // 断开 WebSocket 连接，防止组件卸载后仍有消息回调
-  contentStore.disconnectWebSocket()
 })
 </script>
 

@@ -10,7 +10,7 @@
     <el-menu
       :default-active="activeMenu"
       :collapse="collapsed"
-      active-text-color="#409eff"
+      active-text-color="#0d9668"
       router
     >
       <el-menu-item index="/">
@@ -61,7 +61,7 @@
           <el-menu-item index="/billing/invoices">发票管理</el-menu-item>
         </el-sub-menu>
 
-        <el-menu-item v-if="userStore.isAdmin" index="/enterprise/ai-config">
+        <el-menu-item v-if="userStore.isAdminOrEnterpriseAdmin" index="/enterprise/ai-config">
           <el-icon><Cpu /></el-icon>
           <template #title>AI 配置</template>
         </el-menu-item>
@@ -98,6 +98,8 @@
         <el-menu-item index="/admin/enterprises">企业管理</el-menu-item>
         <el-menu-item index="/admin/ai-media">AI 媒体生成</el-menu-item>
         <el-menu-item index="/admin/jd-import">京东商品导入</el-menu-item>
+        <el-menu-item index="/admin/taobao-import">淘宝联盟导入</el-menu-item>
+        <el-menu-item index="/admin/templates">内容模板管理</el-menu-item>
       </el-sub-menu>
     </el-menu>
   </div>
@@ -137,15 +139,15 @@ const handleCollapse = () => {
 
 <style scoped lang="scss">
 .sidebar {
-  width: 200px;
-  background: #fff;
-  border-right: 1px solid #e4e7eb;
+  width: $sidebar-width;
+  background: $color-bg-card;
+  border-right: 1px solid $color-border-light;
   transition: width 0.3s;
-  height: calc(100vh - 64px);
+  height: calc(100vh - #{$header-height});
   overflow-y: auto;
 
   &.collapsed {
-    width: 64px;
+    width: $sidebar-collapsed-width;
 
     .sidebar-header {
       .sidebar-title {
@@ -155,45 +157,58 @@ const handleCollapse = () => {
   }
 
   .sidebar-header {
-    padding: 16px;
+    padding: $spacing-md;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid #e4e7eb;
+    border-bottom: 1px solid $color-border-light;
 
     .sidebar-title {
       font-size: 14px;
       font-weight: 600;
-      color: #333;
+      color: $color-text-primary;
     }
 
     .collapse-btn {
       cursor: pointer;
-      color: #666;
+      color: $color-text-secondary;
       transition: color 0.3s;
 
       &:hover {
-        color: #409eff;
+        color: $color-primary;
       }
     }
   }
 
   :deep(.el-menu) {
     border-right: none;
-    background: #fff;
+    background: $color-bg-card;
 
     .el-menu-item,
     .el-sub-menu__title {
-      color: #606266;
+      color: $color-text-regular;
       transition: all 0.3s;
 
       &:hover {
-        background: #f0f7ff !important;
+        background: $color-primary-light !important;
       }
 
       &.is-active {
-        background: #ecf5ff !important;
-        color: #409eff !important;
+        position: relative;
+        background: $color-primary-light !important;
+        color: $color-primary !important;
+        font-weight: 500;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 8px;
+          bottom: 8px;
+          width: 3px;
+          border-radius: 0 2px 2px 0;
+          background: $color-primary;
+        }
       }
     }
   }
@@ -203,10 +218,10 @@ const handleCollapse = () => {
   .sidebar {
     position: fixed;
     left: 0;
-    top: 64px;
-    height: calc(100vh - 64px);
+    top: $header-height;
+    height: calc(100vh - #{$header-height});
     z-index: 99;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-lg;
 
     &.collapsed {
       width: 0;

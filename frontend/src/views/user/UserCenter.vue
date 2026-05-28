@@ -102,8 +102,8 @@ const pageTitles: Record<string, string> = {
 const getRoleName = (role?: string): string => {
   const roleMap: Record<string, string> = {
     user: '普通用户',
-    admin: '管理员',
-    manager: '经理',
+    admin: '系统管理员',
+    enterprise_admin: '企业管理员',
   }
   return roleMap[role || 'user'] || '用户'
 }
@@ -169,7 +169,7 @@ const handleLogout = async () => {
         margin-bottom: 12px;
 
         :deep(.el-avatar) {
-          border: 2px solid #409eff;
+          border: 2px solid $color-primary;
         }
       }
 
@@ -209,10 +209,10 @@ const handleLogout = async () => {
 
         &.is-active {
           background-color: #e6f7ff;
-          color: #409eff;
+          color: $color-primary;
 
           .el-icon {
-            color: #409eff;
+            color: $color-primary;
           }
         }
       }
@@ -250,7 +250,7 @@ const handleLogout = async () => {
 
           &:last-child span {
             font-weight: 600;
-            color: #409eff;
+            color: $color-primary;
           }
         }
       }

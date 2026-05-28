@@ -261,7 +261,8 @@ onMounted(async () => {
   max-width: 1000px;
 
   .profile-card {
-    margin-bottom: 24px;
+    margin-bottom: $spacing-lg;
+    border-radius: $radius-md;
 
     .card-header {
       display: flex;
@@ -282,25 +283,25 @@ onMounted(async () => {
       width: 100%;
 
       .el-avatar {
-        margin-bottom: 16px;
-        border: 2px solid #409eff;
+        margin-bottom: $spacing-md;
+        border: 2px solid $color-primary;
       }
 
       .profile-username {
         font-size: 18px;
         font-weight: 600;
-        color: #333;
-        margin: 0 0 4px 0;
+        color: $color-text-primary;
+        margin: 0 0 $spacing-xs 0;
       }
 
       .profile-email {
         font-size: 14px;
-        color: #999;
+        color: $color-text-secondary;
         margin: 0 0 12px 0;
       }
 
       .profile-status {
-        margin-top: 8px;
+        margin-top: $spacing-sm;
       }
     }
   }
@@ -328,9 +329,17 @@ onMounted(async () => {
   }
 
   .stats-row {
-    margin-top: 24px;
+    margin-top: $spacing-lg;
 
     .stat-card {
+      border-radius: $radius-md;
+      transition: transform 0.2s, box-shadow 0.2s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+      }
+
       :deep(.el-card__body) {
         padding: 20px;
       }
@@ -341,13 +350,13 @@ onMounted(async () => {
         .stat-value {
           font-size: 32px;
           font-weight: 600;
-          color: #409eff;
-          margin-bottom: 8px;
+          color: $color-primary;
+          margin-bottom: $spacing-sm;
         }
 
         .stat-label {
           font-size: 14px;
-          color: #909399;
+          color: $color-text-secondary;
         }
       }
     }
@@ -357,7 +366,7 @@ onMounted(async () => {
 @media (max-width: 768px) {
   .profile-page {
     .profile-left {
-      margin-bottom: 24px;
+      margin-bottom: $spacing-lg;
     }
   }
 }

@@ -11,18 +11,7 @@
       <div class="results-header">
         <h3>生成结果 ({{ contentStore.results.length }})</h3>
         <div class="result-actions">
-          <el-dropdown split-button type="primary" @command="handleExport">
-            <template #default>
-              <span icon="Download">导出全部</span>
-            </template>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="txt">导出为 TXT</el-dropdown-item>
-                <el-dropdown-item command="docx">导出为 DOCX</el-dropdown-item>
-                <el-dropdown-item command="pdf">导出为 PDF</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <el-button type="primary" icon="Download" @click="handleExportTxt">导出 TXT</el-button>
           <el-button icon="Delete" @click="handleClearAll">清空</el-button>
         </div>
       </div>
@@ -70,21 +59,9 @@
             <el-button size="small" icon="Refresh" @click="handleRegenerate(result)">
               重新生成
             </el-button>
-            <el-dropdown size="small" @command="(cmd: 'txt' | 'docx' | 'pdf') => handleExportSingle(result, cmd)">
-              <el-button size="small" icon="Download">
-                导出
-                <el-icon class="is-icon">
-                  <arrow-down />
-                </el-icon>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="txt">TXT</el-dropdown-item>
-                  <el-dropdown-item command="docx">DOCX</el-dropdown-item>
-                  <el-dropdown-item command="pdf">PDF</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+            <el-button size="small" icon="Download" @click="handleExportSingleTxt(result)">
+              导出
+            </el-button>
             <el-button
               size="small"
               type="danger"
@@ -116,7 +93,6 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useContentGenerationStore } from '@/stores/content-generation'
 import type { GenerationResult } from '@/types/content-generation'
-import { ArrowDown } from '@element-plus/icons-vue'
 
 const contentStore = useContentGenerationStore()
 
@@ -136,45 +112,30 @@ const handleRegenerate = async (result: GenerationResult) => {
       await contentStore.regenerateResult(result)
       ElMessage.success('内容已重新生成')
     })
-    .catch(() => {
-      ElMessage.info('操作已取消')
-    })
+    .catch(() => {})
 }
 
-const handleExport = async (format: 'txt' | 'docx' | 'pdf') => {
-  try {
-    // For single result export, export all results combined
-    const allContent = contentStore.results.map((r) => r.content).join('\n\n---\n\n')
-    const blob = new Blob([allContent], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `content-results.${format === 'txt' ? 'txt' : format === 'docx' ? 'docx' : 'pdf'}`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    ElMessage.success('导出成功')
-  } catch (err) {
-    ElMessage.error('导出失败')
-  }
+const downloadBlob = (content: string, filename: string) => {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }
 
-const handleExportSingle = async (result: GenerationResult, format: 'txt' | 'docx' | 'pdf') => {
-  try {
-    const blob = new Blob([result.content], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `content-${result.id.substring(0, 8)}.${format === 'txt' ? 'txt' : format === 'docx' ? 'docx' : 'pdf'}`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    ElMessage.success('导出成功')
-  } catch (err) {
-    ElMessage.error('导出失败')
-  }
+const handleExportTxt = () => {
+  const allContent = contentStore.results.map((r, i) => `#${i + 1}\n${r.content}`).join('\n\n---\n\n')
+  downloadBlob(allContent, `content-results-${Date.now()}.txt`)
+  ElMessage.success('导出成功')
+}
+
+const handleExportSingleTxt = (result: GenerationResult) => {
+  downloadBlob(result.content, `content-${result.id.substring(0, 8)}.txt`)
+  ElMessage.success('导出成功')
 }
 
 const handleClearAll = async () => {

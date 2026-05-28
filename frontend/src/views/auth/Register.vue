@@ -467,7 +467,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, $color-primary-dark 0%, $color-primary 60%, #2ec4a0 100%);
 }
 
 .register-container {
@@ -515,7 +515,7 @@ const handleSubmit = async () => {
         font-size: 12px;
 
         .link {
-          color: #409eff;
+          color: $color-primary;
           text-decoration: none;
           margin: 0 4px;
 
@@ -543,13 +543,13 @@ const handleSubmit = async () => {
     }
 
     .footer-link {
-      color: #409eff;
+      color: $color-primary;
       text-decoration: none;
       cursor: pointer;
       transition: color 0.3s;
 
       &:hover {
-        color: #66b1ff;
+        color: $color-primary-dark;
       }
     }
   }
@@ -557,7 +557,7 @@ const handleSubmit = async () => {
 
 .register-sidebar {
   flex: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, $color-primary-dark 0%, $color-primary 60%, #2ec4a0 100%);
   color: white;
   display: flex;
   align-items: center;

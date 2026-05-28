@@ -30,11 +30,11 @@ class ReconciliationScheduler:
     - 每日凌晨2点自动对账
     - 每4小时检查待处理差异
     - 每天上午9点健康检查
+    - 每20小时检查并刷新淘宝联盟 Session
     """
 
     def __init__(self):
         """初始化调度器"""
-        # 配置调度器
         jobstores = {
             'default': MemoryJobStore()
         }
@@ -44,7 +44,7 @@ class ReconciliationScheduler:
         job_defaults = {
             'coalesce': False,
             'max_instances': 1,
-            'misfire_grace_time': 300  # 5分钟容错时间
+            'misfire_grace_time': 300
         }
 
         self.scheduler = AsyncIOScheduler(
@@ -91,6 +91,18 @@ class ReconciliationScheduler:
             max_instances=1
         )
         logger.info("已添加健康检查任务: 每天上午9:00执行")
+
+        # 4. 每20小时检查并刷新淘宝联盟 Session（有效期1天，提前4小时刷新）
+        from app.tasks.taobao_token_refresh import refresh_taobao_session_if_needed
+        self.scheduler.add_job(
+            func=refresh_taobao_session_if_needed,
+            trigger=IntervalTrigger(hours=20),
+            id='taobao_session_refresh',
+            name='淘宝联盟 Session 自动刷新',
+            replace_existing=True,
+            max_instances=1,
+        )
+        logger.info("已添加淘宝 Session 刷新任务: 每20小时检查一次")
 
     def start(self):
         """启动调度器"""

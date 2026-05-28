@@ -275,10 +275,11 @@ async def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
 
 async def require_enterprise_admin(current_user: dict = Depends(get_current_user)) -> dict:
     """
-    要求企业管理员权限
+    要求企业管理员或系统管理员权限
 
-    参数:
-        current_user: 当前用户信息
+    系统管理员(admin)：无条件通过
+    企业管理员(enterprise_admin)：通过，后续端点自行校验企业归属
+    其他角色：拒绝
 
     返回:
         当前用户信息

@@ -4,7 +4,8 @@
       <!-- Logo -->
       <div class="header-logo">
         <router-link to="/" class="logo-link">
-          <span class="logo-text">AI赋能云平台</span>
+          <span class="logo-mark"></span>
+          <span class="logo-text">蒙智云</span>
         </router-link>
       </div>
 
@@ -85,58 +86,42 @@ const handleLogout = async () => {
 
 <style scoped lang="scss">
 .header {
-  background: white;
-  border-bottom: 1px solid #f0f0f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: $color-bg-card;
+  border-bottom: 1px solid $color-border-light;
+  box-shadow: $shadow-sm;
   position: sticky;
   top: 0;
   z-index: 100;
 
   .header-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 $spacing-lg;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 64px;
+    height: $header-height;
   }
 
   .header-logo {
     .logo-link {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       text-decoration: none;
       color: inherit;
 
-      .logo-image {
-        width: 32px;
-        height: 32px;
+      .logo-mark {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, $color-primary, $color-primary-dark);
+        border-radius: $radius-sm;
+        flex-shrink: 0;
       }
 
       .logo-text {
-        font-size: 16px;
-        font-weight: 600;
-        color: #333;
-      }
-    }
-  }
-
-  .header-nav {
-    flex: 1;
-    display: flex;
-    gap: 32px;
-    margin-left: 60px;
-
-    .nav-item {
-      color: #666;
-      text-decoration: none;
-      transition: color 0.3s;
-
-      &:hover,
-      &.router-link-active {
-        color: #409eff;
+        font-size: 18px;
+        font-weight: 700;
+        color: $color-primary;
+        letter-spacing: 1px;
       }
     }
   }
@@ -144,22 +129,27 @@ const handleLogout = async () => {
   .header-user {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: $spacing-md;
 
     .search-input {
       width: 240px;
+
+      :deep(.el-input__wrapper) {
+        border-radius: 20px;
+        background: $color-bg-page;
+      }
     }
 
     .user-menu {
       .user-avatar {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: $spacing-sm;
         cursor: pointer;
 
         .user-name {
           font-size: 14px;
-          color: #666;
+          color: $color-text-regular;
         }
       }
 
@@ -176,24 +166,24 @@ const handleLogout = async () => {
       a {
         text-decoration: none;
         padding: 6px 16px;
-        border-radius: 4px;
+        border-radius: 20px;
         font-size: 14px;
         transition: all 0.3s;
 
         &.btn-text {
-          color: #409eff;
+          color: $color-primary;
 
           &:hover {
-            background: #f0f9ff;
+            background: $color-primary-light;
           }
         }
 
         &.btn-primary {
-          background: #409eff;
+          background: $color-primary;
           color: white;
 
           &:hover {
-            background: #66b1ff;
+            background: $color-primary-dark;
           }
         }
       }
@@ -209,10 +199,6 @@ const handleLogout = async () => {
     }
 
     .header-logo .logo-text {
-      display: none;
-    }
-
-    .header-nav {
       display: none;
     }
 

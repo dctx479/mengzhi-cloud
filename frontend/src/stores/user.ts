@@ -20,6 +20,9 @@ export const useUserStore = defineStore('user', () => {
   const username = computed(() => user.value?.username)
   const userRole = computed(() => user.value?.role)
   const isAdmin = computed(() => user.value?.role === 'admin')
+  const isEnterpriseAdmin = computed(() => user.value?.role === 'enterprise_admin')
+  const isAdminOrEnterpriseAdmin = computed(() => user.value?.role === 'admin' || user.value?.role === 'enterprise_admin')
+  const enterpriseId = computed(() => user.value?.enterpriseId)
 
   // Helper: Restore user from localStorage if not yet restored
   const _ensureRestored = () => {
@@ -31,12 +34,11 @@ export const useUserStore = defineStore('user', () => {
 
   // Helper: strip sensitive fields before persisting to localStorage
   const _safeUserForStorage = (u: User): Partial<User> => {
-    // Only persist non-sensitive identity fields
-    const { id, username, email, role, avatar, nickname } = u as User & {
+    const { id, username, email, role, avatar, nickname, enterpriseId } = u as User & {
       avatar?: string
       nickname?: string
     }
-    return { id, username, email, role, avatar, nickname }
+    return { id, username, email, role, avatar, nickname, enterpriseId }
   }
 
   // Actions
@@ -172,6 +174,9 @@ export const useUserStore = defineStore('user', () => {
     username,
     userRole,
     isAdmin,
+    isEnterpriseAdmin,
+    isAdminOrEnterpriseAdmin,
+    enterpriseId,
     // Actions
     login,
     register,

@@ -21,16 +21,23 @@
           <el-form :model="filters" label-width="100px">
             <!-- 分类筛选 -->
             <el-form-item label="产品分类">
-              <el-tree
-                ref="treeRef"
-                :data="categoryTree"
-                :props="{ children: 'children', label: 'label' }"
-                node-key="id"
-                show-checkbox
-                :check-on-click-node="true"
-                :default-checked-keys="selectedCategories"
-                @check="handleCategoryChange"
-              />
+              <el-select
+                v-model="filters.category"
+                multiple
+                clearable
+                filterable
+                collapse-tags
+                collapse-tags-tooltip
+                placeholder="选择产品分类"
+                style="width: 100%"
+              >
+                <el-option
+                  v-for="cat in normalizedCategories"
+                  :key="cat.id"
+                  :label="cat.name"
+                  :value="cat.id"
+                />
+              </el-select>
             </el-form-item>
 
             <!-- 价格范围 -->
@@ -176,8 +183,6 @@ const emit = defineEmits<{
 }>()
 
 const isExpanded = ref(false)
-const treeRef = ref()
-const selectedCategories = ref<string[]>([])
 
 const filters = reactive<AdvancedFilters>({
   category: [],
@@ -188,16 +193,11 @@ const filters = reactive<AdvancedFilters>({
   sortBy: 'recommend',
 })
 
-// 构建分类树
-const categoryTree = computed(() => {
-  const buildTree = (items: any[]): any[] => {
-    return items.map((item) => ({
-      id: item.id,
-      label: item.name,
-      children: item.children ? buildTree(item.children) : [],
-    }))
-  }
-  return buildTree(props.categories)
+const normalizedCategories = computed(() => {
+  return props.categories.map((item: any) => {
+    if (typeof item === 'string') return { id: item, name: item }
+    return { id: item.id ?? item.name, name: item.name ?? item.id }
+  })
 })
 
 // 已激活的筛选条件标签
@@ -242,13 +242,6 @@ const hasActiveFilters = computed(() => activeFilterTags.value.length > 0)
 
 const formatPriceTooltip = (val: number) => `¥${val}`
 
-const handleCategoryChange = (_data: any, _checked: boolean, _node: any) => {
-  if (treeRef.value) {
-    selectedCategories.value = treeRef.value.getCheckedKeys() as string[]
-    filters.category = selectedCategories.value
-  }
-}
-
 const handleToggleExpand = () => {
   isExpanded.value = !isExpanded.value
 }
@@ -265,10 +258,6 @@ const handleResetFilters = () => {
   filters.culturalTags = []
   filters.certifications = []
   filters.sortBy = 'recommend'
-  selectedCategories.value = []
-  if (treeRef.value) {
-    treeRef.value.setCheckedKeys([])
-  }
   emit('update:modelValue', filters)
   emit('apply', filters)
 }
@@ -354,13 +343,6 @@ watch(
     :deep(.el-form-item__label) {
       color: #333;
       font-weight: 500;
-    }
-
-    :deep(.el-tree) {
-      background: transparent;
-      border: 1px solid #dcdfe6;
-      border-radius: 4px;
-      padding: 8px;
     }
 
     .price-input-group {

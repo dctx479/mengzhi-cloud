@@ -2,8 +2,8 @@
   <div class="home-page">
     <section class="hero-section">
       <div class="hero-content">
-        <h1>欢迎来到 AI赋能云平台</h1>
-        <p class="subtitle">智能推荐 · 云端服务 · 高效便捷</p>
+        <h1>欢迎来到 蒙智云</h1>
+        <p class="subtitle">内蒙古优质农畜产品 · AI智能推荐 · 产地直供</p>
         <div class="hero-buttons">
           <router-link to="/products">
             <el-button type="primary" size="large">浏览产品</el-button>
@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="hero-image">
-        <div class="placeholder-image">AI平台</div>
+        <div class="placeholder-image">蒙智云</div>
       </div>
     </section>
 
@@ -88,6 +88,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { useProductStore } from '@/stores/product'
 import ProductCard from '@/components/ProductCard.vue'
 
@@ -109,6 +110,7 @@ onMounted(async () => {
     hotProducts.value = products
   } catch (error) {
     console.error('Failed to load hot products:', error)
+    ElMessage.error('加载热门商品失败，请稍后重试')
   } finally {
     loading.value = false
   }
@@ -126,9 +128,9 @@ onMounted(async () => {
     justify-content: space-between;
     gap: 40px;
     margin-bottom: 60px;
-    padding: 40px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 8px;
+    padding: 40px $spacing-lg;
+    background: linear-gradient(135deg, $color-primary-dark 0%, $color-primary 60%, #2ec4a0 100%);
+    border-radius: $radius-lg;
     color: white;
 
     .hero-content {
@@ -137,19 +139,19 @@ onMounted(async () => {
       h1 {
         font-size: 40px;
         font-weight: 700;
-        margin: 0 0 16px 0;
+        margin: 0 0 $spacing-md 0;
         line-height: 1.2;
       }
 
       .subtitle {
         font-size: 18px;
-        margin: 0 0 32px 0;
+        margin: 0 0 $spacing-xl 0;
         opacity: 0.9;
       }
 
       .hero-buttons {
         display: flex;
-        gap: 16px;
+        gap: $spacing-md;
 
         a {
           text-decoration: none;
@@ -167,13 +169,16 @@ onMounted(async () => {
       .placeholder-image {
         width: 100%;
         height: 100%;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: $radius-md;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 28px;
+        font-weight: 600;
         color: rgba(255, 255, 255, 0.8);
+        letter-spacing: 4px;
+        backdrop-filter: blur(4px);
       }
     }
   }
@@ -186,34 +191,36 @@ onMounted(async () => {
       font-weight: 600;
       text-align: center;
       margin-bottom: 40px;
+      color: $color-text-primary;
     }
 
     .feature-card {
-      padding: 24px;
-      background: white;
-      border-radius: 8px;
+      padding: $spacing-lg;
+      background: $color-bg-card;
+      border-radius: $radius-md;
       text-align: center;
       transition: all 0.3s;
-      border: 1px solid #f0f0f0;
+      border: 1px solid $color-border-light;
 
       &:hover {
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        box-shadow: $shadow-lg;
         transform: translateY(-4px);
       }
 
       .feature-icon {
         font-size: 40px;
-        margin-bottom: 16px;
+        margin-bottom: $spacing-md;
       }
 
       h3 {
         font-size: 16px;
         font-weight: 600;
         margin-bottom: 12px;
+        color: $color-text-primary;
       }
 
       p {
-        color: #666;
+        color: $color-text-regular;
         font-size: 14px;
         margin: 0;
         line-height: 1.6;
@@ -227,31 +234,32 @@ onMounted(async () => {
     h2 {
       font-size: 28px;
       font-weight: 600;
-      margin-bottom: 24px;
+      margin-bottom: $spacing-lg;
+      color: $color-text-primary;
     }
 
     .section-footer {
       text-align: center;
-      margin-top: 32px;
+      margin-top: $spacing-xl;
     }
   }
 
   .cta-section {
     padding: 60px 40px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 8px;
+    background: linear-gradient(135deg, $color-primary-dark 0%, $color-primary 60%, #2ec4a0 100%);
+    border-radius: $radius-lg;
     color: white;
     text-align: center;
 
     h2 {
       font-size: 32px;
       font-weight: 600;
-      margin-bottom: 16px;
+      margin-bottom: $spacing-md;
     }
 
     p {
       font-size: 18px;
-      margin-bottom: 32px;
+      margin-bottom: $spacing-xl;
       opacity: 0.9;
     }
   }
@@ -262,7 +270,7 @@ onMounted(async () => {
     .hero-section {
       flex-direction: column;
       gap: 20px;
-      padding: 24px 12px;
+      padding: $spacing-lg $spacing-md;
       margin-bottom: 40px;
 
       .hero-content {
@@ -294,7 +302,7 @@ onMounted(async () => {
 
       h2 {
         font-size: 20px;
-        margin-bottom: 24px;
+        margin-bottom: $spacing-lg;
       }
     }
 

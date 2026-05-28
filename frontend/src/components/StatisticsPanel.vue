@@ -38,31 +38,16 @@
         </el-col>
       </el-row>
 
-      <!-- Charts -->
-      <el-row :gutter="20" class="charts-row">
-        <!-- Template Usage -->
-        <el-col :xs="24" :md="12">
-          <div class="chart-card">
-            <h4>模板使用频率</h4>
-            <div id="template-usage-chart" class="chart-container"></div>
-          </div>
-        </el-col>
-
-        <!-- Content Style Distribution -->
-        <el-col :xs="24" :md="12">
-          <div class="chart-card">
-            <h4>文案风格分布</h4>
-            <div id="style-distribution-chart" class="chart-container"></div>
-          </div>
-        </el-col>
-      </el-row>
-
-      <!-- Generation Trend -->
+      <!-- Generation Trend (7 days) -->
       <el-row :gutter="20" class="trend-row">
         <el-col :xs="24">
-          <div class="chart-card">
+          <div class="top-card">
             <h4>生成趋势（最近7天）</h4>
-            <div id="generation-trend-chart" class="chart-container" style="height: 300px"></div>
+            <el-empty v-if="stats.recent_trend.length === 0" description="暂无数据" :image-size="60" />
+            <el-table v-else :data="stats.recent_trend" stripe size="small" style="width: 100%">
+              <el-table-column prop="date" label="日期" />
+              <el-table-column prop="count" label="生成次数" width="120" align="center" />
+            </el-table>
           </div>
         </el-col>
       </el-row>
@@ -229,47 +214,8 @@ onMounted(() => {
       }
     }
 
-    .charts-row {
-      margin-bottom: 24px;
-
-      .chart-card {
-        background: #fff;
-        border-radius: 4px;
-        padding: 20px;
-        border: 1px solid #eee;
-
-        h4 {
-          margin: 0 0 12px 0;
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .chart-container {
-          height: 300px;
-          min-height: 200px;
-        }
-      }
-    }
-
-    .trend-row {
-      margin-bottom: 24px;
-
-      .chart-card {
-        background: #fff;
-        border-radius: 4px;
-        padding: 20px;
-        border: 1px solid #eee;
-
-        h4 {
-          margin: 0 0 12px 0;
-          font-size: 14px;
-          font-weight: 600;
-        }
-      }
-    }
-
-    .top-row,
-    .daily-row {
+    .trend-row,
+    .top-row {
       margin-bottom: 24px;
 
       .top-card {

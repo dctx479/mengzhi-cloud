@@ -29,7 +29,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from sqlalchemy.orm import Session
 from loguru import logger
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, require_admin
 from app.core.responses import success_response, paginated_response
 from app.services.kefu_agent import KefuAgent
 from app.services.kefu_memory import KefuMemory
@@ -86,13 +86,6 @@ class TicketUpdate(BaseModel):
 class SessionCreate(BaseModel):
     title: Optional[str] = None
     user_name: Optional[str] = None
-
-
-def _require_admin(current_user: dict = Depends(get_current_user)) -> dict:
-    """要求管理员角色"""
-    if current_user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="需要管理员权限")
-    return current_user
 
 
 # ============================================================
@@ -468,7 +461,7 @@ async def update_ticket(
 @router.get("/stats", response_model=dict)
 async def get_stats(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(_require_admin),
+    current_user: dict = Depends(require_admin),
 ):
     """获取客服统计（Admin 可见）"""
     user_id_str = current_user["user_id"]
@@ -485,7 +478,7 @@ async def get_stats(
 
 @router.post("/kb/rebuild", response_model=dict)
 async def rebuild_knowledge_base(
-    current_user: dict = Depends(_require_admin),
+    current_user: dict = Depends(require_admin),
 ):
     """重建客服知识库索引（Admin）"""
     rag = KefuKnowledgeBase()

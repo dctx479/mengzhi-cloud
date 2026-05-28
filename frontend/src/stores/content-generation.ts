@@ -2,12 +2,11 @@
  * 内容生成状态管理 Store
  */
 import { defineStore } from 'pinia'
-import { ref, computed, onScopeDispose } from 'vue'
+import { ref, computed } from 'vue'
 import type {
   ContentTemplate,
   GenerationConfig,
   GenerationResult,
-  BatchTask,
   TemplateCategory,
   SavedConfig,
 } from '@/types/content-generation'
@@ -17,6 +16,7 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   // State - Templates
   const templates = ref<ContentTemplate[]>([])
   const selectedTemplate = ref<ContentTemplate | null>(null)
+  const activeCategory = ref<string>('')  // 当前选中的分类过滤器
   const templatesLoading = ref(false)
   const templatesError = ref<string | null>(null)
 
@@ -31,6 +31,8 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     keywords: [],
     avoid_words: '',
     temperature: 0.7,
+    platform: 'general',
+    content_type: 'copy',
   })
 
   // State - Generation
@@ -39,27 +41,16 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   const progress = ref(0)
   const generationError = ref<string | null>(null)
 
-  // State - Batch Tasks
-  const batchTasks = ref<BatchTask[]>([])
-  const tasksLoading = ref(false)
-  const tasksError = ref<string | null>(null)
-  const currentTask = ref<BatchTask | null>(null)
-
   // State - Saved Configs
   const savedConfigs = ref<SavedConfig[]>([])
   const configsLoading = ref(false)
 
-  // State - WebSocket
-  let wsConnection: WebSocket | null = null
-
   // Computed
-  const selectedCategory = computed(() => {
-    return selectedTemplate.value?.category || ''
-  })
+  const selectedCategory = computed(() => activeCategory.value)
 
   const filteredTemplates = computed(() => {
-    if (!selectedTemplate.value) return templates.value
-    return templates.value.filter((t) => t.category === selectedTemplate.value?.category)
+    if (!activeCategory.value) return templates.value
+    return templates.value.filter((t) => t.category === activeCategory.value)
   })
 
   const templateCategories = computed(() => {
@@ -85,7 +76,6 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   const hasResults = computed(() => results.value.length > 0)
   const totalWordCount = computed(() => results.value.reduce((sum, r) => sum + r.word_count, 0))
 
-  // Helper function for category info
   function getCategoryInfo(category: TemplateCategory): { name: string; icon: string } {
     const map: Record<TemplateCategory, { name: string; icon: string }> = {
       product: { name: '产品文案', icon: '📝' },
@@ -117,18 +107,8 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   }
 
   const selectCategory = async (category: TemplateCategory) => {
-    templatesLoading.value = true
-    templatesError.value = null
-    try {
-      const data = await contentAPI.getTemplatesByCategory(category)
-      // FIX: Replace all templates with new category data (cleaner and prevents duplicates)
-      templates.value = data
-    } catch (err) {
-      templatesError.value = err instanceof Error ? err.message : 'Failed to fetch templates'
-      throw err
-    } finally {
-      templatesLoading.value = false
-    }
+    // 切换分类过滤器，不重新请求（模板已全部加载）
+    activeCategory.value = activeCategory.value === category ? '' : category
   }
 
   const updateConfig = (newConfig: Partial<GenerationConfig>) => {
@@ -146,12 +126,11 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   }
 
   const generateContent = async () => {
-    if (!config.value.template_id || config.value.product_ids.length === 0) {
-      generationError.value = 'Please select a template and at least one product'
+    if (config.value.product_ids.length === 0) {
+      generationError.value = '请选择至少一个产品'
       return
     }
 
-    // Prevent concurrent generation requests
     if (generating.value) return
 
     generating.value = true
@@ -165,11 +144,8 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
 
       const response = await contentAPI.generateContent(request)
 
-      // API always returns array per GenerationResponse[] type contract
-      // but add safety check for unexpected single object response
       const responseArray = Array.isArray(response) ? response : [response]
 
-      // Convert API response to GenerationResult format
       results.value = responseArray.map((r, index) => ({
         id: `result-${Date.now()}-${index}`,
         template_id: config.value.template_id,
@@ -242,86 +218,6 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     results.value = []
   }
 
-  const fetchBatchTasks = async () => {
-    tasksLoading.value = true
-    tasksError.value = null
-    try {
-      const tasks = await contentAPI.getBatchTasks()
-      batchTasks.value = tasks
-    } catch (err) {
-      tasksError.value = err instanceof Error ? err.message : 'Failed to fetch tasks'
-    } finally {
-      tasksLoading.value = false
-    }
-  }
-
-  const getBatchTask = async (taskId: string) => {
-    try {
-      const task = await contentAPI.getBatchTaskStatus(taskId)
-      currentTask.value = task
-      return task
-    } catch (err) {
-      tasksError.value = err instanceof Error ? err.message : 'Failed to fetch task'
-      throw err
-    }
-  }
-
-  const cancelBatchTask = async (taskId: string) => {
-    try {
-      await contentAPI.cancelBatchTask(taskId)
-      const task = batchTasks.value.find((t) => t.id === taskId)
-      if (task) {
-        task.status = 'cancelled'
-      }
-    } catch (err) {
-      tasksError.value = err instanceof Error ? err.message : 'Failed to cancel task'
-    }
-  }
-
-  const exportResults = async (format: 'txt' | 'docx' | 'pdf', taskId?: string) => {
-    try {
-      const id = taskId || currentTask.value?.id
-      if (!id) throw new Error('No task ID provided')
-
-      let blob: Blob | string
-      let filename: string
-
-      if (format === 'txt') {
-        blob = await contentAPI.exportResultsAsText(id)
-        filename = `content-${id}.txt`
-      } else if (format === 'docx') {
-        blob = await contentAPI.exportResultsAsDocx(id)
-        filename = `content-${id}.docx`
-      } else {
-        blob = await contentAPI.exportResultsAsPdf(id)
-        filename = `content-${id}.pdf`
-      }
-
-      // Create download link
-      if (typeof blob === 'string') {
-        const element = document.createElement('a')
-        element.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(blob)}`)
-        element.setAttribute('download', filename)
-        element.style.display = 'none'
-        document.body.appendChild(element)
-        element.click()
-        document.body.removeChild(element)
-      } else {
-        const url = URL.createObjectURL(blob)
-        const element = document.createElement('a')
-        element.setAttribute('href', url)
-        element.setAttribute('download', filename)
-        element.style.display = 'none'
-        document.body.appendChild(element)
-        element.click()
-        document.body.removeChild(element)
-        URL.revokeObjectURL(url)
-      }
-    } catch (err) {
-      generationError.value = err instanceof Error ? err.message : 'Failed to export results'
-    }
-  }
-
   const saveConfiguration = async (name: string) => {
     try {
       await contentAPI.saveConfig(name, config.value)
@@ -372,48 +268,14 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
       keywords: [],
       avoid_words: '',
       temperature: 0.7,
+      platform: 'general',
+      content_type: 'copy',
     }
     selectedTemplate.value = null
     results.value = []
     generationError.value = null
     progress.value = 0
   }
-
-  // WebSocket utilities
-  const connectWebSocket = (taskId: string, onMessage: (data: Record<string, unknown>) => void, onError: (error: Event) => void) => {
-    try {
-      wsConnection = contentAPI.createGenerationWebSocket(taskId)
-
-      wsConnection.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data as string) as Record<string, unknown>
-          onMessage(data)
-        } catch {
-          generationError.value = 'Received malformed WebSocket message'
-        }
-      }
-
-      wsConnection.onerror = onError
-
-      wsConnection.onclose = () => {
-        wsConnection = null
-      }
-    } catch (err) {
-      generationError.value = err instanceof Error ? err.message : 'Failed to connect WebSocket'
-    }
-  }
-
-  const disconnectWebSocket = () => {
-    if (wsConnection) {
-      wsConnection.close()
-      wsConnection = null
-    }
-  }
-
-  // 自动清理 WebSocket 连接
-  onScopeDispose(() => {
-    disconnectWebSocket()
-  })
 
   return {
     // State
@@ -426,10 +288,6 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     generating,
     progress,
     generationError,
-    batchTasks,
-    tasksLoading,
-    tasksError,
-    currentTask,
     savedConfigs,
     configsLoading,
 
@@ -453,16 +311,10 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     rateResult,
     deleteResult,
     clearResults,
-    fetchBatchTasks,
-    getBatchTask,
-    cancelBatchTask,
-    exportResults,
     saveConfiguration,
     fetchSavedConfigs,
     loadSavedConfig,
     deleteSavedConfig,
     resetConfig,
-    connectWebSocket,
-    disconnectWebSocket,
   }
 })

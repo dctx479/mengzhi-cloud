@@ -438,6 +438,7 @@ const loadPlans = async () => {
     currentPlan.value = plans.find((plan) => plan.is_default) || plans[0] || null
   } catch (error) {
     console.error('加载计费方案失败:', error)
+    ElMessage.error('加载计费方案失败')
   } finally {
     plansLoading.value = false
   }
@@ -462,6 +463,7 @@ const loadStatistics = async () => {
     statistics.by_mode = res.data?.by_mode ?? {}
   } catch (error) {
     console.error('加载统计数据失败:', error)
+    ElMessage.error('加载计费统计失败')
   } finally {
     statisticsLoading.value = false
   }
@@ -470,17 +472,17 @@ const loadStatistics = async () => {
 const loadRecentInvoices = async () => {
   try {
     invoicesLoading.value = true
-    const res = await http.get<BillingApiResponse<{ items?: InvoiceItem[] } | InvoiceItem[]>>('/v1/billing/invoices', {
+    const res = await http.get<BillingApiResponse<{ invoices?: InvoiceItem[]; pagination?: unknown }>>('/v1/billing/invoices', {
       params: {
         page: 1,
-        size: 5,
+        page_size: 5,
       },
     })
 
-    const invoiceData = res.data
-    recentInvoices.value = Array.isArray(invoiceData) ? invoiceData : invoiceData?.items || []
+    recentInvoices.value = res.data?.invoices || []
   } catch (error) {
     console.error('加载最近账单失败:', error)
+    ElMessage.error('加载账单失败')
   } finally {
     invoicesLoading.value = false
   }
@@ -613,11 +615,11 @@ onMounted(() => {
           gap: 16px;
           padding: 20px;
           border-radius: 8px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, $color-primary-dark 0%, $color-primary 100%);
           color: white;
 
           &.total {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, $color-primary-dark 0%, $color-primary 100%);
           }
 
           &.records {
@@ -670,7 +672,7 @@ onMounted(() => {
       }
 
       &.active {
-        border-color: #409eff;
+        border-color: $color-primary;
       }
 
       .plan-header {
@@ -710,7 +712,7 @@ onMounted(() => {
         .price-value {
           font-size: 20px;
           font-weight: 600;
-          color: #409eff;
+          color: $color-primary;
         }
       }
     }

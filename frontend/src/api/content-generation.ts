@@ -7,7 +7,6 @@ import type {
   GenerationConfig,
   GenerationRequest,
   GenerationResponse,
-  BatchTask,
   SavedConfig,
 } from '@/types/content-generation'
 
@@ -15,7 +14,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const contentAPI = axios.create({
   baseURL: `${API_BASE}/v1/content-generation`,
-  timeout: 30000,
+  timeout: 120000,
 })
 
 // 添加 token 拦截器
@@ -30,16 +29,21 @@ contentAPI.interceptors.request.use((config) => {
 // 添加响应拦截器 — 自动解包 {code, data, message} 结构
 contentAPI.interceptors.response.use(
   (response) => {
-    // 后端某些端点返回 Pydantic 模型直接，不用 success_response 包装
-    // 检查是否存在 code 和 data 字段（仅当两者都存在时才解包）
     const body = response.data
     if (body && typeof body === 'object' && 'code' in body && 'data' in body && body.code === 200) {
       return { ...response, data: body.data }
     }
-    // 否则直接返回原始 response.data（已是最终数据或 Pydantic 序列化对象）
     return response
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    if (error.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('user')
+      window.location.href = '/login'
+    }
+    return Promise.reject(error)
+  }
 )
 
 /**
@@ -73,8 +77,6 @@ export async function generateContent(request: GenerationRequest): Promise<Gener
   const response = await contentAPI.post('/generate', request)
   const inner = response.data
 
-  // Backend returns {content, length, content_type, style, platform}
-  // Map to GenerationResponse format expected by caller
   if (Array.isArray(inner)) {
     return inner.map((item: Record<string, unknown>) => ({
       id: (item.id as string) || `gen-${Date.now()}`,
@@ -88,7 +90,6 @@ export async function generateContent(request: GenerationRequest): Promise<Gener
     }))
   }
 
-  // Single result case
   return [{
     id: inner?.id || `gen-${Date.now()}`,
     content: inner?.content ?? '',
@@ -99,62 +100,6 @@ export async function generateContent(request: GenerationRequest): Promise<Gener
       platform: inner?.platform,
     }
   }]
-}
-
-/**
- * 流式生成内容 (WebSocket)
- */
-export function createGenerationWebSocket(taskId: string): WebSocket {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  const wsBaseUrl = import.meta.env.VITE_WS_BASE || `${protocol}//${window.location.host}/api`
-  return new WebSocket(`${wsBaseUrl}/v1/content-generation/stream/${taskId}`)
-}
-
-/**
- * 获取批量任务状态
- */
-export async function getBatchTaskStatus(taskId: string): Promise<BatchTask> {
-  const response = await contentAPI.get(`/tasks/${taskId}`)
-  return response.data
-}
-
-/**
- * 获取所有批量任务
- */
-export async function getBatchTasks(): Promise<BatchTask[]> {
-  const response = await contentAPI.get('/tasks')
-  return Array.isArray(response.data) ? response.data : []
-}
-
-/**
- * 取消批量任务
- */
-export async function cancelBatchTask(taskId: string): Promise<void> {
-  await contentAPI.post(`/tasks/${taskId}/cancel`)
-}
-
-/**
- * 导出结果为 TXT
- */
-export async function exportResultsAsText(taskId: string): Promise<string> {
-  const response = await contentAPI.get(`/tasks/${taskId}/export/txt`, { responseType: 'text' })
-  return response.data
-}
-
-/**
- * 导出结果为 DOCX
- */
-export async function exportResultsAsDocx(taskId: string): Promise<Blob> {
-  const response = await contentAPI.get(`/tasks/${taskId}/export/docx`, { responseType: 'blob' })
-  return response.data
-}
-
-/**
- * 导出结果为 PDF
- */
-export async function exportResultsAsPdf(taskId: string): Promise<Blob> {
-  const response = await contentAPI.get(`/tasks/${taskId}/export/pdf`, { responseType: 'blob' })
-  return response.data
 }
 
 /**
@@ -186,6 +131,53 @@ export async function getSavedConfig(configId: string): Promise<SavedConfig> {
  */
 export async function deleteSavedConfig(configId: string): Promise<void> {
   await contentAPI.delete(`/configs/${configId}`)
+}
+
+/**
+ * 创建模板（管理员）
+ */
+export async function createTemplate(data: {
+  name: string
+  description?: string
+  category: string
+  content_type: string
+  platform: string
+  system_prompt: string
+  user_prompt_template: string
+  variables?: unknown[]
+  example_output?: string
+  max_tokens?: number
+  is_active?: boolean
+}): Promise<ContentTemplate> {
+  const response = await contentAPI.post('/templates', data)
+  return response.data
+}
+
+/**
+ * 更新模板（管理员）
+ */
+export async function updateTemplate(templateId: string, data: Partial<{
+  name: string
+  description: string
+  category: string
+  content_type: string
+  platform: string
+  system_prompt: string
+  user_prompt_template: string
+  variables: unknown[]
+  example_output: string
+  max_tokens: number
+  is_active: boolean
+}>): Promise<ContentTemplate> {
+  const response = await contentAPI.put(`/templates/${templateId}`, data)
+  return response.data
+}
+
+/**
+ * 删除模板（管理员）
+ */
+export async function deleteTemplate(templateId: string): Promise<void> {
+  await contentAPI.delete(`/templates/${templateId}`)
 }
 
 /**

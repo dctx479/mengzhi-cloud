@@ -16,22 +16,119 @@
       class="mb-4"
     />
     <el-alert
-      v-else-if="statusLoaded && apiConfigured"
-      :title="`API 已配置 (AppKey: ${appKeyPrefix})`"
+      v-else-if="statusLoaded && apiConfigured && !hasAccessToken"
+      :title="`AppKey 已配置 (${appKeyPrefix}) — 缺少 AccessToken`"
+      type="warning"
+      description="京东联盟接口需要 access_token 才能调用。请在下方填入 AccessToken。"
+      :closable="false"
+      show-icon
+      class="mb-4"
+    />
+    <el-alert
+      v-else-if="statusLoaded && apiConfigured && hasAccessToken"
+      :title="`API 已就绪 (AppKey: ${appKeyPrefix})`"
       type="success"
       :closable="false"
       show-icon
       class="mb-4"
     />
     <el-alert
-      v-if="statusLoaded && apiConfigured"
+      v-if="statusLoaded && apiConfigured && apiNote"
       title="权限说明"
       type="info"
-      :description="apiNote || '商品搜索/导入功能需在京东联盟后台申请「商品查询」高级接口权限。'"
+      :description="apiNote"
       :closable="false"
       show-icon
       class="mb-4"
     />
+
+    <!-- AccessToken 配置卡片 -->
+    <el-card v-if="statusLoaded && apiConfigured" shadow="never" class="mb-4">
+      <template #header>
+        <div class="card-header-row">
+          <span>AccessToken 配置</span>
+          <el-tag v-if="hasAccessToken" type="success" size="small">
+            已配置（{{ tokenSource === 'db' ? '数据库' : '.env' }}）
+          </el-tag>
+          <el-tag v-else-if="tokenExpired" type="danger" size="small">已过期</el-tag>
+          <el-tag v-else type="warning" size="small">未配置</el-tag>
+        </div>
+      </template>
+
+      <!-- 当前 Token 信息 -->
+      <div v-if="tokenMasked || tokenExpiresAt" class="token-info mb-4">
+        <div v-if="tokenMasked" class="token-row">
+          <span class="token-label">当前 Token：</span>
+          <el-tag type="info">{{ tokenMasked }}</el-tag>
+        </div>
+        <div v-if="tokenExpiresAt" class="token-row mt-2">
+          <span class="token-label">过期时间：</span>
+          <el-tag :type="tokenExpired ? 'danger' : 'success'">{{ formatExpiry(tokenExpiresAt) }}</el-tag>
+        </div>
+      </div>
+
+      <!-- OAuth2 授权区域 -->
+      <div class="oauth-actions">
+        <el-button
+          type="primary"
+          :loading="authorizing"
+          :disabled="!hasRedirectUri"
+          @click="handleOAuthAuthorize"
+        >
+          京东 OAuth2 授权
+        </el-button>
+        <el-button
+          v-if="hasAccessToken"
+          :loading="refreshing"
+          @click="handleRefreshToken"
+        >
+          刷新 Token
+        </el-button>
+        <el-button link @click="showManualInput = !showManualInput">
+          {{ showManualInput ? '收起' : '手动填入（备用）' }}
+        </el-button>
+      </div>
+
+      <el-alert
+        v-if="!hasRedirectUri"
+        type="warning"
+        :closable="false"
+        show-icon
+        class="mt-3"
+        title="OAuth2 回调地址未配置"
+        description="请在后端 .env 中设置 JD_OAUTH_REDIRECT_URI，例如: http://yourdomain.com/api/v1/jd/oauth/callback"
+      />
+
+      <!-- 手动填入（备用） -->
+      <el-collapse-transition>
+        <div v-if="showManualInput" class="manual-input mt-4">
+          <el-divider content-position="left">手动填入（备用）</el-divider>
+          <el-form :model="tokenForm" label-width="120px" @submit.prevent="handleSaveToken">
+            <el-form-item label="AccessToken">
+              <el-input
+                v-model="tokenForm.value"
+                type="password"
+                show-password
+                placeholder="粘贴 AccessToken"
+                clearable
+                style="width: 420px"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-button
+                type="primary"
+                :loading="savingToken"
+                :disabled="!tokenForm.value.trim()"
+                @click="handleSaveToken"
+              >
+                保存
+              </el-button>
+              <span class="form-hint ml-2">保存后立即生效，无需重启服务</span>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-collapse-transition>
+    </el-card>
 
     <el-tabs v-model="activeTab">
       <!-- 批量导入 -->
@@ -106,6 +203,15 @@
 
           <template v-else-if="searchDone">
             <el-alert
+              v-if="searchError"
+              :title="searchError"
+              type="error"
+              show-icon
+              :closable="false"
+              class="mt-4"
+            />
+
+            <el-alert
               v-if="searchWarning"
               :title="searchWarning"
               type="warning"
@@ -132,7 +238,7 @@
               </div>
             </div>
 
-            <el-empty v-else description="未找到相关商品" class="mt-4" />
+            <el-empty v-else-if="!searchError" description="未找到相关商品" class="mt-4" />
           </template>
 
           <div v-if="searchTotal > 0" class="pagination-container mt-4">
@@ -151,17 +257,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getJdStatus, importFromJd, searchJdGoods, type JdGoodsItem } from '@/api/jdImport'
+import {
+  getJdStatus, getJdConfig, updateJdAccessToken, importFromJd, searchJdGoods,
+  getJdOAuthUrl, refreshJdToken,
+  type JdGoodsItem,
+} from '@/api/jdImport'
 
 const activeTab = ref('import')
 
 // API 状态
 const statusLoaded = ref(false)
 const apiConfigured = ref(false)
+const hasAccessToken = ref(false)
+const tokenExpired = ref(false)
+const tokenSource = ref<'db' | 'env' | null>(null)
+const tokenMasked = ref<string | null>(null)
+const tokenExpiresAt = ref<string | null>(null)
 const appKeyPrefix = ref<string | null>(null)
 const apiNote = ref<string | null>(null)
+const hasRedirectUri = ref(false)
+
+// AccessToken 配置
+const showManualInput = ref(false)
+const tokenForm = ref({ value: '' })
+const savingToken = ref(false)
+const authorizing = ref(false)
+const refreshing = ref(false)
 
 // 批量导入
 const importing = ref(false)
@@ -174,22 +297,100 @@ const searchDone = ref(false)
 const searchKeyword = ref('')
 const searchResults = ref<JdGoodsItem[]>([])
 const searchWarning = ref<string | null>(null)
+const searchError = ref<string | null>(null)
 const searchTotal = ref(0)
 const searchPage = ref(1)
 const searchPageSize = 20
 
-onMounted(async () => {
+const formatExpiry = (iso: string) => {
+  try {
+    return new Date(iso).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })
+  } catch {
+    return iso
+  }
+}
+
+const loadStatus = async () => {
   try {
     const status = await getJdStatus()
     apiConfigured.value = status.configured
+    hasAccessToken.value = status.has_access_token
+    tokenExpired.value = status.token_expired ?? false
+    tokenSource.value = status.token_source
     appKeyPrefix.value = status.app_key_prefix
     apiNote.value = status.note ?? null
+    hasRedirectUri.value = status.has_redirect_uri ?? false
+    if (status.configured) {
+      const cfg = await getJdConfig()
+      tokenMasked.value = cfg.token_masked
+      tokenExpiresAt.value = cfg.expires_at
+    }
   } catch {
     // 非管理员或网络错误，静默处理
   } finally {
     statusLoaded.value = true
   }
+}
+
+onMounted(() => {
+  loadStatus()
+  window.addEventListener('message', onOAuthMessage)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('message', onOAuthMessage)
+})
+
+const onOAuthMessage = (event: MessageEvent) => {
+  if (event.data?.type === 'jd_oauth_success') {
+    ElMessage.success('京东授权成功，正在刷新状态...')
+    loadStatus()
+  } else if (event.data?.type === 'jd_oauth_error') {
+    ElMessage.error('京东授权失败，请重试')
+  }
+}
+
+const handleOAuthAuthorize = async () => {
+  authorizing.value = true
+  try {
+    const { auth_url } = await getJdOAuthUrl()
+    window.open(auth_url, 'jd_oauth', 'width=900,height=650,scrollbars=yes')
+  } catch (error: any) {
+    ElMessage.error(error?.message || '获取授权链接失败')
+  } finally {
+    authorizing.value = false
+  }
+}
+
+const handleRefreshToken = async () => {
+  refreshing.value = true
+  try {
+    const res = await refreshJdToken()
+    ElMessage.success(`Token 刷新成功，新过期时间: ${formatExpiry(res.expires_at)}`)
+    await loadStatus()
+  } catch (error: any) {
+    ElMessage.error(error?.message || 'Token 刷新失败')
+  } finally {
+    refreshing.value = false
+  }
+}
+
+const handleSaveToken = async () => {
+  const token = tokenForm.value.value.trim()
+  if (!token) return
+  savingToken.value = true
+  try {
+    await updateJdAccessToken(token)
+    ElMessage.success('AccessToken 已保存，正在刷新状态...')
+    tokenForm.value.value = ''
+    showManualInput.value = false
+    await loadStatus()
+  } catch (error: any) {
+    ElMessage.error(error?.message || '保存失败')
+  } finally {
+    savingToken.value = false
+  }
+}
 
 const handleImport = async () => {
   if (!importForm.value.keyword.trim()) {
@@ -219,6 +420,7 @@ const handleSearch = async (page = searchPage.value) => {
   }
   searching.value = true
   searchDone.value = false
+  searchError.value = null
   searchPage.value = page
   try {
     const res = await searchJdGoods(searchKeyword.value.trim(), page, searchPageSize)
@@ -226,8 +428,10 @@ const handleSearch = async (page = searchPage.value) => {
     searchTotal.value = res.total
     searchWarning.value = res.warning ?? null
   } catch (error: any) {
-    ElMessage.error(error?.response?.data?.detail || error?.message || '搜索失败')
+    const detail = error?.response?.data?.detail || error?.message || '搜索失败'
+    searchError.value = detail
     searchResults.value = []
+    searchTotal.value = 0
   } finally {
     searching.value = false
     searchDone.value = true
@@ -248,6 +452,44 @@ const handleSearch = async (page = searchPage.value) => {
   .mb-4 { margin-bottom: 16px; }
   .mt-4 { margin-top: 16px; }
   .ml-2 { margin-left: 8px; }
+
+  .card-header-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .token-current {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    .token-label { font-size: 13px; color: #606266; }
+  }
+
+  .token-info {
+    .token-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .token-label { font-size: 13px; color: #606266; }
+  }
+
+  .oauth-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .manual-input {
+    background: #fafafa;
+    border-radius: 6px;
+    padding: 16px;
+  }
+
+  .mt-2 { margin-top: 8px; }
+  .mt-3 { margin-top: 12px; }
 
   .form-hint {
     margin-left: 10px;

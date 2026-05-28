@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   getTickets,
@@ -20,6 +20,10 @@ const loading = ref(false)
 const dialogVisible = ref(false)
 const createForm = ref({ title: '', description: '', category: 'inquiry', priority: 'normal' })
 const detailTicket = ref<KefuTicket | null>(null)
+const showDetail = computed({
+  get: () => detailTicket.value !== null,
+  set: (val: boolean) => { if (!val) detailTicket.value = null },
+})
 const filterStatus = ref('')
 
 const statusMap: Record<string, string> = {
@@ -217,7 +221,7 @@ onMounted(loadTickets)
     </el-dialog>
 
     <!-- 工单详情对话框 -->
-    <el-dialog v-model="detailTicket ? true : false" :title="detailTicket?.title" width="560px" @close="detailTicket = null">
+    <el-dialog v-model="showDetail" :title="detailTicket?.title" width="560px" @close="detailTicket = null">
       <template #default>
         <div v-if="detailTicket">
           <div class="detail-meta">

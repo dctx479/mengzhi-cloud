@@ -31,6 +31,7 @@ from .message import Message, MessageRole
 # 内容生成相关模型
 from .content_record import ContentRecord, Platform, Style, LengthType, RecordStatus
 from .generation_template import GenerationTemplate, TemplateContentType, TemplatePlatform
+from .saved_config import SavedConfig
 
 # 配额模型
 from .user_quota import UserQuota, QuotaType
@@ -157,6 +158,7 @@ __all__ = [
     "GenerationTemplate",
     "TemplateContentType",
     "TemplatePlatform",
+    "SavedConfig",
     # 配额
     "UserQuota",
     "QuotaType",

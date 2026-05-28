@@ -131,10 +131,10 @@ export interface KefuStats {
 // API Functions
 // ============================================================
 
-// 聊天
+// 聊天（/chat 使用 response_model=ChatResponse，FastAPI 直接返回，无 success_response 包装）
 export async function sendChat(request: KefuChatRequest): Promise<KefuChatResponse> {
   const res = await http.post<KefuChatResponse>(`${BASE}/chat`, request)
-  return (res as unknown as { data: KefuChatResponse }).data ?? res as unknown as KefuChatResponse
+  return res as unknown as KefuChatResponse
 }
 
 // 流式聊天
@@ -145,14 +145,24 @@ export async function sendChatStream(
   onDone?: () => void
 ): Promise<void> {
   const token = localStorage.getItem('token')
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api'}${BASE}/chat/stream`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify(request),
   })
+
+  if (!response.ok) {
+    let errorMessage = `Stream request failed: ${response.status}`
+    try {
+      const errorBody = await response.json()
+      errorMessage = errorBody.message || errorBody.detail || errorMessage
+    } catch { /* non-JSON body */ }
+    throw new Error(errorMessage)
+  }
 
   const reader = response.body?.getReader()
   if (!reader) return

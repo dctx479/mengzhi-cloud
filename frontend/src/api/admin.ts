@@ -98,6 +98,10 @@ export const adminApi = {
     const inner = unwrapAdmin<ListResponse<Enterprise>>(res)
     return { items: inner?.items || [], total: inner?.total || 0 }
   },
+  createEnterprise: async (data: Partial<Enterprise>) => {
+    const res = await api.post<APIResponseWrapper<Enterprise>>('/enterprises', data)
+    return unwrapAdmin<Enterprise>(res)
+  },
   updateEnterprise: async (id: number, data: Partial<Enterprise>) => {
     const res = await api.patch<APIResponseWrapper<Enterprise>>(`/enterprises/${id}`, data)
     return unwrapAdmin<Enterprise>(res)

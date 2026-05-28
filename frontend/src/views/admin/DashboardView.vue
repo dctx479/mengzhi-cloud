@@ -88,7 +88,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .dashboard {
   padding: 20px;
 }
@@ -100,7 +100,7 @@ onUnmounted(() => {
 .stat-value {
   font-size: 32px;
   font-weight: bold;
-  color: #409eff;
+  color: $color-primary;
 }
 
 .stat-label {

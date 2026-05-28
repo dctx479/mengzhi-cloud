@@ -102,11 +102,13 @@ def _safe_config_dict(config) -> dict:
 
 
 def check_enterprise_admin(user_id: str, enterprise_id: int, db: Session) -> bool:
-    """检查用户是否为企业管理员"""
+    """检查用户是否为企业管理员（系统管理员对任何企业都有权限）"""
     user = db.query(User).filter(User.user_uuid == user_id).first()
     if not user:
         return False
-    return user.role in [UserRole.ADMIN, UserRole.ENTERPRISE_ADMIN] and user.enterprise_id == enterprise_id
+    if user.role == UserRole.ADMIN:
+        return True
+    return user.role == UserRole.ENTERPRISE_ADMIN and user.enterprise_id == enterprise_id
 
 
 @router.get("/enterprises/{enterprise_id}/ai-configs")

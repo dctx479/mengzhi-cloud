@@ -6,7 +6,6 @@ import { ElMessage } from 'element-plus'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
-// 因响应拦截器自动解包 response.data，使用精确类型覆盖 AxiosInstance
 interface TypedHttp {
   get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
   post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
@@ -15,16 +14,14 @@ interface TypedHttp {
   delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
 }
 
-// 创建axios实例
 const _http = axios.create({
   baseURL: API_BASE,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// 请求拦截器
 _http.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -36,32 +33,68 @@ _http.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// 响应拦截器 — 自动解包 response.data
+let isRefreshing = false
+let pendingRequests: Array<(token: string) => void> = []
+
 _http.interceptors.response.use(
   (response: AxiosResponse) => response.data,
-  (error) => {
-    const message = error.response?.data?.message || error.message || '请求失败'
+  async (error) => {
+    const originalRequest = error.config
 
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          pendingRequests.push((newToken: string) => {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`
+            resolve(_http(originalRequest))
+          })
+        })
+      }
+
+      originalRequest._retry = true
+      isRefreshing = true
+
+      try {
+        const { refreshAccessToken } = await import('@/api/auth')
+        const newToken = await refreshAccessToken()
+        if (newToken) {
+          pendingRequests.forEach((cb) => cb(newToken))
+          pendingRequests = []
+          originalRequest.headers.Authorization = `Bearer ${newToken}`
+          return _http(originalRequest)
+        }
+      } catch {
+        // refresh failed
+      } finally {
+        isRefreshing = false
+        pendingRequests = []
+      }
+
       localStorage.removeItem('token')
+      localStorage.removeItem('refresh_token')
       localStorage.removeItem('user')
-      // 仅当当前不在登录页时才跳转，避免循环重定向
       if (!window.location.pathname.startsWith('/login')) {
         window.location.href = '/login'
       }
     } else if (error.response?.status === 403) {
-      ElMessage.error('没有权限访问')
+      // 403 可能是业务权限不足（如第三方 API 权限），由调用方通过 error.response.data.detail 处理
+      // 只在没有具体 detail 时才弹通用提示，避免覆盖业务错误信息
+      const detail = error.response?.data?.detail
+      if (!detail) {
+        ElMessage.error('没有权限访问')
+      }
     } else if (error.response?.status >= 500) {
       ElMessage.error('服务器错误，请稍后重试')
     } else {
+      const message = error.response?.data?.message || error.message || '请求失败'
       ElMessage.error(message)
     }
 
+    const message = error.response?.data?.message || error.message || '请求失败'
     return Promise.reject(new Error(message))
   }
 )
 
-// 以正确类型导出，使调用者无需手动 .data 解包
 const http = _http as unknown as TypedHttp
 
 export default http

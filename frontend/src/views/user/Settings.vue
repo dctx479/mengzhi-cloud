@@ -141,8 +141,8 @@ const loadSettings = async () => {
     const data = await getSettings()
     settings.value = data
   } catch (error) {
-    // 如果获取失败，使用默认设置
     console.error('加载设置失败，使用默认值:', error)
+    ElMessage.warning('设置加载失败，当前显示默认值')
     settings.value = { ...defaultSettings }
   }
 }
@@ -188,8 +188,14 @@ const handleClearCache = async () => {
       type: 'warning',
     })
 
+    const authKeys = ['token', 'refresh_token', 'user']
+    const savedAuth: Record<string, string | null> = {}
+    authKeys.forEach(k => { savedAuth[k] = localStorage.getItem(k) })
+
     localStorage.clear()
     sessionStorage.clear()
+
+    authKeys.forEach(k => { if (savedAuth[k]) localStorage.setItem(k, savedAuth[k]!) })
 
     ElMessage.success('缓存已清空，页面将刷新')
     setTimeout(() => {
@@ -270,20 +276,20 @@ onMounted(() => {
 
   .divider-title {
     font-weight: 600;
-    color: #333;
+    color: $color-text-primary;
   }
 
   .form-hint {
     display: block;
     margin-top: 8px;
     font-size: 12px;
-    color: #909399;
+    color: $color-text-secondary;
     line-height: 1.5;
   }
 
   .advanced-section {
-    background-color: #fafafa;
-    border-color: #f0f0f0;
+    background-color: $color-bg-page;
+    border-color: $color-border-light;
 
     .card-header {
       font-size: 16px;

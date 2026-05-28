@@ -389,7 +389,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .audit-stats {
   width: 100%;
 }
@@ -421,7 +421,7 @@ onBeforeUnmount(() => {
 }
 
 .stat-icon.total {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, $color-primary-dark 0%, $color-primary 100%);
 }
 
 .stat-icon.success {
@@ -433,7 +433,7 @@ onBeforeUnmount(() => {
 }
 
 .stat-icon.users {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  background: linear-gradient(135deg, $color-primary 0%, #3ab585 100%);
 }
 
 .stat-info {

@@ -295,7 +295,7 @@ onUnmounted(() => {
 
           &:hover,
           &.active {
-            border-color: #409eff;
+            border-color: $color-primary;
           }
         }
       }

@@ -104,6 +104,7 @@ async def list_quotas(
     enterprise_id: Optional[int] = Query(None, description="企业ID"),
     user_id: Optional[int] = Query(None, description="用户ID"),
     resource_type: Optional[str] = Query(None, description="资源类型"),
+    type: Optional[str] = Query(None, description="资源类型别名（前端兼容）"),
     period_type: Optional[str] = Query(None, description="周期类型"),
     is_active: Optional[bool] = Query(None, description="是否启用"),
     page: int = Query(1, ge=1, description="页码"),
@@ -120,6 +121,10 @@ async def list_quotas(
     - 普通用户：只能查询自己的配额
     """
     service = QuotaService(db)
+
+    # type 是 resource_type 的前端别名
+    if not resource_type and type:
+        resource_type = type
 
     # 权限检查
     if current_user["role"] != "admin":

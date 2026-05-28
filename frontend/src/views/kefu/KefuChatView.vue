@@ -81,6 +81,7 @@ async function loadSessions() {
     sessions.value = data.sessions || []
   } catch (e) {
     console.error('加载会话列表失败', e)
+    ElMessage.error('加载客服会话失败')
   }
 }
 
@@ -349,7 +350,7 @@ const messages = computed(() => currentSessionMessages.value)
                 工单 #{{ msg.ticketId?.slice(0, 8) }}
               </el-tag>
             </div>
-            <div class="message-content" v-html="msg.content.replace(/\n/g, '<br>')" />
+            <div class="message-content"><template v-for="(line, idx) in msg.content.split('\n')" :key="idx"><br v-if="idx > 0" />{{ line }}</template></div>
             <div class="message-feedback" v-if="msg.role === 'agent' && !loading && !streaming">
               <el-button link size="small" @click="openCorrectionDialog(msg)">
                 回答不准？反馈

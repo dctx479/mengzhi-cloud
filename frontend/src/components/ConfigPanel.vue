@@ -44,8 +44,32 @@
           <el-radio label="professional">专业</el-radio>
           <el-radio label="casual">轻松</el-radio>
           <el-radio label="emotional">感性</el-radio>
-          <el-radio label="creative">创意</el-radio>
+          <el-radio label="humorous">幽默</el-radio>
+          <el-radio label="formal">正式</el-radio>
         </el-radio-group>
+      </el-form-item>
+
+      <!-- Target Platform -->
+      <el-form-item label="目标平台">
+        <el-select v-model="contentStore.config.platform" style="width: 100%">
+          <el-option label="通用" value="general" />
+          <el-option label="抖音" value="douyin" />
+          <el-option label="小红书" value="xiaohongshu" />
+          <el-option label="微信公众号" value="wechat" />
+          <el-option label="微博" value="weibo" />
+          <el-option label="快手" value="kuaishou" />
+        </el-select>
+      </el-form-item>
+
+      <!-- Content Type -->
+      <el-form-item label="内容类型">
+        <el-select v-model="contentStore.config.content_type" style="width: 100%">
+          <el-option label="营销文案" value="copy" />
+          <el-option label="直播脚本" value="script" />
+          <el-option label="短视频文案" value="video_copy" />
+          <el-option label="广告标语" value="slogan" />
+          <el-option label="品牌故事" value="story" />
+        </el-select>
       </el-form-item>
 
       <!-- Word Count -->
@@ -148,7 +172,7 @@
             size="large"
             icon="MagicStick"
             :loading="contentStore.generating"
-            :disabled="contentStore.config.product_ids.length === 0 || !contentStore.selectedTemplate"
+            :disabled="contentStore.config.product_ids.length === 0"
             @click="handleGenerate"
             style="flex: 1"
           >
@@ -239,11 +263,6 @@ const handleKeywordConfirm = () => {
 }
 
 const handleGenerate = async () => {
-  if (!contentStore.selectedTemplate) {
-    ElMessage.error('请先选择模板')
-    return
-  }
-
   if (contentStore.config.product_ids.length === 0) {
     ElMessage.error('请至少选择一个产品')
     return

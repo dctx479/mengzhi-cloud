@@ -134,7 +134,7 @@
                 <el-option label="通义万相" value="tongyi_wanxiang" />
                 <el-option label="文心一格" value="wenxin_yige" />
                 <el-option label="讯飞星火绘画" value="spark_drawing" />
-                <el-option label="剪映开放平台" value="jianying" />
+                <el-option label="火山引擎" value="volcengine" />
                 <el-option label="腾讯智影" value="tencent_zhiying" />
               </el-select>
             </el-form-item>
@@ -468,7 +468,7 @@ const getTaskTagType = (status: MediaTaskStatus) => {
 onMounted(loadData)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .ai-media-view {
   padding: 20px;
 }
@@ -493,7 +493,7 @@ onMounted(loadData)
 .stat-value {
   font-size: 30px;
   font-weight: bold;
-  color: #409eff;
+  color: $color-primary;
 }
 
 .stat-label {

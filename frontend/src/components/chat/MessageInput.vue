@@ -403,7 +403,7 @@ onBeforeUnmount(() => {
       color: #999;
 
       .files-count {
-        color: #409eff;
+        color: $color-primary;
         font-weight: 500;
       }
     }

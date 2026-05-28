@@ -19,7 +19,16 @@
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="username" label="用户名" />
         <el-table-column prop="email" label="邮箱" />
-        <el-table-column prop="role" label="角色" />
+        <el-table-column prop="role" label="角色">
+          <template #default="{ row }">
+            <el-tag
+              :type="row.role === 'admin' ? 'danger' : row.role === 'enterprise_admin' ? '' : 'info'"
+              size="small"
+            >
+              {{ row.role === 'admin' ? '系统管理员' : row.role === 'enterprise_admin' ? '企业管理员' : '普通用户' }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="status" label="状态">
           <template #default="{ row }">
             <el-tag :type="row.status === 'active' ? 'success' : 'danger'">
@@ -66,8 +75,9 @@
         </el-form-item>
         <el-form-item label="角色">
           <el-select v-model="editForm.role">
-            <el-option label="管理员" value="admin" />
-            <el-option label="用户" value="user" />
+            <el-option label="系统管理员" value="admin" />
+            <el-option label="企业管理员" value="enterprise_admin" />
+            <el-option label="普通用户" value="user" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">

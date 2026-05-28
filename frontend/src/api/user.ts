@@ -78,6 +78,36 @@ export async function getOrderDetail(orderId: string): Promise<Order> {
   return extractData(res) ?? ({} as Order)
 }
 
+export interface QuotaPackage {
+  id: number
+  name: string
+  package_type: string
+  period: string
+  price: string
+  chat_quota: number
+  generation_quota: number
+  storage_quota_mb: number
+  is_active: boolean
+  is_recommended: boolean
+  sort_order: number
+}
+
+/**
+ * 获取配额套餐列表
+ */
+export async function getQuotaPackages(): Promise<QuotaPackage[]> {
+  try {
+    const res = await http.get<ApiResponse<{ items: QuotaPackage[]; total: number }>>(
+      '/v1/quota-packages',
+      { params: { is_active: true } }
+    )
+    const inner = extractData(res) ?? {}
+    return inner.items || []
+  } catch {
+    return []
+  }
+}
+
 /**
  * 创建订单（从套餐购买）
  */
@@ -120,22 +150,70 @@ export async function getQuota(): Promise<QuotaData> {
 
 /**
  * 获取配额历史记录
+ * 流程：先查配额列表获取 quota_id，再查对应的使用记录
+ * 后端使用记录字段：{id, quota_id, amount, operation, resource_id, resource_type, used_at}
+ * 前端期望字段：{id, type, amount, created_at, description}
  */
 export async function getQuotaHistory(params: {
   page?: number
   page_size?: number
   type?: string
 }): Promise<QuotaHistoryResponse> {
-  const res = await http.get<ApiResponse<{ items: QuotaHistory[]; total: number; page: number; page_size: number }>>(
+  // 前端 type 值映射到后端 QuotaResourceType 枚举值
+  const typeMap: Record<string, string> = {
+    chat: 'message',
+    content: 'generation',
+    storage: 'storage',
+  }
+  // 反向映射：后端 resource_type → 前端 type
+  const reverseTypeMap: Record<string, 'chat' | 'content' | 'storage'> = {
+    message: 'chat',
+    generation: 'content',
+    storage: 'storage',
+    token: 'chat',
+    api_call: 'content',
+  }
+
+  // 第一步：查配额列表，获取所有 quota_id（按 type 过滤）
+  const quotaParams: Record<string, unknown> = {}
+  if (params.type) {
+    quotaParams.resource_type = typeMap[params.type] ?? params.type
+  }
+  const quotaRes = await http.get<ApiResponse<{ items: Array<{ id: number; resource_type: string }>; total: number }>>(
     '/v1/quotas',
-    { params }
+    { params: quotaParams }
   )
-  const inner = extractData(res) ?? {}
+  const quotaInner = extractData(quotaRes) ?? {}
+  const quotas = quotaInner.items || []
+
+  if (quotas.length === 0) {
+    return { items: [], total: 0, page: params.page || 1, page_size: params.page_size || 20 }
+  }
+
+  // 第二步：查第一个匹配配额的使用记录（通常用户只有一个同类型配额）
+  const quotaId = quotas[0].id
+  const quotaResourceType = quotas[0].resource_type
+
+  const usageRes = await http.get<ApiResponse<{ items: Array<{ id: number; quota_id: number; amount: number; operation: string | null; resource_id: string | null; resource_type: string | null; metadata: string | null; used_at: string; created_at: string }>; total: number; page: number; page_size: number }>>(
+    `/v1/quotas/${quotaId}/usage`,
+    { params: { page: params.page, page_size: params.page_size } }
+  )
+  const usageInner = extractData(usageRes) ?? {}
+
+  // 字段映射：后端使用记录 → 前端 QuotaHistory
+  const items: QuotaHistory[] = (usageInner.items || []).map((record) => ({
+    id: String(record.id),
+    type: reverseTypeMap[quotaResourceType] ?? 'chat',
+    amount: record.amount,
+    created_at: record.used_at || record.created_at,
+    description: record.operation || '使用记录',
+  }))
+
   return {
-    items: inner.items || [],
-    total: inner.total || 0,
-    page: inner.page || 1,
-    page_size: inner.page_size || params.page_size || 20,
+    items,
+    total: usageInner.total || 0,
+    page: usageInner.page || params.page || 1,
+    page_size: usageInner.page_size || params.page_size || 20,
   }
 }
 

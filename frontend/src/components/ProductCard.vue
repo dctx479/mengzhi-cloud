@@ -142,7 +142,7 @@ const handleToggleCompare = () => {
 
   &:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    border-color: #409eff;
+    border-color: $color-primary;
 
     .card-overlay {
       display: flex;
@@ -236,7 +236,7 @@ const handleToggleCompare = () => {
       transition: color 0.3s;
 
       &:hover {
-        color: #409eff;
+        color: $color-primary;
       }
     }
 

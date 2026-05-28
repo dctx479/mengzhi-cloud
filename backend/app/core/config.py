@@ -378,8 +378,25 @@ class Settings(BaseSettings):
 
     # 京东联盟开放平台配置
     # 申请地址: https://union.jd.com → 开发者中心 → 创建应用
+    # access_token 通过 OAuth2 授权码流程获取，有效期约30天
     JD_APP_KEY: Optional[str] = None
     JD_SECRET_KEY: Optional[str] = None
+    JD_ACCESS_TOKEN: Optional[str] = None
+    # OAuth2 回调地址，需在京东开放平台应用设置中填写
+    # 示例: http://yourdomain.com/api/v1/jd/oauth/callback
+    JD_OAUTH_REDIRECT_URI: Optional[str] = None
+
+    # 淘宝联盟开放平台配置
+    # 申请地址: https://open.taobao.com → 我的应用 → 创建应用 → 申请接口权限
+    # session 通过 OAuth2 授权码流程获取，有效期约1天（refresh_token 有效期约30天）
+    # 授权地址: https://oauth.taobao.com/authorize?response_type=code&client_id={app_key}&redirect_uri={redirect_uri}&scope=item
+    TAOBAO_APP_KEY: Optional[str] = None
+    TAOBAO_APP_SECRET: Optional[str] = None
+    TAOBAO_SESSION: Optional[str] = None  # OAuth2 access_token（淘宝称为 session），DB 中有值时优先使用 DB
+    TAOBAO_ADZONE_ID: Optional[str] = None  # 默认推广位 ID（可选）
+    # OAuth2 回调地址，需在淘宝开放平台应用设置中填写
+    # 示例: https://shushang.online/api/v1/taobao/oauth/callback
+    TAOBAO_OAUTH_REDIRECT_URI: Optional[str] = None
 
     class Config:
         env_file = ".env"

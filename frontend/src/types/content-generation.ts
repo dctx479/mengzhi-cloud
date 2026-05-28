@@ -9,7 +9,7 @@ export type TemplateCategory = 'product' | 'slogan' | 'marketing' | 'social' | '
 export type DifficultyLevel = 'easy' | 'medium' | 'hard'
 
 // 文案风格
-export type ContentStyle = 'professional' | 'casual' | 'emotional' | 'creative'
+export type ContentStyle = 'professional' | 'casual' | 'emotional' | 'humorous' | 'formal'
 
 // 目标受众
 export type TargetAudience = 'urban' | 'family' | 'health' | 'gourmet'
@@ -43,6 +43,8 @@ export interface GenerationConfig {
   keywords: string[]
   avoid_words: string
   temperature: number
+  platform?: string
+  content_type?: string
 }
 
 // 生成结果接口

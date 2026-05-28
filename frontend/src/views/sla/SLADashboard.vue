@@ -9,7 +9,7 @@
     <!-- 概览卡片 -->
     <div class="overview-cards">
       <div class="card overview-card">
-        <div class="card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+        <div class="card-icon" style="background: linear-gradient(135deg, #0a7a54 0%, #0d9668 100%)">
           <el-icon :size="28" color="white"><Document /></el-icon>
         </div>
         <div class="card-content">
@@ -349,6 +349,7 @@ const loadOverview = async () => {
     Object.assign(overview, data)
   } catch (error) {
     console.error('Failed to load overview:', error)
+    ElMessage.error('加载SLA概览失败')
   }
 }
 
@@ -499,7 +500,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .sla-dashboard {
   padding: 24px;
   background: #f5f7fa;
@@ -600,7 +601,7 @@ onUnmounted(() => {
 }
 
 .metric-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, $color-primary-dark 0%, $color-primary 100%);
   border-radius: 12px;
   padding: 24px;
   color: white;

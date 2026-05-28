@@ -41,7 +41,15 @@ chatAPI.interceptors.response.use(
     // 否则直接返回原始 response.data（已是最终数据或 Pydantic 序列化对象）
     return response
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    if (error.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('user')
+      window.location.href = '/login'
+    }
+    return Promise.reject(error)
+  }
 )
 
 // ==================== 类型映射辅助 ====================

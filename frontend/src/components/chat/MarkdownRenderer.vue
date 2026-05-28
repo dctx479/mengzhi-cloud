@@ -143,12 +143,12 @@ const sanitizedHTML = computed(() => {
   }
 
   :deep(a) {
-    color: #409eff;
+    color: $color-primary;
     text-decoration: none;
     transition: color 0.3s;
 
     &:hover {
-      color: #66b1ff;
+      color: $color-primary-dark;
       text-decoration: underline;
     }
   }
@@ -181,7 +181,7 @@ const sanitizedHTML = computed(() => {
   }
 
   :deep(blockquote) {
-    border-left: 4px solid #409eff;
+    border-left: 4px solid $color-primary;
     background: #f5f7fa;
     padding: 8px 12px;
     margin: 8px 0;

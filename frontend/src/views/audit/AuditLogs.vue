@@ -410,6 +410,7 @@ const loadStats = async () => {
     stats.value = data
   } catch (error) {
     console.error('加载统计数据失败:', error)
+    ElMessage.error('加载审计统计失败')
   }
 }
 

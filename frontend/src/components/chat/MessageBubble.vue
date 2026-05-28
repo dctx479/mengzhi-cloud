@@ -217,7 +217,7 @@ const deleteMessage = () => {
     }
 
     .message-content {
-      background: #409eff;
+      background: $color-primary;
       color: white;
     }
   }
@@ -369,7 +369,7 @@ const deleteMessage = () => {
         }
 
         .file-icon {
-          color: #409eff;
+          color: $color-primary;
         }
 
         .file-name {
@@ -378,7 +378,7 @@ const deleteMessage = () => {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          color: #409eff;
+          color: $color-primary;
         }
 
         .file-size {

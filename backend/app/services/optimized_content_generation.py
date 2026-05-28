@@ -84,6 +84,11 @@ class OptimizedContentGenerationService:
         style: Style = Style.CASUAL,
         platform: Platform = Platform.GENERAL,
         word_count: int = 200,
+        keywords: list = None,
+        avoid_words: str = None,
+        target_audience: list = None,
+        temperature: float = None,
+        template_id: str = None,
         **kwargs
     ) -> str:
         """
@@ -118,14 +123,38 @@ class OptimizedContentGenerationService:
                     logger.info(f"从缓存返回内容 (key: {cache_key})")
                     return cached_content
 
-            # 3. 构建增强Prompt
-            enhanced_prompt = await self._build_enhanced_prompt(
-                product=product,
-                content_type=content_type,
-                style=style,
-                platform=platform,
-                word_count=word_count
-            )
+            # 3. 构建Prompt（模板优先，否则自由生成）
+            template_system_prompt = None
+            if template_id:
+                from app.models.generation_template import GenerationTemplate
+                tmpl = self.db.query(GenerationTemplate).filter(
+                    GenerationTemplate.template_uuid == template_id,
+                    GenerationTemplate.is_active == True,
+                ).first()
+                if tmpl:
+                    tmpl.increment_use_count()
+                    self.db.commit()
+                    template_system_prompt = tmpl.system_prompt
+                    enhanced_prompt = tmpl.render_user_prompt({
+                        "product_name": product.name or "",
+                        "word_count": str(word_count),
+                        "style": style.value,
+                        "audience": ", ".join(self._map_audience_labels(target_audience)) if target_audience else "大众消费者",
+                    })
+                else:
+                    logger.warning(f"模板 {template_id} 未找到，使用自由生成")
+
+            if not template_id or template_system_prompt is None:
+                enhanced_prompt = await self._build_enhanced_prompt(
+                    product=product,
+                    content_type=content_type,
+                    style=style,
+                    platform=platform,
+                    word_count=word_count,
+                    keywords=keywords,
+                    avoid_words=avoid_words,
+                    target_audience=target_audience,
+                )
 
             # 4. 获取最优参数
             params = AdaptiveParameterOptimizer.get_optimal_parameters(
@@ -135,11 +164,14 @@ class OptimizedContentGenerationService:
                 quality_score=None
             )
             params['max_tokens'] = word_count * 2
+            if temperature is not None:
+                params['temperature'] = temperature
 
             # 5. 调用DeepSeek生成
             generated_content = await self._generate_with_retry(
                 prompt=enhanced_prompt,
-                params=params
+                params=params,
+                system_prompt_override=template_system_prompt,
             )
 
             # 6. 后处理和质量检查
@@ -179,6 +211,11 @@ class OptimizedContentGenerationService:
         style: Style = Style.CASUAL,
         platform: Platform = Platform.GENERAL,
         word_count: int = 200,
+        keywords: list = None,
+        avoid_words: str = None,
+        target_audience: list = None,
+        temperature: float = None,
+        template_id: str = None,
         **kwargs
     ) -> List[str]:
         """
@@ -216,7 +253,10 @@ class OptimizedContentGenerationService:
                     style=style,
                     platform=platform,
                     word_count=word_count,
-                    attempt_number=attempt_number
+                    attempt_number=attempt_number,
+                    keywords=keywords,
+                    avoid_words=avoid_words,
+                    target_audience=target_audience,
                 )
 
                 params = AdaptiveParameterOptimizer.get_optimal_parameters(
@@ -272,7 +312,10 @@ class OptimizedContentGenerationService:
         style: Style,
         platform: Platform,
         word_count: int,
-        attempt_number: int = 0
+        attempt_number: int = 0,
+        keywords: list = None,
+        avoid_words: str = None,
+        target_audience: list = None,
     ) -> str:
         """
         构建增强的Prompt（集成RAG）
@@ -340,6 +383,9 @@ class OptimizedContentGenerationService:
 - 字数：{word_count}字（±15%可接受）
 - 融入文化元素和产品特点
 - 吸引目标消费者
+{f'- 融入关键词：{", ".join(keywords)}' if keywords else ''}
+{f'- 避免使用：{avoid_words}' if avoid_words else ''}
+{f'- 目标受众：{", ".join(self._map_audience_labels(target_audience))}' if target_audience else ''}
 {f'- 尽量避免与之前的表达重复（第{attempt_number}次尝试）' if attempt_number > 0 else ''}
 
 请直接输出内容，不需要额外说明。
@@ -351,7 +397,8 @@ class OptimizedContentGenerationService:
         self,
         prompt: str,
         params: Dict[str, Any],
-        max_retries: int = 3
+        max_retries: int = 3,
+        system_prompt_override: str = None,
     ) -> str:
         """
         带重试和质量检查的生成
@@ -374,7 +421,7 @@ class OptimizedContentGenerationService:
                     response = await asyncio.wait_for(
                         self.deepseek_client.chat_completion(
                             messages=[{"role": "user", "content": prompt}],
-                            system_prompt=PromptTemplates.get_system_prompt(),
+                            system_prompt=system_prompt_override or PromptTemplates.get_system_prompt(),
                             **params
                         ),
                         timeout=self._AI_TIMEOUT
@@ -437,6 +484,21 @@ class OptimizedContentGenerationService:
             ContentType.STORY: "品牌故事",
         }
         return type_names.get(content_type, "内容")
+
+    @staticmethod
+    def _map_audience_labels(audience: list) -> List[str]:
+        """将前端受众标识映射为中文标签"""
+        mapping = {
+            "urban": "城市白领",
+            "family": "家庭主妇",
+            "health": "健康养生人群",
+            "gourmet": "美食爱好者",
+            "young": "年轻消费者",
+            "elderly": "中老年群体",
+        }
+        if not audience:
+            return []
+        return [mapping.get(a, a) for a in audience]
 
     def _generate_cache_key(
         self,

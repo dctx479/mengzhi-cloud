@@ -56,14 +56,9 @@ import type { TemplateCategory } from '@/types/content-generation'
 
 const contentStore = useContentGenerationStore()
 
-const activeCategory = computed(() => contentStore.selectedTemplate?.category)
+const activeCategory = computed(() => contentStore.selectedCategory)
 
-const filteredTemplates = computed(() => {
-  if (!activeCategory.value) {
-    return contentStore.templates
-  }
-  return contentStore.templates.filter((t) => t.category === activeCategory.value)
-})
+const filteredTemplates = computed(() => contentStore.filteredTemplates)
 
 const isActiveCategory = (category: string) => {
   return activeCategory.value === category

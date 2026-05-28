@@ -1,5 +1,48 @@
 <template>
   <div class="ai-config-view">
+    <!-- 管理员: 自定义模型列表管理 -->
+    <el-card v-if="userStore.isAdmin" style="margin-bottom: 20px">
+      <template #header>
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <span>自定义模型列表</span>
+          <el-button type="primary" size="small" @click="saveCustomModels">保存</el-button>
+        </div>
+      </template>
+      <el-alert type="info" :closable="false" show-icon style="margin-bottom: 16px">
+        <template #default>
+          为各提供商添加自定义模型 ID，保存后在 AI 配置表单的模型下拉中可见。
+        </template>
+      </el-alert>
+      <el-row :gutter="16" style="margin-bottom: 12px">
+        <el-col :span="6">
+          <el-select v-model="customModelProvider" placeholder="选择提供商" style="width: 100%">
+            <el-option v-for="(name, id) in providerMap" :key="id" :label="name" :value="id" />
+          </el-select>
+        </el-col>
+        <el-col :span="12">
+          <el-input v-model="customModelInput" placeholder="输入模型 ID，如 gpt-5.5-pro" clearable @keyup.enter="addCustomModel" />
+        </el-col>
+        <el-col :span="6">
+          <el-button type="primary" @click="addCustomModel">添加</el-button>
+        </el-col>
+      </el-row>
+      <div v-if="Object.keys(customModels).some(k => customModels[k]?.length)" class="custom-model-tags">
+        <div v-for="(models, provider) in customModels" :key="provider">
+          <template v-if="models.length">
+            <span class="provider-label">{{ providerMap[provider] || provider }}：</span>
+            <el-tag
+              v-for="m in models"
+              :key="m"
+              closable
+              style="margin: 2px 4px"
+              @close="removeCustomModel(provider, m)"
+            >{{ m }}</el-tag>
+          </template>
+        </div>
+      </div>
+      <el-empty v-else description="暂无自定义模型" :image-size="60" />
+    </el-card>
+
     <!-- 管理员: 提供商管理面板 -->
     <el-card v-if="userStore.isAdmin" style="margin-bottom: 20px">
       <template #header>
@@ -112,6 +155,40 @@ const enterpriseId = computed(() => {
   return userStore.user?.enterpriseId ? String(userStore.user.enterpriseId) : ''
 })
 const hasEnterpriseAccess = computed(() => Boolean(enterpriseId.value))
+
+// 自定义模型管理
+const customModelProvider = ref('openai')
+const customModelInput = ref('')
+const customModels = ref<Record<string, string[]>>({})
+
+const loadCustomModels = () => {
+  try {
+    customModels.value = JSON.parse(localStorage.getItem('admin_custom_models') || '{}')
+  } catch {
+    customModels.value = {}
+  }
+}
+
+const saveCustomModels = () => {
+  localStorage.setItem('admin_custom_models', JSON.stringify(customModels.value))
+  ElMessage.success('自定义模型列表已保存')
+}
+
+const addCustomModel = () => {
+  const id = customModelInput.value.trim()
+  const provider = customModelProvider.value
+  if (!id) { ElMessage.warning('请输入模型 ID'); return }
+  if (!customModels.value[provider]) customModels.value[provider] = []
+  if (customModels.value[provider].includes(id)) { ElMessage.warning('该模型 ID 已存在'); return }
+  customModels.value[provider].push(id)
+  customModelInput.value = ''
+}
+
+const removeCustomModel = (provider: string, modelId: string) => {
+  if (customModels.value[provider]) {
+    customModels.value[provider] = customModels.value[provider].filter((m) => m !== modelId)
+  }
+}
 const configs = ref<AIConfig[]>([]);
 const loading = ref(false);
 const dialogVisible = ref(false);
@@ -303,6 +380,7 @@ watch(enterpriseId, (value) => {
 })
 
 onMounted(async () => {
+  loadCustomModels();
   await Promise.all([
     loadConfigs(),
     loadProviderSettings(),
@@ -345,5 +423,17 @@ onMounted(async () => {
   align-items: center;
   gap: 10px;
   font-size: 14px;
+}
+
+.custom-model-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.provider-label {
+  font-size: 13px;
+  color: #606266;
+  font-weight: 500;
 }
 </style>

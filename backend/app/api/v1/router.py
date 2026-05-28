@@ -82,6 +82,11 @@ from app.api.jd_import import router as jd_import_router
 
 api_router.include_router(jd_import_router, tags=["京东联盟导入 - JD Import"])
 
+# ==================== 淘宝联盟导入模块 ====================
+from app.api.taobao_import import router as taobao_import_router
+
+api_router.include_router(taobao_import_router, tags=["淘宝联盟导入 - Taobao Import"])
+
 # ==================== 租户管理模块 ====================
 from app.api.tenant_management import router as tenant_router
 

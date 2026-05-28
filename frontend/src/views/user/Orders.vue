@@ -542,7 +542,7 @@ onMounted(() => {
   }
 
   .text-primary {
-    color: #409eff;
+    color: $color-primary;
   }
 
   .mt-4 {

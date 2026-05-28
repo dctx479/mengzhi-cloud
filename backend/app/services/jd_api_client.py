@@ -11,7 +11,7 @@ import hashlib
 import json
 import time
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Any, Optional
 from loguru import logger
 
@@ -39,11 +39,12 @@ class JdApiClient:
         result = await client.call("jd.union.open.goods.search", {"keyword": "牛肉"})
     """
 
-    def __init__(self, app_key: str, secret_key: str):
+    def __init__(self, app_key: str, secret_key: str, access_token: Optional[str] = None):
         if not app_key or not secret_key:
             raise ValueError("app_key 和 secret_key 不能为空")
         self._app_key = app_key
         self._secret_key = secret_key
+        self._access_token = access_token
         self._last_call_time = 0.0
         self._lock = asyncio.Lock()
 
@@ -62,11 +63,13 @@ class JdApiClient:
             "v": "1.0",
             "method": method,
             "app_key": self._app_key,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M:%S"),
             "format": "json",
             "sign_method": "md5",
             "360buy_param_json": json.dumps(biz_params, ensure_ascii=False),
         }
+        if self._access_token:
+            params["access_token"] = self._access_token
         params["sign"] = self._sign(params)
         return params
 
@@ -101,26 +104,41 @@ class JdApiClient:
         logger.debug(f"JD API {method} raw response: {body}")
 
         # 京东响应结构: { "<method_key>_response": { "result": "...", "code": 200 } }
+        # 注意：京东部分接口返回 "responce"（拼写错误），需同时兼容
         method_key = method.replace(".", "_") + "_response"
-        if method_key not in body:
+        method_key_typo = method.replace(".", "_") + "_responce"  # 京东官方拼写错误
+        actual_key = method_key if method_key in body else (method_key_typo if method_key_typo in body else None)
+        if actual_key is None:
             # 顶层错误（签名失败等）
             err = body.get("error_response", {})
-            raise JdApiError(
-                str(err.get("error_code", "unknown")),
-                str(err.get("zh_desc", err.get("en_desc", "unknown"))),
-            )
+            code = str(err.get("error_code", ""))
+            zh_desc = str(err.get("zh_desc", ""))
+            en_desc = str(err.get("en_desc", ""))
+            msg = zh_desc or en_desc or "京东API返回未知错误，请检查AppKey和签名配置"
+            raise JdApiError(code or "API_ERROR", msg)
 
-        response_obj = body[method_key]
+        response_obj = body[actual_key]
         code = response_obj.get("code", 0)
-        if code != 200:
-            raise JdApiError(str(code), response_obj.get("message", "API error"))
+        # 京东部分接口用字符串 "0" 表示成功，整数 200 也表示成功
+        code_ok = code in (200, "0", 0)
+        if not code_ok:
+            msg = response_obj.get("message") or response_obj.get("zh_desc") or f"API返回错误码 {code}"
+            raise JdApiError(str(code), msg)
 
-        result = response_obj.get("result", response_obj.get("data", {}))
+        result = response_obj.get("result", response_obj.get("queryResult", response_obj.get("data", {})))
         if isinstance(result, str):
             try:
                 result = json.loads(result)
             except json.JSONDecodeError as e:
                 raise JdApiError("PARSE_ERROR", f"无法解析API返回数据: {e}")
+
+        # 解析后的 result 可能仍包含业务错误码（如 {"code":403,"message":"无访问权限"}）
+        if isinstance(result, dict):
+            inner_code = result.get("code")
+            if inner_code and inner_code != 200 and inner_code != 0:
+                inner_msg = result.get("message") or f"业务错误码 {inner_code}"
+                raise JdApiError(str(inner_code), inner_msg)
+
         return result
 
     # ------------------------------------------------------------------
@@ -165,7 +183,7 @@ class JdApiClient:
             goods_list = result.get("data") or result.get("goodsResp") or []
             return {"goodsResp": goods_list, "totalCount": result.get("totalCount", len(goods_list)), "warning": None}
         except JdApiError as e:
-            if "50030" not in str(e.code) and "无访问权限" not in str(e.message) and "403" not in str(e.code):
+            if "50030" not in str(e.code) and "50200" not in str(e.code) and "无访问权限" not in str(e.message) and "403" not in str(e.code):
                 raise
             logger.warning(f"goods.query 无权限 ({e.code}): {e.message}，降级到 jingfen.query")
 

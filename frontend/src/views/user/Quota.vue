@@ -231,7 +231,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { ElMessage, ElLoading } from 'element-plus'
 import { ShoppingCart, Check } from '@element-plus/icons-vue'
-import { getQuota, getQuotaHistory, createOrderFromPackage } from '@/api/user'
+import { getQuota, getQuotaHistory, createOrderFromPackage, getQuotaPackages } from '@/api/user'
 import PaymentDialog from '@/components/PaymentDialog.vue'
 import type { QuotaData, QuotaHistory, Order } from '@/types/user'
 
@@ -251,56 +251,59 @@ const historyPage = ref(1)
 const historyPageSize = ref(10)
 const historyTotal = ref(0)
 const upgradeDialogVisible = ref(false)
-const selectedPlan = ref(1)
+const selectedPlan = ref<number | null>(null)
 const paymentDialogVisible = ref(false)
 const orderToPay = ref<Order | null>(null)
 // Track active loading overlay so it can be closed if component unmounts mid-request
 let activeLoadingInstance: ReturnType<typeof ElLoading.service> | null = null
 
-const upgradePlans = [
-  {
-    id: 1,
-    name: '专业版',
-    description: '适合个人开发者',
-    price: 99,
-    billing_cycle: '每月',
-    items: [
-      '1000次 AI 对话',
-      '500次内容生成',
-      '10GB 存储空间',
-      '优先技术支持',
-    ],
-  },
-  {
-    id: 2,
-    name: '商业版',
-    description: '适合中小企业',
-    price: 299,
-    billing_cycle: '每月',
-    items: [
-      '5000次 AI 对话',
-      '2000次内容生成',
-      '100GB 存储空间',
-      '24小时技术支持',
-      'API 调用权限',
-    ],
-  },
-  {
-    id: 3,
-    name: '企业版',
-    description: '定制化解决方案',
-    price: 999,
-    billing_cycle: '每月',
-    items: [
-      '无限 AI 对话',
-      '无限内容生成',
-      '无限存储空间',
-      '专属技术支持',
-      '完整 API 权限',
-      '自定义功能开发',
-    ],
-  },
-]
+interface UpgradePlan {
+  id: number
+  name: string
+  description: string
+  price: number
+  billing_cycle: string
+  items: string[]
+}
+
+const upgradePlans = ref<UpgradePlan[]>([])
+
+const periodLabel: Record<string, string> = {
+  monthly: '每月',
+  quarterly: '每季',
+  yearly: '每年',
+  lifetime: '终身',
+}
+
+const loadUpgradePlans = async () => {
+  const packages = await getQuotaPackages()
+  if (packages.length > 0) {
+    upgradePlans.value = packages.map((pkg) => ({
+      id: pkg.id,
+      name: pkg.name,
+      description: pkg.package_type === 'professional' ? '适合个人开发者'
+        : pkg.package_type === 'enterprise' ? '定制化解决方案'
+        : pkg.package_type === 'standard' ? '适合中小企业'
+        : '基础套餐',
+      price: parseFloat(pkg.price),
+      billing_cycle: periodLabel[pkg.period] ?? '每月',
+      items: [
+        pkg.chat_quota > 0 ? `${pkg.chat_quota.toLocaleString()}次 AI 对话` : '无限 AI 对话',
+        pkg.generation_quota > 0 ? `${pkg.generation_quota.toLocaleString()}次内容生成` : '无限内容生成',
+        pkg.storage_quota_mb > 0 ? `${pkg.storage_quota_mb >= 1024 ? (pkg.storage_quota_mb / 1024).toFixed(0) + 'GB' : pkg.storage_quota_mb + 'MB'} 存储空间` : '无限存储空间',
+      ].filter(Boolean),
+    }))
+    selectedPlan.value = upgradePlans.value[0].id
+  } else {
+    // Fallback when table is empty
+    upgradePlans.value = [
+      { id: 1, name: '专业版', description: '适合个人开发者', price: 99, billing_cycle: '每月', items: ['1000次 AI 对话', '500次内容生成', '10GB 存储空间', '优先技术支持'] },
+      { id: 2, name: '商业版', description: '适合中小企业', price: 299, billing_cycle: '每月', items: ['5000次 AI 对话', '2000次内容生成', '100GB 存储空间', '24小时技术支持', 'API 调用权限'] },
+      { id: 3, name: '企业版', description: '定制化解决方案', price: 999, billing_cycle: '每月', items: ['无限 AI 对话', '无限内容生成', '无限存储空间', '专属技术支持', '完整 API 权限', '自定义功能开发'] },
+    ]
+    selectedPlan.value = 1
+  }
+}
 
 const chatQuotaPercent = computed(() => {
   if (quotaData.value.chat_total <= 0) return 0
@@ -409,6 +412,10 @@ const handleHistorySizeChange = () => {
 }
 
 const handleUpgrade = async () => {
+  if (!selectedPlan.value) {
+    ElMessage.warning('请选择套餐')
+    return
+  }
   try {
     const loading = ElLoading.service({
       lock: true,
@@ -445,6 +452,7 @@ const handlePaymentSuccess = async () => {
 onMounted(() => {
   loadQuota()
   loadQuotaHistory()
+  loadUpgradePlans()
 })
 
 onUnmounted(() => {
@@ -480,7 +488,7 @@ onUnmounted(() => {
             line-height: 1;
 
             &.chat {
-              color: #409eff;
+              color: $color-primary;
             }
 
             &.content {
@@ -564,7 +572,7 @@ onUnmounted(() => {
         transition: all 0.3s ease;
 
         &:hover {
-          border-color: #409eff;
+          border-color: $color-primary;
         }
 
         .plan-content {

@@ -32,6 +32,7 @@ from app.models.user import User, UserType, UserStatus, UserRole
 from app.models.product import Product
 from app.models.conversation import Conversation, Message
 from app.models.base import generate_uuid
+from app.models.quota_package import QuotaPackage, PackageType, PackagePeriod
 
 
 # 密码加密上下文
@@ -334,6 +335,69 @@ def create_sample_products(db: Session, count: int = 10) -> List[Product]:
     return products
 
 
+def create_quota_packages(db: Session) -> List[QuotaPackage]:
+    """创建默认配额套餐"""
+    existing_count = db.query(QuotaPackage).count()
+    if existing_count > 0:
+        print(f"  ℹ 已存在{existing_count}个配额套餐，跳过创建")
+        return db.query(QuotaPackage).all()
+
+    packages_data = [
+        {
+            "name": "专业版",
+            "package_type": PackageType.PROFESSIONAL,
+            "period": PackagePeriod.MONTHLY,
+            "price": 99.00,
+            "chat_quota": 1000,
+            "generation_quota": 500,
+            "storage_quota_mb": 10240,  # 10GB
+            "validity_days": 30,
+            "is_active": True,
+            "is_recommended": False,
+            "sort_order": 1,
+        },
+        {
+            "name": "商业版",
+            "package_type": PackageType.STANDARD,
+            "period": PackagePeriod.MONTHLY,
+            "price": 299.00,
+            "chat_quota": 5000,
+            "generation_quota": 2000,
+            "storage_quota_mb": 102400,  # 100GB
+            "validity_days": 30,
+            "is_active": True,
+            "is_recommended": True,
+            "sort_order": 2,
+        },
+        {
+            "name": "企业版",
+            "package_type": PackageType.ENTERPRISE,
+            "period": PackagePeriod.MONTHLY,
+            "price": 999.00,
+            "chat_quota": 0,  # 0 = unlimited
+            "generation_quota": 0,
+            "storage_quota_mb": 0,
+            "validity_days": 30,
+            "is_active": True,
+            "is_recommended": False,
+            "sort_order": 3,
+        },
+    ]
+
+    packages = []
+    for data in packages_data:
+        pkg = QuotaPackage(**data)
+        db.add(pkg)
+        packages.append(pkg)
+
+    db.commit()
+    for pkg in packages:
+        db.refresh(pkg)
+        print(f"  ✓ 套餐已创建: {pkg.name} (ID: {pkg.id}, ¥{pkg.price}/月)")
+
+    return packages
+
+
 def create_sample_conversations(db: Session, users: List[User]) -> List[Conversation]:
     """创建示例对话"""
     conversations = []
@@ -457,6 +521,10 @@ def seed_database(
         print("\n创建测试用户...")
         users = create_test_users(db, num_users)
 
+        # 创建配额套餐
+        print("\n创建配额套餐...")
+        quota_packages = create_quota_packages(db)
+
         # 创建产品
         print("\n创建示例产品...")
         products = create_sample_products(db, num_products)
@@ -471,6 +539,7 @@ def seed_database(
         print(f"✓ 已创建:")
         print(f"  - 管理员: 1人")
         print(f"  - 测试用户: {len(users)}人")
+        print(f"  - 配额套餐: {len(quota_packages)}个")
         print(f"  - 示例产品: {len(products)}个")
         print(f"  - 示例对话: {len(conversations)}个")
         print("=" * 60)

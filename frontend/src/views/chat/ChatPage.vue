@@ -347,7 +347,7 @@ onUnmounted(() => {
 
           &.active {
             background: #e7f3ff;
-            border-left: 3px solid #409eff;
+            border-left: 3px solid $color-primary;
             padding-left: 9px;
           }
 

@@ -240,23 +240,23 @@ class AuthService:
         """
         if not jti:
             return False
-        
+
         if self.redis_client is None:
-            logger.error(
-                "SECURITY: Redis unavailable - treating token as revoked for safety. "
-                "Check Redis connectivity immediately!"
+            logger.warning(
+                "Redis unavailable - allowing token (blacklist check skipped). "
+                "Check Redis connectivity!"
             )
-            return True
+            return False
 
         try:
             key = f"token_blacklist:{jti}"
             return self.redis_client.exists(key) > 0
         except redis.ConnectionError as e:
-            logger.error(f"Redis连接错误，保守策略拒绝token: {e}")
-            return True
+            logger.warning(f"Redis连接错误，跳过黑名单检查: {e}")
+            return False
         except Exception as e:
-            logger.error(f"检查黑名单失败，保守策略拒绝token: {e}")
-            return True
+            logger.warning(f"检查黑名单失败，跳过黑名单检查: {e}")
+            return False
 
     # ==================== 刷新Token ====================
 

@@ -239,7 +239,7 @@ const handleViewMapProductDetail = () => {
 
           .icon {
             font-size: 48px;
-            color: #409eff;
+            color: $color-primary;
             margin-bottom: 12px;
           }
 
@@ -272,10 +272,10 @@ const handleViewMapProductDetail = () => {
 
             &:hover {
               box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-              border-color: #409eff;
+              border-color: $color-primary;
 
               .region-header .region-name {
-                color: #409eff;
+                color: $color-primary;
               }
             }
 

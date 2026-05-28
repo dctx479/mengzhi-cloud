@@ -305,11 +305,11 @@ watch(
         object-fit: cover;
 
         &:hover {
-          border-color: #409eff;
+          border-color: $color-primary;
         }
 
         &.active {
-          border-color: #409eff;
+          border-color: $color-primary;
         }
       }
     }

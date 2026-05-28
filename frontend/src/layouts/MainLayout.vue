@@ -20,16 +20,17 @@ import Sidebar from '@/components/Sidebar.vue'
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #f5f7fa;
+  background: $color-bg-page;
 
   .layout-content {
     display: flex;
     flex: 1;
+    overflow-x: hidden;
 
     .main-area {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
+      padding: $spacing-lg;
     }
   }
 }
@@ -40,7 +41,7 @@ import Sidebar from '@/components/Sidebar.vue'
       flex-direction: column;
 
       .main-area {
-        padding: 12px;
+        padding: $spacing-md;
       }
     }
   }

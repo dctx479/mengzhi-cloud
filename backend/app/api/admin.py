@@ -17,8 +17,8 @@
 
 import logging
 
-from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, Query, HTTPException
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional, List
@@ -44,9 +44,22 @@ class UpdateUserRequest(BaseModel):
 
 
 class UpdateEnterpriseRequest(BaseModel):
+    name: Optional[str] = None
+    contact_name: Optional[str] = None
+    contact_email: Optional[str] = None
     verify_status: Optional[str] = None
     plan_type: Optional[str] = None
     reject_reason: Optional[str] = None
+
+
+class CreateEnterpriseRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    license_no: str = Field(..., min_length=1, max_length=50)
+    contact_name: Optional[str] = Field(None, alias="contactPerson", max_length=50)
+    contact_email: Optional[str] = Field(None, alias="email", max_length=100)
+    plan_type: Optional[str] = None
+
+    model_config = {"populate_by_name": True}
 
 
 # ==================== 1. 用户列表 ====================
@@ -185,6 +198,52 @@ async def delete_user(
 # ==================== 4. 企业列表 ====================
 
 
+@router.post("/enterprises", response_model=APIResponse, summary="创建企业", tags=["管理员"])
+async def create_enterprise(
+    body: CreateEnterpriseRequest,
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> APIResponse:
+    """创建新企业"""
+    try:
+        from app.models.base import generate_uuid
+
+        existing = db.query(Enterprise).filter(
+            Enterprise.license_no == body.license_no, Enterprise.deleted_at.is_(None)
+        ).first()
+        if existing:
+            return APIResponse(code=400, message="营业执照号已存在", data=None)
+
+        plan = body.plan_type or "free"
+        valid_plans = [p.value for p in PlanType]
+        if plan not in valid_plans:
+            return APIResponse(code=400, message=f"无效的套餐类型，允许的值: {', '.join(valid_plans)}", data=None)
+
+        enterprise = Enterprise(
+            enterprise_uuid=generate_uuid(),
+            name=body.name,
+            license_no=body.license_no,
+            contact_name=body.contact_name,
+            contact_email=body.contact_email,
+            verify_status=VerifyStatus.PENDING,
+            plan_type=plan,
+        )
+        db.add(enterprise)
+        db.commit()
+        db.refresh(enterprise)
+
+        return APIResponse(code=200, message="创建成功", data=enterprise.to_dict())
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logger.error("⚠️ WARNING: create_enterprise 失败: %s", str(e), exc_info=True)
+        return APIResponse(code=ErrorCode.SYSTEM_ERROR, message="操作失败", data=None)
+
+
+# ==================== 4b. 企业列表 ====================
+
+
 @router.get("/enterprises", response_model=APIResponse, summary="获取企业列表", tags=["管理员"])
 async def list_enterprises(
     page: int = Query(1, ge=1),
@@ -249,6 +308,13 @@ async def update_enterprise(
 
         if not enterprise:
             return APIResponse(code=404, message="企业不存在", data=None)
+
+        if body.name is not None:
+            enterprise.name = body.name
+        if body.contact_name is not None:
+            enterprise.contact_name = body.contact_name
+        if body.contact_email is not None:
+            enterprise.contact_email = body.contact_email
 
         if body.verify_status:
             valid_statuses = [s.value for s in VerifyStatus]

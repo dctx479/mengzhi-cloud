@@ -275,13 +275,13 @@ defineExpose({
     cursor: pointer;
 
     &:hover {
-      border-color: #409eff;
+      border-color: $color-primary;
       background: #f5f7fa;
     }
 
     .upload-icon {
       font-size: 48px;
-      color: #409eff;
+      color: $color-primary;
       margin-bottom: 8px;
     }
 
@@ -381,7 +381,7 @@ defineExpose({
           }
 
           &.file-icon {
-            color: #409eff;
+            color: $color-primary;
           }
         }
 

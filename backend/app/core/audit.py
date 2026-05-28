@@ -134,7 +134,7 @@ def audit_log(
             username = None
             if current_user:
                 user_id = current_user.get("user_id")
-                username = current_user.get("username")
+                username = current_user.get("username") or user_id
 
             # 捕获请求体
             request_body = None
@@ -265,7 +265,7 @@ def audit_log(
             username = None
             if current_user:
                 user_id = current_user.get("user_id")
-                username = current_user.get("username")
+                username = current_user.get("username") or user_id
 
             # 捕获请求体
             request_body = None

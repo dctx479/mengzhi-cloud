@@ -26,6 +26,9 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
     throw new Error('登录响应中缺少有效token')
   }
   localStorage.setItem('token', token)
+  if (inner.tokens?.refresh_token) {
+    localStorage.setItem('refresh_token', inner.tokens.refresh_token)
+  }
 
   // 归一化为前端 LoginResponse 格式
   const backendUser = inner.user ?? {}
@@ -63,7 +66,26 @@ export const register = async (data: RegisterRequest): Promise<RegisterResponse>
 
 export async function logout(): Promise<void> {
   localStorage.removeItem('token')
+  localStorage.removeItem('refresh_token')
   localStorage.removeItem('user')
+}
+
+export async function refreshAccessToken(): Promise<string | null> {
+  const refreshToken = localStorage.getItem('refresh_token')
+  if (!refreshToken) return null
+  try {
+    const res = await http.post<{ code: number; data: { access_token: string; refresh_token: string } | null }>('/v1/auth/refresh', { refresh_token: refreshToken })
+    if (res.code !== 200 || !res.data) return null
+    localStorage.setItem('token', res.data.access_token)
+    if (res.data.refresh_token) {
+      localStorage.setItem('refresh_token', res.data.refresh_token)
+    }
+    return res.data.access_token
+  } catch {
+    localStorage.removeItem('token')
+    localStorage.removeItem('refresh_token')
+    return null
+  }
 }
 
 export const getCurrentUser = (): Promise<User> =>

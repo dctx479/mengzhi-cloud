@@ -1,7 +1,9 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, RouterView, type RouteComponent } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { multiTenantRoutes } from './modules/multiTenant'
+import { h } from 'vue'
+
+const PassThrough: RouteComponent = { render: () => h(RouterView) }
 
 const routes: RouteRecordRaw[] = [
   {
@@ -68,7 +70,7 @@ const routes: RouteRecordRaw[] = [
       // 用户中心
       {
         path: 'user',
-        component: () => import('@/views/user/UserCenter.vue'),
+        component: PassThrough,
         redirect: '/user/profile',
         meta: { requiresAuth: true },
         children: [
@@ -105,7 +107,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'admin',
         redirect: '/admin/dashboard',
-        component: () => import('@/layouts/MainLayout.vue'),
+        component: PassThrough,
         meta: { requiresAuth: true, requiresAdmin: true },
         children: [
           {
@@ -135,14 +137,26 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/admin/JDImportView.vue'),
             meta: { requiresAuth: true, requiresAdmin: true },
           },
+          {
+            path: 'taobao-import',
+            name: 'AdminTaobaoImport',
+            component: () => import('@/views/admin/TaobaoImportView.vue'),
+            meta: { requiresAuth: true, requiresAdmin: true },
+          },
+          {
+            path: 'templates',
+            name: 'AdminTemplates',
+            component: () => import('@/views/admin/TemplatesView.vue'),
+            meta: { requiresAuth: true, requiresAdmin: true },
+          },
         ],
       },
       // 企业配置
       {
         path: 'enterprise',
         redirect: '/enterprise/ai-config',
-        component: () => import('@/layouts/MainLayout.vue'),
-        meta: { requiresAuth: true, requiresAdmin: true },
+        component: PassThrough,
+        meta: { requiresAuth: true, requiresEnterpriseAdmin: true },
         children: [
           {
             path: 'ai-config',
@@ -167,6 +181,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'billing',
         redirect: '/billing/overview',
+        component: PassThrough,
         meta: { requiresAuth: true },
         children: [
           {
@@ -214,8 +229,6 @@ const routes: RouteRecordRaw[] = [
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),
   },
-  // 多租户路由（企业管理员和平台管理员）
-  ...multiTenantRoutes,
 ]
 
 const router = createRouter({
@@ -235,6 +248,7 @@ router.beforeEach(async (to, _from, next) => {
   // 检查是否需要认证
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin)
+  const requiresEnterpriseAdmin = to.matched.some((record) => record.meta.requiresEnterpriseAdmin)
   const requiredRole = to.matched.find((record) => record.meta.role)?.meta.role as string | undefined
 
   if (requiresAuth && !userStore.isLoggedIn) {
@@ -243,7 +257,10 @@ router.beforeEach(async (to, _from, next) => {
     const safeRedirect = redirect.startsWith('/') && !redirect.includes('://') ? redirect : '/'
     next({ path: '/login', query: { redirect: safeRedirect } })
   } else if (requiresAdmin && !userStore.isAdmin) {
-    // 管理员权限检查
+    // 系统管理员权限检查
+    next('/')
+  } else if (requiresEnterpriseAdmin && !userStore.isAdminOrEnterpriseAdmin) {
+    // 企业管理员权限检查（系统管理员也可通过）
     next('/')
   } else if (requiredRole && userStore.userRole !== requiredRole) {
     // 角色级权限检查：admin 拥有最高权限，可访问所有角色路由

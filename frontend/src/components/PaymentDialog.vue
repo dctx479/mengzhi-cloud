@@ -217,7 +217,7 @@ watch(visible, (newVal) => {
         transition: all 0.3s;
 
         &:hover {
-          border-color: #409eff;
+          border-color: $color-primary;
           background-color: #f0f9ff;
         }
 
@@ -238,7 +238,7 @@ watch(visible, (newVal) => {
 
       :deep(.el-radio.is-checked) {
         .method-item {
-          border-color: #409eff;
+          border-color: $color-primary;
           background-color: #f0f9ff;
         }
       }
@@ -251,7 +251,7 @@ watch(visible, (newVal) => {
       padding: 32px 0;
 
       .is-loading {
-        color: #409eff;
+        color: $color-primary;
         margin-bottom: 16px;
       }
 

@@ -111,7 +111,7 @@ class JdImportService:
 
     def __init__(self, db: Session):
         self._db = db
-        self._client = _get_client()
+        self._client = _get_client(db=db)
 
     # ------------------------------------------------------------------
     # 批量导入
@@ -252,7 +252,13 @@ class JdImportService:
 _client_instance: Optional[JdApiClient] = None
 
 
-def _get_client() -> Optional[JdApiClient]:
+def _client_instance_reset() -> None:
+    """重置客户端单例，下次调用 _get_client() 时用最新 token 重建。"""
+    global _client_instance
+    _client_instance = None
+
+
+def _get_client(db=None) -> Optional[JdApiClient]:
     global _client_instance
     if _client_instance is not None:
         return _client_instance
@@ -262,5 +268,24 @@ def _get_client() -> Optional[JdApiClient]:
     if not app_key or not secret_key:
         return None
 
-    _client_instance = JdApiClient(app_key=app_key, secret_key=secret_key)
+    # DB 优先读取 AccessToken（管理员可在前端更新），其次 .env
+    access_token = getattr(settings, "JD_ACCESS_TOKEN", None) or None
+    if db is not None:
+        try:
+            from app.models.system_config import SystemConfig
+            row = db.query(SystemConfig).filter(SystemConfig.config_key == "jd_access_token").first()
+            if row and row.config_value:
+                val = row.config_value
+                db_token = val.get("token") if isinstance(val, dict) else (val if isinstance(val, str) else None)
+                if db_token:
+                    access_token = db_token
+        except Exception:
+            pass
+
+    _client_instance = JdApiClient(
+        app_key=app_key,
+        secret_key=secret_key,
+        access_token=access_token,
+    )
     return _client_instance
+
