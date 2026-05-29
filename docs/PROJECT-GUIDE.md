@@ -1,8 +1,8 @@
 # 项目文档导航
 
-> 内蒙古农畜产品品牌营销AI赋能云平台 - 完整文档索引
+> 蒙智云 — 内蒙古农畜产品 AI 赋能云平台文档索引
 
-最后更新: [项目完成日期]
+最后更新: 2026-05-29
 
 ---
 
@@ -86,17 +86,12 @@
 
 ---
 
-### 🚀 部署文档 (docs/deployment/)
+### 🚀 部署文档
 
 | 文档 | 说明 | 状态 |
 |------|------|------|
-| - | 暂无 | 🟡 待创建 |
-
-**待创建文档**:
-- [ ] Docker部署指南
-- [ ] 生产环境配置
-- [ ] 监控和日志
-- [ ] 灾备方案
+| [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) | Docker 部署指南 | ✅ 完成 |
+| [devops-guide.md](devops-guide.md) | 自动化运维系统指南 | ✅ 完成 |
 
 ---
 
@@ -232,6 +227,7 @@
 | 用什么技术栈？ | 技术栈选型方案.md | 全文 |
 | API怎么设计？ | API设计规范.md | 全文 |
 | 数据库怎么设计？ | 数据库详细设计.md | 全文 |
+| 如何部署？ | DOCKER_DEPLOYMENT.md | 全文 |
 | 如何保证安全？ | 数据安全方案.md | 全文 |
 | 有哪些风险？ | 项目分析报告.md | 第六章 |
 | 预算多少？ | 项目分析报告.md | 第七章 |
@@ -245,9 +241,9 @@
 
 | 操作 | 命令 |
 |------|------|
-| 启动前端 | `cd frontend && npm run dev` |
+| 启动前端 | `cd frontend && pnpm dev` |
 | 启动后端 | `cd backend && uvicorn app.main:app --reload` |
-| 启动Docker | `cd deploy/docker && docker-compose up -d` |
+| 启动Docker | `docker compose -f docker-compose.dev.yml up -d` |
 | 运行测试 | `cd backend && pytest` |
 | 格式化代码 | `npm run format` / `black .` |
 | 类型检查 | `npm run typecheck` / `mypy .` |
@@ -322,12 +318,8 @@
 ✅ **清晰的阅读路径**
 
 后续重点：
-- 🟡 补充测试策略和监控设计(P1)
-- 🟡 创建部署文档(P2)
-- 🟢 编写用户手册(Phase 3)
+- 🟢 编写用户手册
 
 ---
 
-**为内蒙古农畜产品品牌化贡献力量！**
-
-*文档导航最后更新: [项目完成日期]*
+*文档导航最后更新: 2026-05-29*

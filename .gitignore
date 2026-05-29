@@ -59,6 +59,7 @@ Thumbs.db
 # Project specific
 archive/
 temp/
+tmp_*
 *.tmp
 
 # Docker

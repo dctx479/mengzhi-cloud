@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # MySQL数据库
   mysql:
@@ -71,6 +69,12 @@ services:
       - JD_APP_KEY=${JD_APP_KEY:-}
       - JD_SECRET_KEY=${JD_SECRET_KEY:-}
       - JD_ACCESS_TOKEN=${JD_ACCESS_TOKEN:-}
+      - JD_OAUTH_REDIRECT_URI=${JD_OAUTH_REDIRECT_URI:-}
+      - TAOBAO_APP_KEY=${TAOBAO_APP_KEY:-}
+      - TAOBAO_APP_SECRET=${TAOBAO_APP_SECRET:-}
+      - TAOBAO_SESSION=${TAOBAO_SESSION:-}
+      - TAOBAO_ADZONE_ID=${TAOBAO_ADZONE_ID:-}
+      - TAOBAO_OAUTH_REDIRECT_URI=${TAOBAO_OAUTH_REDIRECT_URI:-}
     volumes:
       - ./backend:/app
       - backend_logs:/app/logs
