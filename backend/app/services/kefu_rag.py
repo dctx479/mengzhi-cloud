@@ -215,6 +215,62 @@ class KefuKnowledgeBase:
         results.sort(key=lambda x: x["score"], reverse=True)
         return results[:3]
 
+    def sync_products_to_kb(self, db) -> Dict[str, Any]:
+        """混合同步: 保留手写静态KB + 从DB产品生成产品文档, 重建FAISS索引"""
+        from app.models.product import Product, ProductStatus
+
+        products = db.query(Product).filter(
+            Product.deleted_at.is_(None),
+            Product.status == ProductStatus.PUBLISHED,
+        ).all()
+
+        lines = [
+            "# 产品信息（自动生成，请勿手动编辑）\n",
+            f"> 生成时间: {__import__('datetime').datetime.now().isoformat()}\n",
+            f"> 产品数量: {len(products)}\n\n",
+        ]
+
+        for p in products:
+            lines.append(f"## {p.name}\n")
+            lines.append(f"- 分类: {p.category or '未分类'}\n")
+            if p.origin_province:
+                origin = p.origin_province
+                if p.origin_city:
+                    origin += f" {p.origin_city}"
+                lines.append(f"- 产地: {origin}\n")
+            if p.price:
+                lines.append(f"- 价格: ¥{float(p.price):.2f}\n")
+            if p.description:
+                lines.append(f"- 描述: {p.description[:300]}\n")
+            if p.features and isinstance(p.features, list):
+                lines.append(f"- 特点: {'、'.join(str(f) for f in p.features[:10])}\n")
+            if p.cultural_story:
+                lines.append(f"- 文化故事: {p.cultural_story[:200]}\n")
+            lines.append("\n")
+
+        auto_file = self.kb_dir / "_auto_products.md"
+        auto_file.write_text("".join(lines), encoding="utf-8")
+
+        static_docs = len(list(self.kb_dir.glob("[!_]*.md")))
+
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.ensure_future(self.build_index())
+            else:
+                loop.run_until_complete(self.build_index())
+        except RuntimeError:
+            asyncio.run(self.build_index())
+
+        logger.info(f"知识库同步完成: {len(products)} 个产品, {static_docs} 个静态文档")
+        return {
+            "synced_count": len(products),
+            "static_docs": static_docs,
+            "auto_docs": 1,
+            "auto_file": str(auto_file),
+        }
+
     def answer(self, question: str, chat_history: List[Dict] = None) -> str:
         """基于知识库生成回答"""
         import httpx

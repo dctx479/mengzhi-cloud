@@ -19,6 +19,8 @@ export const useProductStore = defineStore('product', () => {
   const currentPage = ref(1)
   const pageSize = ref(12)
   const total = ref(0)
+  const selectedRegions = ref<string[]>([])
+  const sortBy = ref<'newest' | 'popular' | 'priceHigh' | 'priceLow' | ''>('')
 
   // Computed
   const hasMore = computed(() => currentPage.value * pageSize.value < total.value)
@@ -35,6 +37,8 @@ export const useProductStore = defineStore('product', () => {
         pageSize: pageSize.value,
         category: selectedCategory.value || undefined,
         keyword: searchKeyword.value || undefined,
+        regions: selectedRegions.value.length ? selectedRegions.value : undefined,
+        sortBy: sortBy.value || undefined,
       })
       // Guard against unexpected API response shape
       products.value = Array.isArray(response?.data) ? response.data : []
@@ -97,6 +101,30 @@ export const useProductStore = defineStore('product', () => {
   const clearFilters = async () => {
     selectedCategory.value = ''
     searchKeyword.value = ''
+    selectedRegions.value = []
+    sortBy.value = ''
+    currentPage.value = 1
+    await fetchProducts()
+  }
+
+  const setRegion = async (regions: string[]) => {
+    selectedRegions.value = regions
+    currentPage.value = 1
+    await fetchProducts()
+  }
+
+  const setSortBy = async (sort: typeof sortBy.value) => {
+    sortBy.value = sort
+    currentPage.value = 1
+    await fetchProducts()
+  }
+
+  const setAdvancedFilters = async (filters: {
+    regions?: string[]
+    sortBy?: typeof sortBy.value
+  }) => {
+    if (filters.regions !== undefined) selectedRegions.value = filters.regions
+    if (filters.sortBy !== undefined) sortBy.value = filters.sortBy
     currentPage.value = 1
     await fetchProducts()
   }
@@ -106,6 +134,8 @@ export const useProductStore = defineStore('product', () => {
     currentProduct.value = null
     selectedCategory.value = ''
     searchKeyword.value = ''
+    selectedRegions.value = []
+    sortBy.value = ''
     currentPage.value = 1
     pageSize.value = 12
     total.value = 0
@@ -121,6 +151,8 @@ export const useProductStore = defineStore('product', () => {
     error,
     selectedCategory,
     searchKeyword,
+    selectedRegions,
+    sortBy,
     currentPage,
     pageSize,
     total,
@@ -135,6 +167,9 @@ export const useProductStore = defineStore('product', () => {
     setSearchKeyword,
     setPage,
     setPageSize,
+    setRegion,
+    setSortBy,
+    setAdvancedFilters,
     clearFilters,
     resetState,
   }

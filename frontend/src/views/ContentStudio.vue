@@ -117,17 +117,19 @@ onMounted(async () => {
 
   .generation-container {
     display: grid;
-    grid-template-columns: 300px 1fr 1fr;
-    gap: 20px;
+    grid-template-columns: 280px 1fr 1fr;
+    gap: 16px;
     min-height: calc(100vh - 300px);
+    max-height: calc(100vh - 200px);
 
     @media (max-width: 1400px) {
       grid-template-columns: 250px 1fr 1fr;
-      gap: 16px;
+      gap: 12px;
     }
 
     @media (max-width: 1024px) {
       grid-template-columns: 1fr;
+      max-height: none;
 
       .sidebar {
         display: none;
@@ -136,9 +138,10 @@ onMounted(async () => {
 
     .sidebar {
       background: #fff;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 16px;
       overflow-y: auto;
+      min-width: 0;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 
       h2 {
@@ -150,9 +153,10 @@ onMounted(async () => {
 
     .config-area {
       background: #fff;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 16px;
       overflow-y: auto;
+      min-width: 0;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 
       h2 {
@@ -164,11 +168,12 @@ onMounted(async () => {
 
     .results-area {
       background: #fff;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 16px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      min-width: 0;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 
       h2 {

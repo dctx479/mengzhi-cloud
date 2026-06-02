@@ -1,5 +1,21 @@
 <template>
   <div class="products-page">
+    <!-- 顶部操作栏 -->
+    <div class="page-actions">
+      <el-dropdown trigger="click" @command="handleExportCommand">
+        <el-button type="primary" plain>
+          导出/备份 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+        </el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="excel">导出 Excel</el-dropdown-item>
+            <el-dropdown-item command="json">导出 JSON（完整数据）</el-dropdown-item>
+            <el-dropdown-item command="backup" divided>完整备份（ZIP）</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
+
     <!-- 高级筛选 -->
     <AdvancedFilters
       v-model="advancedFilters"
@@ -83,6 +99,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { ElMessage } from 'element-plus'
+import { ArrowDown } from '@element-plus/icons-vue'
 import AdvancedFilters from '@/components/AdvancedFilters.vue'
 import MapView from '@/components/MapView.vue'
 import ProductCard from '@/components/ProductCard.vue'
@@ -119,15 +136,15 @@ const isProductInCompare = (productId: string) => {
 // 处理高级筛选应用
 const handleApplyAdvancedFilters = (filters: AdvancedFiltersType) => {
   advancedFilters.value = filters
-  productStore.currentPage = 1
-  // 这里可以扩展 store 来处理高级筛选
-  productStore.fetchProducts()
+  productStore.setAdvancedFilters({
+    regions: filters.regions,
+    sortBy: filters.sortBy,
+  })
 }
 
 // 处理地区变化
-const handleRegionChange = async () => {
-  productStore.currentPage = 1
-  await productStore.fetchProducts()
+const handleRegionChange = async (region?: string) => {
+  productStore.setRegion(region ? [region] : [])
 }
 
 // 快速预览
@@ -180,6 +197,17 @@ const handleClearCompare = () => {
   compareList.value = []
 }
 
+const handleExportCommand = (command: string) => {
+  const base = '/api/v1/export'
+  const urls: Record<string, string> = {
+    excel: `${base}/products?format=excel`,
+    json: `${base}/products/json`,
+    backup: `${base}/products/backup`,
+  }
+  const url = urls[command]
+  if (url) window.open(url, '_blank')
+}
+
 const handlePageChange = async () => {
   await productStore.fetchProducts()
   window.scrollTo(0, 0)
@@ -213,6 +241,12 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .products-page {
   padding: 20px;
+
+  .page-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+  }
 
   .products-list {
     margin-bottom: 24px;

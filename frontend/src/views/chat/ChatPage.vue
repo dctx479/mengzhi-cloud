@@ -283,42 +283,66 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .chat-page {
   height: calc(100vh - 84px);
-  background: #f5f7fa;
+  background: #f0f2f5;
 
   .chat-container {
     height: 100%;
     margin: 0;
 
     .chat-sidebar {
-      background: white;
-      border-right: 1px solid #f0f0f0;
+      background: #fff;
+      border-right: 1px solid #e8e8e8;
       display: flex;
       flex-direction: column;
       height: 100%;
       overflow: hidden;
 
       .sidebar-header {
-        padding: 16px;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 20px 16px 16px;
         display: flex;
         justify-content: space-between;
         align-items: center;
 
         h2 {
           margin: 0;
-          font-size: 16px;
-          font-weight: 600;
+          font-size: 18px;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        :deep(.el-button) {
+          border-radius: 8px;
+          font-weight: 500;
         }
       }
 
       .search-input {
-        margin: 12px 16px;
+        margin: 0 16px 12px;
+
+        :deep(.el-input__wrapper) {
+          border-radius: 8px;
+          background: #f5f7fa;
+          box-shadow: none;
+          border: 1px solid transparent;
+
+          &:hover, &.is-focus {
+            border-color: #0d9668;
+          }
+        }
       }
 
       .chats-list {
         flex: 1;
         overflow-y: auto;
-        padding: 0 8px;
+        padding: 0 8px 8px;
+
+        &::-webkit-scrollbar {
+          width: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+          background: #d9d9d9;
+          border-radius: 4px;
+        }
 
         .empty-chats {
           display: flex;
@@ -328,17 +352,18 @@ onUnmounted(() => {
         }
 
         .chat-item {
-          padding: 12px;
-          margin: 4px 0;
-          border-radius: 4px;
+          padding: 12px 14px;
+          margin: 2px 0;
+          border-radius: 10px;
           cursor: pointer;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          transition: all 0.3s;
+          transition: all 0.2s ease;
+          border: 1px solid transparent;
 
           &:hover {
-            background: #f5f5f5;
+            background: #f0f7f4;
 
             .delete-icon {
               visibility: visible;
@@ -346,9 +371,10 @@ onUnmounted(() => {
           }
 
           &.active {
-            background: #e7f3ff;
-            border-left: 3px solid $color-primary;
-            padding-left: 9px;
+            background: rgba(13, 150, 104, 0.08);
+            border-color: rgba(13, 150, 104, 0.2);
+            border-left: 3px solid #0d9668;
+            padding-left: 11px;
           }
 
           .chat-info {
@@ -362,11 +388,12 @@ onUnmounted(() => {
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
+              color: #333;
             }
 
             .chat-time {
               font-size: 12px;
-              color: #999;
+              color: #aaa;
               margin: 0;
             }
           }
@@ -374,12 +401,13 @@ onUnmounted(() => {
           .delete-icon {
             visibility: hidden;
             margin-left: 8px;
-            color: #f56c6c;
+            color: #ccc;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-size: 14px;
 
             &:hover {
-              color: #ff6b6b;
+              color: #f56c6c;
             }
           }
         }
@@ -392,7 +420,7 @@ onUnmounted(() => {
     }
 
     .chat-main {
-      background: white;
+      background: #f7f8fa;
       display: flex;
       flex-direction: column;
       height: 100%;
@@ -403,6 +431,7 @@ onUnmounted(() => {
         align-items: center;
         justify-content: center;
         height: 100%;
+        background: #f7f8fa;
       }
 
       .chat-content {
@@ -411,21 +440,25 @@ onUnmounted(() => {
         height: 100%;
 
         .chat-header {
-          padding: 16px 20px;
-          border-bottom: 1px solid #f0f0f0;
+          padding: 14px 24px;
+          background: #fff;
+          border-bottom: 1px solid #eee;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
           display: flex;
           justify-content: space-between;
           align-items: center;
+          z-index: 1;
 
           h2 {
             margin: 0;
             font-size: 16px;
             font-weight: 600;
+            color: #1a1a1a;
           }
 
           .header-actions {
             display: flex;
-            gap: 8px;
+            gap: 4px;
           }
         }
       }
@@ -440,10 +473,11 @@ onUnmounted(() => {
         position: fixed;
         left: 0;
         top: 64px;
-        width: 200px;
+        width: 240px;
         height: calc(100vh - 64px);
         z-index: 100;
         background: white;
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
       }
 
       .chat-main {

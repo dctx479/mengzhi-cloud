@@ -73,6 +73,7 @@ def _map_jd_goods_to_product(item: dict) -> dict:
         "origin_province": "未知",
         "main_image_url": main_image,
         "image_urls": image_urls,
+        "price": price,
         "specifications": {
             "jd_sku_id": sku_id,
             "shop_name": shop_name,
@@ -132,6 +133,7 @@ class JdImportService:
             raise RuntimeError("京东联盟 API 未配置，请在环境变量中设置 JD_APP_KEY 和 JD_SECRET_KEY")
 
         imported = skipped = errors = 0
+        new_products = []
 
         for page in range(1, max_pages + 1):
             try:
@@ -152,10 +154,11 @@ class JdImportService:
             for item in goods_list:
                 try:
                     result = self._upsert_product(item, created_by_id=created_by_id)
-                    if result == "imported":
-                        imported += 1
-                    else:
+                    if result == "skipped":
                         skipped += 1
+                    else:
+                        imported += 1
+                        new_products.append(result)
                 except Exception as e:
                     logger.warning(f"导入商品失败 skuId={item.get('skuId')}: {e}")
                     errors += 1
@@ -168,14 +171,24 @@ class JdImportService:
 
             await asyncio.sleep(0.2)
 
+        # 导入完成后异步下载图片到本地
+        if new_products:
+            try:
+                from app.services.image_download_service import ImageDownloadService
+                image_svc = ImageDownloadService()
+                for product in new_products:
+                    try:
+                        await image_svc.download_product_images(product, self._db)
+                    except Exception as e:
+                        logger.warning(f"图片下载失败 product_id={product.id}: {e}")
+            except Exception as e:
+                logger.warning(f"图片下载服务初始化失败: {e}")
+
         logger.info(f"JD 导入完成: keyword={keyword}, imported={imported}, skipped={skipped}, errors={errors}")
         return {"imported": imported, "skipped": skipped, "errors": errors}
 
-    def _upsert_product(self, item: dict, created_by_id: Optional[int] = None) -> str:
-        """
-        插入或跳过（已存在则跳过，不覆盖人工编辑的数据）。
-        返回 "imported" 或 "skipped"。
-        """
+    def _upsert_product(self, item: dict, created_by_id: Optional[int] = None):
+        """插入或跳过（已存在则跳过）。返回 Product 对象或 "skipped"。"""
         mapped = _map_jd_goods_to_product(item)
         jd_sku_id = mapped.pop("_jd_sku_id")
         mapped.pop("_price", None)
@@ -204,12 +217,13 @@ class JdImportService:
             main_image_url=mapped["main_image_url"],
             image_urls=mapped["image_urls"],
             specifications=mapped["specifications"],
+            price=mapped.get("price", 0),
             status=mapped["status"],
             created_by=created_by_id,
         )
 
         self._db.add(product)
-        return "imported"
+        return product
 
     # ------------------------------------------------------------------
     # 实时搜索代理（不写库）

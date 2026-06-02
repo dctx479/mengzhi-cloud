@@ -67,9 +67,13 @@ export const auditLogsApi = {
     Object.keys(backendParams).forEach(k => backendParams[k] === undefined && delete backendParams[k])
     const res = await _api.get<ApiResponse<BackendListResponse>>('/', { params: backendParams })
     const inner = unwrapInner<BackendListResponse>(res)
+    const logs = (inner.logs || inner.data || []).map((log: any) => ({
+      ...log,
+      status: log.status || (log.is_success ? 'success' : 'failure'),
+    }))
     return {
       data: {
-        data: inner.logs || inner.data || [],
+        data: logs,
         total: inner.total || 0,
         page: inner.page || 1,
         pageSize: inner.page_size || params.pageSize || 20,
@@ -91,8 +95,41 @@ export const auditLogsApi = {
    * 返回 { data: AuditStats } 以供调用方 const { data } = await ... 使用
    */
   getAuditStats: async (params?: { startTime?: string; endTime?: string }): Promise<{ data: AuditStats }> => {
-    const res = await _api.get<ApiResponse<AuditStats>>('/stats', { params })
-    return { data: unwrapInner<AuditStats>(res) }
+    const res = await _api.get<ApiResponse<any>>('/stats', {
+      params: {
+        start_date: params?.startTime,
+        end_date: params?.endTime,
+      }
+    })
+    const raw = unwrapInner<any>(res)
+    const totalOps = raw.total_operations ?? 0
+    const mapped: AuditStats = {
+      totalLogs: totalOps,
+      successRate: raw.success_rate ?? 0,
+      failureRate: raw.failure_rate ?? (totalOps > 0 ? 100 - (raw.success_rate ?? 0) : 0),
+      actionDistribution: (raw.action_stats ?? []).map((item: any) => ({
+        action: item.action,
+        count: item.count,
+        percentage: totalOps > 0 ? Math.round(item.count / totalOps * 1000) / 10 : 0,
+      })),
+      resourceTypeDistribution: (raw.resource_stats ?? []).map((item: any) => ({
+        resourceType: item.resource,
+        count: item.count,
+        percentage: totalOps > 0 ? Math.round(item.count / totalOps * 1000) / 10 : 0,
+      })),
+      topUsers: (raw.active_users ?? []).map((item: any, idx: number) => ({
+        userId: idx,
+        username: item.username,
+        count: item.count,
+      })),
+      actionTrend: (raw.action_trend ?? []).map((item: any) => ({
+        date: item.date,
+        count: item.count,
+        successCount: item.success_count ?? 0,
+        failureCount: item.failure_count ?? 0,
+      })),
+    }
+    return { data: mapped }
   },
 
   /**

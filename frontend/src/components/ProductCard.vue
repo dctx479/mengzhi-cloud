@@ -156,7 +156,7 @@ const handleToggleCompare = () => {
   .card-image {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 240px;
     background: #f5f5f5;
     overflow: hidden;
 
@@ -164,6 +164,7 @@ const handleToggleCompare = () => {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center top;
       transition: transform 0.3s;
     }
 

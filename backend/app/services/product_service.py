@@ -236,9 +236,7 @@ class ProductService:
                 except ValueError:
                     logger.warning(f"无效的产品状态: {status}")
 
-            # 精选筛选
-            if is_featured is not None:
-                filters.append(Product.is_featured == is_featured)
+            # is_featured filter removed — column does not exist on Product model
 
             # 应用所有筛选条件
             if filters:

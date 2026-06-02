@@ -15,7 +15,7 @@
 
 import os
 from pathlib import Path
-from fastapi import APIRouter, Depends, Query, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, Query, HTTPException, status, UploadFile, File, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -40,6 +40,7 @@ from app.core.errors import BusinessException, ErrorCode
 from app.core.responses import success_response, error_response, paginated_response
 from app.api.deps import get_db, require_admin, get_current_user, get_optional_user
 from app.core.constants import PRODUCT_IMAGE_UPLOAD_DIR
+from app.core.audit import audit_log
 
 # 创建路由器
 router = APIRouter()
@@ -426,24 +427,15 @@ async def get_cultural_info(product_id: int, db: Session = Depends(get_db)) -> d
 
 
 @router.post("/products", response_model=dict, tags=["产品"])
+@audit_log(action="create", resource="product", capture_request_body=True)
 async def create_product(
-    request: ProductCreateRequest, current_user: dict = Depends(require_admin), db: Session = Depends(get_db)
+    body: ProductCreateRequest, current_user: dict = Depends(require_admin), db: Session = Depends(get_db), request: Request = None
 ) -> dict:
-    """创建产品 (仅管理员)
-
-    参数:
-        request: 产品创建请求
-        current_user: 当前用户（需要管理员权限）
-        db: 数据库会话
-
-    返回:
-        创建的产品信息
-    """
+    """创建产品 (仅管理员)"""
     try:
         from app.models import User
 
         service = ProductService(db)
-        # 从current_user中获取数据库用户ID
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if not user:
             return JSONResponse(
@@ -451,7 +443,7 @@ async def create_product(
                 content=jsonable_encoder(error_response(code=ErrorCode.USER_NOT_FOUND, message="用户不存在")),
             )
 
-        product = service.create_product(request, user.id)
+        product = service.create_product(body, user.id)
 
         # 转换为响应对象
         response_data = ProductDetailResponse.from_orm(product)
@@ -478,26 +470,17 @@ async def create_product(
 
 
 @router.put("/products/{product_id}", response_model=dict, tags=["产品"])
+@audit_log(action="update", resource="product", get_resource_id=lambda kwargs: kwargs.get("product_id"), capture_request_body=True)
 async def update_product(
     product_id: int,
-    request: ProductUpdateRequest,
+    body: ProductUpdateRequest,
     current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db),
+    request: Request = None,
 ) -> dict:
-    """更新产品 (仅管理员)
-
-    参数:
-        product_id: 产品ID
-        request: 产品更新请求
-        current_user: 当前用户（需要管理员权限）
-        db: 数据库会话
-
-    返回:
-        更新后的产品信息
-    """
+    """更新产品 (仅管理员)"""
     try:
-        # 验证请求体不为空
-        if not request.dict(exclude_unset=True):
+        if not body.dict(exclude_unset=True):
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content=jsonable_encoder(error_response(code=ErrorCode.PARAM_ERROR, message="请求体不能为空")),
@@ -506,7 +489,6 @@ async def update_product(
         from app.models import User
 
         service = ProductService(db)
-        # 从current_user中获取数据库用户ID
         user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
         if not user:
             return JSONResponse(
@@ -514,7 +496,7 @@ async def update_product(
                 content=jsonable_encoder(error_response(code=ErrorCode.USER_NOT_FOUND, message="用户不存在")),
             )
 
-        product = service.update_product(product_id, request, user.id)
+        product = service.update_product(product_id, body, user.id)
 
         # 转换为响应对象
         response_data = ProductDetailResponse.from_orm(product)
@@ -538,8 +520,9 @@ async def update_product(
 
 
 @router.delete("/products/{product_id}", response_model=dict, tags=["产品"])
+@audit_log(action="delete", resource="product", get_resource_id=lambda kwargs: kwargs.get("product_id"))
 async def delete_product(
-    product_id: int, current_user: dict = Depends(require_admin), db: Session = Depends(get_db)
+    product_id: int, current_user: dict = Depends(require_admin), db: Session = Depends(get_db), request: Request = None
 ) -> dict:
     """删除产品 (仅管理员)
 
@@ -1060,4 +1043,45 @@ async def get_product_tags(product_id: int, db: Session = Depends(get_db)) -> di
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message="系统错误")),
+        )
+
+
+# ============ 管理端点: 图片同步 + 知识库同步 ============
+
+
+@router.post("/products/sync-images", response_model=dict, tags=["产品管理"])
+async def sync_product_images(
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """批量下载所有产品的外部图片到本地存储（仅管理员）"""
+    try:
+        from app.services.image_download_service import ImageDownloadService
+        image_svc = ImageDownloadService()
+        result = await image_svc.batch_download_all_products(db)
+        return success_response(data=result, message="图片同步完成").dict()
+    except Exception as e:
+        logger.error(f"图片同步异常: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message=f"图片同步失败: {str(e)}")),
+        )
+
+
+@router.post("/products/sync-kb", response_model=dict, tags=["产品管理"])
+async def sync_products_to_knowledge_base(
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """同步产品数据到客服知识库（混合模式: 保留手写知识 + 从DB生成产品文档）"""
+    try:
+        from app.services.kefu_rag import KefuKnowledgeBase
+        kb = KefuKnowledgeBase()
+        result = kb.sync_products_to_kb(db)
+        return success_response(data=result, message="知识库同步完成").dict()
+    except Exception as e:
+        logger.error(f"知识库同步异常: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=jsonable_encoder(error_response(code=ErrorCode.SYSTEM_ERROR, message=f"知识库同步失败: {str(e)}")),
         )

@@ -549,14 +549,38 @@ class AuditService:
                 active_query = active_query.filter(AuditLog.created_at <= end_date)
             active_users = active_query.group_by(AuditLog.username).order_by(func.count(AuditLog.id).desc()).limit(10).all()
 
+            # 按日期分组的操作趋势
+            from sqlalchemy import cast, Date, case
+            trend_base = db.query(
+                cast(AuditLog.created_at, Date).label('date'),
+                func.count(AuditLog.id).label('count'),
+                func.sum(case((AuditLog.is_success == 1, 1), else_=0)).label('success_count'),
+                func.sum(case((AuditLog.is_success == 0, 1), else_=0)).label('failure_count')
+            )
+            if start_date:
+                trend_base = trend_base.filter(AuditLog.created_at >= start_date)
+            if end_date:
+                trend_base = trend_base.filter(AuditLog.created_at <= end_date)
+            action_trend = trend_base.group_by(cast(AuditLog.created_at, Date)).order_by(cast(AuditLog.created_at, Date)).all()
+
             return {
                 "total_operations": total_operations,
                 "success_count": success_count,
                 "failure_count": failure_count,
                 "success_rate": round(success_count / total_operations * 100, 2) if total_operations > 0 else 0,
+                "failure_rate": round(failure_count / total_operations * 100, 2) if total_operations > 0 else 0,
                 "action_stats": [{"action": action, "count": count} for action, count in action_stats],
                 "resource_stats": [{"resource": resource, "count": count} for resource, count in resource_stats],
-                "active_users": [{"username": username, "count": count} for username, count in active_users]
+                "active_users": [{"username": username, "count": count} for username, count in active_users],
+                "action_trend": [
+                    {
+                        "date": str(row.date),
+                        "count": row.count,
+                        "success_count": int(row.success_count or 0),
+                        "failure_count": int(row.failure_count or 0)
+                    }
+                    for row in action_trend
+                ]
             }
 
         except Exception as e:
@@ -566,9 +590,11 @@ class AuditService:
                 "success_count": 0,
                 "failure_count": 0,
                 "success_rate": 0,
+                "failure_rate": 0,
                 "action_stats": [],
                 "resource_stats": [],
-                "active_users": []
+                "active_users": [],
+                "action_trend": []
             }
 
     @staticmethod

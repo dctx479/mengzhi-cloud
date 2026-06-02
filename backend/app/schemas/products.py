@@ -228,15 +228,6 @@ class ProductDetailResponse(BaseModel):
             return v.value
         return v
 
-    @model_validator(mode='after')
-    def compute_price(self):
-        if not self.price and isinstance(self.specifications, dict):
-            try:
-                self.price = float(self.specifications.get('price', 0))
-            except (ValueError, TypeError):
-                pass
-        return self
-
 
 class ProductListItemResponse(BaseModel):
     """产品列表项响应（简化版）"""
@@ -282,15 +273,6 @@ class ProductListItemResponse(BaseModel):
         if hasattr(v, 'value'):
             return v.value
         return v
-
-    @model_validator(mode='after')
-    def compute_price(self):
-        if not self.price and isinstance(self.specifications, dict):
-            try:
-                self.price = float(self.specifications.get('price', 0))
-            except (ValueError, TypeError):
-                pass
-        return self
 
 
 # ============ 查询参数Schema ============

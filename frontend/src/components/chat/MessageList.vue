@@ -234,14 +234,14 @@ defineExpose({
 .message-list {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
-  background: white;
+  padding: 24px 20px;
+  background: #f7f8fa;
   display: flex;
   flex-direction: column;
   scroll-behavior: smooth;
 
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
 
   &::-webkit-scrollbar-track {
@@ -250,7 +250,7 @@ defineExpose({
 
   &::-webkit-scrollbar-thumb {
     background: #d9d9d9;
-    border-radius: 3px;
+    border-radius: 4px;
 
     &:hover {
       background: #bfbfbf;
@@ -262,19 +262,23 @@ defineExpose({
     align-items: center;
     justify-content: center;
     height: 100%;
+    opacity: 0.7;
   }
 
   .messages-container {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
 
     .load-more-hint {
       display: flex;
       justify-content: center;
       padding: 12px 0;
       margin-bottom: 8px;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid #eee;
 
       .el-button {
         margin: 0;
@@ -284,14 +288,6 @@ defineExpose({
     .message-item {
       display: flex;
       animation: fadeIn 0.3s ease-out;
-
-      &:hover {
-        .message-bubble {
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          border-radius: 12px;
-          padding: 4px;
-        }
-      }
     }
   }
 
@@ -303,7 +299,7 @@ defineExpose({
     color: #999;
     font-size: 14px;
     padding: 20px 0;
-    margin-top: 12px;
+    margin-top: 8px;
 
     .loading-icon {
       animation: spin 1s linear infinite;

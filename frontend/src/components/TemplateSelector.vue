@@ -107,14 +107,15 @@ const getDifficultyLabel = (difficulty: string): string => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   background: #fff;
-  border-radius: 4px;
+  border-radius: 8px;
 
   .template-categories {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 12px;
-    padding: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+    padding: 12px;
     border-bottom: 1px solid #eee;
     background: #f9f9f9;
 
@@ -135,9 +136,9 @@ const getDifficultyLabel = (difficulty: string): string => {
       }
 
       &.active {
-        background: #e6f7ff;
-        border-color: #1890ff;
-        color: #1890ff;
+        background: #f0faf5;
+        border-color: #0d9668;
+        color: #0d9668;
 
         .category-icon {
           transform: scale(1.2);
@@ -167,7 +168,8 @@ const getDifficultyLabel = (difficulty: string): string => {
   .template-list {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    min-height: 0;
+    padding: 12px;
 
     .template-cards {
       display: grid;
@@ -185,17 +187,17 @@ const getDifficultyLabel = (difficulty: string): string => {
       flex-direction: column;
 
       &:hover {
-        border-color: #1890ff;
+        border-color: #0d9668;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
       }
 
       &.selected {
-        border-color: #1890ff;
-        background: #e6f7ff;
+        border-color: #0d9668;
+        background: #f0faf5;
 
         .template-title {
-          color: #1890ff;
+          color: #0d9668;
           font-weight: 600;
         }
       }

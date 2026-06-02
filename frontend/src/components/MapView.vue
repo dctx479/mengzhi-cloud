@@ -105,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { List, Location } from '@element-plus/icons-vue'
 import type { Product } from '@/types/product'
@@ -129,6 +129,10 @@ const viewMode = ref(props.modelValue)
 const selectedRegion = ref('')
 const showProductPopup = ref(false)
 const selectedMapProduct = ref<Product | null>(null)
+
+watch(selectedRegion, (val) => {
+  emit('region-change', val)
+})
 
 // 区域信息映射
 const regionMap = {

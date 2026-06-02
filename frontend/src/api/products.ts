@@ -43,7 +43,37 @@ function mapProduct(raw: Record<string, unknown>): Product {
   }
 }
 
+/** 地区代码→中文名映射 (前端用code, 后端用中文名) */
+const REGION_CODE_TO_NAME: Record<string, string> = {
+  xilin: '锡林郭勒盟',
+  hulun: '呼伦贝尔市',
+  chifeng: '赤峰市',
+  tongliao: '通辽市',
+  wulanchabu: '乌兰察布市',
+  baotou: '包头市',
+  huhhot: '呼和浩特市',
+}
+
+function mapSortParams(sortBy?: string): { sort_by?: string; sort_order?: string } {
+  if (!sortBy) return {}
+  const map: Record<string, [string, string]> = {
+    newest: ['created_at', 'desc'],
+    popular: ['created_at', 'desc'],
+    priceHigh: ['price', 'desc'],
+    priceLow: ['price', 'asc'],
+    price_asc: ['price', 'asc'],
+    price_desc: ['price', 'desc'],
+  }
+  const [field, order] = map[sortBy] ?? ['created_at', 'desc']
+  return { sort_by: field, sort_order: order }
+}
+
 export const getProductList = async (params: ProductListRequest): Promise<ProductListResponse> => {
+  const sort = mapSortParams(params.sortBy)
+  const regionName = params.regions?.length
+    ? params.regions.map(code => REGION_CODE_TO_NAME[code] || code).join(',')
+    : undefined
+
   const res = await http.get<{
     code: number
     data: { items: Record<string, unknown>[]; pagination?: { total: number; page: number; size: number }; total?: number; page?: number; size?: number }
@@ -51,9 +81,12 @@ export const getProductList = async (params: ProductListRequest): Promise<Produc
   }>('/v1/products', {
     params: {
       page: params.page,
-      size: params.pageSize,     // 后端参数名为 size
-      search: params.keyword,    // 后端参数名为 search
+      size: params.pageSize,
+      search: params.keyword,
       category: params.category,
+      region: regionName,
+      sort_by: sort.sort_by,
+      sort_order: sort.sort_order,
     },
   })
   const inner = unwrap<{ items: Record<string, unknown>[]; pagination?: { total: number; page: number; size: number }; total?: number; page?: number }>(res)
@@ -113,6 +146,12 @@ export const searchProducts = async (keyword: string): Promise<Product[]> => {
   const inner = unwrap<{ items: Record<string, unknown>[] }>(res)
   return (inner?.items || []).map(mapProduct)
 }
+
+// ============ 导出/备份 ============
+
+export const exportProductsExcel = () => window.open('/api/v1/export/products?format=excel', '_blank')
+export const exportProductsJSON = () => window.open('/api/v1/export/products/json', '_blank')
+export const exportProductsBackup = () => window.open('/api/v1/export/products/backup', '_blank')
 
 export const getPopularProducts = async (limit = 10): Promise<Product[]> => {
   const res = await http.get<{ code: number; data: { items: Record<string, unknown>[] }; message: string }>(

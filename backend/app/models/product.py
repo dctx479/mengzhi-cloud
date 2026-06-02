@@ -145,6 +145,22 @@ class Product(BaseModel):
         comment="营养成分(JSON对象)"
     )
 
+    # 价格
+    price = Column(
+        DECIMAL(10, 2),
+        nullable=True,
+        default=0,
+        index=True,
+        comment="产品价格(元)"
+    )
+
+    # 原始外部图片URL(导入时备份)
+    original_image_urls = Column(
+        JSON,
+        nullable=True,
+        comment="原始外部图片URL(备份)"
+    )
+
     # 认证信息
     certification_type = Column(
         VARCHAR(100),

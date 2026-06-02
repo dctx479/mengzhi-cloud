@@ -310,6 +310,23 @@ const handleLoadConfig = async (configId: string) => {
   padding: 16px;
   border-radius: 4px;
 
+  .product-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    overflow: hidden;
+  }
+
+  .product-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background-color: #f5f5f5;
+  }
+
   .form-hint {
     font-size: 12px;
     color: #999;

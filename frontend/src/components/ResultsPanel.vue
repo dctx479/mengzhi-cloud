@@ -217,6 +217,7 @@ const formatTime = (dateString: string): string => {
     .result-cards {
       flex: 1;
       overflow-y: auto;
+      min-height: 0;
       display: grid;
       gap: 12px;
       grid-template-columns: 1fr;
@@ -229,7 +230,7 @@ const formatTime = (dateString: string): string => {
       transition: all 0.3s ease;
 
       &:hover {
-        border-color: #1890ff;
+        border-color: #0d9668;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 

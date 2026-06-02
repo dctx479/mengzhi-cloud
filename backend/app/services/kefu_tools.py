@@ -82,8 +82,11 @@ def query_product(product_name: str, db: Session, limit: int = 5) -> Dict[str, A
                     "id": p.id,
                     "name": p.name,
                     "price": float(p.price) if p.price else 0,
+                    "category": p.category or "",
+                    "origin": p.origin_province or "",
                     "status": p.status.value if hasattr(p.status, 'value') else str(p.status),
                     "description": p.description[:200] if p.description else "",
+                    "main_image": p.main_image_url or "",
                 }
                 for p in products
             ]

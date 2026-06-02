@@ -7,7 +7,7 @@ import base64
 import hashlib
 
 from loguru import logger
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
@@ -24,6 +24,7 @@ from app.models.enterprise import Enterprise
 from app.models.user import User, UserRole
 from app.services.ai.factory import AIProviderFactory
 from app.services.ai.base_provider import ChatCompletionRequest, ChatMessage
+from app.core.audit import audit_log
 
 router = APIRouter()
 
@@ -136,11 +137,13 @@ async def list_ai_configs(
 
 
 @router.post("/enterprises/{enterprise_id}/ai-configs")
+@audit_log(action="create", resource="ai_config", capture_request_body=True)
 async def create_ai_config(
     enterprise_id: int,
     request_body: CreateAIConfigRequest,
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
+    request: Request = None,
 ):
     """创建AI配置"""
     try:
@@ -195,12 +198,14 @@ async def create_ai_config(
 
 
 @router.patch("/enterprises/{enterprise_id}/ai-configs/{config_id}")
+@audit_log(action="update", resource="ai_config", get_resource_id=lambda kwargs: kwargs.get("config_id"), capture_request_body=True)
 async def update_ai_config(
     enterprise_id: int,
     config_id: int,
     request_body: UpdateAIConfigRequest,
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
+    request: Request = None,
 ):
     """更新AI配置"""
     try:
@@ -246,8 +251,9 @@ async def update_ai_config(
 
 
 @router.delete("/enterprises/{enterprise_id}/ai-configs/{config_id}")
+@audit_log(action="delete", resource="ai_config", get_resource_id=lambda kwargs: kwargs.get("config_id"))
 async def delete_ai_config(
-    enterprise_id: int, config_id: int, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)
+    enterprise_id: int, config_id: int, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db), request: Request = None
 ):
     """删除AI配置"""
     try:

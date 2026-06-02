@@ -322,9 +322,10 @@ onBeforeUnmount(() => {
 </script>
 <style scoped lang="scss">
 .message-input-wrapper {
-  padding: 16px 20px;
-  background: white;
-  border-top: 1px solid #e4e7eb;
+  padding: 16px 24px;
+  background: #fff;
+  border-top: none;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -332,7 +333,7 @@ onBeforeUnmount(() => {
   .upload-section {
     padding: 12px;
     background: #f5f7fa;
-    border-radius: 4px;
+    border-radius: 8px;
     border: 1px solid #e4e7eb;
   }
 
@@ -353,14 +354,27 @@ onBeforeUnmount(() => {
 
   .input-container {
     .el-textarea {
-      border-radius: 4px;
-
-      :deep(textarea) {
+      :deep(.el-textarea__inner) {
+        border-radius: 12px;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-size: 14px;
         resize: none;
         max-height: 200px;
         overflow-y: auto;
+        padding: 12px 16px;
+        background: #f5f7fa;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+
+        &:hover {
+          border-color: #ddd;
+        }
+
+        &:focus {
+          border-color: #0d9668;
+          background: #fff;
+          box-shadow: 0 0 0 2px rgba(13, 150, 104, 0.1);
+        }
       }
     }
 
@@ -383,6 +397,10 @@ onBeforeUnmount(() => {
 
         .el-button {
           margin: 0;
+          color: #999;
+          &:hover {
+            color: #0d9668;
+          }
         }
       }
 
@@ -390,6 +408,17 @@ onBeforeUnmount(() => {
         .el-button {
           margin: 0;
           min-width: 80px;
+          border-radius: 8px;
+        }
+
+        :deep(.el-button--primary) {
+          background-color: #0d9668;
+          border-color: #0d9668;
+
+          &:hover {
+            background-color: #0ba85e;
+            border-color: #0ba85e;
+          }
         }
       }
     }
@@ -398,12 +427,12 @@ onBeforeUnmount(() => {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 8px;
+      margin-top: 6px;
       font-size: 12px;
-      color: #999;
+      color: #bbb;
 
       .files-count {
-        color: $color-primary;
+        color: #0d9668;
         font-weight: 500;
       }
     }

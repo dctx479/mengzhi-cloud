@@ -1,8 +1,12 @@
 <template>
   <div class="message-bubble" :class="{ 'user-message': isUserMessage }">
     <div class="message-avatar">
-      <div v-if="isUserMessage" class="user-avatar">👤</div>
-      <div v-else class="ai-avatar">🤖</div>
+      <div v-if="isUserMessage" class="user-avatar">
+        <el-icon :size="18"><User /></el-icon>
+      </div>
+      <div v-else class="ai-avatar">
+        <el-icon :size="18"><Monitor /></el-icon>
+      </div>
     </div>
 
     <div class="message-wrapper">
@@ -112,7 +116,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Document, ZoomIn } from '@element-plus/icons-vue'
+import { Document, ZoomIn, User, Monitor } from '@element-plus/icons-vue'
 import type { Message, ImageAttachment } from '@/types/chat'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
@@ -206,7 +210,7 @@ const deleteMessage = () => {
 .message-bubble {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   animation: slideIn 0.3s ease-out;
 
   &.user-message {
@@ -217,31 +221,55 @@ const deleteMessage = () => {
     }
 
     .message-content {
-      background: $color-primary;
+      background: #0d9668;
       color: white;
+      border-radius: 18px 18px 4px 18px;
+
+      :deep(a) {
+        color: #b3f0d9;
+      }
+    }
+
+    .message-avatar {
+      .user-avatar {
+        background: #e8f5f0;
+        color: #0d9668;
+      }
+    }
+
+    .message-meta {
+      flex-direction: row-reverse;
     }
   }
 
   .message-avatar {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: #f0f0f0;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
 
-    .avatar-img {
+    .user-avatar {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e8f5f0;
+      color: #0d9668;
     }
 
     .ai-avatar {
-      font-size: 20px;
-      line-height: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f3f8;
+      color: #5b6c8a;
     }
   }
 
@@ -253,13 +281,14 @@ const deleteMessage = () => {
     flex: 1;
 
     .message-content {
-      background: #f0f0f0;
+      background: #fff;
       color: #333;
       padding: 12px 16px;
-      border-radius: 12px;
+      border-radius: 18px 18px 18px 4px;
       word-break: break-word;
       line-height: 1.6;
       min-width: 60px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 
       .message-text {
         margin: 0;
@@ -307,7 +336,7 @@ const deleteMessage = () => {
       .image-item {
         position: relative;
         cursor: pointer;
-        border-radius: 6px;
+        border-radius: 8px;
         overflow: hidden;
         height: 120px;
 
@@ -357,19 +386,19 @@ const deleteMessage = () => {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 6px 10px;
-        background: rgba(64, 158, 255, 0.1);
-        border-radius: 4px;
+        padding: 8px 12px;
+        background: #f0faf5;
+        border-radius: 8px;
         font-size: 12px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.2s;
 
         &:hover {
-          background: rgba(64, 158, 255, 0.2);
+          background: #e0f5eb;
         }
 
         .file-icon {
-          color: $color-primary;
+          color: #0d9668;
         }
 
         .file-name {
@@ -378,7 +407,7 @@ const deleteMessage = () => {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          color: $color-primary;
+          color: #0d9668;
         }
 
         .file-size {
@@ -392,20 +421,20 @@ const deleteMessage = () => {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-top: 6px;
+      margin-top: 4px;
       width: 100%;
 
       .message-time {
         font-size: 11px;
-        color: #999;
+        color: #bbb;
       }
 
       .message-actions {
         display: flex;
-        gap: 4px;
+        gap: 2px;
         margin-left: auto;
         opacity: 0;
-        transition: opacity 0.3s;
+        transition: opacity 0.2s;
       }
     }
   }
@@ -418,7 +447,7 @@ const deleteMessage = () => {
     width: 100%;
     height: auto;
     max-height: 70vh;
-    border-radius: 4px;
+    border-radius: 8px;
   }
 
   .preview-image-name {

@@ -42,6 +42,8 @@ from app.api.deps import (
 )
 from app.services.auth_service import AuthService
 from app.services.captcha_service import CaptchaService
+from app.services.audit_service import AuditService
+from app.core.audit import get_client_ip
 from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
@@ -78,7 +80,8 @@ def _enum_val(v):
 )
 async def register(
     request: RegisterRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    req: Request = None
 ) -> APIResponse:
     """
     用户注册端点
@@ -160,7 +163,25 @@ async def register(
         user_uuid = auth_service._create_user_record(request, enterprise_id)
         db.commit()
 
-        # 6. 返回成功响应
+        # 6. 记录审计日志
+        try:
+            AuditService.log(
+                db=db,
+                user_id=None,
+                username=request.username,
+                action="register",
+                resource="user",
+                details=f"新用户注册: {request.username}",
+                ip=get_client_ip(req) if req else None,
+                user_agent=req.headers.get("user-agent") if req else None,
+                request_method="POST",
+                request_path="/api/v1/auth/register",
+                is_success=True
+            )
+        except Exception:
+            pass
+
+        # 7. 返回成功响应
         response_data = RegisterResponse(
             user_id=user_uuid,
             username=request.username,
@@ -307,6 +328,19 @@ async def login(
             tokens=tokens
         )
 
+        # 记录登录成功审计日志
+        try:
+            AuditService.log_login(
+                db=db,
+                user_id=user.id,
+                username=user.username,
+                ip=get_client_ip(req) if req else None,
+                user_agent=req.headers.get("user-agent") if req else None,
+                is_success=True
+            )
+        except Exception:
+            pass
+
         return APIResponse(
             code=200,
             message="登录成功",
@@ -314,6 +348,19 @@ async def login(
         )
 
     except BusinessException as e:
+        # 记录登录失败审计日志
+        try:
+            AuditService.log_login(
+                db=db,
+                user_id=None,
+                username=request.username,
+                ip=get_client_ip(req) if req else None,
+                user_agent=req.headers.get("user-agent") if req else None,
+                is_success=False,
+                error_message=e.message
+            )
+        except Exception:
+            pass
         raise HTTPException(
             status_code=ERROR_HTTP_STATUS.get(e.code, 400),
             detail=e.message
@@ -473,6 +520,24 @@ async def logout(
         user_id = current_user.get("user_id")
         if user_id:
             auth_service.clear_user_cache(user_id)
+
+        # 记录登出审计日志
+        try:
+            AuditService.log(
+                db=db,
+                user_id=current_user.get("user_id"),
+                username=current_user.get("username", "unknown"),
+                action="logout",
+                resource="session",
+                details=f"用户登出: {current_user.get('username', 'unknown')}",
+                ip=get_client_ip(request),
+                user_agent=request.headers.get("user-agent"),
+                request_method="POST",
+                request_path="/api/v1/auth/logout",
+                is_success=True
+            )
+        except Exception:
+            pass
 
         return APIResponse(
             code=200,

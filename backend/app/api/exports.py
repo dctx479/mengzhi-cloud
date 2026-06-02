@@ -8,7 +8,7 @@
 更新日期: 2026-01-21
 """
 
-from fastapi import APIRouter, Depends, Query, status, BackgroundTasks
+from fastapi import APIRouter, Depends, Query, status, BackgroundTasks, UploadFile, File
 from fastapi.responses import StreamingResponse, JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -49,19 +49,24 @@ def _encode_filename_header(filename: str) -> str:
 
 def _build_product_dict(product: Product, fields: Optional[List[str]] = None) -> dict:
     """构建产品字典，支持自定义字段"""
+    specs = product.specifications or {}
     all_fields = {
         "产品ID": product.id,
+        "产品UUID": product.product_uuid,
         "产品名称": product.name,
-        "SKU": product.sku,
         "分类": product.category,
+        "子分类": product.sub_category or "",
         "价格（元）": float(product.price) if product.price else 0,
-        "产地": product.region,
-        "状态": product.status,
-        "是否精选": "是" if product.is_featured else "否",
-        "库存": product.stock,
-        "销量": product.sales_count,
-        "文化标签": product.cultural_tags or "",
-        "文化描述": product.cultural_description or "",
+        "产地": product.origin_province or "",
+        "产地城市": product.origin_city or "",
+        "状态": product.status.value if hasattr(product.status, 'value') else str(product.status),
+        "浏览量": product.view_count or 0,
+        "生成次数": product.generate_count or 0,
+        "文化标签": ", ".join(product.cultural_tags) if isinstance(product.cultural_tags, list) else (product.cultural_tags or ""),
+        "文化故事": product.cultural_story or "",
+        "主图URL": product.main_image_url or "",
+        "描述": (product.description or "")[:500],
+        "来源店铺": specs.get("shop_title") or specs.get("shop_name") or "",
         "创建时间": product.created_at.strftime("%Y-%m-%d %H:%M:%S") if product.created_at else "",
         "更新时间": product.updated_at.strftime("%Y-%m-%d %H:%M:%S") if product.updated_at else ""
     }
@@ -196,7 +201,7 @@ async def export_products(
         if category:
             query = query.filter(Product.category == category)
         if region:
-            query = query.filter(Product.region == region)
+            query = query.filter(Product.origin_province == region)
         if status_filter:
             query = query.filter(Product.status == status_filter)
 
@@ -286,14 +291,12 @@ async def download_import_template(
 
         template_data = {
             "产品名称": ["示例产品"],
-            "SKU": ["SKU-001"],
             "分类": ["肉类"],
             "价格（元）": [99.00],
             "产地": ["呼和浩特"],
-            "状态": ["active"],
-            "库存": [100],
+            "状态": ["published"],
             "文化标签": ["草原牛肉"],
-            "文化描述": ["来自内蒙古大草原的优质牛肉"]
+            "文化故事": ["来自内蒙古大草原的优质牛肉"]
         }
 
         df = pd.DataFrame(template_data)
@@ -325,19 +328,279 @@ async def get_available_fields(
     """
     fields = [
         {"name": "产品ID", "description": "产品唯一标识"},
+        {"name": "产品UUID", "description": "产品UUID"},
         {"name": "产品名称", "description": "产品名称"},
-        {"name": "SKU", "description": "产品SKU编码"},
         {"name": "分类", "description": "产品分类"},
+        {"name": "子分类", "description": "产品子分类"},
         {"name": "价格（元）", "description": "产品价格"},
-        {"name": "产地", "description": "产品产地"},
+        {"name": "产地", "description": "产地省份"},
+        {"name": "产地城市", "description": "产地城市"},
         {"name": "状态", "description": "产品状态"},
-        {"name": "是否精选", "description": "是否为精选产品"},
-        {"name": "库存", "description": "库存数量"},
-        {"name": "销量", "description": "销售数量"},
+        {"name": "浏览量", "description": "浏览次数"},
+        {"name": "生成次数", "description": "内容生成次数"},
         {"name": "文化标签", "description": "文化标签"},
-        {"name": "文化描述", "description": "文化描述"},
+        {"name": "文化故事", "description": "文化故事"},
+        {"name": "来源店铺", "description": "外部来源店铺名称"},
         {"name": "创建时间", "description": "创建时间"},
         {"name": "更新时间", "description": "更新时间"}
     ]
 
     return success_response(data=fields, message="获取可导出字段成功").dict()
+
+
+# ============ 完整JSON导出 ============
+
+def _product_to_full_dict(product: Product) -> dict:
+    """将Product ORM对象序列化为完整JSON字典（可用于恢复导入）"""
+    return {
+        "product_uuid": product.product_uuid,
+        "name": product.name,
+        "short_name": product.short_name,
+        "category": product.category,
+        "sub_category": product.sub_category,
+        "origin_province": product.origin_province,
+        "origin_city": product.origin_city,
+        "origin_district": product.origin_district,
+        "origin_detail": product.origin_detail,
+        "latitude": float(product.latitude) if product.latitude else None,
+        "longitude": float(product.longitude) if product.longitude else None,
+        "description": product.description,
+        "features": product.features,
+        "specifications": product.specifications,
+        "nutrition_facts": product.nutrition_facts,
+        "price": float(product.price) if product.price else 0,
+        "certification_type": product.certification_type,
+        "certification_no": product.certification_no,
+        "certification_date": str(product.certification_date) if product.certification_date else None,
+        "certification_expires": str(product.certification_expires) if product.certification_expires else None,
+        "cultural_tags": product.cultural_tags,
+        "cultural_story": product.cultural_story,
+        "historical_origin": product.historical_origin,
+        "main_image_url": product.main_image_url,
+        "image_urls": product.image_urls,
+        "original_image_urls": product.original_image_urls,
+        "video_url": product.video_url,
+        "status": product.status.value if hasattr(product.status, 'value') else str(product.status),
+        "view_count": product.view_count or 0,
+        "generate_count": product.generate_count or 0,
+        "enterprise_id": product.enterprise_id,
+        "created_at": product.created_at.isoformat() if product.created_at else None,
+        "updated_at": product.updated_at.isoformat() if product.updated_at else None,
+    }
+
+
+@router.get("/products/json", tags=["导出"])
+async def export_products_json(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """导出产品完整数据为JSON文件（含所有字段，可用于恢复导入）"""
+    import json
+
+    try:
+        products = db.query(Product).filter(Product.deleted_at.is_(None)).all()
+        if not products:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content=error_response(code=ErrorCode.RECORD_NOT_FOUND, message="没有可导出的产品数据").dict()
+            )
+
+        export_data = {
+            "version": "1.0",
+            "export_time": datetime.now().isoformat(),
+            "total_count": len(products),
+            "products": [_product_to_full_dict(p) for p in products],
+        }
+
+        json_bytes = json.dumps(export_data, ensure_ascii=False, indent=2).encode("utf-8")
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"products_backup_{timestamp}.json"
+
+        return StreamingResponse(
+            iter([json_bytes]),
+            media_type="application/json; charset=utf-8",
+            headers={"Content-Disposition": _encode_filename_header(filename)},
+        )
+    except Exception as e:
+        logger.error(f"JSON导出异常: {str(e)}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="JSON导出失败").dict()
+        )
+
+
+# ============ ZIP完整备份 ============
+
+@router.get("/products/backup", tags=["导出"])
+async def export_products_backup(
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """导出产品完整备份包（JSON + Excel + 本地图片），ZIP格式"""
+    import json
+    import zipfile
+    from pathlib import Path
+
+    try:
+        products = db.query(Product).filter(Product.deleted_at.is_(None)).all()
+        if not products:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content=error_response(code=ErrorCode.RECORD_NOT_FOUND, message="没有可导出的产品数据").dict()
+            )
+
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+            # 1. products.json
+            export_data = {
+                "version": "1.0",
+                "export_time": datetime.now().isoformat(),
+                "total_count": len(products),
+                "products": [_product_to_full_dict(p) for p in products],
+            }
+            zf.writestr("products.json", json.dumps(export_data, ensure_ascii=False, indent=2))
+
+            # 2. products.xlsx
+            data = [_build_product_dict(p) for p in products]
+            df = pd.DataFrame(data)
+            excel_buf = io.BytesIO()
+            df.to_excel(excel_buf, index=False, sheet_name="产品列表")
+            zf.writestr("products.xlsx", excel_buf.getvalue())
+
+            # 3. images/ folder — collect local image files
+            image_count = 0
+            for p in products:
+                for url in (p.image_urls or []):
+                    if url and url.startswith("/uploads/"):
+                        filepath = Path(url.lstrip("/"))
+                        if filepath.exists():
+                            zf.write(filepath, f"images/{filepath.name}")
+                            image_count += 1
+                if p.main_image_url and p.main_image_url.startswith("/uploads/"):
+                    main_path = Path(p.main_image_url.lstrip("/"))
+                    if main_path.exists() and f"images/{main_path.name}" not in zf.namelist():
+                        zf.write(main_path, f"images/{main_path.name}")
+                        image_count += 1
+
+            # 4. manifest
+            manifest = {
+                "products": len(products),
+                "images": image_count,
+                "exported_at": datetime.now().isoformat(),
+            }
+            zf.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2))
+
+        zip_buffer.seek(0)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"products_backup_{timestamp}.zip"
+
+        return StreamingResponse(
+            iter([zip_buffer.getvalue()]),
+            media_type="application/zip",
+            headers={"Content-Disposition": _encode_filename_header(filename)},
+        )
+    except Exception as e:
+        logger.error(f"ZIP备份异常: {str(e)}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="备份失败").dict()
+        )
+
+
+# ============ JSON导入/恢复 ============
+
+@router.post("/products/import-json", tags=["导入"])
+async def import_products_from_json(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """从JSON备份文件恢复产品数据（管理员操作）
+
+    - 按 product_uuid 去重
+    - 导入状态统一设为 DRAFT
+    - 不覆盖已存在的产品
+    """
+    import json
+    from app.models.product import ProductStatus
+
+    try:
+        content = await file.read()
+        data = json.loads(content.decode("utf-8"))
+
+        products_data = data.get("products", [])
+        if not products_data:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=error_response(code=ErrorCode.PARAM_ERROR, message="JSON文件中没有产品数据").dict()
+            )
+
+        from app.models.user import User
+        user = db.query(User).filter(User.user_uuid == current_user["user_id"]).first()
+        if not user:
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content=error_response(code=ErrorCode.FORBIDDEN, message="用户不存在").dict()
+            )
+
+        imported = skipped = errors_count = 0
+
+        for item in products_data:
+            try:
+                p_uuid = item.get("product_uuid")
+                if p_uuid:
+                    existing = db.query(Product).filter(Product.product_uuid == p_uuid).first()
+                    if existing:
+                        skipped += 1
+                        continue
+
+                product = Product(
+                    name=item.get("name", "未知产品")[:200],
+                    category=item.get("category", "其他")[:100],
+                    sub_category=item.get("sub_category"),
+                    origin_province=item.get("origin_province", "未知")[:50],
+                    origin_city=item.get("origin_city"),
+                    origin_district=item.get("origin_district"),
+                    origin_detail=item.get("origin_detail"),
+                    description=item.get("description"),
+                    features=item.get("features"),
+                    specifications=item.get("specifications"),
+                    nutrition_facts=item.get("nutrition_facts"),
+                    price=item.get("price", 0),
+                    certification_type=item.get("certification_type"),
+                    certification_no=item.get("certification_no"),
+                    cultural_tags=item.get("cultural_tags"),
+                    cultural_story=item.get("cultural_story"),
+                    historical_origin=item.get("historical_origin"),
+                    main_image_url=item.get("main_image_url"),
+                    image_urls=item.get("image_urls"),
+                    original_image_urls=item.get("original_image_urls"),
+                    video_url=item.get("video_url"),
+                    status=ProductStatus.DRAFT,
+                    created_by=user.id,
+                )
+                db.add(product)
+                imported += 1
+            except Exception as e:
+                logger.warning(f"导入单条产品失败: {e}")
+                errors_count += 1
+
+        db.commit()
+
+        return success_response(
+            data={"imported": imported, "skipped": skipped, "errors": errors_count},
+            message=f"导入完成: 新增{imported}, 跳过{skipped}, 失败{errors_count}"
+        ).dict()
+
+    except json.JSONDecodeError:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=error_response(code=ErrorCode.PARAM_ERROR, message="无效的JSON文件").dict()
+        )
+    except Exception as e:
+        logger.error(f"JSON导入异常: {str(e)}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=error_response(code=ErrorCode.SYSTEM_ERROR, message="导入失败").dict()
+        )
