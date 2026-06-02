@@ -264,11 +264,11 @@ class ProductService:
             offset = (page - 1) * size
             products = query.offset(offset).limit(size).all()
 
-            # 缓存结果（仅在无搜索条件时缓存）
+            # 缓存结果（仅在无搜索条件时缓存，转为字典以便 JSON 序列化）
             if use_cache and not search:
                 cache.set(
                     cache_key,
-                    {'products': products, 'total': total},
+                    {'products': [p.to_dict() for p in products], 'total': total},
                     ttl_seconds=PRODUCT_CACHE_TTL
                 )
 
@@ -611,7 +611,7 @@ class ProductService:
                 .limit(limit)
                 .all()
             )
-            cache.set(cache_key, products, ttl_seconds=600)
+            cache.set(cache_key, [p.to_dict() for p in products], ttl_seconds=600)
             logger.info(f"获取热门产品: {len(products)}个")
             return products
         except Exception as e:

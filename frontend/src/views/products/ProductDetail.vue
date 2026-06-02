@@ -64,11 +64,11 @@
               <p>{{ product.description }}</p>
             </div>
 
-            <div v-if="product.specifications" class="product-specs">
+            <div v-if="Object.keys(displaySpecs).length" class="product-specs">
               <h3>产品规格</h3>
               <el-descriptions :column="1" border size="small">
                 <el-descriptions-item
-                  v-for="(value, key) in product.specifications"
+                  v-for="(value, key) in displaySpecs"
                   :key="key"
                   :label="key"
                 >
@@ -196,6 +196,27 @@ const reviewPage = ref(1)
 const reviewPageSize = 10
 
 const product = computed(() => productStore.currentProduct!)
+
+const specLabelMap: Record<string, string> = {
+  shop_title: '店铺',
+  price: '价格',
+  provcity: '发货地',
+  volume: '销量',
+  item_url: '商品链接',
+  category_id: '类目ID',
+  tb_num_iid: '商品编号',
+}
+const specHiddenKeys = new Set(['tb_num_iid', 'category_id', 'item_url'])
+const displaySpecs = computed(() => {
+  const specs = product.value?.specifications
+  if (!specs || typeof specs !== 'object') return {}
+  const result: Record<string, string> = {}
+  for (const [k, v] of Object.entries(specs)) {
+    if (specHiddenKeys.has(k) || v === '' || v == null) continue
+    result[specLabelMap[k] || k] = String(v)
+  }
+  return result
+})
 
 const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString('zh-CN')

@@ -172,7 +172,7 @@ async def get_taobao_status(
     else:
         note = (
             f"API 已就绪（来源: {'数据库' if session_source == 'db' else '.env 文件'}）。"
-            "商品搜索需在淘宝联盟开放平台申请「taobao.tbk.dg.item.search」接口权限。"
+            "商品搜索使用升级版物料搜索接口（taobao.tbk.dg.material.optional.upgrade）。"
         )
 
     return success_response(data={
@@ -457,7 +457,7 @@ async def search_taobao_items(
         if no_permission:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="当前 AppKey 无商品搜索权限，请在淘宝联盟开放平台申请「taobao.tbk.dg.item.search」接口权限",
+                detail="当前 AppKey 无商品搜索权限，请在淘宝联盟开放平台申请物料搜索接口权限",
             )
         detail = e.sub_msg or e.message or f"淘宝联盟 API 调用失败（错误码: {e.code}），请检查 AppKey 配置"
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=detail)

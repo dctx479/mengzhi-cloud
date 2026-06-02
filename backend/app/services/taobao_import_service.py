@@ -26,22 +26,25 @@ from app.core.config import settings
 
 def _extract_item_info(item: dict) -> dict:
     """
-    淘宝联盟商品结构有两种形态:
-    - tbk.dg.item.search 返回: { "item_info": {...} }
-    - tbk.dg.optimus.material 返回: { "item_info": {...} }
-    统一从 item_info 子字典提取，若无则直接从顶层提取。
+    淘宝联盟商品结构有多种形态:
+    - 升级版 API: { "item_basic_info": {...}, "price_promotion_info": {...} }
+    - 旧版 API:   { "item_info": {...} } 或顶层直接包含字段
+    统一提取并合并为扁平字典。
     """
-    return item.get("item_info") or item
+    basic = item.get("item_basic_info") or item.get("item_info") or {}
+    price = item.get("price_promotion_info") or {}
+    if basic:
+        merged = {**basic, **price}
+        if "item_id" in item:
+            merged.setdefault("item_id", item["item_id"])
+        return merged
+    return item
 
 
 def _map_taobao_item_to_product(item: dict) -> dict:
     """
     将淘宝联盟商品字段映射到本平台 Product 字段。
-
-    淘宝字段参考:
-      num_iid, title, pict_url, small_images,
-      zk_final_price / reserve_price,
-      provcity, shop_title, nick, category_id, volume
+    兼容升级版和旧版 API 字段。
     """
     info = _extract_item_info(item)
 
@@ -67,8 +70,8 @@ def _map_taobao_item_to_product(item: dict) -> dict:
         if url and url not in image_urls:
             image_urls.append(url)
 
-    # 价格（优先折扣价）
-    price_str = info.get("zk_final_price") or info.get("reserve_price") or "0"
+    # 价格（升级版用 final_promotion_price / zk_final_price，旧版用 zk_final_price）
+    price_str = info.get("final_promotion_price") or info.get("zk_final_price") or info.get("reserve_price") or "0"
     try:
         price = float(price_str)
     except (ValueError, TypeError):
@@ -79,29 +82,33 @@ def _map_taobao_item_to_product(item: dict) -> dict:
     province = provcity.split(" ")[0] if provcity else "未知"
 
     category_id = str(info.get("category_id", ""))
+    category_name = info.get("category_name", "")
     shop_title = info.get("shop_title") or info.get("nick") or ""
     title = (info.get("title") or "").strip()
-    num_iid = str(info.get("num_iid", ""))
+    # 升级版用加密的 item_id，旧版用 num_iid
+    item_id = str(info.get("item_id") or info.get("num_iid", ""))
+    # 销量：升级版用 annual_vol / tk_total_sales，旧版用 volume
+    volume = info.get("annual_vol") or info.get("tk_total_sales") or info.get("volume")
 
     return {
-        "name": title[:200] if title else f"TB-{num_iid}",
+        "name": title[:200] if title else f"TB-{item_id}",
         "description": title,
-        "category": "淘宝商品",
+        "category": category_name or "淘宝商品",
         "sub_category": category_id[:100] if category_id else None,
         "origin_province": province[:50],
         "main_image_url": main_image,
         "image_urls": image_urls,
         "specifications": {
-            "tb_num_iid": num_iid,
+            "tb_num_iid": item_id,
             "shop_title": shop_title,
             "price": price,
             "provcity": provcity,
             "category_id": category_id,
-            "volume": info.get("volume"),
+            "volume": volume,
             "item_url": info.get("item_url", ""),
         },
         "status": ProductStatus.PUBLISHED,
-        "_tb_num_iid": num_iid,
+        "_tb_num_iid": item_id,
         "_price": price,
     }
 
@@ -163,7 +170,7 @@ class TaobaoImportService:
                     keyword=keyword,
                     page_no=page,
                     page_size=page_size,
-                    adzone_id=adzone_id,
+                    adzone_id=adzone_id or getattr(settings, "TAOBAO_ADZONE_ID", None),
                 )
             except TaobaoApiError as e:
                 logger.error(f"淘宝联盟 API 搜索失败 page={page}: {e}")
@@ -255,7 +262,7 @@ class TaobaoImportService:
             keyword=keyword,
             page_no=page,
             page_size=min(page_size, 40),
-            adzone_id=adzone_id,
+            adzone_id=adzone_id or getattr(settings, "TAOBAO_ADZONE_ID", None),
         )
         items = [_format_for_frontend(it) for it in (data.get("items") or [])]
 

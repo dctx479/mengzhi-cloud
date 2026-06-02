@@ -1,14 +1,14 @@
 """
 淘宝联盟开放平台 API 客户端
 
-文档: https://open.taobao.com/api.htm?docId=24515&docType=2
+文档: https://developer.alibaba.com/docs/api.htm?apiId=35896
 网关: https://eco.taobao.com/router/rest
 签名: HMAC-MD5(secretKey, ASCII排序参数键值对拼接)，结果转大写十六进制
 
 主要接口:
-  taobao.tbk.dg.item.search   — 商品搜索（需申请权限）
-  taobao.tbk.item.info.get    — 商品详情
-  taobao.tbk.dg.optimus.material — 智能物料推荐（无需额外权限）
+  taobao.tbk.dg.material.optional.upgrade — 升级版物料搜索（支持关键词，需 adzone_id + session）
+  taobao.tbk.item.info.get                — 商品详情
+  taobao.tbk.dg.material.recommend        — 物料精选（降级用）
 """
 
 import hashlib
@@ -22,7 +22,7 @@ from loguru import logger
 
 import httpx
 
-TAOBAO_API_GATEWAY = "https://eco.taobao.com/router/rest"
+TAOBAO_API_GATEWAY = "http://gw.api.taobao.com/router/rest"
 _DEFAULT_TIMEOUT = 15.0
 # 淘宝联盟基础权限: 10 QPS，限制到 8 QPS
 _MIN_INTERVAL = 0.125
@@ -43,7 +43,7 @@ class TaobaoApiClient:
 
     使用方式:
         client = TaobaoApiClient(app_key="xxx", app_secret="yyy", session="zzz")
-        result = await client.call("taobao.tbk.dg.item.search", {"q": "牛肉"})
+        result = await client.call("taobao.tbk.dg.material.optional", {"q": "牛肉", "adzone_id": "123"})
     """
 
     def __init__(self, app_key: str, app_secret: str, session: Optional[str] = None):
@@ -141,11 +141,14 @@ class TaobaoApiClient:
             raise TaobaoApiError(code, msg, sub_code, sub_msg)
 
         # 正常响应: { "<method_key>_response": { ... } }
+        # 部分 API 响应 key 省略 "taobao_" 前缀
         method_key = method.replace(".", "_") + "_response"
-        if method_key not in body:
-            raise TaobaoApiError("PARSE_ERROR", f"响应中缺少 {method_key} 字段，原始响应: {body}")
-
-        return body[method_key]
+        if method_key in body:
+            return body[method_key]
+        short_key = method_key.removeprefix("taobao_")
+        if short_key in body:
+            return body[short_key]
+        raise TaobaoApiError("PARSE_ERROR", f"响应中缺少 {method_key} 字段，原始响应: {body}")
 
     # ------------------------------------------------------------------
     # 业务封装
@@ -162,67 +165,65 @@ class TaobaoApiClient:
     ) -> dict:
         """
         关键词搜索淘宝联盟商品。
-        优先使用 tbk.dg.item.search（需申请权限），
-        权限不足时降级到 tbk.dg.optimus.material（智能物料，无需额外权限）。
+        使用 tbk.dg.material.optional.upgrade（升级版物料搜索）。
+        权限不足时降级到 tbk.dg.material.recommend（物料精选）。
 
         返回: { "items": [...], "total_count": N, "warning": str|None }
         """
+        if not adzone_id:
+            raise TaobaoApiError("PARAM_ERROR", "adzone_id 是必填参数，请在淘宝联盟后台获取推广位 ID 并配置 TAOBAO_ADZONE_ID")
+
         biz: dict[str, Any] = {
             "q": keyword,
+            "adzone_id": adzone_id,
             "page_no": page_no,
             "page_size": min(page_size, 100),
-            "fields": "num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url,seller_id,volume,nick,shop_title,category_id",
         }
         if sort:
             biz["sort"] = sort
         if cat:
             biz["cat"] = cat
-        if adzone_id:
-            biz["adzone_id"] = adzone_id
 
         try:
-            result = await self.call("taobao.tbk.dg.item.search", biz)
-            result_list = result.get("result", {})
-            items = result_list.get("result_list", {}).get("map_data", []) if isinstance(result_list, dict) else []
-            total = result_list.get("total_results", len(items)) if isinstance(result_list, dict) else len(items)
+            result = await self.call("taobao.tbk.dg.material.optional.upgrade", biz)
+            items = result.get("result_list", {}).get("map_data", []) if isinstance(result, dict) else []
+            total = result.get("total_results", len(items)) if isinstance(result, dict) else len(items)
             return {"items": items, "total_count": total, "warning": None}
         except TaobaoApiError as e:
-            # 权限不足时降级
             no_perm = (
                 e.sub_code in ("invalid-sessionkey", "permission-api-app-not-apply", "permission-api-app-not-open")
                 or "permission" in e.sub_code.lower()
-                or "27" in e.code  # 27 = 无权限
+                or "27" in e.code
             )
             if not no_perm:
                 raise
-            logger.warning(f"tbk.dg.item.search 无权限 ({e.code}/{e.sub_code})，降级到 optimus.material")
+            logger.warning(f"tbk.dg.material.optional.upgrade 无权限 ({e.code}/{e.sub_code})，降级到 material.recommend")
 
-        # 降级: 智能物料推荐（不支持关键词，本地过滤）
+        # 降级: 物料精选（需要 material_id，本地过滤关键词）
         try:
-            biz_opt: dict[str, Any] = {
-                "adzone_id": adzone_id or "0",
+            biz_rec: dict[str, Any] = {
+                "adzone_id": adzone_id,
                 "page_no": page_no,
                 "page_size": min(page_size, 20),
-                "material_id": "6",  # 6 = 猜你喜欢
+                "material_id": "6",
             }
-            result = await self.call("taobao.tbk.dg.optimus.material", biz_opt)
-            result_list = result.get("result", {})
-            items = result_list.get("result_list", {}).get("map_data", []) if isinstance(result_list, dict) else []
+            result = await self.call("taobao.tbk.dg.material.recommend", biz_rec)
+            items = result.get("result_list", {}).get("map_data", []) if isinstance(result, dict) else []
             if keyword:
                 kw_lower = keyword.lower()
                 items = [
                     it for it in items
-                    if kw_lower in (it.get("item_info", {}).get("title") or "").lower()
+                    if kw_lower in ((it.get("item_info") or it).get("title") or "").lower()
                 ]
             return {
                 "items": items,
                 "total_count": len(items),
-                "warning": "当前使用智能物料接口（结果有限），建议在淘宝联盟后台申请「商品搜索」接口权限以获取完整搜索功能",
+                "warning": "当前使用物料精选接口（结果有限），建议配置有效的推广位 ID 以获取完整搜索功能",
             }
         except TaobaoApiError:
             raise TaobaoApiError(
                 "PERMISSION",
-                "商品搜索需要淘宝联盟接口权限，请在开放平台申请「taobao.tbk.dg.item.search」接口权限",
+                "商品搜索需要淘宝联盟接口权限，请在开放平台申请物料搜索接口权限",
             )
 
     async def get_item_detail(self, num_iids: list[int], adzone_id: Optional[str] = None) -> list[dict]:

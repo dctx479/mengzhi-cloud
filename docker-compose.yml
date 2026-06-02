@@ -70,6 +70,10 @@ services:
       TAOBAO_SESSION: ${TAOBAO_SESSION:-}
       TAOBAO_ADZONE_ID: ${TAOBAO_ADZONE_ID:-}
       TAOBAO_OAUTH_REDIRECT_URI: ${TAOBAO_OAUTH_REDIRECT_URI:-}
+      TENANT_DB_PASSWORD: ${TENANT_DB_PASSWORD:-}
+      PAYMENT_DEV_MODE: ${PAYMENT_DEV_MODE:-True}
+      EMAIL_DEV_MODE: ${EMAIL_DEV_MODE:-True}
+      SMS_DEV_MODE: ${SMS_DEV_MODE:-True}
       TZ: Asia/Shanghai
     ports:
       - "${BACKEND_PORT:-8000}:8000"
@@ -99,6 +103,9 @@ services:
     container_name: agri-frontend
     ports:
       - "${FRONTEND_PORT:-80}:80"
+      - "443:443"
+    volumes:
+      - ./ssl:/etc/nginx/ssl:ro
     depends_on:
       - backend
     networks:

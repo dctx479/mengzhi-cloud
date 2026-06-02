@@ -6,7 +6,7 @@
 修复: 字段映射与Product模型一致
 """
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
@@ -218,6 +218,7 @@ class ProductDetailResponse(BaseModel):
     updated_at: datetime = Field(..., description="更新时间")
     created_by: int = Field(..., description="创建者ID")
     published_at: Optional[datetime] = Field(default=None, description="发布时间")
+    price: float = Field(default=0, description="价格")
 
     @field_validator('status', mode='before')
     @classmethod
@@ -226,6 +227,15 @@ class ProductDetailResponse(BaseModel):
         if hasattr(v, 'value'):
             return v.value
         return v
+
+    @model_validator(mode='after')
+    def compute_price(self):
+        if not self.price and isinstance(self.specifications, dict):
+            try:
+                self.price = float(self.specifications.get('price', 0))
+            except (ValueError, TypeError):
+                pass
+        return self
 
 
 class ProductListItemResponse(BaseModel):
@@ -236,11 +246,14 @@ class ProductListItemResponse(BaseModel):
             "product_uuid": "550e8400-e29b-41d4-a716-446655440000",
             "name": "草原牛肉",
             "category": "肉类",
+            "sub_category": "牛肉制品",
             "origin_province": "内蒙古",
             "origin_city": "呼伦贝尔",
             "main_image_url": "/uploads/products/1/main.jpg",
+            "image_urls": ["/uploads/products/1/1.jpg"],
             "status": "draft",
             "view_count": 100,
+            "price": 59.99,
             "created_at": "2026-01-17T10:00:00"
         }
     })
@@ -248,13 +261,19 @@ class ProductListItemResponse(BaseModel):
     id: int = Field(..., description="产品ID")
     product_uuid: str = Field(..., description="产品UUID")
     name: str = Field(..., description="产品名称")
+    description: Optional[str] = Field(default=None, description="产品描述")
     category: str = Field(..., description="产品类别")
+    sub_category: Optional[str] = Field(default=None, description="产品子类别")
     origin_province: str = Field(..., description="产地省份")
     origin_city: Optional[str] = Field(default=None, description="产地城市")
     main_image_url: Optional[str] = Field(default=None, description="主图URL")
+    image_urls: Optional[List[str]] = Field(default=None, description="图片URL列表")
     status: str = Field(..., description="产品状态")
     view_count: int = Field(default=0, description="浏览次数")
     created_at: datetime = Field(..., description="创建时间")
+    updated_at: Optional[datetime] = Field(default=None, description="更新时间")
+    specifications: Optional[dict] = Field(default=None, description="规格参数")
+    price: float = Field(default=0, description="价格")
 
     @field_validator('status', mode='before')
     @classmethod
@@ -263,6 +282,15 @@ class ProductListItemResponse(BaseModel):
         if hasattr(v, 'value'):
             return v.value
         return v
+
+    @model_validator(mode='after')
+    def compute_price(self):
+        if not self.price and isinstance(self.specifications, dict):
+            try:
+                self.price = float(self.specifications.get('price', 0))
+            except (ValueError, TypeError):
+                pass
+        return self
 
 
 # ============ 查询参数Schema ============

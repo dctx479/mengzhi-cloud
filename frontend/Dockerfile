@@ -31,11 +31,11 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # 暴露端口
-EXPOSE 80
+EXPOSE 80 443
 
 # 健康检查 (alpine wget 不支持 --spider, 用 -qO /dev/null)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -qO /dev/null http://127.0.0.1/ || exit 1
+  CMD wget --no-check-certificate -qO /dev/null https://127.0.0.1/ || exit 1
 
 # 启动nginx
 CMD ["nginx", "-g", "daemon off;"]
