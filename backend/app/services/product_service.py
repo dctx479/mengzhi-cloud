@@ -87,7 +87,9 @@ class ProductService:
                 historical_origin=request.historical_origin,
                 certification_type=request.certification_type,
                 certification_no=request.certification_no,
+                price=request.price,
                 status=request.status,
+                sku=request.sku,
                 created_by=user_id
             )
 
@@ -157,7 +159,6 @@ class ProductService:
         category: Optional[str] = None,
         region: Optional[str] = None,
         status: Optional[str] = None,
-        is_featured: Optional[bool] = None,
         sort_by: str = "created_at",
         sort_order: str = "desc",
         use_cache: bool = True
@@ -184,7 +185,7 @@ class ProductService:
         """
         try:
             # 生成缓存键
-            cache_key = f"products:{page}:{size}:{search}:{category}:{region}:{status}:{is_featured}:{sort_by}:{sort_order}"
+            cache_key = f"products:{page}:{size}:{search}:{category}:{region}:{status}:{sort_by}:{sort_order}"
 
             # 尝试从缓存获取（仅在无搜索条件时有效）
             if use_cache and not search:
@@ -429,7 +430,10 @@ class ProductService:
                 'cultural_description': 'cultural_story',
                 'origin_story': 'historical_origin',
                 'region': 'origin_province',
-                'region_code': 'origin_city'
+                'region_code': 'origin_city',
+                'sku': None,
+                'stock': None,
+                'is_featured': None,
             }
 
             for field, value in update_data.items():

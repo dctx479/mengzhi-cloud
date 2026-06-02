@@ -46,14 +46,9 @@ class TestBaseModel:
         before = datetime.utcnow()
 
         product = Product(
-            sku="TEST-001",
             name="测试产品",
             category="测试",
-            price=100.00,
-            cost=50.00,
-            stock=10,
-            region="测试地区",
-            region_code="00"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product)
@@ -73,11 +68,7 @@ class TestBaseModel:
             sku="TEST-001",
             name="测试产品",
             category="测试",
-            price=100.00,
-            cost=50.00,
-            stock=10,
-            region="测试地区",
-            region_code="00"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product)
@@ -98,11 +89,7 @@ class TestBaseModel:
             sku="TEST-001",
             name="测试产品",
             category="测试",
-            price=100.00,
-            cost=50.00,
-            stock=10,
-            region="测试地区",
-            region_code="00"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product)
@@ -123,10 +110,8 @@ class TestBaseModel:
             "name": "测试产品",
             "category": "测试",
             "price": 100.00,
-            "cost": 50.00,
-            "stock": 10,
-            "region": "测试地区",
-            "region_code": "00"
+            "origin_province": "内蒙古",
+            "origin_city": "呼伦贝尔",
         }
 
         product = Product.from_dict(data)
@@ -163,7 +148,7 @@ class TestUserModel:
 
     @pytest.mark.unit
     def test_user_enum_gender(self):
-        """测试性别枚举"""
+        """测试用户性别枚举"""
         assert Gender.MALE.value == 1
         assert Gender.FEMALE.value == 2
         assert Gender.UNKNOWN.value == 0
@@ -254,10 +239,8 @@ class TestProductModel:
             name="内蒙古羊肉",
             category="肉类",
             price=99.99,
-            cost=50.00,
-            stock=100,
-            region="内蒙古",
-            region_code="15"
+            origin_province="内蒙古",
+            origin_city="呼伦贝尔",
         )
 
         test_db_session.add(product)
@@ -265,16 +248,12 @@ class TestProductModel:
 
         assert product.name == "内蒙古羊肉"
         assert product.price == 99.99
-        assert product.stock == 100
 
     @pytest.mark.unit
     def test_product_required_fields(self, test_db_session):
         """测试产品必需字段"""
-        product = Product(
-            # 缺少name等必需字段
-            sku="PROD-001"
-        )
-
+        # 缺少name字段应该抛出异常（name是唯一非可选必需字段）
+        product = Product()
         test_db_session.add(product)
 
         with pytest.raises(Exception):  # SQLAlchemy IntegrityError
@@ -287,11 +266,7 @@ class TestProductModel:
             sku="PROD-001",
             name="产品1",
             category="肉类",
-            price=100.00,
-            cost=50.00,
-            stock=100,
-            region="内蒙古",
-            region_code="15"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product1)
@@ -302,11 +277,7 @@ class TestProductModel:
             sku="PROD-001",
             name="产品2",
             category="肉类",
-            price=100.00,
-            cost=50.00,
-            stock=100,
-            region="内蒙古",
-            region_code="15"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product2)
@@ -323,17 +294,11 @@ class TestProductModel:
             short_name="羊肉",
             category="肉类",
             price=99.99,
-            cost=50.00,
-            stock=100,
-            region="内蒙古",
-            region_code="15",
+            origin_province="内蒙古",
+            origin_city="呼伦贝尔",
             cultural_tags=["有机", "草原"],
-            cultural_description="来自草原的优质羊肉",
-            origin_story="传统畜牧产品",
-            efficacy="营养丰富",
-            usage="烤羊肉",
-            status="published",
-            is_featured=True
+            cultural_story="来自草原的优质羊肉",
+            status=ProductStatus.PUBLISHED,
         )
 
         test_db_session.add(product)
@@ -341,7 +306,7 @@ class TestProductModel:
 
         retrieved = test_db_session.query(Product).first()
         assert retrieved.name == "内蒙古羊肉"
-        assert retrieved.is_featured is True
+        assert retrieved.cultural_tags == ["有机", "草原"]
 
     @pytest.mark.unit
     def test_product_default_values(self, test_db_session):
@@ -350,11 +315,7 @@ class TestProductModel:
             sku="PROD-001",
             name="测试产品",
             category="测试",
-            price=100.00,
-            cost=50.00,
-            stock=10,
-            region="测试",
-            region_code="00"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product)
@@ -362,7 +323,7 @@ class TestProductModel:
 
         # 检查默认值
         assert product.product_uuid is not None
-        assert product.status == "draft" or product.status is None
+        assert product.status is not None
         assert product.created_at is not None
         assert product.updated_at is not None
 
@@ -374,11 +335,8 @@ class TestProductModel:
             name="内蒙古羊肉",
             category="肉类",
             price=99.99,
-            cost=50.00,
-            stock=100,
-            region="内蒙古",
-            region_code="15",
-            is_featured=True
+            origin_province="内蒙古",
+            origin_city="呼伦贝尔",
         )
 
         test_db_session.add(product)
@@ -388,7 +346,7 @@ class TestProductModel:
 
         assert result["name"] == "内蒙古羊肉"
         assert result["price"] == 99.99
-        assert result["is_featured"] is True
+        assert result["sku"] == "PROD-001"
 
 
 # ==================== 模型字段验证 ====================
@@ -400,14 +358,10 @@ class TestModelFieldValidation:
     def test_product_price_decimal(self, test_db_session):
         """测试产品价格小数"""
         product = Product(
-            sku="PROD-001",
             name="测试",
             category="测试",
             price=99.99,
-            cost=50.00,
-            stock=100,
-            region="测试",
-            region_code="00"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product)
@@ -416,24 +370,20 @@ class TestModelFieldValidation:
         assert float(product.price) == 99.99
 
     @pytest.mark.unit
-    def test_product_stock_integer(self, test_db_session):
-        """测试产品库存为整数"""
+    def test_product_price_field_exists(self, test_db_session):
+        """测试产品price字段存在"""
         product = Product(
-            sku="PROD-001",
             name="测试",
             category="测试",
             price=100.00,
-            cost=50.00,
-            stock=100,
-            region="测试",
-            region_code="00"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product)
         test_db_session.commit()
 
-        assert isinstance(product.stock, int)
-        assert product.stock == 100
+        assert hasattr(product, "price")
+        assert float(product.price) == 100.00
 
     @pytest.mark.unit
     def test_user_phone_format(self, test_db_session):
@@ -466,11 +416,7 @@ class TestModelRelationships:
             sku="PROD-001",
             name="产品1",
             category="测试",
-            price=100.00,
-            cost=50.00,
-            stock=10,
-            region="测试",
-            region_code="00"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product1)
@@ -491,14 +437,9 @@ class TestModelMethods:
     def test_model_repr(self, test_db_session):
         """测试模型__repr__方法"""
         product = Product(
-            sku="PROD-001",
             name="测试",
             category="测试",
-            price=100.00,
-            cost=50.00,
-            stock=10,
-            region="测试",
-            region_code="00"
+            origin_province="内蒙古",
         )
 
         test_db_session.add(product)

@@ -65,6 +65,15 @@ class Product(BaseModel):
         comment="产品UUID"
     )
 
+    # SKU编码
+    sku = Column(
+        VARCHAR(50),
+        nullable=True,
+        unique=True,
+        index=True,
+        comment="产品SKU编码"
+    )
+
     # 基本信息
     name = Column(
         VARCHAR(200),
@@ -325,6 +334,9 @@ class Product(BaseModel):
             "features": self.features,
             "specifications": self.specifications,
             "nutrition_facts": self.nutrition_facts,
+            "price": float(self.price) if self.price else 0,
+            "original_image_urls": self.original_image_urls,
+            "sku": self.sku,
             "certification_type": self.certification_type,
             "certification_no": self.certification_no,
             "certification_date": self.certification_date.isoformat() if self.certification_date else None,

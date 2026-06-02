@@ -44,6 +44,7 @@ class ProductCreateRequest(BaseModel):
         }
     })
 
+    sku: Optional[str] = Field(None, max_length=50, description="产品SKU编码")
     name: str = Field(..., min_length=1, max_length=200, description="产品名称")
     short_name: Optional[str] = Field(None, max_length=100, description="产品简称")
     description: Optional[str] = Field(None, description="产品描述")
@@ -69,6 +70,7 @@ class ProductCreateRequest(BaseModel):
     historical_origin: Optional[str] = Field(None, description="历史渊源")
 
     # 认证信息
+    price: Optional[float] = Field(None, ge=0, description="产品价格（元）")
     certification_type: Optional[str] = Field(None, max_length=100, description="认证类型")
     certification_no: Optional[str] = Field(None, max_length=100, description="认证编号")
 
@@ -108,6 +110,9 @@ class ProductUpdateRequest(BaseModel):
     cultural_tags: Optional[List[str]] = Field(None, description="文化标签列表")
     cultural_story: Optional[str] = Field(None, description="文化故事")
     historical_origin: Optional[str] = Field(None, description="历史渊源")
+
+    # 认证信息
+    price: Optional[float] = Field(None, ge=0, description="产品价格（元）")
 
     # 认证信息
     certification_type: Optional[str] = Field(None, max_length=100, description="认证类型")

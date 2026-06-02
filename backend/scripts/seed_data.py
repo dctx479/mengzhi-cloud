@@ -29,7 +29,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.database import SessionLocal, engine
 from app.models.user import User, UserType, UserStatus, UserRole
-from app.models.product import Product
+from app.models.product import Product, ProductStatus
 from app.models.conversation import Conversation, Message
 from app.models.base import generate_uuid
 from app.models.quota_package import QuotaPackage, PackageType, PackagePeriod
@@ -313,16 +313,11 @@ def create_sample_products(db: Session, count: int = 10) -> List[Product]:
             description=f"{data['cultural_description']}。{data['efficacy']}。",
             category=data["category"],
             price=data["price"],
-            cost=data["cost"],
-            stock=data["stock"],
-            region=data["region"],
+            origin_province=data["region"],
             cultural_tags=data["cultural_tags"],
-            cultural_description=data["cultural_description"],
-            origin_story=data["origin_story"],
-            efficacy=data["efficacy"],
-            usage=data["usage"],
-            status="active",
-            is_featured=(len(products) < 3),
+            cultural_story=data["cultural_description"],
+            historical_origin=data["origin_story"],
+            status=ProductStatus.PUBLISHED if len(products) < 3 else ProductStatus.DRAFT,
         )
         db.add(product)
         products.append(product)

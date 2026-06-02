@@ -236,17 +236,11 @@ def test_product_data():
         "name": "内蒙古羊肉",
         "category": "肉类",
         "price": 99.99,
-        "cost": 50.00,
-        "stock": 100,
-        "region": "内蒙古",
-        "region_code": "15",
+        "origin_province": "内蒙古",
+        "origin_city": "呼伦贝尔",
         "cultural_tags": ["有机", "草原"],
-        "cultural_description": "来自内蒙古草原的优质羊肉",
-        "origin_story": "传统畜牧业产品",
-        "efficacy": "营养丰富",
-        "usage": "烤羊肉",
-        "status": "published",
-        "is_featured": True
+        "cultural_story": "来自内蒙古草原的优质羊肉",
+        "status": "published"
     }
 
 
@@ -259,17 +253,11 @@ def test_product_data_multiple():
             "name": f"产品{i}",
             "category": "肉类" if i % 2 == 0 else "乳制品",
             "price": 50.00 + i * 10,
-            "cost": 20.00 + i * 5,
-            "stock": 100 + i * 10,
-            "region": "内蒙古",
-            "region_code": "15",
+            "origin_province": "内蒙古",
+            "origin_city": "呼伦贝尔",
             "cultural_tags": ["优质", "正宗"],
-            "cultural_description": f"优质产品{i}",
-            "origin_story": f"产品{i}的故事",
-            "efficacy": "营养丰富",
-            "usage": "食用",
-            "status": "published",
-            "is_featured": i < 3  # 前3个产品为精选
+            "cultural_story": f"优质产品{i}",
+            "status": "published"
         }
         for i in range(1, 6)
     ]
