@@ -7,6 +7,7 @@ AI Provider 工厂类
 - 自动重试
 - 健康检查集成
 """
+
 import time
 import threading
 from typing import Dict, Type, Optional, Tuple
@@ -17,6 +18,7 @@ from sqlalchemy.orm import Session
 from .base_provider import BaseAIProvider, ChatCompletionRequest, ChatCompletionResponse
 from .providers.deepseek_provider import DeepSeekProvider
 from .providers.openai_provider import OpenAIProvider
+from .providers.volcengine_provider import VolcengineProvider
 from .failover import FailoverManager, FailoverStrategy
 from app.models.tenant_ai_config import TenantAIConfig
 from app.core.security import decrypt_api_key
@@ -31,15 +33,16 @@ class AIProviderFactory:
     _providers: Dict[str, Type[BaseAIProvider]] = {
         "deepseek": DeepSeekProvider,
         "openai": OpenAIProvider,
+        "volcengine": VolcengineProvider,
         # 国产模型 - 使用 OpenAI 兼容接口
-        "qwen": OpenAIProvider,       # 通义千问 (阿里)
-        "glm": OpenAIProvider,         # 智谱GLM
-        "moonshot": OpenAIProvider,    # 月之暗面
-        "wenxin": OpenAIProvider,      # 文心一言 (百度) - 需配置endpoint
-        "spark": OpenAIProvider,       # 讯飞星火 - 需配置endpoint
-        "anthropic": OpenAIProvider,   # Anthropic
-        "azure": OpenAIProvider,       # Azure OpenAI
-        "custom": OpenAIProvider,      # 自定义
+        "qwen": OpenAIProvider,  # 通义千问 (阿里)
+        "glm": OpenAIProvider,  # 智谱GLM
+        "moonshot": OpenAIProvider,  # 月之暗面
+        "wenxin": OpenAIProvider,  # 文心一言 (百度) - 需配置endpoint
+        "spark": OpenAIProvider,  # 讯飞星火 - 需配置endpoint
+        "anthropic": OpenAIProvider,  # Anthropic
+        "azure": OpenAIProvider,  # Azure OpenAI
+        "custom": OpenAIProvider,  # 自定义
     }
 
     _instances: Dict[str, BaseAIProvider] = {}
@@ -47,13 +50,7 @@ class AIProviderFactory:
     _instances_lock: threading.Lock = threading.Lock()
 
     @classmethod
-    def create(
-        cls,
-        provider_type: str,
-        api_key: str,
-        base_url: Optional[str] = None,
-        **kwargs
-    ) -> BaseAIProvider:
+    def create(cls, provider_type: str, api_key: str, base_url: Optional[str] = None, **kwargs) -> BaseAIProvider:
         """创建Provider实例（带缓存，线程安全）
 
         Args:
@@ -66,6 +63,7 @@ class AIProviderFactory:
             BaseAIProvider: Provider实例
         """
         import hashlib as _hashlib
+
         # 用完整 api_key 的 SHA-256 前 16 字节作为缓存键，避免尾部 8 字符碰撞
         _key_hash = _hashlib.sha256(api_key.encode()).hexdigest()[:16]
         cache_key = f"{provider_type}:{_key_hash}"
@@ -83,20 +81,12 @@ class AIProviderFactory:
                 raise ValueError(f"Unknown provider: {provider_type}")
 
             provider_class = cls._providers[provider_type]
-            cls._instances[cache_key] = provider_class(
-                api_key=api_key,
-                base_url=base_url,
-                **kwargs
-            )
+            cls._instances[cache_key] = provider_class(api_key=api_key, base_url=base_url, **kwargs)
 
         return cls._instances[cache_key]
 
     @classmethod
-    def create_from_config(
-        cls,
-        config: TenantAIConfig,
-        api_key: str
-    ) -> BaseAIProvider:
+    def create_from_config(cls, config: TenantAIConfig, api_key: str) -> BaseAIProvider:
         """从配置创建Provider实例
 
         Args:
@@ -106,11 +96,7 @@ class AIProviderFactory:
         Returns:
             BaseAIProvider: Provider实例
         """
-        return cls.create(
-            provider_type=config.provider,
-            api_key=api_key,
-            base_url=config.base_url
-        )
+        return cls.create(provider_type=config.provider, api_key=api_key, base_url=config.base_url)
 
     @classmethod
     async def chat_with_failover(
@@ -153,10 +139,7 @@ class AIProviderFactory:
                 else:
                     # 故障转移
                     config = failover_manager.retry_with_failover(
-                        enterprise_id=enterprise_id,
-                        failed_config_id=failed_config_id,
-                        strategy=strategy,
-                        max_retries=1
+                        enterprise_id=enterprise_id, failed_config_id=failed_config_id, strategy=strategy, max_retries=1
                     )
 
                 if not config:
@@ -170,8 +153,7 @@ class AIProviderFactory:
                 # 检查熔断器
                 if config.is_circuit_breaker_open():
                     logger.warning(
-                        f"Provider {config.provider} (ID: {config.id}) "
-                        f"circuit breaker is open, skipping"
+                        f"Provider {config.provider} (ID: {config.id}) " f"circuit breaker is open, skipping"
                     )
                     failed_config_id = config.id
                     continue
@@ -224,20 +206,14 @@ class AIProviderFactory:
                     # 检查是否需要开启熔断器
                     if config.error_count >= circuit_breaker_threshold:
                         config.open_circuit_breaker(duration_seconds=circuit_breaker_duration)
-                        logger.error(
-                            f"Circuit breaker opened for provider {config.provider} "
-                            f"(ID: {config.id})"
-                        )
+                        logger.error(f"Circuit breaker opened for provider {config.provider} " f"(ID: {config.id})")
 
                     db.commit()
                     failed_config_id = config.id
 
                 # 如果是最后一次尝试，抛出异常
                 if attempt == max_retries - 1:
-                    raise Exception(
-                        f"All providers failed after {max_retries} attempts. "
-                        f"Last error: {last_error}"
-                    )
+                    raise Exception(f"All providers failed after {max_retries} attempts. " f"Last error: {last_error}")
 
         # 不应该到达这里
         raise Exception(f"Unexpected error in chat_with_failover: {last_error}")
@@ -280,10 +256,7 @@ class AIProviderFactory:
                     config = failover_manager.select_provider(enterprise_id, strategy)
                 else:
                     config = failover_manager.retry_with_failover(
-                        enterprise_id=enterprise_id,
-                        failed_config_id=failed_config_id,
-                        strategy=strategy,
-                        max_retries=1
+                        enterprise_id=enterprise_id, failed_config_id=failed_config_id, strategy=strategy, max_retries=1
                     )
 
                 if not config:
@@ -296,8 +269,7 @@ class AIProviderFactory:
 
                 if config.is_circuit_breaker_open():
                     logger.warning(
-                        f"Provider {config.provider} (ID: {config.id}) "
-                        f"circuit breaker is open, skipping"
+                        f"Provider {config.provider} (ID: {config.id}) " f"circuit breaker is open, skipping"
                     )
                     failed_config_id = config.id
                     last_error = Exception(f"Circuit breaker open for provider {config.provider}")
@@ -318,14 +290,9 @@ class AIProviderFactory:
 
             except Exception as e:
                 last_error = e
-                logger.error(
-                    f"Provider selection failed (attempt {attempt + 1}/{max_retries}): {e}"
-                )
+                logger.error(f"Provider selection failed (attempt {attempt + 1}/{max_retries}): {e}")
                 if attempt == max_retries - 1:
-                    raise Exception(
-                        f"All providers failed after {max_retries} attempts. "
-                        f"Last error: {last_error}"
-                    )
+                    raise Exception(f"All providers failed after {max_retries} attempts. " f"Last error: {last_error}")
                 continue
 
             # --- 流式迭代阶段（yield 之后异常会直接传播给调用方）---
@@ -365,24 +332,16 @@ class AIProviderFactory:
             config.update_health_status()
             if config.error_count >= circuit_breaker_threshold:
                 config.open_circuit_breaker(duration_seconds=circuit_breaker_duration)
-                logger.error(
-                    f"Circuit breaker opened for provider {config.provider} "
-                    f"(ID: {config.id})"
-                )
+                logger.error(f"Circuit breaker opened for provider {config.provider} " f"(ID: {config.id})")
             db.commit()
             failed_config_id = config.id
 
             # 如果已经 yield 了部分数据，无法重试（调用方已收到部分响应）
             if chunk_count > 0:
-                raise Exception(
-                    f"Stream interrupted after {chunk_count} chunks: {stream_error}"
-                )
+                raise Exception(f"Stream interrupted after {chunk_count} chunks: {stream_error}")
 
             if attempt == max_retries - 1:
-                raise Exception(
-                    f"All providers failed after {max_retries} attempts. "
-                    f"Last error: {last_error}"
-                )
+                raise Exception(f"All providers failed after {max_retries} attempts. " f"Last error: {last_error}")
 
         raise Exception(f"Unexpected error in chat_stream_with_failover: {last_error}")
 
