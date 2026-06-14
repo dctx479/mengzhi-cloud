@@ -140,9 +140,9 @@ class UserQuota(BaseModel):
     # 索引定义
     __table_args__ = (
         UniqueConstraint("user_id", "quota_type", "period_start", name="uk_user_quota_period"),
-        Index("idx_user_id", "user_id"),
+        Index("idx_user_quotas_user_id", "user_id"),
         Index("idx_quota_type", "quota_type"),
-        Index("idx_period_end", "period_end"),
+        Index("idx_user_quotas_period_end", "period_end"),
     )
 
     def __repr__(self) -> str:

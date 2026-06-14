@@ -1,6 +1,7 @@
 """
 计费事务模型
 """
+
 from sqlalchemy import Column, BIGINT, VARCHAR, DECIMAL, TEXT, TIMESTAMP, Enum as SQLEnum, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -11,11 +12,12 @@ from .base import BaseModel
 
 class BillingStatus(str, enum.Enum):
     """计费状态"""
-    PENDING = "pending"          # 待确认（预扣费）
-    COMPLETED = "completed"      # 已完成
-    REFUNDED = "refunded"        # 已退款
-    FAILED = "failed"            # 失败
-    CANCELLED = "cancelled"      # 已取消
+
+    PENDING = "pending"  # 待确认（预扣费）
+    COMPLETED = "completed"  # 已完成
+    REFUNDED = "refunded"  # 已退款
+    FAILED = "failed"  # 失败
+    CANCELLED = "cancelled"  # 已取消
 
 
 class BillingTransaction(BaseModel):
@@ -27,11 +29,7 @@ class BillingTransaction(BaseModel):
 
     # 关联信息
     enterprise_id = Column(
-        BIGINT,
-        ForeignKey("enterprises.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="企业ID"
+        BIGINT, ForeignKey("enterprises.id", ondelete="CASCADE"), nullable=False, index=True, comment="企业ID"
     )
     quota_id = Column(BIGINT, ForeignKey("tenant_quotas.id"), nullable=False, comment="配额ID")
 
@@ -60,10 +58,10 @@ class BillingTransaction(BaseModel):
 
     # 索引
     __table_args__ = (
-        Index("idx_enterprise_id", "enterprise_id"),
-        Index("idx_quota_id", "quota_id"),
-        Index("idx_status", "status"),
-        Index("idx_created_at", "created_at"),
+        Index("idx_billing_transactions_enterprise_id", "enterprise_id"),
+        Index("idx_billing_transactions_quota_id", "quota_id"),
+        Index("idx_billing_transactions_status", "status"),
+        Index("idx_billing_transactions_created_at", "created_at"),
         Index("idx_idempotency_key", "idempotency_key"),
     )
 

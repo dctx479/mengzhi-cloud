@@ -12,8 +12,18 @@ AI对话消息模型 - SQLAlchemy ORM
 """
 
 from sqlalchemy import (
-    Column, BIGINT, VARCHAR, Text, Enum, TIMESTAMP, Index,
-    UniqueConstraint, Integer, ForeignKey, Float, JSON
+    Column,
+    BIGINT,
+    VARCHAR,
+    Text,
+    Enum,
+    TIMESTAMP,
+    Index,
+    UniqueConstraint,
+    Integer,
+    ForeignKey,
+    Float,
+    JSON,
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -25,6 +35,7 @@ from .base import BaseModel, generate_uuid
 
 class MessageRole(enum.Enum):
     """消息角色枚举"""
+
     USER = "user"  # 用户消息
     ASSISTANT = "assistant"  # 助手消息
     SYSTEM = "system"  # 系统消息
@@ -43,123 +54,56 @@ class Message(BaseModel):
     __tablename__ = "ai_messages"
 
     # 主键
-    id = Column(
-        BIGINT,
-        primary_key=True,
-        autoincrement=True,
-        comment="消息ID"
-    )
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="消息ID")
 
     # UUID标识
     message_uuid = Column(
-        VARCHAR(36),
-        nullable=False,
-        unique=True,
-        index=True,
-        default=generate_uuid,
-        comment="消息UUID"
+        VARCHAR(36), nullable=False, unique=True, index=True, default=generate_uuid, comment="消息UUID"
     )
 
     # 关联信息
     conversation_id = Column(
-        BIGINT,
-        ForeignKey("ai_conversations.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="对话ID"
+        BIGINT, ForeignKey("ai_conversations.id", ondelete="CASCADE"), nullable=False, index=True, comment="对话ID"
     )
 
     # 消息内容
-    role = Column(
-        Enum(MessageRole),
-        nullable=False,
-        index=True,
-        comment="消息角色"
-    )
-    content = Column(
-        Text,
-        nullable=False,
-        comment="消息内容"
-    )
+    role = Column(Enum(MessageRole), nullable=False, index=True, comment="消息角色")
+    content = Column(Text, nullable=False, comment="消息内容")
 
     # Token统计
-    input_tokens = Column(
-        Integer,
-        default=0,
-        comment="输入Token数"
-    )
-    output_tokens = Column(
-        Integer,
-        default=0,
-        comment="输出Token数"
-    )
-    total_tokens = Column(
-        Integer,
-        default=0,
-        comment="总Token数"
-    )
+    input_tokens = Column(Integer, default=0, comment="输入Token数")
+    output_tokens = Column(Integer, default=0, comment="输出Token数")
+    total_tokens = Column(Integer, default=0, comment="总Token数")
 
     # 成本
-    cost = Column(
-        Float,
-        default=0.0,
-        comment="消息成本（元）"
-    )
+    cost = Column(Float, default=0.0, comment="消息成本（元）")
 
     # 模型信息
-    model = Column(
-        VARCHAR(100),
-        default="deepseek-chat",
-        comment="使用的模型"
-    )
-    finish_reason = Column(
-        VARCHAR(50),
-        nullable=True,
-        comment="完成原因：stop/length/error"
-    )
+    model = Column(VARCHAR(100), default="deepseek-chat", comment="使用的模型")
+    finish_reason = Column(VARCHAR(50), nullable=True, comment="完成原因：stop/length/error")
 
     # 反馈
-    rating = Column(
-        Integer,
-        nullable=True,
-        comment="用户评分（1-5）"
-    )
-    feedback = Column(
-        Text,
-        nullable=True,
-        comment="用户反馈"
-    )
-    feedback_type = Column(
-        VARCHAR(50),
-        nullable=True,
-        comment="反馈类型：helpful/unhelpful/incorrect"
-    )
+    rating = Column(Integer, nullable=True, comment="用户评分（1-5）")
+    feedback = Column(Text, nullable=True, comment="用户反馈")
+    feedback_type = Column(VARCHAR(50), nullable=True, comment="反馈类型：helpful/unhelpful/incorrect")
 
     # 元数据
-    metadata_info = Column(
-        JSON,
-        nullable=True,
-        comment="额外元数据"
-    )
+    metadata_info = Column(JSON, nullable=True, comment="额外元数据")
 
     # 关系
-    conversation = relationship(
-        "Conversation",
-        foreign_keys=[conversation_id],
-        back_populates="messages"
-    )
+    conversation = relationship("Conversation", foreign_keys=[conversation_id], back_populates="messages")
 
     # 索引定义
     __table_args__ = (
         UniqueConstraint("message_uuid", name="uk_message_uuid"),
         Index("idx_conversation_id", "conversation_id"),
         Index("idx_role", "role"),
-        Index("idx_created_at", "created_at"),
+        Index("idx_ai_messages_created_at", "created_at"),
         Index("idx_conversation_created", "conversation_id", "created_at"),
     )
 
     def __repr__(self) -> str:
-        role_val = self.role.value if hasattr(self.role, 'value') else (self.role or "unknown")
+        role_val = self.role.value if hasattr(self.role, "value") else (self.role or "unknown")
         return f"<Message(id={self.id}, conversation_id={self.conversation_id}, role={role_val})>"
 
     def to_dict(self) -> Dict[str, Any]:

@@ -12,8 +12,19 @@ AI对话会话模型 - SQLAlchemy ORM
 """
 
 from sqlalchemy import (
-    Column, BIGINT, VARCHAR, Text, Enum, TIMESTAMP, Index,
-    UniqueConstraint, Integer, ForeignKey, Float, JSON, Boolean
+    Column,
+    BIGINT,
+    VARCHAR,
+    Text,
+    Enum,
+    TIMESTAMP,
+    Index,
+    UniqueConstraint,
+    Integer,
+    ForeignKey,
+    Float,
+    JSON,
+    Boolean,
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -25,6 +36,7 @@ from .base import BaseModel, generate_uuid
 
 class AgentType(enum.Enum):
     """AI代理类型枚举"""
+
     MARKETING = "marketing"  # 营销顾问
     CULTURAL = "cultural"  # 文化专家
     DATA = "data"  # 数据分析师
@@ -33,6 +45,7 @@ class AgentType(enum.Enum):
 
 class ConversationStatus(enum.Enum):
     """对话状态枚举"""
+
     ACTIVE = "active"  # 进行中
     ARCHIVED = "archived"  # 已归档
     DELETED = "deleted"  # 已删除
@@ -40,6 +53,7 @@ class ConversationStatus(enum.Enum):
 
 class ContentType(enum.Enum):
     """内容类型枚举"""
+
     TEXT = "text"  # 文本
     IMAGE = "image"  # 图片
     FILE = "file"  # 文件
@@ -59,136 +73,62 @@ class Conversation(BaseModel):
     __tablename__ = "ai_conversations"
 
     # 主键
-    id = Column(
-        BIGINT,
-        primary_key=True,
-        autoincrement=True,
-        comment="对话ID"
-    )
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="对话ID")
 
     # UUID标识
     conversation_uuid = Column(
-        VARCHAR(36),
-        nullable=False,
-        unique=True,
-        index=True,
-        default=generate_uuid,
-        comment="对话UUID"
+        VARCHAR(36), nullable=False, unique=True, index=True, default=generate_uuid, comment="对话UUID"
     )
 
     # 关联信息
-    user_id = Column(
-        BIGINT,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="用户ID"
-    )
+    user_id = Column(BIGINT, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True, comment="用户ID")
 
     # 对话信息
-    title = Column(
-        VARCHAR(200),
-        nullable=False,
-        default="新对话",
-        comment="对话标题"
-    )
-    description = Column(
-        Text,
-        nullable=True,
-        comment="对话描述"
-    )
+    title = Column(VARCHAR(200), nullable=False, default="新对话", comment="对话标题")
+    description = Column(Text, nullable=True, comment="对话描述")
 
     # Agent类型
-    agent_type = Column(
-        Enum(AgentType),
-        nullable=False,
-        default=AgentType.GENERAL,
-        index=True,
-        comment="Agent类型"
-    )
+    agent_type = Column(Enum(AgentType), nullable=False, default=AgentType.GENERAL, index=True, comment="Agent类型")
 
     # 会话状态
     status = Column(
-        Enum(ConversationStatus),
-        nullable=False,
-        default=ConversationStatus.ACTIVE,
-        index=True,
-        comment="会话状态"
+        Enum(ConversationStatus), nullable=False, default=ConversationStatus.ACTIVE, index=True, comment="会话状态"
     )
 
     # 统计信息
-    message_count = Column(
-        Integer,
-        default=0,
-        comment="消息数量"
-    )
-    total_tokens = Column(
-        Integer,
-        default=0,
-        comment="总Token数"
-    )
-    total_cost = Column(
-        Float,
-        default=0.0,
-        comment="总成本（元）"
-    )
+    message_count = Column(Integer, default=0, comment="消息数量")
+    total_tokens = Column(Integer, default=0, comment="总Token数")
+    total_cost = Column(Float, default=0.0, comment="总成本（元）")
 
     # 会话配置
-    model = Column(
-        VARCHAR(100),
-        default="deepseek-chat",
-        comment="默认模型"
-    )
-    temperature = Column(
-        Float,
-        default=0.7,
-        comment="温度参数"
-    )
-    max_tokens = Column(
-        Integer,
-        default=2000,
-        comment="最大Token数"
-    )
+    model = Column(VARCHAR(100), default="deepseek-chat", comment="默认模型")
+    temperature = Column(Float, default=0.7, comment="温度参数")
+    max_tokens = Column(Integer, default=2000, comment="最大Token数")
 
     # 元数据
-    metadata_info = Column(
-        JSON,
-        nullable=True,
-        comment="额外元数据"
-    )
+    metadata_info = Column(JSON, nullable=True, comment="额外元数据")
 
     # 归档时间
-    archived_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="归档时间"
-    )
+    archived_at = Column(TIMESTAMP, nullable=True, comment="归档时间")
 
     # 关系
-    user = relationship(
-        "User",
-        foreign_keys=[user_id],
-        back_populates="conversations"
-    )
+    user = relationship("User", foreign_keys=[user_id], back_populates="conversations")
     messages = relationship(
-        "Message",
-        back_populates="conversation",
-        cascade="all, delete-orphan",
-        order_by="Message.created_at"
+        "Message", back_populates="conversation", cascade="all, delete-orphan", order_by="Message.created_at"
     )
 
     # 索引定义
     __table_args__ = (
         UniqueConstraint("conversation_uuid", name="uk_conversation_uuid"),
-        Index("idx_user_id", "user_id"),
+        Index("idx_ai_conversations_user_id", "user_id"),
         Index("idx_agent_type", "agent_type"),
-        Index("idx_status", "status"),
-        Index("idx_created_at", "created_at"),
+        Index("idx_ai_conversations_status", "status"),
+        Index("idx_ai_conversations_created_at", "created_at"),
         Index("idx_user_created", "user_id", "created_at"),
     )
 
     def __repr__(self) -> str:
-        agent_type_val = self.agent_type.value if hasattr(self.agent_type, 'value') else (self.agent_type or "unknown")
+        agent_type_val = self.agent_type.value if hasattr(self.agent_type, "value") else (self.agent_type or "unknown")
         return f"<Conversation(id={self.id}, user_id={self.user_id}, title={self.title}, agent_type={agent_type_val})>"
 
     def to_dict(self) -> Dict[str, Any]:

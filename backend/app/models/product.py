@@ -13,9 +13,20 @@
 """
 
 from sqlalchemy import (
-    Column, BIGINT, VARCHAR, Enum, TIMESTAMP, Index,
-    UniqueConstraint, Text, TEXT, Integer, DECIMAL, JSON, DATE,
-    ForeignKey
+    Column,
+    BIGINT,
+    VARCHAR,
+    Enum,
+    TIMESTAMP,
+    Index,
+    UniqueConstraint,
+    Text,
+    TEXT,
+    Integer,
+    DECIMAL,
+    JSON,
+    DATE,
+    ForeignKey,
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime, date
@@ -27,6 +38,7 @@ from .base import BaseModel, generate_uuid
 
 class ProductStatus(enum.Enum):
     """产品状态枚举"""
+
     DRAFT = "draft"  # 草稿
     PENDING = "pending"  # 待审核
     PUBLISHED = "published"  # 已发布
@@ -48,271 +60,100 @@ class Product(BaseModel):
     __tablename__ = "products"
 
     # 主键
-    id = Column(
-        BIGINT,
-        primary_key=True,
-        autoincrement=True,
-        comment="产品ID"
-    )
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="产品ID")
 
     # UUID标识
     product_uuid = Column(
-        VARCHAR(36),
-        nullable=False,
-        unique=True,
-        index=True,
-        default=generate_uuid,
-        comment="产品UUID"
+        VARCHAR(36), nullable=False, unique=True, index=True, default=generate_uuid, comment="产品UUID"
     )
 
     # SKU编码
-    sku = Column(
-        VARCHAR(50),
-        nullable=True,
-        unique=True,
-        index=True,
-        comment="产品SKU编码"
-    )
+    sku = Column(VARCHAR(50), nullable=True, unique=True, index=True, comment="产品SKU编码")
 
     # 基本信息
-    name = Column(
-        VARCHAR(200),
-        nullable=False,
-        index=True,
-        comment="产品名称"
-    )
-    short_name = Column(
-        VARCHAR(100),
-        nullable=True,
-        comment="产品简称"
-    )
-    category = Column(
-        VARCHAR(100),
-        nullable=False,
-        index=True,
-        comment="产品类别"
-    )
-    sub_category = Column(
-        VARCHAR(100),
-        nullable=True,
-        comment="产品子类别"
-    )
+    name = Column(VARCHAR(200), nullable=False, index=True, comment="产品名称")
+    short_name = Column(VARCHAR(100), nullable=True, comment="产品简称")
+    category = Column(VARCHAR(100), nullable=False, index=True, comment="产品类别")
+    sub_category = Column(VARCHAR(100), nullable=True, comment="产品子类别")
 
     # 产地信息
-    origin_province = Column(
-        VARCHAR(50),
-        nullable=False,
-        index=True,
-        comment="产地省份"
-    )
-    origin_city = Column(
-        VARCHAR(50),
-        nullable=True,
-        index=True,
-        comment="产地城市"
-    )
-    origin_district = Column(
-        VARCHAR(50),
-        nullable=True,
-        comment="产地区县"
-    )
-    origin_detail = Column(
-        VARCHAR(500),
-        nullable=True,
-        comment="产地详情"
-    )
-    latitude = Column(
-        DECIMAL(10, 7),
-        nullable=True,
-        comment="产地纬度"
-    )
-    longitude = Column(
-        DECIMAL(10, 7),
-        nullable=True,
-        comment="产地经度"
-    )
+    origin_province = Column(VARCHAR(50), nullable=False, index=True, comment="产地省份")
+    origin_city = Column(VARCHAR(50), nullable=True, index=True, comment="产地城市")
+    origin_district = Column(VARCHAR(50), nullable=True, comment="产地区县")
+    origin_detail = Column(VARCHAR(500), nullable=True, comment="产地详情")
+    latitude = Column(DECIMAL(10, 7), nullable=True, comment="产地纬度")
+    longitude = Column(DECIMAL(10, 7), nullable=True, comment="产地经度")
 
     # 产品详情
-    description = Column(
-        TEXT,
-        nullable=True,
-        comment="产品描述"
-    )
-    features = Column(
-        JSON,
-        nullable=True,
-        comment="产品特点(JSON数组)"
-    )
-    specifications = Column(
-        JSON,
-        nullable=True,
-        comment="规格参数(JSON对象)"
-    )
-    nutrition_facts = Column(
-        JSON,
-        nullable=True,
-        comment="营养成分(JSON对象)"
-    )
+    description = Column(TEXT, nullable=True, comment="产品描述")
+    features = Column(JSON, nullable=True, comment="产品特点(JSON数组)")
+    specifications = Column(JSON, nullable=True, comment="规格参数(JSON对象)")
+    nutrition_facts = Column(JSON, nullable=True, comment="营养成分(JSON对象)")
 
     # 价格
-    price = Column(
-        DECIMAL(10, 2),
-        nullable=True,
-        default=0,
-        index=True,
-        comment="产品价格(元)"
-    )
+    price = Column(DECIMAL(10, 2), nullable=True, default=0, index=True, comment="产品价格(元)")
 
     # 原始外部图片URL(导入时备份)
-    original_image_urls = Column(
-        JSON,
-        nullable=True,
-        comment="原始外部图片URL(备份)"
-    )
+    original_image_urls = Column(JSON, nullable=True, comment="原始外部图片URL(备份)")
 
     # 认证信息
-    certification_type = Column(
-        VARCHAR(100),
-        nullable=True,
-        index=True,
-        comment="认证类型：地理标志/绿色食品/有机认证"
-    )
-    certification_no = Column(
-        VARCHAR(100),
-        nullable=True,
-        comment="认证编号"
-    )
-    certification_date = Column(
-        DATE,
-        nullable=True,
-        comment="认证日期"
-    )
-    certification_expires = Column(
-        DATE,
-        nullable=True,
-        comment="认证有效期"
-    )
+    certification_type = Column(VARCHAR(100), nullable=True, index=True, comment="认证类型：地理标志/绿色食品/有机认证")
+    certification_no = Column(VARCHAR(100), nullable=True, comment="认证编号")
+    certification_date = Column(DATE, nullable=True, comment="认证日期")
+    certification_expires = Column(DATE, nullable=True, comment="认证有效期")
 
     # 文化属性
-    cultural_tags = Column(
-        JSON,
-        nullable=True,
-        comment="文化标签数组"
-    )
-    cultural_story = Column(
-        TEXT,
-        nullable=True,
-        comment="文化故事"
-    )
-    historical_origin = Column(
-        TEXT,
-        nullable=True,
-        comment="历史渊源"
-    )
+    cultural_tags = Column(JSON, nullable=True, comment="文化标签数组")
+    cultural_story = Column(TEXT, nullable=True, comment="文化故事")
+    historical_origin = Column(TEXT, nullable=True, comment="历史渊源")
 
     # 媒体资源
-    main_image_url = Column(
-        VARCHAR(500),
-        nullable=True,
-        comment="主图URL"
-    )
-    image_urls = Column(
-        JSON,
-        nullable=True,
-        comment="图片URL数组"
-    )
-    video_url = Column(
-        VARCHAR(500),
-        nullable=True,
-        comment="视频URL"
-    )
+    main_image_url = Column(VARCHAR(500), nullable=True, comment="主图URL")
+    image_urls = Column(JSON, nullable=True, comment="图片URL数组")
+    video_url = Column(VARCHAR(500), nullable=True, comment="视频URL")
 
     # 状态与统计
-    status = Column(
-        Enum(ProductStatus),
-        nullable=False,
-        default=ProductStatus.DRAFT,
-        index=True,
-        comment="产品状态"
-    )
-    view_count = Column(
-        Integer,
-        default=0,
-        comment="浏览次数"
-    )
-    generate_count = Column(
-        Integer,
-        default=0,
-        comment="内容生成次数"
-    )
+    status = Column(Enum(ProductStatus), nullable=False, default=ProductStatus.DRAFT, index=True, comment="产品状态")
+    view_count = Column(Integer, default=0, comment="浏览次数")
+    generate_count = Column(Integer, default=0, comment="内容生成次数")
 
     # 关联关系
     enterprise_id = Column(
-        BIGINT,
-        ForeignKey("enterprises.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-        comment="所属企业ID"
+        BIGINT, ForeignKey("enterprises.id", ondelete="SET NULL"), nullable=True, index=True, comment="所属企业ID"
     )
     created_by = Column(
-        BIGINT,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="创建人用户ID"
+        BIGINT, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True, comment="创建人用户ID"
     )
 
     # 发布相关时间
-    published_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="发布时间"
-    )
+    published_at = Column(TIMESTAMP, nullable=True, comment="发布时间")
 
     # 关系
-    enterprise = relationship(
-        "Enterprise",
-        foreign_keys=[enterprise_id],
-        back_populates="products"
-    )
-    creator = relationship(
-        "User",
-        foreign_keys=[created_by],
-        back_populates="products"
-    )
-    content_records = relationship(
-        "ContentRecord",
-        back_populates="product",
-        cascade="all, delete-orphan"
-    )
+    enterprise = relationship("Enterprise", foreign_keys=[enterprise_id], back_populates="products")
+    creator = relationship("User", foreign_keys=[created_by], back_populates="products")
+    content_records = relationship("ContentRecord", back_populates="product", cascade="all, delete-orphan")
     media = relationship(
-        "Media",
-        foreign_keys="Media.product_id",
-        back_populates="product",
-        cascade="all, delete-orphan"
+        "Media", foreign_keys="Media.product_id", back_populates="product", cascade="all, delete-orphan"
     )
-    tags = relationship(
-        "CulturalTag",
-        secondary="product_tags",
-        back_populates="products"
-    )
+    tags = relationship("CulturalTag", secondary="product_tags", back_populates="products")
+    cultural_tasks = relationship("CulturalCollectionTask", back_populates="product")
 
     # 索引定义
     __table_args__ = (
         UniqueConstraint("product_uuid", name="uk_product_uuid"),
-        Index("idx_name", "name"),
-        Index("idx_category", "category"),
+        Index("idx_products_name", "name"),
+        Index("idx_products_category", "category"),
         Index("idx_origin_province", "origin_province"),
         Index("idx_origin_city", "origin_city"),
         Index("idx_certification_type", "certification_type"),
-        Index("idx_status", "status"),
-        Index("idx_enterprise_id", "enterprise_id"),
-        Index("idx_created_by", "created_by"),
-        Index("idx_created_at", "created_at"),
+        Index("idx_products_status", "status"),
+        Index("idx_products_enterprise_id", "enterprise_id"),
+        Index("idx_products_created_by", "created_by"),
+        Index("idx_products_created_at", "created_at"),
     )
 
     def __repr__(self) -> str:
-        status_val = self.status.value if hasattr(self.status, 'value') else (self.status or "unknown")
+        status_val = self.status.value if hasattr(self.status, "value") else (self.status or "unknown")
         return f"<Product(id={self.id}, name={self.name}, status={status_val})>"
 
     def to_dict(self) -> Dict[str, Any]:

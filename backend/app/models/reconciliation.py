@@ -5,10 +5,7 @@
 创建日期: 2026-01-23
 """
 
-from sqlalchemy import (
-    Column, BIGINT, String, DECIMAL, Enum, TIMESTAMP, Boolean,
-    ForeignKey, Index, Text, Integer
-)
+from sqlalchemy import Column, BIGINT, String, DECIMAL, Enum, TIMESTAMP, Boolean, ForeignKey, Index, Text, Integer
 from sqlalchemy.orm import relationship
 from datetime import datetime, date
 from typing import Dict, Any, Optional, List
@@ -20,6 +17,7 @@ from .base import BaseModel, generate_uuid
 
 class ReconciliationStatus(enum.Enum):
     """对账状态枚举"""
+
     PENDING = "pending"  # 待对账
     PROCESSING = "processing"  # 对账中
     SUCCESS = "success"  # 对账成功
@@ -29,6 +27,7 @@ class ReconciliationStatus(enum.Enum):
 
 class ReconciliationType(enum.Enum):
     """对账类型枚举"""
+
     DAILY = "daily"  # 日对账
     MANUAL = "manual"  # 手动对账
     RETRY = "retry"  # 重试对账
@@ -36,6 +35,7 @@ class ReconciliationType(enum.Enum):
 
 class DifferenceType(enum.Enum):
     """差异类型枚举"""
+
     MISSING_LOCAL = "missing_local"  # 本地缺失(第三方有,本地无)
     MISSING_REMOTE = "missing_remote"  # 远程缺失(本地有,第三方无)
     AMOUNT_MISMATCH = "amount_mismatch"  # 金额不匹配
@@ -45,6 +45,7 @@ class DifferenceType(enum.Enum):
 
 class DifferenceStatus(enum.Enum):
     """差异处理状态枚举"""
+
     PENDING = "pending"  # 待处理
     PROCESSING = "processing"  # 处理中
     RESOLVED = "resolved"  # 已解决
@@ -64,164 +65,69 @@ class ReconciliationRecord(BaseModel):
     __tablename__ = "reconciliation_records"
 
     # 主键
-    id = Column(
-        BIGINT,
-        primary_key=True,
-        autoincrement=True,
-        comment="对账记录ID"
-    )
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="对账记录ID")
 
     # 对账批次号(唯一)
-    batch_no = Column(
-        String(64),
-        nullable=False,
-        unique=True,
-        index=True,
-        default=generate_uuid,
-        comment="对账批次号"
-    )
+    batch_no = Column(String(64), nullable=False, unique=True, index=True, default=generate_uuid, comment="对账批次号")
 
     # 对账信息
-    reconciliation_date = Column(
-        String(10),  # YYYY-MM-DD
-        nullable=False,
-        index=True,
-        comment="对账日期"
-    )
+    reconciliation_date = Column(String(10), nullable=False, index=True, comment="对账日期")  # YYYY-MM-DD
 
     reconciliation_type = Column(
-        Enum(ReconciliationType),
-        nullable=False,
-        default=ReconciliationType.DAILY,
-        index=True,
-        comment="对账类型"
+        Enum(ReconciliationType), nullable=False, default=ReconciliationType.DAILY, index=True, comment="对账类型"
     )
 
     status = Column(
-        Enum(ReconciliationStatus),
-        nullable=False,
-        default=ReconciliationStatus.PENDING,
-        index=True,
-        comment="对账状态"
+        Enum(ReconciliationStatus), nullable=False, default=ReconciliationStatus.PENDING, index=True, comment="对账状态"
     )
 
     # 对账范围
-    start_time = Column(
-        TIMESTAMP,
-        nullable=False,
-        comment="对账开始时间"
-    )
+    start_time = Column(TIMESTAMP, nullable=False, comment="对账开始时间")
 
-    end_time = Column(
-        TIMESTAMP,
-        nullable=False,
-        comment="对账结束时间"
-    )
+    end_time = Column(TIMESTAMP, nullable=False, comment="对账结束时间")
 
     # 统计信息
-    total_local_count = Column(
-        Integer,
-        nullable=False,
-        default=0,
-        comment="本地交易总数"
-    )
+    total_local_count = Column(Integer, nullable=False, default=0, comment="本地交易总数")
 
-    total_remote_count = Column(
-        Integer,
-        nullable=False,
-        default=0,
-        comment="第三方交易总数"
-    )
+    total_remote_count = Column(Integer, nullable=False, default=0, comment="第三方交易总数")
 
-    matched_count = Column(
-        Integer,
-        nullable=False,
-        default=0,
-        comment="匹配成功数量"
-    )
+    matched_count = Column(Integer, nullable=False, default=0, comment="匹配成功数量")
 
-    difference_count = Column(
-        Integer,
-        nullable=False,
-        default=0,
-        comment="差异数量"
-    )
+    difference_count = Column(Integer, nullable=False, default=0, comment="差异数量")
 
     # 金额统计
-    total_local_amount = Column(
-        DECIMAL(15, 2),
-        nullable=False,
-        default=0,
-        comment="本地交易总金额"
-    )
+    total_local_amount = Column(DECIMAL(15, 2), nullable=False, default=0, comment="本地交易总金额")
 
-    total_remote_amount = Column(
-        DECIMAL(15, 2),
-        nullable=False,
-        default=0,
-        comment="第三方交易总金额"
-    )
+    total_remote_amount = Column(DECIMAL(15, 2), nullable=False, default=0, comment="第三方交易总金额")
 
-    matched_amount = Column(
-        DECIMAL(15, 2),
-        nullable=False,
-        default=0,
-        comment="匹配成功金额"
-    )
+    matched_amount = Column(DECIMAL(15, 2), nullable=False, default=0, comment="匹配成功金额")
 
-    difference_amount = Column(
-        DECIMAL(15, 2),
-        nullable=False,
-        default=0,
-        comment="差异金额"
-    )
+    difference_amount = Column(DECIMAL(15, 2), nullable=False, default=0, comment="差异金额")
 
     # 执行信息
-    started_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="开始执行时间"
-    )
+    started_at = Column(TIMESTAMP, nullable=True, comment="开始执行时间")
 
-    completed_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="完成时间"
-    )
+    completed_at = Column(TIMESTAMP, nullable=True, comment="完成时间")
 
-    duration_seconds = Column(
-        Integer,
-        nullable=True,
-        comment="执行耗时(秒)"
-    )
+    duration_seconds = Column(Integer, nullable=True, comment="执行耗时(秒)")
 
     # 错误信息
-    error_message = Column(
-        Text,
-        nullable=True,
-        comment="错误信息"
-    )
+    error_message = Column(Text, nullable=True, comment="错误信息")
 
     # 备注
-    remark = Column(
-        Text,
-        nullable=True,
-        comment="备注"
-    )
+    remark = Column(Text, nullable=True, comment="备注")
 
     # 关系
     differences = relationship(
-        "ReconciliationDifference",
-        back_populates="reconciliation_record",
-        cascade="all, delete-orphan"
+        "ReconciliationDifference", back_populates="reconciliation_record", cascade="all, delete-orphan"
     )
 
     # 索引
     __table_args__ = (
         Index("idx_reconciliation_date", "reconciliation_date"),
-        Index("idx_status", "status"),
+        Index("idx_reconciliation_records_status", "status"),
         Index("idx_type", "reconciliation_type"),
-        Index("idx_created_at", "created_at"),
+        Index("idx_reconciliation_records_created_at", "created_at"),
     )
 
     def __repr__(self) -> str:
@@ -311,12 +217,7 @@ class ReconciliationDifference(BaseModel):
     __tablename__ = "reconciliation_differences"
 
     # 主键
-    id = Column(
-        BIGINT,
-        primary_key=True,
-        autoincrement=True,
-        comment="差异记录ID"
-    )
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="差异记录ID")
 
     # 关联对账记录
     reconciliation_id = Column(
@@ -324,168 +225,82 @@ class ReconciliationDifference(BaseModel):
         ForeignKey("reconciliation_records.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
-        comment="对账记录ID"
+        comment="对账记录ID",
     )
 
     # 差异信息
-    difference_type = Column(
-        Enum(DifferenceType),
-        nullable=False,
-        index=True,
-        comment="差异类型"
-    )
+    difference_type = Column(Enum(DifferenceType), nullable=False, index=True, comment="差异类型")
 
     status = Column(
-        Enum(DifferenceStatus),
-        nullable=False,
-        default=DifferenceStatus.PENDING,
-        index=True,
-        comment="处理状态"
+        Enum(DifferenceStatus), nullable=False, default=DifferenceStatus.PENDING, index=True, comment="处理状态"
     )
 
     # 交易信息
     local_payment_id = Column(
-        BIGINT,
-        ForeignKey("payments.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-        comment="本地支付记录ID"
+        BIGINT, ForeignKey("payments.id", ondelete="SET NULL"), nullable=True, index=True, comment="本地支付记录ID"
     )
 
-    local_transaction_id = Column(
-        String(128),
-        nullable=True,
-        index=True,
-        comment="本地交易号"
-    )
+    local_transaction_id = Column(String(128), nullable=True, index=True, comment="本地交易号")
 
-    remote_transaction_id = Column(
-        String(128),
-        nullable=True,
-        index=True,
-        comment="第三方交易号"
-    )
+    remote_transaction_id = Column(String(128), nullable=True, index=True, comment="第三方交易号")
 
     # 金额信息
-    local_amount = Column(
-        DECIMAL(10, 2),
-        nullable=True,
-        comment="本地金额"
-    )
+    local_amount = Column(DECIMAL(10, 2), nullable=True, comment="本地金额")
 
-    remote_amount = Column(
-        DECIMAL(10, 2),
-        nullable=True,
-        comment="第三方金额"
-    )
+    remote_amount = Column(DECIMAL(10, 2), nullable=True, comment="第三方金额")
 
-    amount_difference = Column(
-        DECIMAL(10, 2),
-        nullable=True,
-        comment="金额差异"
-    )
+    amount_difference = Column(DECIMAL(10, 2), nullable=True, comment="金额差异")
 
     # 状态信息
-    local_status = Column(
-        String(50),
-        nullable=True,
-        comment="本地状态"
-    )
+    local_status = Column(String(50), nullable=True, comment="本地状态")
 
-    remote_status = Column(
-        String(50),
-        nullable=True,
-        comment="第三方状态"
-    )
+    remote_status = Column(String(50), nullable=True, comment="第三方状态")
 
     # 时间信息
-    local_paid_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="本地支付时间"
-    )
+    local_paid_at = Column(TIMESTAMP, nullable=True, comment="本地支付时间")
 
-    remote_paid_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="第三方支付时间"
-    )
+    remote_paid_at = Column(TIMESTAMP, nullable=True, comment="第三方支付时间")
 
     # 详细信息
-    local_data = Column(
-        Text,
-        nullable=True,
-        comment="本地交易数据(JSON)"
-    )
+    local_data = Column(Text, nullable=True, comment="本地交易数据(JSON)")
 
-    remote_data = Column(
-        Text,
-        nullable=True,
-        comment="第三方交易数据(JSON)"
-    )
+    remote_data = Column(Text, nullable=True, comment="第三方交易数据(JSON)")
 
     # 处理信息
-    processed_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="处理时间"
-    )
+    processed_at = Column(TIMESTAMP, nullable=True, comment="处理时间")
 
-    processed_by = Column(
-        String(100),
-        nullable=True,
-        comment="处理人/系统"
-    )
+    processed_by = Column(String(100), nullable=True, comment="处理人/系统")
 
-    resolution_action = Column(
-        String(100),
-        nullable=True,
-        comment="解决方案"
-    )
+    resolution_action = Column(String(100), nullable=True, comment="解决方案")
 
-    resolution_result = Column(
-        Text,
-        nullable=True,
-        comment="处理结果"
-    )
+    resolution_result = Column(Text, nullable=True, comment="处理结果")
 
     # 备注
-    description = Column(
-        Text,
-        nullable=True,
-        comment="差异描述"
-    )
+    description = Column(Text, nullable=True, comment="差异描述")
 
-    remark = Column(
-        Text,
-        nullable=True,
-        comment="备注"
-    )
+    remark = Column(Text, nullable=True, comment="备注")
 
     # 关系
     reconciliation_record = relationship(
-        "ReconciliationRecord",
-        foreign_keys=[reconciliation_id],
-        back_populates="differences"
+        "ReconciliationRecord", foreign_keys=[reconciliation_id], back_populates="differences"
     )
 
-    local_payment = relationship(
-        "Payment",
-        foreign_keys=[local_payment_id]
-    )
+    local_payment = relationship("Payment", foreign_keys=[local_payment_id])
 
     # 索引
     __table_args__ = (
         Index("idx_reconciliation_id", "reconciliation_id"),
         Index("idx_difference_type", "difference_type"),
-        Index("idx_status", "status"),
+        Index("idx_reconciliation_differences_status", "status"),
         Index("idx_local_transaction_id", "local_transaction_id"),
         Index("idx_remote_transaction_id", "remote_transaction_id"),
-        Index("idx_created_at", "created_at"),
+        Index("idx_reconciliation_differences_created_at", "created_at"),
     )
 
     def __repr__(self) -> str:
-        return f"<ReconciliationDifference(id={self.id}, type={self.difference_type.value}, status={self.status.value})>"
+        return (
+            f"<ReconciliationDifference(id={self.id}, type={self.difference_type.value}, status={self.status.value})>"
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""

@@ -75,8 +75,8 @@ class KefuEscalation(BaseModel):
     extra_data = Column(Text, nullable=True, comment="额外元数据(JSON)")
 
     __table_args__ = (
-        Index("idx_user_status", "user_id", "status"),
-        Index("idx_priority", "priority"),
+        Index("idx_kefu_escalations_user_status", "user_id", "status"),
+        Index("idx_kefu_escalations_priority", "priority"),
     )
 
     def to_dict(self) -> dict:

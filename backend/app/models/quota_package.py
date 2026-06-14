@@ -171,8 +171,8 @@ class QuotaPackage(BaseModel):
     # 索引
     __table_args__ = (
         Index("idx_package_type", "package_type"),
-        Index("idx_is_active", "is_active"),
-        Index("idx_sort_order", "sort_order"),
+        Index("idx_quota_packages_is_active", "is_active"),
+        Index("idx_quota_packages_sort_order", "sort_order"),
     )
 
     def __repr__(self) -> str:

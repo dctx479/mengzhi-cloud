@@ -80,8 +80,8 @@ class KefuConversation(BaseModel):
     )
 
     __table_args__ = (
-        Index("idx_user_status", "user_id", "status"),
-        Index("idx_created", "created_at"),
+        Index("idx_kefu_conversations_user_status", "user_id", "status"),
+        Index("idx_kefu_conversations_created", "created_at"),
     )
 
     def to_dict(self) -> dict:

@@ -118,9 +118,9 @@ class KefuTicket(BaseModel):
     )
 
     __table_args__ = (
-        Index("idx_user_status", "user_id", "status"),
-        Index("idx_priority", "priority"),
-        Index("idx_created", "created_at"),
+        Index("idx_kefu_tickets_user_status", "user_id", "status"),
+        Index("idx_kefu_tickets_priority", "priority"),
+        Index("idx_kefu_tickets_created", "created_at"),
     )
 
     def to_dict(self) -> dict:

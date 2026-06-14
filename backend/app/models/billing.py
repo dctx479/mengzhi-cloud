@@ -185,10 +185,10 @@ class BillingPlan(BaseModel):
     # 索引定义
     __table_args__ = (
         UniqueConstraint("plan_uuid", name="uk_plan_uuid"),
-        Index("idx_billing_mode", "billing_mode"),
-        Index("idx_is_active", "is_active"),
+        Index("idx_billing_plans_billing_mode", "billing_mode"),
+        Index("idx_billing_plans_is_active", "is_active"),
         Index("idx_is_default", "is_default"),
-        Index("idx_sort_order", "sort_order"),
+        Index("idx_billing_plans_sort_order", "sort_order"),
     )
 
     def __repr__(self) -> str:
@@ -444,13 +444,13 @@ class BillingRecord(BaseModel):
     # 索引定义
     __table_args__ = (
         UniqueConstraint("record_uuid", name="uk_record_uuid"),
-        Index("idx_user_id", "user_id"),
+        Index("idx_billing_records_user_id", "user_id"),
         Index("idx_plan_id", "plan_id"),
-        Index("idx_billing_mode", "billing_mode"),
+        Index("idx_billing_records_billing_mode", "billing_mode"),
         Index("idx_billing_date", "billing_date"),
         Index("idx_billing_month", "billing_month"),
         Index("idx_invoice_id", "invoice_id"),
-        Index("idx_resource", "resource_type", "resource_id"),
+        Index("idx_billing_records_resource", "resource_type", "resource_id"),
     )
 
     def __repr__(self) -> str:
@@ -642,8 +642,8 @@ class Invoice(BaseModel):
     __table_args__ = (
         UniqueConstraint("invoice_uuid", name="uk_invoice_uuid"),
         UniqueConstraint("invoice_number", name="uk_invoice_number"),
-        Index("idx_user_id", "user_id"),
-        Index("idx_status", "status"),
+        Index("idx_invoices_user_id", "user_id"),
+        Index("idx_invoices_status", "status"),
         Index("idx_due_date", "due_date"),
         Index("idx_billing_period", "billing_period_start", "billing_period_end"),
     )

@@ -12,8 +12,18 @@
 """
 
 from sqlalchemy import (
-    Column, BIGINT, VARCHAR, Enum, Integer, TIMESTAMP, Boolean,
-    Index, UniqueConstraint, Text, TEXT, ForeignKey
+    Column,
+    BIGINT,
+    VARCHAR,
+    Enum,
+    Integer,
+    TIMESTAMP,
+    Boolean,
+    Index,
+    UniqueConstraint,
+    Text,
+    TEXT,
+    ForeignKey,
 )
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
@@ -26,12 +36,14 @@ from .base import BaseModel, generate_uuid
 
 class UserType(enum.Enum):
     """用户类型枚举"""
+
     PERSONAL = "personal"  # 个人用户
     ENTERPRISE = "enterprise"  # 企业用户
 
 
 class UserStatus(enum.Enum):
     """用户状态枚举"""
+
     ACTIVE = "active"  # 正常
     INACTIVE = "inactive"  # 未激活
     BANNED = "banned"  # 已禁用
@@ -40,6 +52,7 @@ class UserStatus(enum.Enum):
 
 class UserRole(enum.Enum):
     """用户角色枚举"""
+
     ADMIN = "admin"  # 系统管理员
     ENTERPRISE_ADMIN = "enterprise_admin"  # 企业管理员
     USER = "user"  # 普通用户
@@ -47,6 +60,7 @@ class UserRole(enum.Enum):
 
 class Gender(enum.Enum):
     """性别枚举"""
+
     UNKNOWN = 0  # 未知
     MALE = 1  # 男
     FEMALE = 2  # 女
@@ -62,12 +76,7 @@ class User(BaseModel):
     __tablename__ = "users"
 
     # 主键
-    id = Column(
-        BIGINT,
-        primary_key=True,
-        autoincrement=True,
-        comment="用户ID，主键自增"
-    )
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="用户ID，主键自增")
 
     # UUID标识
     user_uuid = Column(
@@ -76,36 +85,14 @@ class User(BaseModel):
         unique=True,
         index=True,
         default=generate_uuid,
-        comment="用户UUID，对外暴露的唯一标识"
+        comment="用户UUID，对外暴露的唯一标识",
     )
 
     # 账户信息
-    username = Column(
-        VARCHAR(50),
-        nullable=False,
-        unique=True,
-        index=True,
-        comment="用户名，唯一"
-    )
-    email = Column(
-        VARCHAR(100),
-        nullable=True,
-        unique=True,
-        index=True,
-        comment="邮箱地址"
-    )
-    phone = Column(
-        VARCHAR(20),
-        nullable=True,
-        unique=True,
-        index=True,
-        comment="手机号码"
-    )
-    password_hash = Column(
-        VARCHAR(255),
-        nullable=False,
-        comment="密码哈希值(bcrypt)"
-    )
+    username = Column(VARCHAR(50), nullable=False, unique=True, index=True, comment="用户名，唯一")
+    email = Column(VARCHAR(100), nullable=True, unique=True, index=True, comment="邮箱地址")
+    phone = Column(VARCHAR(20), nullable=True, unique=True, index=True, comment="手机号码")
+    password_hash = Column(VARCHAR(255), nullable=False, comment="密码哈希值(bcrypt)")
 
     # 用户类型与状态
     user_type = Column(
@@ -113,175 +100,56 @@ class User(BaseModel):
         nullable=False,
         default=UserType.PERSONAL,
         index=True,
-        comment="用户类型：personal个人/enterprise企业"
+        comment="用户类型：personal个人/enterprise企业",
     )
-    status = Column(
-        Enum(UserStatus),
-        nullable=False,
-        default=UserStatus.PENDING,
-        index=True,
-        comment="账号状态"
-    )
-    role = Column(
-        Enum(UserRole),
-        nullable=False,
-        default=UserRole.USER,
-        comment="用户角色"
-    )
+    status = Column(Enum(UserStatus), nullable=False, default=UserStatus.PENDING, index=True, comment="账号状态")
+    role = Column(Enum(UserRole), nullable=False, default=UserRole.USER, comment="用户角色")
 
     # 企业关联
     enterprise_id = Column(
-        BIGINT,
-        ForeignKey("enterprises.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-        comment="所属企业ID"
+        BIGINT, ForeignKey("enterprises.id", ondelete="SET NULL"), nullable=True, index=True, comment="所属企业ID"
     )
 
     # 第三方登录
-    wechat_openid = Column(
-        VARCHAR(100),
-        nullable=True,
-        unique=True,
-        comment="微信OpenID"
-    )
-    wechat_unionid = Column(
-        VARCHAR(100),
-        nullable=True,
-        unique=True,
-        comment="微信UnionID"
-    )
-    douyin_openid = Column(
-        VARCHAR(100),
-        nullable=True,
-        unique=True,
-        comment="抖音OpenID"
-    )
+    wechat_openid = Column(VARCHAR(100), nullable=True, unique=True, comment="微信OpenID")
+    wechat_unionid = Column(VARCHAR(100), nullable=True, unique=True, comment="微信UnionID")
+    douyin_openid = Column(VARCHAR(100), nullable=True, unique=True, comment="抖音OpenID")
 
     # 用户资料
-    nickname = Column(
-        VARCHAR(100),
-        nullable=True,
-        comment="昵称"
-    )
-    avatar_url = Column(
-        VARCHAR(500),
-        nullable=True,
-        comment="头像URL"
-    )
-    gender = Column(
-        Integer,
-        default=0,
-        comment="性别：0未知/1男/2女"
-    )
+    nickname = Column(VARCHAR(100), nullable=True, comment="昵称")
+    avatar_url = Column(VARCHAR(500), nullable=True, comment="头像URL")
+    gender = Column(Integer, default=0, comment="性别：0未知/1男/2女")
 
     # 个人资料扩展字段
-    bio = Column(
-        TEXT,
-        nullable=True,
-        comment="个人简介"
-    )
-    location = Column(
-        VARCHAR(200),
-        nullable=True,
-        comment="所在地"
-    )
-    website = Column(
-        VARCHAR(500),
-        nullable=True,
-        comment="个人网站"
-    )
+    bio = Column(TEXT, nullable=True, comment="个人简介")
+    location = Column(VARCHAR(200), nullable=True, comment="所在地")
+    website = Column(VARCHAR(500), nullable=True, comment="个人网站")
     # 安全相关
-    login_attempts = Column(
-        Integer,
-        default=0,
-        comment="登录失败次数"
-    )
-    locked_until = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="账号锁定截止时间"
-    )
-    last_login_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="最后登录时间"
-    )
-    last_login_ip = Column(
-        VARCHAR(45),
-        nullable=True,
-        comment="最后登录IP"
-    )
-    password_changed_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="密码修改时间"
-    )
+    login_attempts = Column(Integer, default=0, comment="登录失败次数")
+    locked_until = Column(TIMESTAMP, nullable=True, comment="账号锁定截止时间")
+    last_login_at = Column(TIMESTAMP, nullable=True, comment="最后登录时间")
+    last_login_ip = Column(VARCHAR(45), nullable=True, comment="最后登录IP")
+    password_changed_at = Column(TIMESTAMP, nullable=True, comment="密码修改时间")
 
     # 管理员标志
     is_admin = Column(
-        sa.Boolean,
-        default=False,
-        server_default=sa.text("0"),
-        nullable=False,
-        comment="是否为系统管理员"
+        sa.Boolean, default=False, server_default=sa.text("0"), nullable=False, comment="是否为系统管理员"
     )
 
     # 关系
-    enterprise = relationship(
-        "Enterprise",
-        foreign_keys=[enterprise_id],
-        back_populates="users"
-    )
-    conversations = relationship(
-        "Conversation",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-    content_records = relationship(
-        "ContentRecord",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-    quotas = relationship(
-        "UserQuota",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
+    enterprise = relationship("Enterprise", foreign_keys=[enterprise_id], back_populates="users")
+    conversations = relationship("Conversation", back_populates="user", cascade="all, delete-orphan")
+    content_records = relationship("ContentRecord", back_populates="user", cascade="all, delete-orphan")
+    quotas = relationship("UserQuota", back_populates="user", cascade="all, delete-orphan")
     tenant_quotas = relationship(
-        "TenantQuota",
-        foreign_keys="TenantQuota.user_id",
-        back_populates="user",
-        cascade="all, delete-orphan"
+        "TenantQuota", foreign_keys="TenantQuota.user_id", back_populates="user", cascade="all, delete-orphan"
     )
-    products = relationship(
-        "Product",
-        foreign_keys="Product.created_by",
-        back_populates="creator"
-    )
-    roles = relationship(
-        "Role",
-        secondary="user_roles",
-        back_populates="users",
-        lazy="selectin"
-    )
-    media = relationship(
-        "Media",
-        foreign_keys="Media.user_id",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-    orders = relationship(
-        "Order",
-        foreign_keys="Order.user_id",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
+    products = relationship("Product", foreign_keys="Product.created_by", back_populates="creator")
+    roles = relationship("Role", secondary="user_roles", back_populates="users", lazy="selectin")
+    media = relationship("Media", foreign_keys="Media.user_id", back_populates="user", cascade="all, delete-orphan")
+    orders = relationship("Order", foreign_keys="Order.user_id", back_populates="user", cascade="all, delete-orphan")
     quota_logs = relationship(
-        "QuotaLog",
-        foreign_keys="QuotaLog.user_id",
-        back_populates="user",
-        cascade="all, delete-orphan"
+        "QuotaLog", foreign_keys="QuotaLog.user_id", back_populates="user", cascade="all, delete-orphan"
     )
 
     # 索引定义
@@ -293,15 +161,15 @@ class User(BaseModel):
         UniqueConstraint("wechat_openid", name="uk_wechat_openid"),
         UniqueConstraint("douyin_openid", name="uk_douyin_openid"),
         Index("idx_user_type", "user_type"),
-        Index("idx_status", "status"),
-        Index("idx_enterprise_id", "enterprise_id"),
+        Index("idx_users_status", "status"),
+        Index("idx_users_enterprise_id", "enterprise_id"),
         Index("idx_is_admin", "is_admin"),
-        Index("idx_created_at", "created_at"),
-        Index("idx_deleted_at", "deleted_at"),
+        Index("idx_users_created_at", "created_at"),
+        Index("idx_users_deleted_at", "deleted_at"),
     )
 
     def __repr__(self) -> str:
-        user_type_val = self.user_type.value if hasattr(self.user_type, 'value') else (self.user_type or "unknown")
+        user_type_val = self.user_type.value if hasattr(self.user_type, "value") else (self.user_type or "unknown")
         return f"<User(id={self.id}, username={self.username}, user_type={user_type_val})>"
 
     def to_dict(self) -> Dict[str, Any]:

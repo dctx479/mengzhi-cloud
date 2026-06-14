@@ -194,12 +194,12 @@ class TenantQuota(BaseModel):
             "(enterprise_id IS NOT NULL) OR (user_id IS NOT NULL)",
             name="ck_quota_tenant_not_null"
         ),
-        Index("idx_enterprise_id", "enterprise_id"),
-        Index("idx_user_id", "user_id"),
+        Index("idx_tenant_quotas_enterprise_id", "enterprise_id"),
+        Index("idx_tenant_quotas_user_id", "user_id"),
         Index("idx_resource_type", "resource_type"),
         Index("idx_period_type", "period_type"),
-        Index("idx_period_end", "period_end"),
-        Index("idx_is_active", "is_active"),
+        Index("idx_tenant_quotas_period_end", "period_end"),
+        Index("idx_tenant_quotas_is_active", "is_active"),
     )
 
     def __repr__(self) -> str:
@@ -402,10 +402,10 @@ class QuotaUsage(BaseModel):
 
     # 索引定义
     __table_args__ = (
-        Index("idx_quota_id", "quota_id"),
+        Index("idx_quota_usage_quota_id", "quota_id"),
         Index("idx_operation", "operation"),
         Index("idx_used_at", "used_at"),
-        Index("idx_resource", "resource_type", "resource_id"),
+        Index("idx_quota_usage_resource", "resource_type", "resource_id"),
     )
 
     def __repr__(self) -> str:

@@ -5,10 +5,7 @@
 创建日期: 2026-01-23
 """
 
-from sqlalchemy import (
-    Column, BIGINT, String, DECIMAL, Enum, TIMESTAMP,
-    ForeignKey, Index, Text
-)
+from sqlalchemy import Column, BIGINT, String, DECIMAL, Enum, TIMESTAMP, ForeignKey, Index, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from typing import Dict, Any, Optional
@@ -19,6 +16,7 @@ from .base import BaseModel, generate_uuid
 
 class OrderStatus(enum.Enum):
     """订单状态枚举"""
+
     PENDING = "pending"  # 待支付
     PAID = "paid"  # 已支付
     COMPLETED = "completed"  # 已完成(配额已发放)
@@ -39,176 +37,70 @@ class Order(BaseModel):
     __tablename__ = "orders"
 
     # 主键
-    id = Column(
-        BIGINT,
-        primary_key=True,
-        autoincrement=True,
-        comment="订单ID"
-    )
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="订单ID")
 
     # 订单号(唯一)
-    order_no = Column(
-        String(64),
-        nullable=False,
-        unique=True,
-        index=True,
-        default=generate_uuid,
-        comment="订单号"
-    )
+    order_no = Column(String(64), nullable=False, unique=True, index=True, default=generate_uuid, comment="订单号")
 
     # 关联信息
-    user_id = Column(
-        BIGINT,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="用户ID"
-    )
+    user_id = Column(BIGINT, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True, comment="用户ID")
 
     package_id = Column(
-        BIGINT,
-        ForeignKey("quota_packages.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-        comment="套餐ID"
+        BIGINT, ForeignKey("quota_packages.id", ondelete="SET NULL"), nullable=True, index=True, comment="套餐ID"
     )
 
     # 订单信息(冗余存储,防止套餐修改影响历史订单)
-    package_name = Column(
-        String(100),
-        nullable=False,
-        comment="套餐名称"
-    )
+    package_name = Column(String(100), nullable=False, comment="套餐名称")
 
-    package_type = Column(
-        String(50),
-        nullable=False,
-        comment="套餐类型"
-    )
+    package_type = Column(String(50), nullable=False, comment="套餐类型")
 
     # 价格信息
-    amount = Column(
-        DECIMAL(10, 2),
-        nullable=False,
-        comment="订单金额(元)"
-    )
+    amount = Column(DECIMAL(10, 2), nullable=False, comment="订单金额(元)")
 
-    original_amount = Column(
-        DECIMAL(10, 2),
-        nullable=True,
-        comment="原价"
-    )
+    original_amount = Column(DECIMAL(10, 2), nullable=True, comment="原价")
 
-    discount_amount = Column(
-        DECIMAL(10, 2),
-        nullable=True,
-        default=0,
-        comment="优惠金额"
-    )
+    discount_amount = Column(DECIMAL(10, 2), nullable=True, default=0, comment="优惠金额")
 
     # 配额信息(冗余存储)
-    chat_quota = Column(
-        BIGINT,
-        nullable=False,
-        default=0,
-        comment="对话次数配额"
-    )
+    chat_quota = Column(BIGINT, nullable=False, default=0, comment="对话次数配额")
 
-    generation_quota = Column(
-        BIGINT,
-        nullable=False,
-        default=0,
-        comment="生成次数配额"
-    )
+    generation_quota = Column(BIGINT, nullable=False, default=0, comment="生成次数配额")
 
-    token_quota = Column(
-        BIGINT,
-        nullable=False,
-        default=0,
-        comment="Token配额"
-    )
+    token_quota = Column(BIGINT, nullable=False, default=0, comment="Token配额")
 
-    storage_quota_mb = Column(
-        BIGINT,
-        nullable=False,
-        default=0,
-        comment="存储配额(MB)"
-    )
+    storage_quota_mb = Column(BIGINT, nullable=False, default=0, comment="存储配额(MB)")
 
-    validity_days = Column(
-        BIGINT,
-        nullable=False,
-        default=30,
-        comment="有效期(天)"
-    )
+    validity_days = Column(BIGINT, nullable=False, default=30, comment="有效期(天)")
 
     # 订单状态
-    status = Column(
-        Enum(OrderStatus),
-        nullable=False,
-        default=OrderStatus.PENDING,
-        index=True,
-        comment="订单状态"
-    )
+    status = Column(Enum(OrderStatus), nullable=False, default=OrderStatus.PENDING, index=True, comment="订单状态")
 
     # 备注
-    remark = Column(
-        Text,
-        nullable=True,
-        comment="订单备注"
-    )
+    remark = Column(Text, nullable=True, comment="订单备注")
 
     # 时间信息
-    paid_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="支付时间"
-    )
+    paid_at = Column(TIMESTAMP, nullable=True, comment="支付时间")
 
-    completed_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="完成时间"
-    )
+    completed_at = Column(TIMESTAMP, nullable=True, comment="完成时间")
 
-    cancelled_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="取消时间"
-    )
+    cancelled_at = Column(TIMESTAMP, nullable=True, comment="取消时间")
 
-    expired_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="过期时间"
-    )
+    expired_at = Column(TIMESTAMP, nullable=True, comment="过期时间")
 
     # 关系
-    user = relationship(
-        "User",
-        foreign_keys=[user_id],
-        back_populates="orders"
-    )
+    user = relationship("User", foreign_keys=[user_id], back_populates="orders")
 
-    package = relationship(
-        "QuotaPackage",
-        foreign_keys=[package_id],
-        back_populates="orders"
-    )
+    package = relationship("QuotaPackage", foreign_keys=[package_id], back_populates="orders")
 
-    payments = relationship(
-        "Payment",
-        back_populates="order",
-        cascade="all, delete-orphan"
-    )
+    payments = relationship("Payment", back_populates="order", cascade="all, delete-orphan")
 
     # 索引
     __table_args__ = (
-        Index("idx_user_id", "user_id"),
+        Index("idx_orders_user_id", "user_id"),
         Index("idx_package_id", "package_id"),
-        Index("idx_status", "status"),
+        Index("idx_orders_status", "status"),
         Index("idx_order_no", "order_no"),
-        Index("idx_created_at", "created_at"),
+        Index("idx_orders_created_at", "created_at"),
     )
 
     def __repr__(self) -> str:
@@ -269,9 +161,9 @@ class Order(BaseModel):
 
     def mark_as_paid(self) -> None:
         """标记为已支付
-        
+
         只允许从 PENDING 状态转换到 PAID
-        
+
         Raises:
             ValueError: 如果当前状态不是 PENDING
         """
@@ -285,9 +177,9 @@ class Order(BaseModel):
 
     def mark_as_completed(self) -> None:
         """标记为已完成
-        
+
         只允许从 PAID 状态转换到 COMPLETED
-        
+
         Raises:
             ValueError: 如果当前状态不是 PAID
         """
@@ -301,9 +193,9 @@ class Order(BaseModel):
 
     def mark_as_cancelled(self, remark: Optional[str] = None) -> None:
         """标记为已取消
-        
+
         只允许从 PENDING、FAILED 状态转换到 CANCELLED
-        
+
         Raises:
             ValueError: 如果当前状态不允许取消
         """
@@ -319,9 +211,9 @@ class Order(BaseModel):
 
     def mark_as_failed(self, remark: Optional[str] = None) -> None:
         """标记为失败
-        
+
         只允许从 PENDING 状态转换到 FAILED
-        
+
         Raises:
             ValueError: 如果当前状态不是 PENDING
         """

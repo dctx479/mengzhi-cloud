@@ -5,10 +5,7 @@
 创建日期: 2026-01-23
 """
 
-from sqlalchemy import (
-    Column, BIGINT, String, DECIMAL, Enum, TIMESTAMP,
-    ForeignKey, Index, Text
-)
+from sqlalchemy import Column, BIGINT, String, DECIMAL, Enum, TIMESTAMP, ForeignKey, Index, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from typing import Dict, Any, Optional
@@ -19,6 +16,7 @@ from .base import BaseModel, generate_uuid
 
 class PaymentMethod(enum.Enum):
     """支付方式枚举"""
+
     ALIPAY = "alipay"  # 支付宝
     WECHAT = "wechat"  # 微信支付
     BALANCE = "balance"  # 余额支付
@@ -27,6 +25,7 @@ class PaymentMethod(enum.Enum):
 
 class PaymentStatus(enum.Enum):
     """支付状态枚举"""
+
     PENDING = "pending"  # 待支付
     PROCESSING = "processing"  # 处理中
     SUCCESS = "success"  # 支付成功
@@ -48,122 +47,52 @@ class Payment(BaseModel):
     __tablename__ = "payments"
 
     # 主键
-    id = Column(
-        BIGINT,
-        primary_key=True,
-        autoincrement=True,
-        comment="支付ID"
-    )
+    id = Column(BIGINT, primary_key=True, autoincrement=True, comment="支付ID")
 
     # 支付单号(唯一)
-    payment_no = Column(
-        String(64),
-        nullable=False,
-        unique=True,
-        index=True,
-        default=generate_uuid,
-        comment="支付单号"
-    )
+    payment_no = Column(String(64), nullable=False, unique=True, index=True, default=generate_uuid, comment="支付单号")
 
     # 关联订单
-    order_id = Column(
-        BIGINT,
-        ForeignKey("orders.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="订单ID"
-    )
+    order_id = Column(BIGINT, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False, index=True, comment="订单ID")
 
     # 支付信息
-    amount = Column(
-        DECIMAL(10, 2),
-        nullable=False,
-        comment="支付金额(元)"
-    )
+    amount = Column(DECIMAL(10, 2), nullable=False, comment="支付金额(元)")
 
-    payment_method = Column(
-        Enum(PaymentMethod),
-        nullable=False,
-        index=True,
-        comment="支付方式"
-    )
+    payment_method = Column(Enum(PaymentMethod), nullable=False, index=True, comment="支付方式")
 
-    status = Column(
-        Enum(PaymentStatus),
-        nullable=False,
-        default=PaymentStatus.PENDING,
-        index=True,
-        comment="支付状态"
-    )
+    status = Column(Enum(PaymentStatus), nullable=False, default=PaymentStatus.PENDING, index=True, comment="支付状态")
 
     # 第三方支付信息
-    transaction_id = Column(
-        String(128),
-        nullable=True,
-        index=True,
-        comment="第三方交易号"
-    )
+    transaction_id = Column(String(128), nullable=True, index=True, comment="第三方交易号")
 
-    channel_order_no = Column(
-        String(128),
-        nullable=True,
-        comment="支付渠道订单号"
-    )
+    channel_order_no = Column(String(128), nullable=True, comment="支付渠道订单号")
 
-    channel_response = Column(
-        Text,
-        nullable=True,
-        comment="支付渠道响应(JSON)"
-    )
+    channel_response = Column(Text, nullable=True, comment="支付渠道响应(JSON)")
 
     # 支付时间
-    paid_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="支付成功时间"
-    )
+    paid_at = Column(TIMESTAMP, nullable=True, comment="支付成功时间")
 
-    failed_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="支付失败时间"
-    )
+    failed_at = Column(TIMESTAMP, nullable=True, comment="支付失败时间")
 
-    refunded_at = Column(
-        TIMESTAMP,
-        nullable=True,
-        comment="退款时间"
-    )
+    refunded_at = Column(TIMESTAMP, nullable=True, comment="退款时间")
 
     # 失败原因
-    failure_reason = Column(
-        Text,
-        nullable=True,
-        comment="失败原因"
-    )
+    failure_reason = Column(Text, nullable=True, comment="失败原因")
 
     # 备注
-    remark = Column(
-        Text,
-        nullable=True,
-        comment="备注"
-    )
+    remark = Column(Text, nullable=True, comment="备注")
 
     # 关系
-    order = relationship(
-        "Order",
-        foreign_keys=[order_id],
-        back_populates="payments"
-    )
+    order = relationship("Order", foreign_keys=[order_id], back_populates="payments")
 
     # 索引
     __table_args__ = (
-        Index("idx_order_id", "order_id"),
+        Index("idx_payments_order_id", "order_id"),
         Index("idx_payment_no", "payment_no"),
         Index("idx_transaction_id", "transaction_id"),
-        Index("idx_status", "status"),
+        Index("idx_payments_status", "status"),
         Index("idx_payment_method", "payment_method"),
-        Index("idx_created_at", "created_at"),
+        Index("idx_payments_created_at", "created_at"),
     )
 
     def __repr__(self) -> str:
@@ -203,9 +132,9 @@ class Payment(BaseModel):
 
     def mark_as_success(self, transaction_id: Optional[str] = None) -> None:
         """标记为支付成功
-        
+
         只允许从 PENDING 或 PROCESSING 状态转换到 SUCCESS
-        
+
         Raises:
             ValueError: 如果当前状态不是 PENDING 或 PROCESSING
         """
@@ -221,9 +150,9 @@ class Payment(BaseModel):
 
     def mark_as_failed(self, reason: Optional[str] = None) -> None:
         """标记为支付失败
-        
+
         只允许从 PENDING、PROCESSING 状态转换到 FAILED
-        
+
         Raises:
             ValueError: 如果当前状态不允许失败
         """
@@ -239,9 +168,9 @@ class Payment(BaseModel):
 
     def mark_as_refunded(self) -> None:
         """标记为已退款
-        
+
         只允许从 SUCCESS 状态转换到 REFUNDED
-        
+
         Raises:
             ValueError: 如果当前状态不是 SUCCESS
         """

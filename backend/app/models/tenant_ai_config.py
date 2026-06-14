@@ -151,9 +151,9 @@ class TenantAIConfig(BaseModel):
     # 索引
     __table_args__ = (
         Index("idx_enterprise_provider", "enterprise_id", "provider", unique=True),
-        Index("idx_is_active", "is_active"),
+        Index("idx_tenant_ai_configs_is_active", "is_active"),
         Index("idx_health_status", "health_status"),
-        Index("idx_priority", "priority"),
+        Index("idx_tenant_ai_configs_priority", "priority"),
         Index("idx_enterprise_priority", "enterprise_id", "priority", "health_status"),
     )
 

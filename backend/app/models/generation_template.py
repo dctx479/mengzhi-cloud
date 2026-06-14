@@ -186,11 +186,11 @@ class GenerationTemplate(BaseModel):
     # 索引定义
     __table_args__ = (
         UniqueConstraint("template_uuid", name="uk_template_uuid"),
-        Index("idx_content_type", "content_type"),
-        Index("idx_platform", "platform"),
+        Index("idx_generation_templates_content_type", "content_type"),
+        Index("idx_generation_templates_platform", "platform"),
         Index("idx_is_system", "is_system"),
-        Index("idx_is_active", "is_active"),
-        Index("idx_created_by", "created_by"),
+        Index("idx_generation_templates_is_active", "is_active"),
+        Index("idx_generation_templates_created_by", "created_by"),
     )
 
     def __repr__(self) -> str:
