@@ -132,4 +132,22 @@ from app.api.kefu import router as kefu_router
 api_router.include_router(kefu_router, prefix="/kefu", tags=["智能客服 - Customer Service"])
 
 
+# ==================== 文化元素模块 ====================
+from app.api.v1.cultural import router as cultural_router
+
+api_router.include_router(cultural_router, prefix="/cultural", tags=["文化元素 - Cultural Elements"])
+
+
+# ==================== 品牌故事生成模块 ====================
+from app.api.v1.brand_story import router as brand_story_router
+
+api_router.include_router(brand_story_router, tags=["品牌故事 - Brand Story"])
+
+
+# ==================== 即梦AI多媒体生成模块 ====================
+from app.api.v1.jimeng import router as jimeng_router
+
+api_router.include_router(jimeng_router, tags=["即梦AI - Jimeng"])
+
+
 __all__ = ["api_router"]

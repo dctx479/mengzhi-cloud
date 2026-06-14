@@ -15,11 +15,8 @@ from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.executors.asyncio import AsyncIOExecutor
 
-from app.tasks.reconciliation_tasks import (
-    run_daily_reconciliation,
-    run_check_pending_differences,
-    run_health_check
-)
+from app.tasks.reconciliation_tasks import run_daily_reconciliation, run_check_pending_differences, run_health_check
+from app.tasks.cultural import run_check_products_for_collection, run_cleanup_old_tasks
 from app.core.config import settings
 
 
@@ -35,23 +32,12 @@ class ReconciliationScheduler:
 
     def __init__(self):
         """初始化调度器"""
-        jobstores = {
-            'default': MemoryJobStore()
-        }
-        executors = {
-            'default': AsyncIOExecutor()
-        }
-        job_defaults = {
-            'coalesce': False,
-            'max_instances': 1,
-            'misfire_grace_time': 300
-        }
+        jobstores = {"default": MemoryJobStore()}
+        executors = {"default": AsyncIOExecutor()}
+        job_defaults = {"coalesce": False, "max_instances": 1, "misfire_grace_time": 300}
 
         self.scheduler = AsyncIOScheduler(
-            jobstores=jobstores,
-            executors=executors,
-            job_defaults=job_defaults,
-            timezone='Asia/Shanghai'
+            jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone="Asia/Shanghai"
         )
 
         self._setup_jobs()
@@ -63,10 +49,10 @@ class ReconciliationScheduler:
         self.scheduler.add_job(
             func=run_daily_reconciliation,
             trigger=CronTrigger(hour=2, minute=0),
-            id='daily_reconciliation',
-            name='每日自动对账',
+            id="daily_reconciliation",
+            name="每日自动对账",
             replace_existing=True,
-            max_instances=1
+            max_instances=1,
         )
         logger.info("已添加每日对账任务: 每天凌晨2:00执行")
 
@@ -74,10 +60,10 @@ class ReconciliationScheduler:
         self.scheduler.add_job(
             func=run_check_pending_differences,
             trigger=IntervalTrigger(hours=4),
-            id='check_pending_differences',
-            name='检查待处理差异',
+            id="check_pending_differences",
+            name="检查待处理差异",
             replace_existing=True,
-            max_instances=1
+            max_instances=1,
         )
         logger.info("已添加差异检查任务: 每4小时执行一次")
 
@@ -85,24 +71,47 @@ class ReconciliationScheduler:
         self.scheduler.add_job(
             func=run_health_check,
             trigger=CronTrigger(hour=9, minute=0),
-            id='reconciliation_health_check',
-            name='对账系统健康检查',
+            id="reconciliation_health_check",
+            name="对账系统健康检查",
             replace_existing=True,
-            max_instances=1
+            max_instances=1,
         )
         logger.info("已添加健康检查任务: 每天上午9:00执行")
 
         # 4. 每20小时检查并刷新淘宝联盟 Session（有效期1天，提前4小时刷新）
         from app.tasks.taobao_token_refresh import refresh_taobao_session_if_needed
+
         self.scheduler.add_job(
             func=refresh_taobao_session_if_needed,
             trigger=IntervalTrigger(hours=20),
-            id='taobao_session_refresh',
-            name='淘宝联盟 Session 自动刷新',
+            id="taobao_session_refresh",
+            name="淘宝联盟 Session 自动刷新",
             replace_existing=True,
             max_instances=1,
         )
         logger.info("已添加淘宝 Session 刷新任务: 每20小时检查一次")
+
+        # 5. 每天凌晨3点检查产品文化元素匹配度并触发采集
+        self.scheduler.add_job(
+            func=run_check_products_for_collection,
+            trigger=CronTrigger(hour=3, minute=0),
+            id="cultural_check_products",
+            name="文化元素采集检查",
+            replace_existing=True,
+            max_instances=1,
+        )
+        logger.info("已添加文化元素采集检查任务: 每天凌晨3:00执行")
+
+        # 6. 每周日凌晨4点清理30天前的已完成采集任务
+        self.scheduler.add_job(
+            func=run_cleanup_old_tasks,
+            trigger=CronTrigger(day_of_week="sun", hour=4, minute=0),
+            id="cultural_cleanup_tasks",
+            name="文化元素采集任务清理",
+            replace_existing=True,
+            max_instances=1,
+        )
+        logger.info("已添加文化元素任务清理: 每周日凌晨4:00执行")
 
     def start(self):
         """启动调度器"""
@@ -137,11 +146,7 @@ class ReconciliationScheduler:
         """
         jobs = self.scheduler.get_jobs()
 
-        status = {
-            "scheduler_running": self.scheduler.running,
-            "total_jobs": len(jobs),
-            "jobs": []
-        }
+        status = {"scheduler_running": self.scheduler.running, "total_jobs": len(jobs), "jobs": []}
 
         for job in jobs:
             job_info = {
@@ -150,7 +155,7 @@ class ReconciliationScheduler:
                 "next_run_time": job.next_run_time.isoformat() if job.next_run_time else None,
                 "trigger": str(job.trigger),
                 "max_instances": job.max_instances,
-                "pending": job.pending
+                "pending": job.pending,
             }
             status["jobs"].append(job_info)
 
@@ -214,11 +219,11 @@ class ReconciliationScheduler:
             self.scheduler.add_job(
                 func=manual_reconciliation,
                 args=[target_date],
-                trigger='date',
+                trigger="date",
                 run_date=run_time,
                 id=job_id,
-                name=f'手动对账 - {target_date}',
-                max_instances=1
+                name=f"手动对账 - {target_date}",
+                max_instances=1,
             )
 
             logger.info(f"已添加一次性对账任务: {target_date}, 执行时间: {run_time}")
