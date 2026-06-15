@@ -26,6 +26,7 @@ router = APIRouter()
 # 文化元素基础CRUD
 # =============================================================================
 
+
 @router.get("/elements")
 async def list_cultural_elements(
     type: Optional[str] = None,
@@ -34,7 +35,7 @@ async def list_cultural_elements(
     status: Optional[str] = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     获取文化元素列表
@@ -66,58 +67,60 @@ async def list_cultural_elements(
     total = query.count()
     elements = query.offset((page - 1) * page_size).limit(page_size).all()
 
-    return success_response(data={
-        "elements": [
-            {
-                "id": e.id,
-                "name": e.name,
-                "type": e.type,
-                "origin_region": e.origin_region,
-                "story_preview": e.story[:100] + "..." if len(e.story) > 100 else e.story,
-                "keywords": json.loads(e.keywords) if e.keywords else [],
-                "status": e.status,
-                "created_at": e.created_at.isoformat() if e.created_at else None
-            }
-            for e in elements
-        ],
-        "pagination": {
-            "total": total,
-            "page": page,
-            "page_size": page_size,
-            "total_pages": (total + page_size - 1) // page_size
+    return success_response(
+        data={
+            "elements": [
+                {
+                    "id": e.id,
+                    "name": e.name,
+                    "type": e.type,
+                    "origin_region": e.origin_region,
+                    "story_preview": e.story[:100] + "..." if len(e.story) > 100 else e.story,
+                    "keywords": json.loads(e.keywords) if e.keywords else [],
+                    "status": e.status,
+                    "created_at": e.created_at.isoformat() if e.created_at else None,
+                }
+                for e in elements
+            ],
+            "pagination": {
+                "total": total,
+                "page": page,
+                "page_size": page_size,
+                "total_pages": (total + page_size - 1) // page_size,
+            },
         }
-    }).dict()
+    ).dict()
 
 
 @router.get("/elements/{element_id}")
-async def get_cultural_element(
-    element_id: int,
-    db: Session = Depends(get_db)
-):
+async def get_cultural_element(element_id: int, db: Session = Depends(get_db)):
     """获取单个文化元素详情"""
     element = db.query(CulturalElement).filter(CulturalElement.id == element_id).first()
 
     if not element:
         raise HTTPException(status_code=404, detail="文化元素不存在")
 
-    return success_response(data={
-        "id": element.id,
-        "name": element.name,
-        "type": element.type,
-        "story": element.story,
-        "origin_region": element.origin_region,
-        "keywords": json.loads(element.keywords) if element.keywords else [],
-        "metadata": json.loads(element.element_metadata) if element.element_metadata else {},
-        "source": element.source,
-        "status": element.status,
-        "created_at": element.created_at.isoformat() if element.created_at else None,
-        "reviewed_at": element.reviewed_at.isoformat() if element.reviewed_at else None
-    }).dict()
+    return success_response(
+        data={
+            "id": element.id,
+            "name": element.name,
+            "type": element.type,
+            "story": element.story,
+            "origin_region": element.origin_region,
+            "keywords": json.loads(element.keywords) if element.keywords else [],
+            "metadata": json.loads(element.element_metadata) if element.element_metadata else {},
+            "source": element.source,
+            "status": element.status,
+            "created_at": element.created_at.isoformat() if element.created_at else None,
+            "reviewed_at": element.reviewed_at.isoformat() if element.reviewed_at else None,
+        }
+    ).dict()
 
 
 # =============================================================================
 # 智能匹配接口
 # =============================================================================
+
 
 @router.post("/match")
 async def match_cultural_elements(
@@ -127,7 +130,7 @@ async def match_cultural_elements(
     keywords: List[str] = [],
     use_knowledge_graph: bool = True,
     top_k: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     智能匹配文化元素
@@ -148,46 +151,37 @@ async def match_cultural_elements(
         collector = EnhancedCulturalCollector(enable_kg=use_knowledge_graph)
 
         # 构建产品信息
-        product_info = {
-            "name": product_name,
-            "origin": origin,
-            "category": category,
-            "keywords": keywords
-        }
+        product_info = {"name": product_name, "origin": origin, "category": category, "keywords": keywords}
 
         # 执行智能匹配
-        results = collector.intelligent_match(
-            product_info,
-            use_kg=use_knowledge_graph,
-            top_k=top_k
-        )
+        results = collector.intelligent_match(product_info, use_kg=use_knowledge_graph, top_k=top_k)
 
         # 格式化返回结果
         matched_elements = []
         for result in results:
             element = result["element"]
-            matched_elements.append({
-                "element": {
-                    "name": element["name"],
-                    "type": element["type"],
-                    "story": element["story"],
-                    "origin_region": element["origin_region"],
-                    "keywords": element.get("keywords", [])
-                },
-                "score": round(result["score"], 2),
-                "match_reason": result["match_reason"],
-                "score_breakdown": {
-                    "exact_match": round(result["score_breakdown"]["exact_match"], 2),
-                    "knowledge_graph": round(result["score_breakdown"]["knowledge_graph"], 2)
-                },
-                "path_info": result.get("path_info")
-            })
+            matched_elements.append(
+                {
+                    "element": {
+                        "name": element["name"],
+                        "type": element["type"],
+                        "story": element["story"],
+                        "origin_region": element["origin_region"],
+                        "keywords": element.get("keywords", []),
+                    },
+                    "score": round(result["score"], 2),
+                    "match_reason": result["match_reason"],
+                    "score_breakdown": {
+                        "exact_match": round(result["score_breakdown"]["exact_match"], 2),
+                        "knowledge_graph": round(result["score_breakdown"]["knowledge_graph"], 2),
+                    },
+                    "path_info": result.get("path_info"),
+                }
+            )
 
-        return success_response(data={
-            "matched_elements": matched_elements,
-            "total_count": len(matched_elements),
-            "query": product_info
-        }).dict()
+        return success_response(
+            data={"matched_elements": matched_elements, "total_count": len(matched_elements), "query": product_info}
+        ).dict()
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"匹配失败: {str(e)}")
@@ -198,7 +192,7 @@ async def match_by_product_id(
     product_id: int,
     use_knowledge_graph: bool = True,
     top_k: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """根据产品ID智能匹配文化元素"""
     from app.models.product import Product
@@ -217,7 +211,7 @@ async def match_by_product_id(
         "name": product.name,
         "origin": product.origin_province or product.origin_city or "",
         "category": product.category,
-        "keywords": product.keywords.split(",") if product.keywords else []
+        "keywords": product.keywords.split(",") if product.keywords else [],
     }
 
     # 执行匹配
@@ -227,30 +221,35 @@ async def match_by_product_id(
     matched_elements = []
     for result in results:
         element = result["element"]
-        matched_elements.append({
-            "element": {
-                "name": element["name"],
-                "type": element["type"],
-                "story": element["story"],
-                "origin_region": element["origin_region"],
-                "keywords": element.get("keywords", [])
-            },
-            "score": round(result["score"], 2),
-            "match_reason": result["match_reason"],
-            "score_breakdown": result["score_breakdown"]
-        })
+        matched_elements.append(
+            {
+                "element": {
+                    "name": element["name"],
+                    "type": element["type"],
+                    "story": element["story"],
+                    "origin_region": element["origin_region"],
+                    "keywords": element.get("keywords", []),
+                },
+                "score": round(result["score"], 2),
+                "match_reason": result["match_reason"],
+                "score_breakdown": result["score_breakdown"],
+            }
+        )
 
-    return success_response(data={
-        "product_id": product_id,
-        "product_name": product.name,
-        "matched_elements": matched_elements,
-        "total_count": len(matched_elements)
-    }).dict()
+    return success_response(
+        data={
+            "product_id": product_id,
+            "product_name": product.name,
+            "matched_elements": matched_elements,
+            "total_count": len(matched_elements),
+        }
+    ).dict()
 
 
 # =============================================================================
 # 采集任务管理
 # =============================================================================
+
 
 @router.post("/collect/trigger")
 async def trigger_collection(
@@ -260,7 +259,7 @@ async def trigger_collection(
     category: str = "",
     keywords: List[str] = [],
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user),
 ):
     """
     手动触发文化元素采集
@@ -280,7 +279,7 @@ async def trigger_collection(
             "name": product_name,
             "origin": origin,
             "category": category,
-            "keywords": keywords
+            "keywords": keywords,
         }
 
         result = trigger.check_and_trigger(product_info)
@@ -297,7 +296,7 @@ async def list_collection_tasks(
     priority: Optional[str] = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """获取采集任务列表"""
     query = db.query(CulturalCollectionTask)
@@ -309,35 +308,32 @@ async def list_collection_tasks(
         query = query.filter(CulturalCollectionTask.priority == priority)
 
     total = query.count()
-    tasks = query.order_by(CulturalCollectionTask.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+    tasks = (
+        query.order_by(CulturalCollectionTask.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+    )
 
-    return success_response(data={
-        "tasks": [
-            {
-                "task_id": t.task_id,
-                "product_name": t.product_name,
-                "origin": t.origin,
-                "priority": t.priority,
-                "status": t.status,
-                "targets": json.loads(t.targets) if t.targets else [],
-                "created_at": t.created_at.isoformat() if t.created_at else None,
-                "completed_at": t.completed_at.isoformat() if t.completed_at else None
-            }
-            for t in tasks
-        ],
-        "pagination": {
-            "total": total,
-            "page": page,
-            "page_size": page_size
+    return success_response(
+        data={
+            "tasks": [
+                {
+                    "task_id": t.task_id,
+                    "product_name": t.product_name,
+                    "origin": t.origin,
+                    "priority": t.priority,
+                    "status": t.status,
+                    "targets": json.loads(t.targets) if t.targets else [],
+                    "created_at": t.created_at.isoformat() if t.created_at else None,
+                    "completed_at": t.completed_at.isoformat() if t.completed_at else None,
+                }
+                for t in tasks
+            ],
+            "pagination": {"total": total, "page": page, "page_size": page_size},
         }
-    }).dict()
+    ).dict()
 
 
 @router.get("/collect/tasks/{task_id}")
-async def get_collection_task_status(
-    task_id: str,
-    db: Session = Depends(get_db)
-):
+async def get_collection_task_status(task_id: str, db: Session = Depends(get_db)):
     """查询采集任务状态"""
     trigger = CulturalCollectionTrigger(db)
     status = trigger.get_task_status(task_id)
@@ -351,6 +347,7 @@ async def get_collection_task_status(
 # =============================================================================
 # 知识图谱查询
 # =============================================================================
+
 
 @router.get("/graph/statistics")
 async def get_graph_statistics():
@@ -366,10 +363,7 @@ async def get_graph_statistics():
 
 
 @router.get("/graph/elements/by-region/{region}")
-async def find_elements_by_region(
-    region: str,
-    include_synonyms: bool = True
-):
+async def find_elements_by_region(region: str, include_synonyms: bool = True):
     """根据地域查找文化元素（知识图谱）"""
     try:
         kg = CulturalKnowledgeGraph()
@@ -379,19 +373,21 @@ async def find_elements_by_region(
         collector = EnhancedCulturalCollector(enable_kg=False)
         elements = [collector.elements[idx] for idx in element_indices]
 
-        return success_response(data={
-            "region": region,
-            "count": len(elements),
-            "elements": [
-                {
-                    "name": e["name"],
-                    "type": e["type"],
-                    "story_preview": e["story"][:100] + "...",
-                    "keywords": e.get("keywords", [])
-                }
-                for e in elements
-            ]
-        }).dict()
+        return success_response(
+            data={
+                "region": region,
+                "count": len(elements),
+                "elements": [
+                    {
+                        "name": e["name"],
+                        "type": e["type"],
+                        "story_preview": e["story"][:100] + "...",
+                        "keywords": e.get("keywords", []),
+                    }
+                    for e in elements
+                ],
+            }
+        ).dict()
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"查询失败: {str(e)}")
@@ -407,19 +403,21 @@ async def find_elements_by_scenario(scenario: str):
         collector = EnhancedCulturalCollector(enable_kg=False)
         elements = [collector.elements[idx] for idx in element_indices]
 
-        return success_response(data={
-            "scenario": scenario,
-            "count": len(elements),
-            "elements": [
-                {
-                    "name": e["name"],
-                    "type": e["type"],
-                    "story_preview": e["story"][:100] + "...",
-                    "usage_scenarios": e.get("metadata", {}).get("usage_scenarios", [])
-                }
-                for e in elements
-            ]
-        }).dict()
+        return success_response(
+            data={
+                "scenario": scenario,
+                "count": len(elements),
+                "elements": [
+                    {
+                        "name": e["name"],
+                        "type": e["type"],
+                        "story_preview": e["story"][:100] + "...",
+                        "usage_scenarios": e.get("metadata", {}).get("usage_scenarios", []),
+                    }
+                    for e in elements
+                ],
+            }
+        ).dict()
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"查询失败: {str(e)}")
@@ -429,12 +427,13 @@ async def find_elements_by_scenario(scenario: str):
 # 审核系统接口
 # =============================================================================
 
+
 @router.get("/review/pending")
 async def get_pending_reviews(
     priority: Optional[str] = None,
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user),
 ):
     """获取待审核任务列表"""
     review_system = CulturalExpertReviewSystem(db)
@@ -443,22 +442,14 @@ async def get_pending_reviews(
     # if not current_user.get("role") in ["admin", "expert"]:
     #     raise HTTPException(status_code=403, detail="无审核权限")
 
-    tasks = review_system.get_pending_reviews(
-        priority=priority,
-        limit=limit
-    )
+    tasks = review_system.get_pending_reviews(priority=priority, limit=limit)
 
-    return success_response(data={
-        "tasks": tasks,
-        "total": len(tasks)
-    }).dict()
+    return success_response(data={"tasks": tasks, "total": len(tasks)}).dict()
 
 
 @router.post("/review/assign/{review_task_id}")
 async def assign_review_task(
-    review_task_id: int,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    review_task_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
     """领取审核任务"""
     review_system = CulturalExpertReviewSystem(db)
@@ -479,18 +470,14 @@ async def review_element(
     comments: Optional[str] = "",
     corrections: Optional[Dict] = None,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user),
 ):
     """审核单个文化元素"""
     review_system = CulturalExpertReviewSystem(db)
 
     expert_id = current_user.get("user_id")
     result = review_system.review_element(
-        element_id=element_id,
-        expert_id=expert_id,
-        decision=decision,
-        comments=comments,
-        corrections=corrections
+        element_id=element_id, expert_id=expert_id, decision=decision, comments=comments, corrections=corrections
     )
 
     if "error" in result:
@@ -504,29 +491,19 @@ async def get_review_history(
     element_id: Optional[int] = None,
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user),
 ):
     """查询审核历史"""
     review_system = CulturalExpertReviewSystem(db)
 
     expert_id = current_user.get("user_id")
-    history = review_system.get_review_history(
-        element_id=element_id,
-        expert_id=expert_id,
-        limit=limit
-    )
+    history = review_system.get_review_history(element_id=element_id, expert_id=expert_id, limit=limit)
 
-    return success_response(data={
-        "history": history,
-        "total": len(history)
-    }).dict()
+    return success_response(data={"history": history, "total": len(history)}).dict()
 
 
 @router.get("/review/statistics")
-async def get_review_statistics(
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
+async def get_review_statistics(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     """获取审核统计"""
     review_system = CulturalExpertReviewSystem(db)
 
@@ -540,41 +517,45 @@ async def get_review_statistics(
 # 统计分析
 # =============================================================================
 
+
 @router.get("/statistics/overview")
 async def get_cultural_statistics(db: Session = Depends(get_db)):
     """获取文化元素统计概览"""
-    # 总数统计
-    total_elements = db.query(CulturalElement).count()
-    approved_elements = db.query(CulturalElement).filter(
-        CulturalElement.status == "approved"
-    ).count()
-    pending_elements = db.query(CulturalElement).filter(
-        CulturalElement.status == "pending_review"
-    ).count()
+    from sqlalchemy import func, case
+
+    # 单次扫描统计 total / approved / pending（避免 3 次独立 COUNT）
+    stats_row = db.query(
+        func.count(CulturalElement.id).label("total"),
+        func.sum(case((CulturalElement.status == "approved", 1), else_=0)).label("approved"),
+        func.sum(case((CulturalElement.status == "pending_review", 1), else_=0)).label("pending"),
+    ).one()
+    total_elements = stats_row.total or 0
+    approved_elements = stats_row.approved or 0
+    pending_elements = stats_row.pending or 0
 
     # 按类型统计
-    from sqlalchemy import func
-    type_stats = db.query(
-        CulturalElement.type,
-        func.count(CulturalElement.id).label("count")
-    ).group_by(CulturalElement.type).all()
+    type_stats = (
+        db.query(CulturalElement.type, func.count(CulturalElement.id).label("count"))
+        .group_by(CulturalElement.type)
+        .all()
+    )
 
-    # 采集任务统计
-    total_tasks = db.query(CulturalCollectionTask).count()
-    completed_tasks = db.query(CulturalCollectionTask).filter(
-        CulturalCollectionTask.status == TaskStatus.COMPLETED
-    ).count()
+    # 采集任务统计（单次扫描）
+    task_row = db.query(
+        func.count(CulturalCollectionTask.id).label("total"),
+        func.sum(case((CulturalCollectionTask.status == TaskStatus.COMPLETED, 1), else_=0)).label("completed"),
+    ).one()
+    total_tasks = task_row.total or 0
+    completed_tasks = task_row.completed or 0
 
-    return success_response(data={
-        "elements": {
-            "total": total_elements,
-            "approved": approved_elements,
-            "pending": pending_elements
-        },
-        "by_type": {t: c for t, c in type_stats},
-        "tasks": {
-            "total": total_tasks,
-            "completed": completed_tasks,
-            "success_rate": round(completed_tasks / total_tasks * 100, 2) if total_tasks > 0 else 0
+    return success_response(
+        data={
+            "elements": {"total": total_elements, "approved": approved_elements, "pending": pending_elements},
+            "by_type": {t: c for t, c in type_stats},
+            "tasks": {
+                "total": total_tasks,
+                "completed": completed_tasks,
+                "success_rate": round(completed_tasks / total_tasks * 100, 2) if total_tasks > 0 else 0,
+            },
         }
-    }).dict()
+    ).dict()

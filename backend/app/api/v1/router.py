@@ -138,6 +138,12 @@ from app.api.v1.cultural import router as cultural_router
 api_router.include_router(cultural_router, prefix="/cultural", tags=["文化元素 - Cultural Elements"])
 
 
+# ==================== IP智能体对话模块 ====================
+from app.api.v1.ip_chat import router as ip_chat_router
+
+api_router.include_router(ip_chat_router, tags=["IP对话 - IP Chat"])
+
+
 # ==================== 品牌故事生成模块 ====================
 from app.api.v1.brand_story import router as brand_story_router
 

@@ -13,8 +13,7 @@ from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field
 import logging
 
-from app.database import get_db
-from app.api.deps import get_current_user
+from app.api.deps import get_db, get_current_user
 from app.models.user import User
 from app.models.content_record import ContentRecord, ContentType, Platform, Style, LengthType, RecordStatus
 from app.services.brand_story.generator import BrandStoryGenerator
@@ -120,7 +119,9 @@ async def generate_brand_story(
         # 保存记录（如果需要）
         record_id = None
         if request.save_record:
-            record_id = _save_generation_record(db, current_user.id, request, result)
+            user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+            if user_obj:
+                record_id = _save_generation_record(db, user_obj.id, request, result)
 
         return BrandStoryGenerateResponse(
             story=result["story"],
@@ -145,7 +146,7 @@ def get_brand_story_records(
     skip: int = 0,
     limit: int = 20,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     查询用户的品牌故事生成记录
@@ -153,10 +154,13 @@ def get_brand_story_records(
     支持分页查询。
     """
     try:
+        user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+        if not user_obj:
+            return []
         records = (
             db.query(ContentRecord)
             .filter(
-                ContentRecord.user_id == current_user.id,
+                ContentRecord.user_id == user_obj.id,
                 ContentRecord.content_type == ContentType.STORY,
             )
             .order_by(ContentRecord.created_at.desc())
@@ -168,13 +172,13 @@ def get_brand_story_records(
         return [
             BrandStoryRecordResponse(
                 id=record.id,
-                product_name=record.input_data.get("product_name", ""),
-                origin=record.input_data.get("origin", ""),
-                style=record.input_data.get("style", ""),
-                story=record.output_content or "",
-                cultural_elements=record.metadata.get("cultural_elements", []),
-                tokens_used=record.tokens_used or 0,
-                cost=float(record.cost or 0),
+                product_name=(record.input_params or {}).get("product_name", ""),
+                origin=(record.input_params or {}).get("origin", ""),
+                style=(record.input_params or {}).get("style", ""),
+                story=record.generated_content or "",
+                cultural_elements=(record.input_params or {}).get("cultural_elements", []),
+                tokens_used=record.total_tokens or 0,
+                cost=0.0,
                 created_at=record.created_at.isoformat(),
                 status=record.status.value,
             )
@@ -193,17 +197,21 @@ def get_brand_story_records(
 def get_brand_story_record(
     record_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     查询指定的品牌故事生成记录
     """
     try:
+        user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+        if not user_obj:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="用户不存在")
+
         record = (
             db.query(ContentRecord)
             .filter(
                 ContentRecord.id == record_id,
-                ContentRecord.user_id == current_user.id,
+                ContentRecord.user_id == user_obj.id,
                 ContentRecord.content_type == ContentType.STORY,
             )
             .first()
@@ -217,13 +225,13 @@ def get_brand_story_record(
 
         return BrandStoryRecordResponse(
             id=record.id,
-            product_name=record.input_data.get("product_name", ""),
-            origin=record.input_data.get("origin", ""),
-            style=record.input_data.get("style", ""),
-            story=record.output_content or "",
-            cultural_elements=record.metadata.get("cultural_elements", []),
-            tokens_used=record.tokens_used or 0,
-            cost=float(record.cost or 0),
+            product_name=(record.input_params or {}).get("product_name", ""),
+            origin=(record.input_params or {}).get("origin", ""),
+            style=(record.input_params or {}).get("style", ""),
+            story=record.generated_content or "",
+            cultural_elements=(record.input_params or {}).get("cultural_elements", []),
+            tokens_used=record.total_tokens or 0,
+            cost=0.0,
             created_at=record.created_at.isoformat(),
             status=record.status.value,
         )
@@ -289,7 +297,7 @@ def _save_generation_record(
             platform=Platform.GENERAL,
             style=style_enum,
             length_type=length_enum,
-            input_data={
+            input_params={
                 "product_name": request.product_name,
                 "origin": request.origin,
                 "features": request.features,
@@ -298,14 +306,13 @@ def _save_generation_record(
                 "word_count": request.word_count,
                 "category": request.category,
                 "keywords": request.keywords,
+                "cultural_elements": result.get("cultural_elements", []),
             },
-            output_content=result["story"],
-            tokens_used=result["tokens"]["total"],
-            cost=result["cost"],
-            metadata={
-                "cultural_elements": result["cultural_elements"],
-                "token_breakdown": result["tokens"],
-            },
+            generated_content=result["story"],
+            prompt_tokens=result.get("tokens", {}).get("input", 0),
+            completion_tokens=result.get("tokens", {}).get("output", 0),
+            total_tokens=result.get("tokens", {}).get("total", 0),
+            model_name="deepseek-chat",
             status=RecordStatus.COMPLETED,
         )
 

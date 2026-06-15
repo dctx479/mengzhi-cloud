@@ -13,9 +13,9 @@ import json
 
 from app.core.database import get_db
 from app.core.responses import success_response
-from app.api.deps import get_user_id
+from app.api.deps import get_current_user
 from app.services.ip_agent import IPRouter, IPAgentFactory, IPType
-from app.core.exceptions import BusinessException
+from app.core.errors import BusinessException
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class IPInfoResponse(BaseModel):
 
 @router.post("/message")
 async def send_ip_message(
-    request: IPChatRequest, user_id: int = Depends(get_user_id), db: Session = Depends(get_db)
+    request: IPChatRequest, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """
     IP智能体对话 (非流式)
@@ -131,7 +131,7 @@ async def send_ip_message(
 
 @router.post("/stream")
 async def send_ip_message_stream(
-    request: IPChatRequest, user_id: int = Depends(get_user_id), db: Session = Depends(get_db)
+    request: IPChatRequest, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """
     IP智能体对话 (流式SSE)

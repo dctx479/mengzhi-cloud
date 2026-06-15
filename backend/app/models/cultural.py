@@ -104,7 +104,7 @@ class CulturalElement(Base):
     source = Column(String(50), default="agent", comment="来源：agent/manual/import")
 
     # 审核状态
-    status = Column(Enum(ElementStatus), default=ElementStatus.PENDING_REVIEW)
+    status = Column(Enum(ElementStatus), default=ElementStatus.PENDING_REVIEW, index=True)
     reviewed_at = Column(DateTime, nullable=True)
     reviewed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 
