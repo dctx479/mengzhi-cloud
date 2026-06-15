@@ -43,10 +43,9 @@ def _encode_filename_header(filename: str) -> str:
     Returns:
         RFC 5987格式的Content-Disposition值，兼容所有浏览器
     """
-    encoded = urllib.parse.quote(filename.encode('utf-8'))
-    header_value = 'attachment; filename="' + filename + '"; filename*=UTF-8''' + encoded
-    return header_value
-
+    encoded = urllib.parse.quote(filename.encode("utf-8"))
+    ascii_fallback = filename.encode("ascii", "ignore").decode("ascii") or "download"
+    return "attachment; filename=" + ascii_fallback + "; filename*=UTF-8'''" + encoded
 def _build_product_dict(product: Product, fields: Optional[List[str]] = None) -> dict:
     """构建产品字典，支持自定义字段"""
     specs = product.specifications or {}

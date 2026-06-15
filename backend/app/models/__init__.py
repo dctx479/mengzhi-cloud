@@ -32,6 +32,7 @@ from .message import Message, MessageRole
 from .content_record import ContentRecord, Platform, Style, LengthType, RecordStatus
 from .generation_template import GenerationTemplate, TemplateContentType, TemplatePlatform
 from .saved_config import SavedConfig
+from .batch_task import BatchTask
 
 # 配额模型
 from .user_quota import UserQuota, QuotaType
@@ -159,6 +160,7 @@ __all__ = [
     "TemplateContentType",
     "TemplatePlatform",
     "SavedConfig",
+    "BatchTask",
     # 配额
     "UserQuota",
     "QuotaType",

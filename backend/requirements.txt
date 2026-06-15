@@ -28,6 +28,10 @@ apscheduler==3.10.4
 psutil==5.9.8
 pyyaml==6.0.1
 
+# 文档导出（批量内容生成任务导出 docx / pdf）
+python-docx==1.2.0
+reportlab==4.4.7
+
 # 可选：本地向量检索（RAG功能）。体积大（~1.5GB），默认不安装。
 # 如需启用，取消注释并重新构建镜像：
 # sentence-transformers==2.2.2
