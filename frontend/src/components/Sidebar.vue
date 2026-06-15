@@ -37,6 +37,16 @@
         <template #title>内容工作台</template>
       </el-menu-item>
 
+      <el-sub-menu index="creation-group">
+        <template #title>
+          <el-icon><MagicStick /></el-icon>
+          <span>智能创作</span>
+        </template>
+        <el-menu-item index="/ip-chat">IP 智能对话</el-menu-item>
+        <el-menu-item index="/brand-story">品牌故事</el-menu-item>
+        <el-menu-item index="/cultural">文化元素</el-menu-item>
+      </el-sub-menu>
+
       <!-- 已登录用户菜单 -->
       <template v-if="userStore.isLoggedIn">
         <el-sub-menu index="user-group">
@@ -123,6 +133,7 @@ import {
   Cpu,
   Service,
   Tickets,
+  MagicStick,
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 

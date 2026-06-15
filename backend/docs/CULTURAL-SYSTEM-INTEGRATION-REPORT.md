@@ -241,7 +241,7 @@ for data_index, element_id in self.element_index.items():
 - [x] 开发 `/api/v1/cultural/*` 后端接口
 - [x] 设计产品-文化智能匹配算法与知识图谱
 - [x] 端到端集成测试
-- [ ] 集成文化元素到小数Agent查询功能 (Task #20)
+- [x] 集成文化元素到小数Agent查询功能 (Task #20) — 经 `XiaoshuAgent._inject_knowledge_context` RAG 式注入，7 个单元测试覆盖
 
 ### 8.3 优化方向
 
@@ -301,4 +301,4 @@ for data_index, element_id in self.element_index.items():
 ---
 
 **项目状态**: ✅ 生产就绪  
-**下一步**: 集成到小数Agent查询功能 (Task #20)
+**下一步**: 前端可视化与审核页面（文化元素知识图谱已接入小数Agent，Task #20 ✅ 完成）

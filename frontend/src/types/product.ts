@@ -40,10 +40,10 @@ export interface Product {
   hasQuality?: boolean // 质量认证
   unit?: string // 单位
   supplier?: string // 供应商
+  specifications?: Record<string, string> // 规格参数
 }
 
 export interface ProductDetail extends Product {
-  specifications?: Record<string, string>
   tags?: string[]
   benefits?: string[]
   relatedProducts?: Product[]

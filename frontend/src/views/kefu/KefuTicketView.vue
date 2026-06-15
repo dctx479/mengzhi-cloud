@@ -6,7 +6,6 @@ import {
   createTicket,
   updateTicket,
   type KefuTicket,
-  type KefuTicketMessage,
 } from '@/api/kefu'
 
 // ============================================================

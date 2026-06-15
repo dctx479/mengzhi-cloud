@@ -131,27 +131,34 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import * as api from '@/api/aiConfig'
+import {
+  getGlobalAIConfigs,
+  createGlobalAIConfig,
+  updateGlobalAIConfig,
+  deleteGlobalAIConfig,
+  testGlobalAIConfig,
+  type GlobalAIConfig,
+} from '@/api/aiConfig'
 
-interface Provider {
+interface ProviderForm {
   id?: number
   provider: string
   provider_type: string
   api_endpoint: string
-  api_key_encrypted?: string
+  api_key: string
   model_name: string
   is_active: boolean
   priority: number
-  config_json?: string
+  config_json: string
 }
 
-const providers = ref<Provider[]>([])
+const providers = ref<GlobalAIConfig[]>([])
 const dialogVisible = ref(false)
 const dialogTitle = ref('添加服务商')
 const isEdit = ref(false)
 const formRef = ref()
 
-const form = reactive<Provider>({
+const form = reactive<ProviderForm>({
   provider: '',
   provider_type: 'llm',
   api_endpoint: '',
@@ -159,14 +166,14 @@ const form = reactive<Provider>({
   model_name: '',
   is_active: true,
   priority: 1,
-  config_json: ''
+  config_json: '',
 })
 
 const rules = {
   provider: [{ required: true, message: '请选择服务商', trigger: 'change' }],
   provider_type: [{ required: true, message: '请选择服务类型', trigger: 'change' }],
   api_endpoint: [{ required: true, message: '请输入API端点', trigger: 'blur' }],
-  model_name: [{ required: true, message: '请输入模型名称', trigger: 'blur' }]
+  model_name: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
 }
 
 onMounted(() => {
@@ -174,31 +181,34 @@ onMounted(() => {
 })
 
 const loadProviders = async () => {
-  const res = await api.getAIConfigs()
-  providers.value = res
+  try {
+    providers.value = await getGlobalAIConfigs()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '加载服务商配置失败')
+  }
 }
 
-const getProviderName = (provider: string) => {
-  const names = {
+const getProviderName = (provider: string): string => {
+  const names: Record<string, string> = {
     deepseek: 'DeepSeek',
     volcengine_image: '火山引擎(图)',
     volcengine_video: '火山引擎(视频)',
-    claude: 'Claude'
+    claude: 'Claude',
   }
   return names[provider] || provider
 }
 
-const getProviderTagType = (provider: string) => {
-  const types = {
+const getProviderTagType = (provider: string): 'success' | 'warning' | 'info' | '' => {
+  const types: Record<string, 'success' | 'warning' | 'info'> = {
     deepseek: 'success',
     volcengine_image: 'warning',
     volcengine_video: 'warning',
-    claude: 'info'
+    claude: 'info',
   }
   return types[provider] || ''
 }
 
-const maskApiKey = (key: string) => {
+const maskApiKey = (key?: string): string => {
   if (!key || key.length < 8) return '****'
   return key.substring(0, 6) + '****' + key.substring(key.length - 4)
 }
@@ -210,18 +220,26 @@ const showAddDialog = () => {
   dialogVisible.value = true
 }
 
-const editProvider = (row: Provider) => {
+const editProvider = (row: GlobalAIConfig) => {
   dialogTitle.value = '编辑服务商'
   isEdit.value = true
   Object.assign(form, {
-    ...row,
-    api_key: '' // 不回显密钥
+    id: row.id,
+    provider: row.provider,
+    provider_type: row.provider_type,
+    api_endpoint: row.api_endpoint,
+    model_name: row.model_name,
+    is_active: row.is_active,
+    priority: row.priority,
+    api_key: '', // 不回显密钥
+    config_json: row.config_json ? JSON.stringify(row.config_json, null, 2) : '',
   })
   dialogVisible.value = true
 }
 
 const resetForm = () => {
   Object.assign(form, {
+    id: undefined,
     provider: '',
     provider_type: 'llm',
     api_endpoint: '',
@@ -229,62 +247,88 @@ const resetForm = () => {
     model_name: '',
     is_active: true,
     priority: 1,
-    config_json: ''
+    config_json: '',
   })
+}
+
+const buildPayload = (): GlobalAIConfig | null => {
+  const payload: GlobalAIConfig = {
+    provider: form.provider,
+    provider_type: form.provider_type,
+    api_endpoint: form.api_endpoint,
+    model_name: form.model_name,
+    is_active: form.is_active,
+    priority: form.priority,
+  }
+  if (form.api_key) {
+    payload.api_key = form.api_key
+  }
+  if (form.config_json && form.config_json.trim()) {
+    try {
+      payload.config_json = JSON.parse(form.config_json)
+    } catch {
+      ElMessage.error('高级配置不是合法的JSON')
+      return null
+    }
+  }
+  return payload
 }
 
 const submitForm = async () => {
   await formRef.value.validate()
 
+  const payload = buildPayload()
+  if (!payload) return
+
   try {
     if (isEdit.value) {
-      await api.updateAIConfig(form.provider, form)
+      await updateGlobalAIConfig(form.provider, payload)
       ElMessage.success('更新成功')
     } else {
-      await api.createAIConfig(form)
+      await createGlobalAIConfig(payload)
       ElMessage.success('添加成功')
     }
 
     dialogVisible.value = false
     loadProviders()
   } catch (error) {
-    ElMessage.error(error.message || '操作失败')
+    ElMessage.error(error instanceof Error ? error.message : '操作失败')
   }
 }
 
-const toggleActive = async (row: Provider) => {
+const toggleActive = async (row: GlobalAIConfig) => {
   try {
-    await api.updateAIConfig(row.provider, { is_active: row.is_active })
+    await updateGlobalAIConfig(row.provider, { is_active: row.is_active })
     ElMessage.success(row.is_active ? '已启用' : '已禁用')
-  } catch (error) {
+  } catch {
     row.is_active = !row.is_active
     ElMessage.error('状态切换失败')
   }
 }
 
-const testConnection = async (row: Provider) => {
+const testConnection = async (row: GlobalAIConfig) => {
   try {
-    const res = await api.testAIConfig(row.provider)
+    const res = await testGlobalAIConfig(row.provider)
     if (res.success) {
       ElMessage.success(`连接成功！模型: ${res.model || 'N/A'}`)
     } else {
       ElMessage.error(`连接失败: ${res.message}`)
     }
-  } catch (error) {
+  } catch {
     ElMessage.error('测试失败')
   }
 }
 
-const deleteProvider = async (row: Provider) => {
+const deleteProvider = async (row: GlobalAIConfig) => {
   await ElMessageBox.confirm('确认删除该服务商配置？', '警告', {
-    type: 'warning'
+    type: 'warning',
   })
 
   try {
-    await api.deleteAIConfig(row.provider)
+    await deleteGlobalAIConfig(row.provider)
     ElMessage.success('删除成功')
     loadProviders()
-  } catch (error) {
+  } catch {
     ElMessage.error('删除失败')
   }
 }

@@ -67,6 +67,27 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/ContentStudio.vue'),
         meta: { requiresAuth: true },
       },
+      // IP 智能对话（小数/小商双人格）
+      {
+        path: 'ip-chat',
+        name: 'IPChat',
+        component: () => import('@/views/ip-chat/IPChatView.vue'),
+        meta: { requiresAuth: true },
+      },
+      // 品牌故事工作台
+      {
+        path: 'brand-story',
+        name: 'BrandStory',
+        component: () => import('@/views/brand-story/BrandStoryStudio.vue'),
+        meta: { requiresAuth: true },
+      },
+      // 文化元素智能匹配
+      {
+        path: 'cultural',
+        name: 'Cultural',
+        component: () => import('@/views/cultural/CulturalElements.vue'),
+        meta: { requiresAuth: true },
+      },
       // 用户中心
       {
         path: 'user',
@@ -129,6 +150,12 @@ const routes: RouteRecordRaw[] = [
             path: 'ai-media',
             name: 'AdminAIMedia',
             component: () => import('@/views/admin/AIMediaView.vue'),
+            meta: { requiresAuth: true, requiresAdmin: true },
+          },
+          {
+            path: 'ai-providers',
+            name: 'AdminAIProviders',
+            component: () => import('@/views/admin/AIProviderConfig.vue'),
             meta: { requiresAuth: true, requiresAdmin: true },
           },
           {

@@ -125,9 +125,7 @@ class XiaoshuAgent(BaseIPAgent):
             return base_response
 
         try:
-            cultural_elements = self.query_cultural_elements(
-                product_name, origin, category, keywords, top_k=2
-            )
+            cultural_elements = self.query_cultural_elements(product_name, origin, category, keywords, top_k=2)
 
             if not cultural_elements:
                 return base_response
@@ -139,7 +137,7 @@ class XiaoshuAgent(BaseIPAgent):
             for i, element in enumerate(cultural_elements[:2], 1):
                 cultural_supplement += f"{i}. **{element['name']}** ({element['type']})\n"
                 # 提取故事前150字
-                story_preview = element['story'][:150] + "..." if len(element['story']) > 150 else element['story']
+                story_preview = element["story"][:150] + "..." if len(element["story"]) > 150 else element["story"]
                 cultural_supplement += f"   {story_preview}\n\n"
 
             enriched_response = base_response + cultural_supplement
@@ -151,6 +149,60 @@ class XiaoshuAgent(BaseIPAgent):
         except Exception as e:
             logger.error(f"[{self.ip_type}] Failed to enrich response: {str(e)}")
             return base_response
+
+    def _retrieve_relevant_elements(
+        self, user_message: str, top_k: int = 2, min_score: float = 10.0
+    ) -> List[Dict[str, Any]]:
+        """
+        检索与用户消息相关的文化元素（用于回答时的知识增强）
+
+        Args:
+            user_message: 用户消息
+            top_k: 最多返回的元素数
+            min_score: 最低相关度阈值，过滤无关元素
+                （intelligent_match 总分为 0-60 量纲：L1精确匹配×0.4 + L3知识图谱×0.2）
+
+        Returns:
+            List[Dict]: 达到相关度阈值的文化元素
+        """
+        if not self.cultural_collector:
+            return []
+
+        keywords = self._extract_cultural_elements(user_message)
+        elements = self.query_cultural_elements(
+            product_name=user_message, origin="", category="", keywords=keywords, top_k=top_k
+        )
+        return [e for e in elements if e.get("score", 0) >= min_score]
+
+    def _inject_knowledge_context(self, user_message: str, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        """
+        为小数注入文化元素知识上下文（RAG）
+
+        在当前用户消息前拼接检索到的文化元素故事，让回答基于真实文化知识库。
+        检索失败时静默降级（记 WARNING），不影响正常对话。
+        """
+        try:
+            elements = self._retrieve_relevant_elements(user_message, top_k=2)
+            if not elements:
+                return messages
+
+            context_lines = ["【相关文化背景知识，回答时请自然融入，不要生硬罗列】"]
+            for el in elements:
+                story = el["story"][:200]
+                context_lines.append(f"- {el['name']}（{el['type']}）：{story}")
+            context_block = "\n".join(context_lines)
+
+            if messages:
+                last = messages[-1]
+                messages[-1] = {
+                    "role": last["role"],
+                    "content": f"{context_block}\n\n用户问题：{last['content']}",
+                }
+            logger.info(f"[{self.ip_type}] 已注入 {len(elements)} 个文化元素作为回答上下文")
+        except Exception as e:
+            logger.warning(f"[{self.ip_type}] 文化知识注入跳过: {str(e)}")
+
+        return messages
 
     def _extract_metadata(self, user_message: str, assistant_response: str) -> Dict[str, Any]:
         """提取小数专属元数据（增强版：包含匹配的文化元素）"""

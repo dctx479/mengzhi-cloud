@@ -250,6 +250,125 @@ class TestIPPersonalityConsistency:
         assert has_personality, "响应缺少小数的人设特征词"
 
 
+class TestXiaoshuCulturalIntegration:
+    """测试小数Agent的文化元素知识注入（Task #20）"""
+
+    @pytest.fixture
+    def mock_db(self):
+        return Mock(spec=Session)
+
+    @pytest.fixture
+    def mock_llm_client(self):
+        client = Mock()
+        client.chat_completion = AsyncMock(
+            return_value={
+                "choices": [{"message": {"content": "回答"}, "finish_reason": "stop"}],
+                "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
+            }
+        )
+        client.calculate_cost = Mock(return_value=0.001)
+        return client
+
+    def test_inject_knowledge_context_with_elements(self, mock_db, mock_llm_client):
+        """检索到达阈值的文化元素时，注入到当前用户消息前"""
+        agent = XiaoshuAgent(mock_db, mock_llm_client)
+        agent.cultural_collector = Mock()  # 强制采集器可用
+        agent.query_cultural_elements = Mock(
+            return_value=[
+                {
+                    "name": "锡林郭勒草原",
+                    "type": "地理景观",
+                    "story": "锡林郭勒草原是内蒙古四大草原之一，水草丰美。",
+                    "score": 45.0,
+                    "match_reason": "地域匹配",
+                }
+            ]
+        )
+
+        messages = [{"role": "user", "content": "推荐锡林郭勒的羊肉"}]
+        result = agent._inject_knowledge_context("推荐锡林郭勒的羊肉", messages)
+
+        assert "锡林郭勒草原" in result[-1]["content"]
+        assert "用户问题：推荐锡林郭勒的羊肉" in result[-1]["content"]
+        assert result[-1]["role"] == "user"
+
+    def test_inject_knowledge_context_no_elements(self, mock_db, mock_llm_client):
+        """无匹配元素时不修改消息"""
+        agent = XiaoshuAgent(mock_db, mock_llm_client)
+        agent.cultural_collector = Mock()
+        agent.query_cultural_elements = Mock(return_value=[])
+
+        messages = [{"role": "user", "content": "你好"}]
+        result = agent._inject_knowledge_context("你好", messages)
+
+        assert result == [{"role": "user", "content": "你好"}]
+
+    def test_inject_knowledge_context_filters_low_score(self, mock_db, mock_llm_client):
+        """低于相关度阈值(10)的元素被过滤，不注入"""
+        agent = XiaoshuAgent(mock_db, mock_llm_client)
+        agent.cultural_collector = Mock()
+        agent.query_cultural_elements = Mock(
+            return_value=[{"name": "无关元素", "type": "其他", "story": "...", "score": 5.0, "match_reason": ""}]
+        )
+
+        messages = [{"role": "user", "content": "今天天气"}]
+        result = agent._inject_knowledge_context("今天天气", messages)
+
+        assert result == [{"role": "user", "content": "今天天气"}]
+
+    def test_inject_knowledge_context_collector_unavailable(self, mock_db, mock_llm_client):
+        """采集器不可用时安全降级"""
+        agent = XiaoshuAgent(mock_db, mock_llm_client)
+        agent.cultural_collector = None
+
+        messages = [{"role": "user", "content": "推荐羊肉"}]
+        result = agent._inject_knowledge_context("推荐羊肉", messages)
+
+        assert result == [{"role": "user", "content": "推荐羊肉"}]
+
+    def test_inject_knowledge_context_graceful_on_error(self, mock_db, mock_llm_client):
+        """检索异常时静默降级，不抛异常"""
+        agent = XiaoshuAgent(mock_db, mock_llm_client)
+        agent.cultural_collector = Mock()
+        agent.query_cultural_elements = Mock(side_effect=Exception("检索失败"))
+
+        messages = [{"role": "user", "content": "推荐羊肉"}]
+        result = agent._inject_knowledge_context("推荐羊肉", messages)
+
+        assert result == [{"role": "user", "content": "推荐羊肉"}]
+
+    @pytest.mark.asyncio
+    async def test_generate_response_injects_into_llm_call(self, mock_db, mock_llm_client):
+        """端到端：注入的文化上下文应到达 LLM 调用的 messages"""
+        agent = XiaoshuAgent(mock_db, mock_llm_client)
+        agent.cultural_collector = Mock()
+        agent.query_cultural_elements = Mock(
+            return_value=[
+                {
+                    "name": "敖包",
+                    "type": "民俗",
+                    "story": "敖包是蒙古族祭祀的石堆。",
+                    "score": 40.0,
+                    "match_reason": "关键词",
+                }
+            ]
+        )
+
+        await agent.generate_response("敖包是什么")
+
+        call_kwargs = mock_llm_client.chat_completion.call_args.kwargs
+        injected_messages = call_kwargs["messages"]
+        assert any("敖包是蒙古族祭祀的石堆" in m["content"] for m in injected_messages)
+
+    def test_xiaoshang_inject_knowledge_context_noop(self, mock_db, mock_llm_client):
+        """小商不注入文化元素（继承基类默认无操作）"""
+        agent = XiaoshangAgent(mock_db, mock_llm_client)
+        messages = [{"role": "user", "content": "怎么写文案"}]
+        result = agent._inject_knowledge_context("怎么写文案", messages)
+
+        assert result == [{"role": "user", "content": "怎么写文案"}]
+
+
 # ============ 运行测试 ============
 
 if __name__ == "__main__":

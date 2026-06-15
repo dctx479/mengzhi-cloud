@@ -75,6 +75,10 @@ export interface KefuMessage {
   created_at: string
 }
 
+export interface KefuSessionDetail extends KefuSession {
+  messages?: KefuMessage[]
+}
+
 export interface KefuTicket {
   id: number
   ticket_uuid: string
@@ -208,9 +212,9 @@ export async function createSession(title?: string) {
   return (res as unknown as { data: { session_id: string } }).data ?? res
 }
 
-export async function getSession(sessionId: string) {
+export async function getSession(sessionId: string): Promise<KefuSessionDetail> {
   const res = await http.get(`${BASE}/sessions/${sessionId}`)
-  return res
+  return (res as unknown as { data?: KefuSessionDetail }).data ?? (res as unknown as KefuSessionDetail)
 }
 
 export async function deleteSession(sessionId: string) {

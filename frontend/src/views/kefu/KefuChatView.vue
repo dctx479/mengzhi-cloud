@@ -7,17 +7,12 @@ import {
   getSessions,
   createSession,
   getSession,
-  deleteSession,
-  getTickets,
-  createTicket,
   getUserProfile,
-  distillSession,
   recordCorrection,
   type KefuChatRequest,
   type KefuChatResponse,
   type KefuSession,
-  type KefuTicket,
-  type KefuTicketMessage,
+  type KefuMessage,
   type UserProfile,
 } from '@/api/kefu'
 import { useUserStore } from '@/stores/user'
@@ -118,7 +113,7 @@ async function selectSession(session: KefuSession) {
   try {
     const data = await getSession(session.session_id)
     const msgs = data.messages || []
-    currentSessionMessages.value = msgs.map((m: KefuTicketMessage, i: number) => ({
+    currentSessionMessages.value = msgs.map((m: KefuMessage, i: number) => ({
       id: `${session.session_id}-${i}`,
       role: m.role as 'user' | 'agent',
       content: m.content,

@@ -66,6 +66,9 @@ class BaseIPAgent(ABC):
             # 2. 构建完整Prompt
             messages = self._build_messages(user_message, conversation_history, user_profile)
 
+            # 2.5 注入领域知识上下文（子类可覆盖，如小数注入文化元素）
+            messages = self._inject_knowledge_context(user_message, messages)
+
             # 3. 调用LLM
             logger.info(
                 f"[{self.ip_type}] Generating response for message: {user_message[:50]}... "
@@ -134,6 +137,9 @@ class BaseIPAgent(ABC):
             # 2. 构建完整Prompt
             messages = self._build_messages(user_message, conversation_history, user_profile)
 
+            # 2.5 注入领域知识上下文（子类可覆盖，如小数注入文化元素）
+            messages = self._inject_knowledge_context(user_message, messages)
+
             # 3. 调用LLM流式接口
             logger.info(f"[{self.ip_type}] Starting stream for message: {user_message[:50]}...")
 
@@ -149,6 +155,19 @@ class BaseIPAgent(ABC):
         except Exception as e:
             logger.error(f"[{self.ip_type}] Stream failed: {str(e)}")
             raise
+
+    def _inject_knowledge_context(self, user_message: str, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        """
+        注入领域知识上下文（默认不修改；子类可覆盖以实现 RAG 式知识增强）
+
+        Args:
+            user_message: 当前用户消息
+            messages: 已构建的消息列表
+
+        Returns:
+            List[Dict]: 注入知识后的消息列表
+        """
+        return messages
 
     @abstractmethod
     def _get_system_prompt(self) -> str:
@@ -214,10 +233,7 @@ class BaseIPAgent(ABC):
         from ...models.conversation import Message
 
         messages = (
-            self.db.query(Message)
-            .filter(Message.conversation_id == conversation_id)
-            .order_by(Message.created_at)
-            .all()
+            self.db.query(Message).filter(Message.conversation_id == conversation_id).order_by(Message.created_at).all()
         )
 
         return [{"role": msg.role.value, "content": msg.content} for msg in messages]

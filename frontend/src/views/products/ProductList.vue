@@ -133,12 +133,21 @@ const isProductInCompare = (productId: string) => {
   return compareList.value.some((p) => p.id === productId)
 }
 
+// AdvancedFilters 的排序枚举 → product store 排序枚举映射
+const ADV_SORT_MAP: Record<NonNullable<AdvancedFiltersType['sortBy']>, 'newest' | 'popular' | 'priceHigh' | 'priceLow' | ''> = {
+  recommend: '',
+  sales: 'popular',
+  newest: 'newest',
+  price_asc: 'priceLow',
+  price_desc: 'priceHigh',
+}
+
 // 处理高级筛选应用
 const handleApplyAdvancedFilters = (filters: AdvancedFiltersType) => {
   advancedFilters.value = filters
   productStore.setAdvancedFilters({
     regions: filters.regions,
-    sortBy: filters.sortBy,
+    sortBy: filters.sortBy ? ADV_SORT_MAP[filters.sortBy] : undefined,
   })
 }
 
