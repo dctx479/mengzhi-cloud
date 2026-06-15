@@ -8,9 +8,12 @@
 """
 
 import asyncio
+import io
 import time
+from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Body
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, BackgroundTasks
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 from typing import Optional, List, Any, Dict
@@ -572,28 +575,359 @@ async def get_template_detail(template_id: str, db: Session = Depends(get_db)):
     ).dict()
 
 
+# ==================== 批量任务导出工具 ====================
+
+_PDF_FONT_REGISTERED = False
+
+
+def _stream_txt(title: str, results: List[Dict[str, Any]]):
+    """TXT 流式生成器（每 50 条 yield 一块）"""
+    header = f"{title}\n{'=' * 40}\n\n".encode("utf-8")
+    yield header
+
+    chunk_size = 50
+    for chunk_start in range(0, len(results), chunk_size):
+        chunk = results[chunk_start:chunk_start + chunk_size]
+        lines = []
+        for idx, r in enumerate(chunk, chunk_start + 1):
+            lines.append(f"【产品 {r.get('product_id', '')} - 第 {idx} 条】")
+            lines.append(r.get("content", ""))
+            lines.append("")
+            lines.append("-" * 40)
+            lines.append("")
+        yield "\n".join(lines).encode("utf-8")
+
+
+def _build_txt(title: str, results: List[Dict[str, Any]]) -> bytes:
+    """TXT 一次性构建（兼容性保留，内部使用流式）"""
+    return b"".join(_stream_txt(title, results))
+
+
+def _build_docx(title: str, results: List[Dict[str, Any]]) -> bytes:
+    from docx import Document
+
+    doc = Document()
+    doc.add_heading(title, level=1)
+    for idx, r in enumerate(results, 1):
+        doc.add_heading(f"产品 {r.get('product_id', '')} - 第 {idx} 条", level=2)
+        doc.add_paragraph(r.get("content", ""))
+    buf = io.BytesIO()
+    doc.save(buf)
+    return buf.getvalue()
+
+
+def _build_pdf(title: str, results: List[Dict[str, Any]]) -> bytes:
+    from xml.sax.saxutils import escape
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+
+    global _PDF_FONT_REGISTERED
+    if not _PDF_FONT_REGISTERED:
+        pdfmetrics.registerFont(UnicodeCIDFont("STSong-Light"))
+        _PDF_FONT_REGISTERED = True
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle("CNTitle", parent=styles["Heading1"], fontName="STSong-Light", fontSize=16, leading=24)
+    h2_style = ParagraphStyle("CNH2", parent=styles["Heading2"], fontName="STSong-Light", fontSize=13, leading=20)
+    body_style = ParagraphStyle("CNBody", parent=styles["Normal"], fontName="STSong-Light", fontSize=11, leading=18)
+
+    flow = [Paragraph(escape(title), title_style), Spacer(1, 6 * mm)]
+    for idx, r in enumerate(results, 1):
+        flow.append(Paragraph(f"产品 {escape(str(r.get('product_id', '')))} - 第 {idx} 条", h2_style))
+        body = escape(r.get("content", "")).replace("\n", "<br/>")
+        flow.append(Paragraph(body, body_style))
+        flow.append(Spacer(1, 4 * mm))
+
+    buf = io.BytesIO()
+    SimpleDocTemplate(buf, pagesize=A4).build(flow)
+    return buf.getvalue()
+
+
+@router.post("/tasks", response_model=dict)
+async def create_batch_task(
+    body: GenerateContentBody,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """创建批量内容生成任务（后台异步执行）"""
+    from app.models.batch_task import BatchTask
+    from app.models.user import User
+    from app.models.generation_template import GenerationTemplate
+    from app.tasks.batch_content import run_batch_generation
+
+    user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    cfg = body.config
+    if not cfg or not cfg.product_ids:
+        raise HTTPException(status_code=400, detail="请至少选择一个产品")
+
+    count = cfg.count if cfg.count and cfg.count >= 1 else 1
+    total = len(cfg.product_ids) * count
+
+    template_name = None
+    if cfg.template_id:
+        tmpl = db.query(GenerationTemplate).filter(
+            GenerationTemplate.template_uuid == cfg.template_id
+        ).first()
+        template_name = tmpl.name if tmpl else None
+
+    task = BatchTask(
+        user_id=user_obj.id,
+        name=f"批量生成 {len(cfg.product_ids)} 个产品 × {count}",
+        template_id=cfg.template_id or None,
+        template_name=template_name,
+        config=cfg.model_dump(),
+        total_count=total,
+        completed_count=0,
+        progress=0,
+        status="pending",
+    )
+    db.add(task)
+    db.commit()
+    db.refresh(task)
+
+    background_tasks.add_task(run_batch_generation, task.task_uuid)
+
+    return success_response(data=task.to_dict(), message="批量任务已创建").dict()
+
+
 @router.get("/tasks")
-async def get_tasks():
-    """批量任务功能暂未开放"""
-    raise HTTPException(status_code=501, detail="批量任务功能暂未开放")
+async def get_tasks(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取当前用户的批量任务列表"""
+    from app.models.batch_task import BatchTask
+    from app.models.user import User
+
+    user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    tasks = db.query(BatchTask).filter(
+        BatchTask.user_id == user_obj.id
+    ).order_by(BatchTask.created_at.desc()).all()
+
+    return success_response(
+        data=[t.to_dict() for t in tasks],
+        message="获取批量任务列表成功"
+    ).dict()
 
 
 @router.get("/tasks/{task_id}")
-async def get_task_status(task_id: str):
-    """批量任务功能暂未开放"""
-    raise HTTPException(status_code=501, detail="批量任务功能暂未开放")
+async def get_task_status(
+    task_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取单个批量任务状态"""
+    from app.models.batch_task import BatchTask
+    from app.models.user import User
+
+    user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    task = db.query(BatchTask).filter(
+        BatchTask.task_uuid == task_id,
+        BatchTask.user_id == user_obj.id,
+    ).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="任务不存在")
+
+    return success_response(data=task.to_dict(), message="获取任务状态成功").dict()
 
 
 @router.post("/tasks/{task_id}/cancel")
-async def cancel_task(task_id: str):
-    """批量任务功能暂未开放"""
-    raise HTTPException(status_code=501, detail="批量任务功能暂未开放")
+async def cancel_task(
+    task_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """取消批量任务（协作式：置 cancelled，任务体下一轮循环检测到后停止）"""
+    from app.models.batch_task import BatchTask
+    from app.models.user import User
+
+    user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    task = db.query(BatchTask).filter(
+        BatchTask.task_uuid == task_id,
+        BatchTask.user_id == user_obj.id,
+    ).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    if task.status not in ("pending", "running"):
+        raise HTTPException(status_code=400, detail="任务已结束，无法取消")
+
+    task.status = "cancelled"
+    task.completed_at = datetime.utcnow()
+    db.commit()
+    db.refresh(task)
+
+    return success_response(data=task.to_dict(), message="任务已取消").dict()
+
+
+@router.post("/tasks/{task_id}/retry")
+async def retry_task(
+    task_id: str,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """重试失败的批量任务（重置状态并重新执行）"""
+    from app.models.batch_task import BatchTask
+    from app.models.user import User
+    from app.tasks.batch_content import run_batch_generation
+
+    user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    task = db.query(BatchTask).filter(
+        BatchTask.task_uuid == task_id,
+        BatchTask.user_id == user_obj.id,
+    ).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    if task.status not in ("failed", "cancelled"):
+        raise HTTPException(status_code=400, detail="只有失败或已取消的任务可以重试")
+
+    task.status = "pending"
+    task.completed_count = 0
+    task.progress = 0
+    task.results = []
+    task.error_message = None
+    task.retry_count += 1
+    task.started_at = None
+    task.completed_at = None
+    task.last_heartbeat_at = None
+    db.commit()
+    db.refresh(task)
+
+    background_tasks.add_task(run_batch_generation, task.task_uuid)
+
+    return success_response(data=task.to_dict(), message=f"任务已重新提交（第 {task.retry_count} 次重试）").dict()
+
+
+@router.post("/tasks/bulk-export")
+async def bulk_export_tasks(
+    request: dict,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """批量导出多个任务的结果（合并为单文件）"""
+    from app.models.batch_task import BatchTask
+    from app.models.user import User
+    from app.api.exports import _encode_filename_header
+
+    task_ids = request.get("task_ids", [])
+    fmt = request.get("format", "txt")
+
+    if not task_ids or not isinstance(task_ids, list):
+        raise HTTPException(status_code=400, detail="task_ids 必须是非空数组")
+    if fmt not in ("txt", "docx", "pdf"):
+        raise HTTPException(status_code=400, detail="不支持的导出格式")
+
+    user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    tasks = db.query(BatchTask).filter(
+        BatchTask.task_uuid.in_(task_ids),
+        BatchTask.user_id == user_obj.id,
+        BatchTask.status == "completed",
+    ).all()
+
+    if len(tasks) != len(task_ids):
+        raise HTTPException(status_code=400, detail="部分任务不存在或未完成")
+
+    # 合并所有任务的 results
+    all_results = []
+    for task in tasks:
+        all_results.extend(task.results or [])
+
+    if not all_results:
+        raise HTTPException(status_code=400, detail="所选任务暂无可导出的内容")
+
+    filename = f"批量导出_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.{fmt}"
+
+    if fmt == "txt":
+        return StreamingResponse(
+            _stream_txt(filename, all_results),
+            media_type="text/plain; charset=utf-8",
+            headers={"Content-Disposition": _encode_filename_header(filename)},
+        )
+    elif fmt == "docx":
+        data = _build_docx(filename, all_results)
+        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    else:
+        data = _build_pdf(filename, all_results)
+        media_type = "application/pdf"
+
+    headers = {"Content-Disposition": _encode_filename_header(filename)}
+    return Response(content=data, media_type=media_type, headers=headers)
 
 
 @router.get("/tasks/{task_id}/export/{fmt}")
-async def export_task_result(task_id: str, fmt: str):
-    """批量任务功能暂未开放"""
-    raise HTTPException(status_code=501, detail="批量任务功能暂未开放")
+async def export_task_result(
+    task_id: str,
+    fmt: str,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """导出批量任务结果为 txt / docx / pdf"""
+    from app.models.batch_task import BatchTask
+    from app.models.user import User
+    from app.api.exports import _encode_filename_header
+
+    if fmt not in ("txt", "docx", "pdf"):
+        raise HTTPException(status_code=400, detail="不支持的导出格式，仅支持 txt/docx/pdf")
+
+    user_obj = db.query(User).filter(User.user_uuid == current_user.get("user_id")).first()
+    if not user_obj:
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    task = db.query(BatchTask).filter(
+        BatchTask.task_uuid == task_id,
+        BatchTask.user_id == user_obj.id,
+    ).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="任务不存在")
+
+    results = task.results or []
+    if not results:
+        raise HTTPException(status_code=400, detail="任务暂无可导出的内容")
+
+    filename = f"批量内容-{task.task_uuid[:8]}.{fmt}"
+
+    if fmt == "txt":
+        return StreamingResponse(
+            _stream_txt(task.name, results),
+            media_type="text/plain; charset=utf-8",
+            headers={"Content-Disposition": _encode_filename_header(filename)},
+        )
+    elif fmt == "docx":
+        data = _build_docx(task.name, results)
+        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    else:
+        data = _build_pdf(task.name, results)
+        media_type = "application/pdf"
+
+    return StreamingResponse(
+        io.BytesIO(data),
+        media_type=media_type,
+        headers={"Content-Disposition": _encode_filename_header(filename)},
+    )
+
 
 
 @router.get("/configs")

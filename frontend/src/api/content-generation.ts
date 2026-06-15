@@ -3,6 +3,7 @@
  */
 import axios from 'axios'
 import type {
+  BatchTask,
   ContentTemplate,
   GenerationConfig,
   GenerationRequest,
@@ -195,6 +196,69 @@ export async function getHistory(limit = 20, offset = 0): Promise<{ items: unkno
 export async function getStatistics(): Promise<Record<string, unknown>> {
   const response = await contentAPI.get('/statistics')
   return (response.data as Record<string, unknown>) ?? {}
+}
+
+/**
+ * 创建批量内容生成任务（后台异步执行）
+ */
+export async function createBatchTask(request: GenerationRequest): Promise<BatchTask> {
+ const response = await contentAPI.post("/tasks", { config: request })
+ return response.data
+}
+
+/**
+ * 获取批量任务列表
+ */
+export async function getBatchTasks(): Promise<BatchTask[]> {
+  const response = await contentAPI.get('/tasks')
+  return Array.isArray(response.data) ? response.data : []
+}
+
+/**
+ * 取消批量任务
+ */
+export async function cancelBatchTask(taskId: string): Promise<void> {
+  await contentAPI.post(`/tasks/${taskId}/cancel`)
+}
+
+/**
+ * 导出批量任务结果
+ */
+export async function exportTaskResult(taskId: string, fmt: 'txt' | 'docx' | 'pdf'): Promise<void> {
+  const res = await contentAPI.get<Blob>(`/tasks/${taskId}/export/${fmt}`, { responseType: 'blob' })
+  const blob = res.data
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `batch-${taskId.slice(0, 8)}.${fmt}`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+/**
+ * 重试失败的批量任务
+ */
+export async function retryBatchTask(taskId: string): Promise<BatchTask> {
+  const response = await contentAPI.post(`/tasks/${taskId}/retry`)
+  return response.data
+}
+
+/**
+ * 批量导出多个任务结果
+ */
+export async function bulkExportTasks(taskIds: string[], format: 'txt' | 'docx' | 'pdf'): Promise<void> {
+  const res = await contentAPI.post<Blob>('/tasks/bulk-export', { task_ids: taskIds, format }, { responseType: 'blob' })
+  const blob = res.data
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `bulk-export-${Date.now()}.${format}`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }
 
 export default contentAPI

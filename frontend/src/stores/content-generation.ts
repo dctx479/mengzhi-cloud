@@ -4,6 +4,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
+  BatchTask,
   ContentTemplate,
   GenerationConfig,
   GenerationResult,
@@ -44,6 +45,10 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
   // State - Saved Configs
   const savedConfigs = ref<SavedConfig[]>([])
   const configsLoading = ref(false)
+
+  // State - Batch Tasks
+  const batchTasks = ref<BatchTask[]>([])
+  const tasksLoading = ref(false)
 
   // Computed
   const selectedCategory = computed(() => activeCategory.value)
@@ -257,6 +262,40 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     }
   }
 
+  /** 创建批量任务（后台异步执行），写入 store 并返回创建结果 */
+  const createBatchTask = async (config: any) => {
+    const task = await contentAPI.createBatchTask(config)
+    batchTasks.value = [task, ...batchTasks.value]
+    return task
+  }
+
+  const fetchBatchTasks = async () => {
+    tasksLoading.value = true
+    try {
+      batchTasks.value = await contentAPI.getBatchTasks()
+    } finally {
+      tasksLoading.value = false
+    }
+  }
+
+  const cancelBatchTask = async (taskId: string) => {
+    await contentAPI.cancelBatchTask(taskId)
+    await fetchBatchTasks()
+  }
+
+  const retryBatchTask = async (taskId: string) => {
+    await contentAPI.retryBatchTask(taskId)
+    await fetchBatchTasks()
+  }
+
+  const bulkExportTasks = async (taskIds: string[], format: 'txt' | 'docx' | 'pdf') => {
+    await contentAPI.bulkExportTasks(taskIds, format)
+  }
+
+  const exportResults = async (format: 'txt' | 'docx' | 'pdf', taskId: string) => {
+    await contentAPI.exportTaskResult(taskId, format)
+  }
+
   const resetConfig = () => {
     config.value = {
       product_ids: [],
@@ -290,6 +329,8 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     generationError,
     savedConfigs,
     configsLoading,
+    batchTasks,
+    tasksLoading,
 
     // Computed
     selectedCategory,
@@ -315,6 +356,12 @@ export const useContentGenerationStore = defineStore('contentGeneration', () => 
     fetchSavedConfigs,
     loadSavedConfig,
     deleteSavedConfig,
+    createBatchTask,
+    fetchBatchTasks,
+    cancelBatchTask,
+    retryBatchTask,
+    bulkExportTasks,
+    exportResults,
     resetConfig,
   }
 })

@@ -20,7 +20,7 @@
           <!-- Middle Panel - Configuration -->
           <div class="config-area">
             <h2>生成配置</h2>
-            <ConfigPanel />
+            <ConfigPanel @batch-created="onBatchCreated" />
           </div>
 
           <!-- Right Panel - Results -->
@@ -29,6 +29,11 @@
             <ResultsPanel />
           </div>
         </div>
+      </el-tab-pane>
+
+      <!-- Batch Tasks Tab -->
+      <el-tab-pane name="tasks" label="批量任务">
+       <BatchTaskManager />
       </el-tab-pane>
 
       <!-- History Tab -->
@@ -51,13 +56,18 @@ import { useProductStore } from '@/stores/product'
 import TemplateSelector from '@/components/TemplateSelector.vue'
 import ConfigPanel from '@/components/ConfigPanel.vue'
 import ResultsPanel from '@/components/ResultsPanel.vue'
-import HistoryPanel from '@/components/HistoryPanel.vue'
+import BatchTaskManager from '@/components/BatchTaskManager.vue'
+    import HistoryPanel from '@/components/HistoryPanel.vue'
 import StatisticsPanel from '@/components/StatisticsPanel.vue'
 
 const contentStore = useContentGenerationStore()
 const productStore = useProductStore()
 
 const activeTab = ref('generation')
+
+  const onBatchCreated = () => {
+    activeTab.value = 'tasks'
+  }
 
 onMounted(async () => {
   try {

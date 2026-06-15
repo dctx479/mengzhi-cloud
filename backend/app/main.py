@@ -333,6 +333,32 @@ async def startup():
     except Exception as e:
         logger.warning(f"DeepSeek API 初始化失败: {str(e)}")
 
+    # 清理僵尸批量任务（重启后恢复）
+    try:
+        from datetime import datetime, timedelta
+        from sqlalchemy import or_
+        from app.models.batch_task import BatchTask
+        db = SessionLocal()
+        try:
+            stale_tasks = db.query(BatchTask).filter(
+                BatchTask.status == "running",
+                or_(
+                    BatchTask.last_heartbeat_at.is_(None),
+                    BatchTask.last_heartbeat_at < datetime.utcnow() - timedelta(minutes=5)
+                )
+            ).all()
+            for task in stale_tasks:
+                task.status = "failed"
+                task.error_message = "任务异常终止（进程重启或超时）"
+                task.completed_at = datetime.utcnow()
+            if stale_tasks:
+                db.commit()
+                logger.info(f"已清理 {len(stale_tasks)} 个僵尸批量任务")
+        finally:
+            db.close()
+    except Exception as e:
+        logger.warning(f"批量任务清理失败: {str(e)}")
+
     # 启动定时任务调度器（对账 + 淘宝 Session 自动刷新）
     try:
         from app.tasks.scheduler import reconciliation_scheduler

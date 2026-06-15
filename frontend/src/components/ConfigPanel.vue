@@ -186,6 +186,16 @@
           >
             重置
           </el-button>
+          <el-button
+            size="large"
+            type="success"
+            icon="Promotion"
+            :disabled="contentStore.config.product_ids.length === 0 || batchSubmitting"
+            :loading="batchSubmitting"
+            @click="handleBatchGenerate"
+          >
+            批量生成
+          </el-button>
         </div>
       </el-form-item>
 
@@ -230,6 +240,8 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
+const emit = defineEmits<{ batchCreated: [] }>()
+const batchSubmitting = ref(false)
 import { ElMessage } from 'element-plus'
 import { useProductStore } from '@/stores/product'
 import { useContentGenerationStore } from '@/stores/content-generation'
@@ -273,6 +285,23 @@ const handleGenerate = async () => {
     ElMessage.success('内容生成成功')
   } else {
     ElMessage.error(contentStore.generationError)
+  }
+}
+
+const handleBatchGenerate = async () => {
+  if (contentStore.config.product_ids.length === 0) {
+    ElMessage.error('请至少选择一个产品')
+    return
+  }
+  batchSubmitting.value = true
+  try {
+    const task = await contentStore.createBatchTask(contentStore.config)
+    ElMessage.success(`批量任务已创建：${task.count} 条待生成`)
+    emit('batchCreated')
+  } catch (e: any) {
+    ElMessage.error(e?.message || '创建批量任务失败')
+  } finally {
+    batchSubmitting.value = false
   }
 }
 
