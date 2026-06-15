@@ -26,14 +26,15 @@ from app.core.responses import success_response, error_response
 from app.core.errors import ErrorCode
 from loguru import logger
 
-
 router = APIRouter(tags=["配额管理"])
 
 
 # ==================== Pydantic模型 ====================
 
+
 class QuotaResponse(BaseModel):
     """配额响应模型"""
+
     id: int
     enterprise_id: Optional[int]
     user_id: Optional[int]
@@ -54,6 +55,7 @@ class QuotaResponse(BaseModel):
 
 class QuotaCreateRequest(BaseModel):
     """创建配额请求模型"""
+
     enterprise_id: Optional[int] = Field(None, description="企业ID（企业配额）")
     user_id: Optional[int] = Field(None, description="用户ID（个人配额）")
     resource_type: str = Field(..., description="资源类型: token, message, api_call, generation, storage")
@@ -67,6 +69,7 @@ class QuotaCreateRequest(BaseModel):
 
 class QuotaUpdateRequest(BaseModel):
     """更新配额请求模型"""
+
     quota_limit: Optional[int] = Field(None, gt=0, description="配额限制")
     warning_threshold: Optional[int] = Field(None, ge=0, le=100, description="预警阈值")
     critical_threshold: Optional[int] = Field(None, ge=0, le=100, description="严重预警阈值")
@@ -76,6 +79,7 @@ class QuotaUpdateRequest(BaseModel):
 
 class QuotaUsageResponse(BaseModel):
     """配额使用记录响应模型"""
+
     id: int
     quota_id: int
     amount: int
@@ -89,6 +93,7 @@ class QuotaUsageResponse(BaseModel):
 
 class QuotaStatisticsResponse(BaseModel):
     """配额统计响应模型"""
+
     total_quotas: int
     by_resource_type: dict
     by_period_type: dict
@@ -99,7 +104,8 @@ class QuotaStatisticsResponse(BaseModel):
 
 # ==================== API端点 ====================
 
-@router.get("/", response_model=dict)
+
+@router.get("", response_model=dict)
 async def list_quotas(
     enterprise_id: Optional[int] = Query(None, description="企业ID"),
     user_id: Optional[int] = Query(None, description="用户ID"),
@@ -110,7 +116,7 @@ async def list_quotas(
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页数量"),
     current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     查询配额列表
@@ -167,17 +173,12 @@ async def list_quotas(
         period_type=period_type_enum,
         is_active=is_active,
         page=page,
-        page_size=page_size
+        page_size=page_size,
     )
 
     return success_response(
-        data={
-            "items": [quota.to_dict() for quota in quotas],
-            "total": total,
-            "page": page,
-            "page_size": page_size
-        },
-        message="查询成功"
+        data={"items": [quota.to_dict() for quota in quotas], "total": total, "page": page, "page_size": page_size},
+        message="查询成功",
     ).dict()
 
 
@@ -186,7 +187,7 @@ async def get_quota_statistics(
     enterprise_id: Optional[int] = Query(None, description="企业ID"),
     user_id: Optional[int] = Query(None, description="用户ID"),
     current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     获取配额统计信息
@@ -214,22 +215,13 @@ async def get_quota_statistics(
             user_id = user.id
 
     # 获取统计信息
-    statistics = service.get_quota_statistics(
-        enterprise_id=enterprise_id,
-        user_id=user_id
-    )
+    statistics = service.get_quota_statistics(enterprise_id=enterprise_id, user_id=user_id)
 
-    return success_response(
-        data=statistics,
-        message="查询成功"
-    ).dict()
+    return success_response(data=statistics, message="查询成功").dict()
 
 
 @router.post("/batch-reset", response_model=dict)
-async def batch_reset_expired_quotas(
-    current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
-):
+async def batch_reset_expired_quotas(current_user: dict = Depends(require_admin), db: Session = Depends(get_db)):
     """
     批量重置过期配额（管理员）
 
@@ -240,18 +232,11 @@ async def batch_reset_expired_quotas(
 
     count = service.reset_expired_quotas()
 
-    return success_response(
-        data={"count": count},
-        message=f"批量重置成功，共重置 {count} 个配额"
-    ).dict()
+    return success_response(data={"count": count}, message=f"批量重置成功，共重置 {count} 个配额").dict()
 
 
 @router.get("/{quota_id}", response_model=dict)
-async def get_quota(
-    quota_id: int,
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+async def get_quota(quota_id: int, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     获取配额详情
 
@@ -281,17 +266,12 @@ async def get_quota(
             if quota.user_id != user.id:
                 raise HTTPException(status_code=403, detail="权限不足")
 
-    return success_response(
-        data=quota.to_dict(),
-        message="查询成功"
-    ).dict()
+    return success_response(data=quota.to_dict(), message="查询成功").dict()
 
 
-@router.post("/", response_model=dict)
+@router.post("", response_model=dict)
 async def create_quota(
-    request: QuotaCreateRequest,
-    current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    request: QuotaCreateRequest, current_user: dict = Depends(require_admin), db: Session = Depends(get_db)
 ):
     """
     创建配额（管理员）
@@ -333,13 +313,10 @@ async def create_quota(
             start_date=start_date,
             warning_threshold=request.warning_threshold,
             critical_threshold=request.critical_threshold,
-            description=request.description
+            description=request.description,
         )
 
-        return success_response(
-            data=quota.to_dict(),
-            message="创建成功"
-        ).dict()
+        return success_response(data=quota.to_dict(), message="创建成功").dict()
     except Exception as e:
         logger.error(f"创建配额失败: {e}")
         raise HTTPException(status_code=500, detail="创建失败")
@@ -350,7 +327,7 @@ async def update_quota(
     quota_id: int,
     request: QuotaUpdateRequest,
     current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     更新配额（管理员）
@@ -365,24 +342,17 @@ async def update_quota(
         warning_threshold=request.warning_threshold,
         critical_threshold=request.critical_threshold,
         is_active=request.is_active,
-        description=request.description
+        description=request.description,
     )
 
     if not quota:
         raise HTTPException(status_code=404, detail="配额不存在")
 
-    return success_response(
-        data=quota.to_dict(),
-        message="更新成功"
-    ).dict()
+    return success_response(data=quota.to_dict(), message="更新成功").dict()
 
 
 @router.delete("/{quota_id}", response_model=dict)
-async def delete_quota(
-    quota_id: int,
-    current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
-):
+async def delete_quota(quota_id: int, current_user: dict = Depends(require_admin), db: Session = Depends(get_db)):
     """
     删除配额（管理员）
 
@@ -395,18 +365,11 @@ async def delete_quota(
     if not success:
         raise HTTPException(status_code=404, detail="配额不存在")
 
-    return success_response(
-        data=None,
-        message="删除成功"
-    ).dict()
+    return success_response(data=None, message="删除成功").dict()
 
 
 @router.post("/{quota_id}/reset", response_model=dict)
-async def reset_quota(
-    quota_id: int,
-    current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
-):
+async def reset_quota(quota_id: int, current_user: dict = Depends(require_admin), db: Session = Depends(get_db)):
     """
     手动重置配额（管理员）
 
@@ -419,10 +382,7 @@ async def reset_quota(
     if not success:
         raise HTTPException(status_code=404, detail="配额不存在")
 
-    return success_response(
-        data=None,
-        message="重置成功"
-    ).dict()
+    return success_response(data=None, message="重置成功").dict()
 
 
 @router.get("/{quota_id}/usage", response_model=dict)
@@ -434,7 +394,7 @@ async def get_quota_usage(
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(50, ge=1, le=100, description="每页数量"),
     current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     获取配额使用记录
@@ -489,15 +449,10 @@ async def get_quota_usage(
         end_date=end_date_obj,
         operation=operation,
         page=page,
-        page_size=page_size
+        page_size=page_size,
     )
 
     return success_response(
-        data={
-            "items": [record.to_dict() for record in records],
-            "total": total,
-            "page": page,
-            "page_size": page_size
-        },
-        message="查询成功"
+        data={"items": [record.to_dict() for record in records], "total": total, "page": page, "page_size": page_size},
+        message="查询成功",
     ).dict()

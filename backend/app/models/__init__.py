@@ -117,6 +117,18 @@ from .kefu_escalation import KefuEscalation, EscalationStatus
 # 客服会话模型
 from .kefu_conversation import KefuConversation, KefuMessage, KefuConversationStatus
 
+# 文化元素模型
+from .cultural import (
+    CulturalCollectionTask,
+    CulturalElement,
+    CulturalReviewTask,
+    CulturalReview,
+    TaskPriority,
+    TaskStatus,
+    ReviewDecision,
+    ElementStatus,
+)
+
 # 导出所有模型
 __all__ = [
     # 基类

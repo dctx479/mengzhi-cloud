@@ -19,17 +19,18 @@ from functools import wraps
 import asyncio
 
 from app.core.errors import (
-    BusinessException, ErrorCode, ERROR_HTTP_STATUS,
-    DatabaseError, DuplicateRecordError, ExternalServiceError
+    BusinessException,
+    ErrorCode,
+    ERROR_HTTP_STATUS,
+    DatabaseError,
+    DuplicateRecordError,
+    ExternalServiceError,
 )
 from app.core.responses import error_response
 
 # 导入常见异常类型
 try:
-    from sqlalchemy.exc import (
-        SQLAlchemyError, IntegrityError, OperationalError,
-        DataError, ProgrammingError
-    )
+    from sqlalchemy.exc import SQLAlchemyError, IntegrityError, OperationalError, DataError, ProgrammingError
 except ImportError:
     SQLAlchemyError = IntegrityError = OperationalError = DataError = ProgrammingError = Exception
 
@@ -44,10 +45,11 @@ except ImportError:
     HTTPError = TimeoutException = Exception
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 # ==================== 服务层异常处理装饰器 ====================
+
 
 def handle_service_exceptions(operation_name: str = "操作") -> Callable:
     """
@@ -69,6 +71,7 @@ def handle_service_exceptions(operation_name: str = "操作") -> Callable:
         async def get_user(self, user_id):
             ...
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @wraps(func)
         async def async_wrapper(*args, **kwargs) -> T:
@@ -105,7 +108,9 @@ def handle_service_exceptions(operation_name: str = "操作") -> Callable:
                 raise BusinessException(code=ErrorCode.PARAM_VALUE_INVALID, message=str(e)) from e
             except Exception as e:
                 logger.exception(f"{operation_name}失败 - 未预期的异常: {type(e).__name__}: {e}")
-                raise BusinessException(code=ErrorCode.INTERNAL_ERROR, message=f"{operation_name}失败，请稍后重试") from e
+                raise BusinessException(
+                    code=ErrorCode.INTERNAL_ERROR, message=f"{operation_name}失败，请稍后重试"
+                ) from e
 
         @wraps(func)
         def sync_wrapper(*args, **kwargs) -> T:
@@ -142,7 +147,9 @@ def handle_service_exceptions(operation_name: str = "操作") -> Callable:
                 raise BusinessException(code=ErrorCode.PARAM_VALUE_INVALID, message=str(e)) from e
             except Exception as e:
                 logger.exception(f"{operation_name}失败 - 未预期的异常: {type(e).__name__}: {e}")
-                raise BusinessException(code=ErrorCode.INTERNAL_ERROR, message=f"{operation_name}失败，请稍后重试") from e
+                raise BusinessException(
+                    code=ErrorCode.INTERNAL_ERROR, message=f"{operation_name}失败，请稍后重试"
+                ) from e
 
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
@@ -154,10 +161,7 @@ def handle_service_exceptions(operation_name: str = "操作") -> Callable:
 # ==================== 全局异常处理器 ====================
 
 
-async def business_exception_handler(
-    request: Request,
-    exc: BusinessException
-) -> JSONResponse:
+async def business_exception_handler(request: Request, exc: BusinessException) -> JSONResponse:
     """业务异常处理器
 
     处理所有BusinessException类型的异常，返回统一格式的错误响应
@@ -185,18 +189,12 @@ async def business_exception_handler(
     return JSONResponse(
         status_code=http_status,
         content=error_response(
-            code=exc.code,
-            message=exc.message,
-            errors=exc.errors,
-            request_id=exc.request_id or str(uuid.uuid4())
-        ).model_dump(mode='json')
+            code=exc.code, message=exc.message, errors=exc.errors, request_id=exc.request_id or str(uuid.uuid4())
+        ).model_dump(mode="json"),
     )
 
 
-async def validation_exception_handler(
-    request: Request,
-    exc: Exception
-) -> JSONResponse:
+async def validation_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """参数验证异常处理器
 
     处理Pydantic和FastAPI请求验证异常，返回友好的错误信息
@@ -207,6 +205,7 @@ async def validation_exception_handler(
         validation_errors = exc.errors()
     else:
         from pydantic import ValidationError
+
         if isinstance(exc, ValidationError):
             validation_errors = exc.errors()
         else:
@@ -214,34 +213,20 @@ async def validation_exception_handler(
 
     errors = []
     for error in validation_errors:
-        field = '.'.join(str(loc) for loc in error['loc'])
-        errors.append({
-            'field': field,
-            'message': error['msg'],
-            'type': error['type']
-        })
+        field = ".".join(str(loc) for loc in error["loc"])
+        errors.append({"field": field, "message": error["msg"], "type": error["type"]})
 
-    logger.warning(
-        f"参数验证失败: path={request.url.path} | "
-        f"method={request.method} | "
-        f"errors={errors}"
-    )
+    logger.warning(f"参数验证失败: path={request.url.path} | " f"method={request.method} | " f"errors={errors}")
 
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=error_response(
-            code=ErrorCode.PARAM_VALIDATION_FAILED,
-            message="参数验证失败",
-            errors=errors,
-            request_id=str(uuid.uuid4())
-        ).model_dump(mode='json')
+            code=ErrorCode.PARAM_VALIDATION_FAILED, message="参数验证失败", errors=errors, request_id=str(uuid.uuid4())
+        ).model_dump(mode="json"),
     )
 
 
-async def general_exception_handler(
-    request: Request,
-    exc: Exception
-) -> JSONResponse:
+async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """通用异常处理器
 
     处理所有未被捕获的异常，记录详细日志并返回通用错误响应
@@ -257,29 +242,28 @@ async def general_exception_handler(
     request_id = str(uuid.uuid4())
 
     # 记录详细的异常信息
+    # 使用 repr() 避免 SQLAlchemy 错误消息中 %(key)s 占位符被 loguru 误作格式串
+    exc_msg = repr(str(exc))
     logger.error(
-        f"未处理异常: {type(exc).__name__}: {str(exc)} | "
-        f"path={request.url.path} | "
-        f"method={request.method} | "
-        f"request_id={request_id}",
-        exc_info=True  # 包含完整的堆栈跟踪
+        "未处理异常: {}:{} | path={} | method={} | request_id={}",
+        type(exc).__name__,
+        exc_msg,
+        request.url.path,
+        request.method,
+        request_id,
+        exc_info=True,
     )
 
     # 返回通用错误响应（不暴露内部错误详情）
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=error_response(
-            code=ErrorCode.SYSTEM_ERROR,
-            message="系统内部错误，请稍后重试",
-            request_id=request_id
-        ).model_dump(mode='json')
+            code=ErrorCode.SYSTEM_ERROR, message="系统内部错误，请稍后重试", request_id=request_id
+        ).model_dump(mode="json"),
     )
 
 
-async def http_exception_handler(
-    request: Request,
-    exc: HTTPException
-) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     """FastAPI HTTPException 处理器
 
     将 FastAPI 原生 HTTPException 转换为项目统一响应格式，
@@ -300,8 +284,8 @@ async def http_exception_handler(
         content=error_response(
             code=exc.status_code * 100,  # 映射为业务错误码，如 404 -> 40400
             message=str(exc.detail) if exc.detail else "请求错误",
-            request_id=request_id
-        ).model_dump(mode='json'),
+            request_id=request_id,
+        ).model_dump(mode="json"),
         headers=getattr(exc, "headers", None),
     )
 

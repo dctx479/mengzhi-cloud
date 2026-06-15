@@ -169,8 +169,11 @@ async def get_popular_products(
         service = ProductService(db)
         products = service.get_popular_products(limit=limit)
 
-        # 转换为响应对象
-        items = [ProductListItemResponse.from_orm(p) for p in products]
+        # 转换为响应对象（兼容 ORM 对象和缓存返回的 dict）
+        items = [
+            ProductListItemResponse.model_validate(p) if isinstance(p, dict) else ProductListItemResponse.from_orm(p)
+            for p in products
+        ]
 
         return success_response(data={"items": [item.dict() for item in items]}, message="获取热门产品成功").dict()
 
@@ -285,8 +288,11 @@ async def list_products(
             sort_order=sort_order,
         )
 
-        # 转换为响应对象
-        items = [ProductListItemResponse.from_orm(p) for p in products]
+        # 转换为响应对象（兼容 ORM 对象和缓存返回的 dict）
+        items = [
+            ProductListItemResponse.model_validate(p) if isinstance(p, dict) else ProductListItemResponse.from_orm(p)
+            for p in products
+        ]
 
         # 返回分页响应
         response = paginated_response(
@@ -328,7 +334,10 @@ async def get_product_reviews(
 
 @router.post("/products/{product_id}/reviews", response_model=dict, tags=["产品"])
 async def add_product_review(
-    product_id: int, request: AddReviewRequest, current_user: dict = Depends(get_optional_user), db: Session = Depends(get_db)
+    product_id: int,
+    request: AddReviewRequest,
+    current_user: dict = Depends(get_optional_user),
+    db: Session = Depends(get_db),
 ) -> dict:
     """添加产品评论
 
@@ -429,7 +438,10 @@ async def get_cultural_info(product_id: int, db: Session = Depends(get_db)) -> d
 @router.post("/products", response_model=dict, tags=["产品"])
 @audit_log(action="create", resource="product", capture_request_body=True)
 async def create_product(
-    body: ProductCreateRequest, current_user: dict = Depends(require_admin), db: Session = Depends(get_db), request: Request = None
+    body: ProductCreateRequest,
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+    request: Request = None,
 ) -> dict:
     """创建产品 (仅管理员)"""
     try:
@@ -470,7 +482,12 @@ async def create_product(
 
 
 @router.put("/products/{product_id}", response_model=dict, tags=["产品"])
-@audit_log(action="update", resource="product", get_resource_id=lambda kwargs: kwargs.get("product_id"), capture_request_body=True)
+@audit_log(
+    action="update",
+    resource="product",
+    get_resource_id=lambda kwargs: kwargs.get("product_id"),
+    capture_request_body=True,
+)
 async def update_product(
     product_id: int,
     body: ProductUpdateRequest,
@@ -852,21 +869,27 @@ async def batch_update_products(
             except (TypeError, ValueError):
                 return JSONResponse(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    content=jsonable_encoder(error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 必须是数字")),
+                    content=jsonable_encoder(
+                        error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 必须是数字")
+                    ),
                 )
             if price_val < 0:
                 return JSONResponse(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    content=jsonable_encoder(error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 不能为负数")),
+                    content=jsonable_encoder(
+                        error_response(code=ErrorCode.PARAM_VALUE_INVALID, message="price 不能为负数")
+                    ),
                 )
             update_data["price"] = price_val
 
         if not update_data:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=jsonable_encoder(error_response(
-                    code=ErrorCode.PARAM_ERROR, message=f"没有可更新的字段。允许的字段: {', '.join(allowed_fields)}"
-                )),
+                content=jsonable_encoder(
+                    error_response(
+                        code=ErrorCode.PARAM_ERROR, message=f"没有可更新的字段。允许的字段: {', '.join(allowed_fields)}"
+                    )
+                ),
             )
 
         # 添加更新时间
@@ -904,7 +927,10 @@ async def batch_update_products(
 
 @router.post("/products/{product_id}/tags", response_model=dict, tags=["产品"])
 async def assign_tags_to_product(
-    product_id: int, request: ProductTagsAssignRequest, current_user: dict = Depends(require_admin), db: Session = Depends(get_db)
+    product_id: int,
+    request: ProductTagsAssignRequest,
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
 ) -> dict:
     """为产品分配文化标签（仅管理员）
 
@@ -1057,6 +1083,7 @@ async def sync_product_images(
     """批量下载所有产品的外部图片到本地存储（仅管理员）"""
     try:
         from app.services.image_download_service import ImageDownloadService
+
         image_svc = ImageDownloadService()
         result = await image_svc.batch_download_all_products(db)
         return success_response(data=result, message="图片同步完成").dict()
@@ -1076,6 +1103,7 @@ async def sync_products_to_knowledge_base(
     """同步产品数据到客服知识库（混合模式: 保留手写知识 + 从DB生成产品文档）"""
     try:
         from app.services.kefu_rag import KefuKnowledgeBase
+
         kb = KefuKnowledgeBase()
         result = kb.sync_products_to_kb(db)
         return success_response(data=result, message="知识库同步完成").dict()

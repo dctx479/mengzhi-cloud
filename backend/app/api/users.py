@@ -215,8 +215,8 @@ async def get_security_logs(
             "ip_address": log.ip_address or "",
             "user_agent": log.user_agent or "",
             "created_at": log.created_at.isoformat() if log.created_at else "",
-            # log.status 可能是 Enum 或字符串，统一转为字符串后比较
-            "success": (log.status.value if hasattr(log.status, "value") else str(log.status)) == "success",
+            # AuditLog 用 is_success 字段（0/1），非 status 字段
+            "success": bool(getattr(log, "is_success", 0)),
         }
         for log in logs
     ]

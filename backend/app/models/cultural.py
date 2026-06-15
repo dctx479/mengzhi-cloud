@@ -11,7 +11,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
 
-from app.core.database import Base
+from .base import Base
 
 
 class TaskPriority(str, enum.Enum):
