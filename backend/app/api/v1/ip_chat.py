@@ -162,15 +162,28 @@ async def send_ip_message_stream(
 
     # 3. 流式生成器
     async def event_generator():
+        accumulated_content = []
         try:
             async for chunk in agent.generate_response_stream(
                 user_message=request.content, conversation_id=request.conversation_id, temperature=request.temperature
             ):
+                accumulated_content.append(chunk)
                 payload = {"type": "chunk", "content": chunk}
                 yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
-            # 发送完成信号
+            # 流式完成后提取元数据（含文化元素）
             done_payload = {"type": "done", "ip_type": agent.ip_type, "ip_name": agent.ip_name}
+            try:
+                full_content = "".join(accumulated_content)
+                metadata = agent._extract_metadata(request.content, full_content)
+                if metadata:
+                    done_payload["metadata"] = metadata
+                    cultural_elements = metadata.get("cultural_elements")
+                    if cultural_elements:
+                        done_payload["cultural_elements"] = cultural_elements
+            except Exception as meta_err:
+                logger.warning(f"[IPChat Stream] Metadata extraction failed: {meta_err}")
+
             yield f"data: {json.dumps(done_payload, ensure_ascii=False)}\n\n"
 
         except Exception as e:

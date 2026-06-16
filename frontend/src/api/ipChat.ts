@@ -55,7 +55,7 @@ export interface RouteResponse {
 
 export type IPStreamChunk =
   | { type: 'chunk'; content: string }
-  | { type: 'done'; ip_type?: string; ip_name?: string }
+  | { type: 'done'; ip_type?: string; ip_name?: string; cultural_elements?: string[]; metadata?: Record<string, unknown> }
   | { type: 'error'; message: string }
 
 /**
@@ -160,7 +160,13 @@ export async function sendIPMessageStream(
         try {
           const parsed = JSON.parse(data)
           if (parsed.type === 'done') {
-            onChunk({ type: 'done', ip_type: parsed.ip_type, ip_name: parsed.ip_name })
+            onChunk({
+              type: 'done',
+              ip_type: parsed.ip_type,
+              ip_name: parsed.ip_name,
+              cultural_elements: Array.isArray(parsed.cultural_elements) ? parsed.cultural_elements : undefined,
+              metadata: parsed.metadata && typeof parsed.metadata === 'object' ? parsed.metadata : undefined,
+            })
             doneCalled = true
             break outer
           } else if (parsed.type === 'error') {

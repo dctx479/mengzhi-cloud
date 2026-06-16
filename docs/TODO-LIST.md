@@ -34,18 +34,25 @@
 
 #### 1. IP智能体前端集成（Week 2）
 **责任人**: 前端工程师  
-**预计**: 3-5天
+**预计**: 3-5天  
+**状态**: ✅ 已完成（2026-06-16）
 
-- [ ] 创建 `frontend/src/api/ipChat.ts` API封装
-- [ ] 开发 `IPChatPage.vue` 对话页面组件
-- [ ] 实现IP角色切换交互（小数/小商）
-- [ ] 集成流式渲染优化
-- [ ] 添加文化元素展示卡片
+- [x] 创建 `frontend/src/api/ipChat.ts` API封装
+- [x] 开发 `IPChatView.vue` 对话页面组件
+- [x] 实现IP角色切换交互（小数/小商）
+- [x] 集成流式渲染优化
+- [x] 添加文化元素展示卡片
+
+**完成说明**:
+- 后端 `/ip-chat/stream` 端点已增强：在 `done` 帧中返回 `cultural_elements` 与 `metadata`（流式完成后累积内容并提取）
+- 前端 `IPStreamChunk` 类型扩展并透传文化元素
+- `IPChatView.vue` 增加快捷问题、头像、文化标签、Markdown 简化渲染、复制、新对话、清空输入等 UX
+- `npx tsc --noEmit` 通过（零错误）
 
 **验收标准**:
-- IP对话页面可正常使用
-- 角色切换流畅，有视觉反馈
-- 支持对话历史查看
+- ✅ IP对话页面可正常使用
+- ✅ 角色切换流畅，有视觉反馈
+- ⚠️ 对话历史查看（依赖 conversation_id 持久化，仍在 TODO 内）
 
 ---
 
@@ -248,11 +255,11 @@
 **责任人**: 后端负责人  
 **预计**: 2天
 
-- [ ] 补充双IP智能体API文档（`docs/api/07-ip-agent.md`）
-- [ ] 补充文化元素API文档（`docs/api/08-cultural-elements.md`）
+- [x] 补充双IP智能体API文档（`docs/api/07-ip-agent.md`）
+- [x] 补充文化元素API文档（`docs/api/08-cultural-elements.md`）
 - [ ] 补充品牌故事API文档（`docs/api/09-brand-story.md`）
 - [ ] 补充批量任务API文档（`docs/api/10-batch-generation.md`）
-- [ ] 更新API索引（`docs/api/api-index.md`）
+- [x] 更新API索引（`docs/api/api-index.md`）
 
 ---
 

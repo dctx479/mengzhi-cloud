@@ -255,6 +255,39 @@ Content-Type: application/json
 | DELETE | `/chat/conversations/{id}` | 删除对话 | 是 |
 | POST | `/chat/feedback` | 对话反馈 | 是 |
 
+### 双IP智能体API（4个端点）
+
+详细文档：[07-ip-agent.md](./07-ip-agent.md)
+
+| 方法 | 端点 | 功能描述 | 认证 |
+|------|------|---------|------|
+| GET | `/ip-chat/ips` | 获取IP人格信息（小数/小商）| 可选 |
+| POST | `/ip-chat/message` | IP对话（非流式，自动路由）| 是 |
+| POST | `/ip-chat/stream` | IP对话（流式SSE）| 是 |
+| POST | `/ip-chat/route` | 测试路由算法（调试用）| 可选 |
+
+### 文化元素API（15个端点）
+
+详细文档：[08-cultural-elements.md](./08-cultural-elements.md)
+
+| 方法 | 端点 | 功能描述 | 认证 |
+|------|------|---------|------|
+| GET | `/cultural/elements` | 文化元素列表（分页+过滤）| 否 |
+| GET | `/cultural/elements/{id}` | 文化元素详情 | 否 |
+| POST | `/cultural/match` | 智能匹配文化元素 | 否 |
+| GET | `/cultural/match/product/{id}` | 按产品ID匹配文化元素 | 否 |
+| POST | `/cultural/collect/trigger` | 触发采集任务 | 是 |
+| GET | `/cultural/collect/tasks` | 采集任务列表 | 否 |
+| GET | `/cultural/collect/tasks/{task_id}` | 采集任务状态 | 否 |
+| GET | `/cultural/graph/statistics` | 知识图谱统计 | 否 |
+| GET | `/cultural/graph/elements/by-region/{region}` | 按地域查元素 | 否 |
+| GET | `/cultural/graph/elements/by-scenario/{scenario}` | 按场景查元素 | 否 |
+| GET | `/cultural/review/pending` | 待审核任务 | 是 |
+| POST | `/cultural/review/assign/{id}` | 领取审核任务 | 是 |
+| POST | `/cultural/review/element/{id}` | 审核文化元素 | 是 |
+| GET | `/cultural/review/history` | 审核历史 | 是 |
+| GET | `/cultural/statistics/overview` | 文化元素统计概览 | 否 |
+
 ### 系统API
 
 | 方法 | 端点 | 功能描述 | 认证 |
@@ -379,6 +412,8 @@ eventSource.onerror = (error) => {
 - [认证API文档](./authentication-api.md)
 - [产品API文档](./products-api.md)
 - [AI对话API文档](./chat-api.md)
+- [双IP智能体API文档](./07-ip-agent.md)
+- [文化元素API文档](./08-cultural-elements.md)
 - [错误码文档](./errors.md)
 
 ---
