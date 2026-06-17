@@ -19,11 +19,60 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
+from app.core.alerts import alert_manager
+
 router = APIRouter(prefix="/api/v1/webhooks", tags=["Webhooks"])
 security = HTTPBasic()
 
 # 配置日志
 logger = logging.getLogger(__name__)
+
+
+# Severity → level 映射
+_SEVERITY_LEVEL_MAP = {
+    "critical": "critical",
+    "high": "error",
+    "warning": "warning",
+    "info": "info",
+    "low": "info",
+}
+
+
+async def _dispatch_to_alert_manager(alert: Dict[str, Any], severity: str) -> None:
+    """统一的告警分发入口: 委托给 alert_manager"""
+    alert_name = alert.get("labels", {}).get("alertname", "Unknown")
+    summary = alert.get("annotations", {}).get("summary", "")
+    description = alert.get("annotations", {}).get("description", "")
+    level = _SEVERITY_LEVEL_MAP.get(severity, "warning")
+
+    title = f"[{severity.upper()}] {alert_name}"
+    message_parts = [f"Alertmanager 告警: {alert_name}"]
+    if summary:
+        message_parts.append(f"摘要: {summary}")
+    if description:
+        message_parts.append(f"描述: {description}")
+    message_parts.append(f"原始状态: {alert.get('status', 'unknown')}")
+    message_parts.append(f"时间: {datetime.utcnow().isoformat()}Z")
+
+    extra = {
+        "source": "alertmanager",
+        "severity": severity,
+        "alert_labels": alert.get("labels", {}),
+    }
+
+    try:
+        results = await alert_manager.send_alert(
+            level=level,
+            title=title,
+            message="\n".join(message_parts),
+            extra=extra,
+        )
+        logger.info(
+            f"Alertmanager webhook dispatched: {alert_name}, "
+            f"channels={list(results.keys())}, success={sum(1 for v in results.values() if v)}"
+        )
+    except Exception as e:
+        logger.error(f"⚠️ WARNING: alert_manager.send_alert failed: {e}", exc_info=True)
 
 
 def verify_alertmanager_auth(credentials: HTTPBasicCredentials = Depends(security)):
@@ -119,7 +168,7 @@ async def receive_alerts(
 
         # 处理每个告警
         for alert in alerts:
-            process_alert(alert)
+            await process_alert(alert)
 
         return {
             "status": "success",
@@ -162,7 +211,7 @@ async def receive_critical_alerts(
 
         # 处理严重告警 - 可能需要立即通知管理员
         for alert in alerts:
-            process_critical_alert(alert)
+            await process_critical_alert(alert)
 
         return {
             "status": "success",
@@ -205,7 +254,7 @@ async def receive_warning_alerts(
 
         # 处理警告告警
         for alert in alerts:
-            process_warning_alert(alert)
+            await process_warning_alert(alert)
 
         return {
             "status": "success",
@@ -248,7 +297,7 @@ async def receive_info_alerts(
 
         # 处理信息告警
         for alert in alerts:
-            process_info_alert(alert)
+            await process_info_alert(alert)
 
         return {
             "status": "success",
@@ -268,103 +317,33 @@ async def receive_info_alerts(
 
 # ==================== 告警处理函数 ====================
 
-def process_alert(alert: Dict[str, Any]):
+async def process_alert(alert: Dict[str, Any]):
     """
-    处理通用告警
-
-    参数:
-        alert: 告警数据字典
+    处理通用告警 (委托给统一 alert_manager)
     """
-    alert_name = alert.get("labels", {}).get("alertname", "Unknown")
-    severity = alert.get("labels", {}).get("severity", "unknown")
-    status = alert.get("status", "unknown")
-    summary = alert.get("annotations", {}).get("summary", "")
-    description = alert.get("annotations", {}).get("description", "")
-
-    logger.info(
-        f"Processing alert: {alert_name}",
-        extra={
-            "alertname": alert_name,
-            "severity": severity,
-            "status": status,
-            "summary": summary,
-            "description": description
-        }
-    )
-
-    # TODO: 实现具体的告警处理逻辑
-    # - 保存到数据库
-    # - 发送通知（邮件、短信、微信等）
-    # - 触发自动化响应
-    # - 更新监控仪表盘
+    severity = alert.get("labels", {}).get("severity", "warning")
+    await _dispatch_to_alert_manager(alert, severity)
 
 
-def process_critical_alert(alert: Dict[str, Any]):
+async def process_critical_alert(alert: Dict[str, Any]):
     """
-    处理严重告警
-
-    严重告警需要：
-    - 立即通知管理员
-    - 触发应急响应流程
-    - 记录到事故管理系统
+    处理严重告警 (委托给统一 alert_manager, 强制 critical)
     """
-    alert_name = alert.get("labels", {}).get("alertname", "Unknown")
-    description = alert.get("annotations", {}).get("description", "")
-
-    logger.critical(
-        f"CRITICAL ALERT: {alert_name} - {description}",
-        extra={"alert": alert}
-    )
-
-    # TODO: 实现严重告警处理逻辑
-    # - 发送紧急通知（电话、短信）
-    # - 创建事故工单
-    # - 触发自动恢复脚本（如果有）
-    # - 通知值班人员
+    await _dispatch_to_alert_manager(alert, "critical")
 
 
-def process_warning_alert(alert: Dict[str, Any]):
+async def process_warning_alert(alert: Dict[str, Any]):
     """
-    处理警告告警
-
-    警告告警需要：
-    - 记录到日志
-    - 发送通知
-    - 监控趋势
+    处理警告告警 (委托给统一 alert_manager)
     """
-    alert_name = alert.get("labels", {}).get("alertname", "Unknown")
-    description = alert.get("annotations", {}).get("description", "")
-
-    logger.warning(
-        f"WARNING ALERT: {alert_name} - {description}",
-        extra={"alert": alert}
-    )
-
-    # TODO: 实现警告告警处理逻辑
-    # - 发送通知到告警频道
-    # - 更新监控仪表盘
-    # - 记录到告警历史
+    await _dispatch_to_alert_manager(alert, "warning")
 
 
-def process_info_alert(alert: Dict[str, Any]):
+async def process_info_alert(alert: Dict[str, Any]):
     """
-    处理信息告警
-
-    信息告警需要：
-    - 记录到日志
-    - 更新统计信息
+    处理信息告警 (委托给统一 alert_manager)
     """
-    alert_name = alert.get("labels", {}).get("alertname", "Unknown")
-    description = alert.get("annotations", {}).get("description", "")
-
-    logger.info(
-        f"INFO ALERT: {alert_name} - {description}",
-        extra={"alert": alert}
-    )
-
-    # TODO: 实现信息告警处理逻辑
-    # - 更新监控仪表盘
-    # - 记录到日志系统
+    await _dispatch_to_alert_manager(alert, "info")
 
 
 # ==================== 集成说明 ====================

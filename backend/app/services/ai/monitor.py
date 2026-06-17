@@ -3,9 +3,13 @@ AI Provider 监控和告警服务
 
 功能:
 - 实时监控Provider状态
-- 故障告警（邮件/Webhook）
+- 故障告警（邮件/Webhook/短信，通过 core/alerts.alert_manager 统一入口）
 - 故障恢复通知
 - 性能指标收集
+
+注意：本模块的告警实现已委托到 backend/app/core/alerts.py 的 alert_manager。
+历史遗留的 _send_email_alert / _send_webhook_alert / _send_sms_alert 方法
+已废弃并移除，所有调用方统一通过 alert_manager.send_alert() 发送告警。
 """
 import asyncio
 import json
@@ -13,9 +17,9 @@ from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any
 from loguru import logger
 from sqlalchemy.orm import Session
-import httpx
 
 from app.models.tenant_ai_config import TenantAIConfig, HealthStatus
+from app.core.alerts import alert_manager
 
 
 class AlertLevel:
@@ -117,22 +121,18 @@ class Monitor:
 
     async def send_alert(
         self,
-        alert: Alert,
+        alert: "Alert",
         channels: List[str] = None
     ):
-        """发送告警
+        """发送告警（委托到 core/alerts.alert_manager 统一入口）
 
         Args:
             alert: 告警信息
-            channels: 告警渠道列表
+            channels: 告警渠道列表；None 时使用 alert 默认配置
         """
-        if channels is None:
-            channels = [AlertChannel.WEBHOOK]
-
-        # 生成告警键（用于频率限制）
+        # 频率限制保留在 Monitor 层（按企业+provider+level+title 维度）
         alert_key = f"{alert.enterprise_id}:{alert.provider_id}:{alert.level}:{alert.title}"
 
-        # 检查是否应该发送
         if not self._should_send_alert(alert_key):
             logger.debug(f"Alert {alert_key} skipped due to cooldown")
             return
@@ -142,80 +142,34 @@ class Monitor:
             f"provider: {alert.provider_id}, enterprise: {alert.enterprise_id})"
         )
 
-        # 发送到各个渠道
-        tasks = []
-        if AlertChannel.EMAIL in channels:
-            tasks.append(self._send_email_alert(alert))
-        if AlertChannel.WEBHOOK in channels:
-            tasks.append(self._send_webhook_alert(alert))
-        if AlertChannel.SMS in channels:
-            tasks.append(self._send_sms_alert(alert))
+        # 把本模块的 channel 名称映射到 core.alerts 的 channel 名称
+        if channels is None:
+            core_channels = None  # 让 alert_manager 按全局配置自动选择
+        else:
+            core_channels = []
+            if AlertChannel.EMAIL in channels:
+                core_channels.append('email')
+            if AlertChannel.WEBHOOK in channels:
+                core_channels.append('dingtalk')  # 通用 Webhook 走钉钉通道
+            if AlertChannel.SMS in channels:
+                core_channels.append('sms')
 
-        if tasks:
-            await asyncio.gather(*tasks, return_exceptions=True)
+        # 委托到统一告警管理器
+        await alert_manager.send_alert(
+            level=alert.level,
+            title=alert.title,
+            message=alert.message,
+            extra={
+                "provider_id": alert.provider_id,
+                "enterprise_id": alert.enterprise_id,
+                **(alert.metadata or {}),
+            },
+            channels=core_channels,
+            enterprise_id=str(alert.enterprise_id) if alert.enterprise_id is not None else None,
+        )
 
-        # 记录告警
+        # 记录告警时间
         self._record_alert(alert_key)
-
-    async def _send_email_alert(self, alert: Alert):
-        """发送邮件告警
-
-        Args:
-            alert: 告警信息
-        """
-        try:
-            # TODO: 实现邮件发送逻辑
-            logger.info(f"Email alert sent: {alert.title}")
-        except Exception as e:
-            logger.error(f"Failed to send email alert: {e}")
-
-    async def _send_webhook_alert(self, alert: Alert):
-        """发送Webhook告警
-
-        Args:
-            alert: 告警信息
-        """
-        try:
-            # TODO: 从配置中获取Webhook URL
-            webhook_url = None  # 应该从企业配置中获取
-
-            if not webhook_url:
-                logger.debug("Webhook URL not configured, skipping webhook alert")
-                return
-
-            async with httpx.AsyncClient(timeout=self.config.WEBHOOK_TIMEOUT) as client:
-                for attempt in range(self.config.WEBHOOK_RETRY):
-                    try:
-                        response = await client.post(
-                            webhook_url,
-                            json=alert.to_dict(),
-                            headers={"Content-Type": "application/json"}
-                        )
-                        response.raise_for_status()
-                        logger.info(f"Webhook alert sent: {alert.title}")
-                        break
-                    except Exception as e:
-                        if attempt == self.config.WEBHOOK_RETRY - 1:
-                            raise
-                        logger.warning(
-                            f"Webhook alert failed (attempt {attempt + 1}): {e}"
-                        )
-                        await asyncio.sleep(1)
-
-        except Exception as e:
-            logger.error(f"Failed to send webhook alert: {e}")
-
-    async def _send_sms_alert(self, alert: Alert):
-        """发送短信告警
-
-        Args:
-            alert: 告警信息
-        """
-        try:
-            # TODO: 实现短信发送逻辑
-            logger.info(f"SMS alert sent: {alert.title}")
-        except Exception as e:
-            logger.error(f"Failed to send SMS alert: {e}")
 
     async def check_provider_health_and_alert(self, config: TenantAIConfig):
         """检查Provider健康状态并发送告警

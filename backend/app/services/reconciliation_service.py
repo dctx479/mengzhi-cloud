@@ -14,6 +14,7 @@ from loguru import logger
 from decimal import Decimal
 import json
 import asyncio
+import os
 from dataclasses import dataclass
 
 from app.models.reconciliation import (
@@ -227,24 +228,39 @@ class ReconciliationService:
         Returns:
             第三方交易记录列表
 
-        Note:
-            这里模拟第三方接口调用，实际应该调用支付宝、微信等API
+        实现方式：
+        1. 遍历 channels=['wechat', 'alipay']
+        2. 用对应 Fetcher 下载对账单文件
+        3. 用对应 Parser 解析为 RemoteTransaction 列表
+        4. 合并返回
+
+        注：Fetcher 默认 Mock 模式（不下载真实账单），返回示例文件路径。
+        设置环境变量 WECHAT_BILL_API_KEY / ALIPAY_BILL_API_KEY 后启用真实模式。
         """
-        # TODO: 实际实现中需要调用各支付平台的对账接口
-        # 这里返回模拟数据用于演示
-        logger.info("模拟获取第三方交易数据")
+        from app.services.reconciliation.fetchers import get_fetcher
+        from app.services.reconciliation.parsers import get_parser
 
-        # 模拟从支付平台获取交易数据
-        remote_transactions = []
+        remote_transactions: List[RemoteTransaction] = []
+        channels = ["wechat", "alipay"]
 
-        # 实际实现示例:
-        # 1. 调用支付宝对账接口
-        # alipay_transactions = self._fetch_alipay_transactions(start_time, end_time)
-        # remote_transactions.extend(alipay_transactions)
-
-        # 2. 调用微信支付对账接口
-        # wechat_transactions = self._fetch_wechat_transactions(start_time, end_time)
-        # remote_transactions.extend(wechat_transactions)
+        for channel in channels:
+            try:
+                fetcher = get_fetcher(channel)
+                bill_path = fetcher.fetch(start_time.date())
+                if not bill_path or not os.path.exists(bill_path):
+                    logger.debug(f"[_get_remote_transactions] No bill file for channel={channel}")
+                    continue
+                parser = get_parser(channel)
+                txs = parser.parse(bill_path)
+                # 按时间窗口过滤
+                filtered = [t for t in txs if start_time <= t.paid_at <= end_time]
+                remote_transactions.extend(filtered)
+                logger.info(
+                    f"[_get_remote_transactions] channel={channel}: parsed={len(txs)}, in_window={len(filtered)}"
+                )
+            except Exception as e:
+                logger.error(f"[_get_remote_transactions] channel={channel} failed: {e}")
+                continue
 
         return remote_transactions
 
@@ -573,12 +589,49 @@ class ReconciliationService:
         Returns:
             处理结果描述
         """
-        # TODO: 实现补充本地支付记录的逻辑
-        # 1. 根据第三方交易号查找对应的订单
-        # 2. 创建或更新支付记录
-        # 3. 更新订单状态
-        logger.info(f"补充本地支付记录: {difference.remote_transaction_id}")
-        return "已补充本地支付记录"
+        try:
+            transaction_id = getattr(difference, 'remote_transaction_id', None) or getattr(difference, 'transaction_id', None)
+            order_no = getattr(difference, 'local_order_no', None) or getattr(difference, 'order_no', None)
+
+            if not transaction_id or not order_no:
+                return f"差异 {difference.id} 缺少 transaction_id 或 order_no，跳过"
+
+            # 查找本地订单
+            order = self.db.query(Order).filter(Order.order_no == order_no).first()
+            if not order:
+                return f"未找到订单 order_no={order_no}"
+
+            # 查找或创建 Payment 记录
+            existing_payment = self.db.query(Payment).filter(
+                Payment.transaction_id == transaction_id
+            ).first()
+
+            if existing_payment:
+                existing_payment.status = PaymentStatus.SUCCESS
+                existing_payment.paid_at = datetime.utcnow()
+                payment = existing_payment
+            else:
+                payment = Payment(
+                    order_id=order.id,
+                    transaction_id=transaction_id,
+                    amount=order.amount,
+                    payment_method=getattr(difference, 'channel', 'unknown'),
+                    status=PaymentStatus.SUCCESS,
+                    paid_at=datetime.utcnow(),
+                )
+                self.db.add(payment)
+
+            order.status = OrderStatus.PAID
+            difference.status = DifferenceStatus.RESOLVED
+            difference.resolved_at = datetime.now().isoformat()
+            self.db.commit()
+
+            logger.info(f"补充本地支付记录成功: order_no={order_no}, transaction_id={transaction_id}")
+            return f"已补充本地支付记录 (order={order_no})"
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"补充本地支付记录失败: difference_id={difference.id}, error={e}")
+            return f"补充失败: {str(e)[:100]}"
 
     def _query_remote_status(self, difference: ReconciliationDifference) -> str:
         """查询第三方状态
@@ -589,9 +642,25 @@ class ReconciliationService:
         Returns:
             处理结果描述
         """
-        # TODO: 实现查询第三方支付状态的逻辑
-        logger.info(f"查询第三方状态: {difference.local_transaction_id}")
-        return "已查询第三方状态"
+        try:
+            transaction_id = getattr(difference, 'remote_transaction_id', None) or getattr(difference, 'transaction_id', None)
+            channel = (getattr(difference, 'channel', None) or 'wechat').lower()
+
+            if not transaction_id:
+                return f"差异 {difference.id} 缺少 transaction_id"
+
+            from app.services.reconciliation.fetchers import get_fetcher
+            try:
+                fetcher = get_fetcher(channel)
+                status = fetcher.query_transaction(transaction_id)
+                logger.info(f"查询第三方状态: transaction_id={transaction_id}, channel={channel}, status={status}")
+                return f"已查询 {channel} 状态: {status or 'UNKNOWN'}"
+            except ValueError as e:
+                logger.warning(f"不支持的 channel={channel}: {e}")
+                return f"不支持的 channel: {channel}"
+        except Exception as e:
+            logger.error(f"查询第三方状态失败: {e}")
+            return f"查询失败: {str(e)[:100]}"
 
     def _manual_supplement_transaction(self, difference: ReconciliationDifference) -> str:
         """手动补单
@@ -602,9 +671,45 @@ class ReconciliationService:
         Returns:
             处理结果描述
         """
-        # TODO: 实现手动补单逻辑
-        logger.info(f"手动补单: {difference.id}")
-        return "已手动补单"
+        try:
+            order_no = getattr(difference, 'local_order_no', None) or getattr(difference, 'order_no', None)
+            transaction_id = getattr(difference, 'remote_transaction_id', None) or getattr(difference, 'transaction_id', None)
+
+            if not order_no:
+                return f"差异 {difference.id} 缺少 order_no，无法手动补单"
+            if not transaction_id:
+                return f"差异 {difference.id} 缺少 transaction_id，无法手动补单"
+
+            order = self.db.query(Order).filter(Order.order_no == order_no).first()
+            if not order:
+                return f"未找到订单 order_no={order_no}"
+
+            payment = self.db.query(Payment).filter(Payment.transaction_id == transaction_id).first()
+            if not payment:
+                payment = Payment(
+                    order_id=order.id,
+                    transaction_id=transaction_id,
+                    amount=order.amount,
+                    payment_method='manual',
+                    status=PaymentStatus.SUCCESS,
+                    paid_at=datetime.utcnow(),
+                )
+                self.db.add(payment)
+            else:
+                payment.status = PaymentStatus.SUCCESS
+
+            order.status = OrderStatus.PAID
+            difference.status = DifferenceStatus.RESOLVED
+            difference.resolved_at = datetime.now().isoformat()
+            difference.remark = f"manual supplement at {datetime.now().isoformat()}"
+            self.db.commit()
+
+            logger.info(f"手动补单成功: difference_id={difference.id}, order_no={order_no}")
+            return f"已手动补单 (order={order_no})"
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"手动补单失败: difference_id={difference.id}, error={e}")
+            return f"手动补单失败: {str(e)[:100]}"
 
     def generate_reconciliation_report(
         self,

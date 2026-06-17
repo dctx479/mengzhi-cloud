@@ -40,17 +40,71 @@ class BillingEngine:
         self.db = db
 
     def get_user_plan(self, user_id: int) -> Optional[BillingPlan]:
-        """获取用户的计费方案
+        """获取用户的计费方案（按用户身份智能匹配）
+
+        匹配优先级（从高到低）：
+        1. 企业用户 → applicable_to='enterprise' 的活跃方案
+        2. 个人用户 → applicable_to='personal' 的活跃方案
+        3. 全局默认方案 (is_default=True)
+        4. 任意活跃方案（兜底）
+
+        试用期处理：当用户 created_at + TRIAL_PERIOD_DAYS 早于当前时间，
+        仅 logger.info 标记，不强制降级（避免脏写 plan 字段）。
 
         参数:
             user_id: 用户ID
 
         返回:
-            BillingPlan: 计费方案，如果没有则返回默认方案
+            BillingPlan: 计费方案
         """
-        # TODO: 实现用户与计费方案的关联逻辑
-        # 目前返回默认方案
-        return self.db.query(BillingPlan).filter(BillingPlan.is_default == True, BillingPlan.is_active == True).first()
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            logger.warning(f"[BillingEngine] User {user_id} not found, returning default plan")
+            return self.db.query(BillingPlan).filter(
+                BillingPlan.is_default == True,
+                BillingPlan.is_active == True,
+            ).first()
+
+        # 试用期判断（仅日志，不修改 plan）
+        try:
+            from app.core.config import settings
+            trial_days = getattr(settings, 'TRIAL_PERIOD_DAYS', 14)
+            if user.created_at:
+                trial_end = user.created_at + timedelta(days=trial_days)
+                if datetime.utcnow() > trial_end:
+                    logger.info(f"[BillingEngine][TRIAL] User {user_id} is past trial period "
+                                f"(created_at={user.created_at.isoformat()}, trial_end={trial_end.isoformat()})")
+        except Exception as e:
+            logger.debug(f"[BillingEngine] Trial check skipped: {e}")
+
+        # 优先级 1+2: 按 applicable_to 匹配
+        is_enterprise_user = bool(user.enterprise_id)
+        target_applicable = 'enterprise' if is_enterprise_user else 'personal'
+
+        plan = self.db.query(BillingPlan).filter(
+            BillingPlan.applicable_to == target_applicable,
+            BillingPlan.is_active == True,
+            BillingPlan.deleted_at.is_(None),
+        ).order_by(BillingPlan.sort_order, BillingPlan.created_at).first()
+
+        if plan:
+            return plan
+
+        # 优先级 3: 全局默认
+        plan = self.db.query(BillingPlan).filter(
+            BillingPlan.is_default == True,
+            BillingPlan.is_active == True,
+            BillingPlan.deleted_at.is_(None),
+        ).first()
+
+        if plan:
+            return plan
+
+        # 优先级 4: 任意活跃方案（兜底）
+        return self.db.query(BillingPlan).filter(
+            BillingPlan.is_active == True,
+            BillingPlan.deleted_at.is_(None),
+        ).order_by(BillingPlan.sort_order).first()
 
     def record_usage(
         self,

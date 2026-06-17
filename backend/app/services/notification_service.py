@@ -407,6 +407,62 @@ class NotificationService:
         """发送验证码短信"""
         return self.sms_service.send_verification_sms(phone, code)
 
+    def notify_quota_alert(
+        self,
+        recipient_email: str,
+        recipient_phone: Optional[str],
+        title: str,
+        message: str,
+        extra: Optional[Dict] = None,
+    ) -> bool:
+        """发送配额预警通知（邮件 + 短信双通道，短信可选）
+
+        Args:
+            recipient_email: 收件人邮箱
+            recipient_phone: 收件人手机号（None 时仅发邮件）
+            title: 预警标题
+            message: 预警详情
+            extra: 额外元数据（用于日志/审计）
+
+        Returns:
+            邮件是否发送成功（短信失败不影响返回 True）
+        """
+        import html as html_lib
+        safe_title = html_lib.escape(title)
+        safe_message = html_lib.escape(message)
+
+        html_body = f"""
+        <html><body style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2 style="color: #f56c6c;">⚠️ 配额预警</h2>
+          <p><strong>{safe_title}</strong></p>
+          <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px;">{safe_message}</pre>
+          <hr><p style="color: #999; font-size: 12px;">此邮件由系统自动发送，请勿回复。</p>
+        </body></html>
+        """
+
+        email_ok = False
+        try:
+            email_ok = self.email_service.send_email(
+                to=recipient_email,
+                subject=f"[配额预警] {title}",
+                body=html_body,
+                html=True,
+            )
+        except Exception as e:
+            logger.error(f"[NotificationService] 配额预警邮件发送失败: {e}")
+
+        # 短信通道（仅 ERROR/CRITICAL，且有手机号时）
+        if recipient_phone:
+            try:
+                self.sms_service.send_sms(recipient_phone, f"[配额预警] {title}: {message[:80]}")
+            except Exception as e:
+                logger.error(f"[NotificationService] 配额预警短信发送失败: {e}")
+
+        if extra:
+            logger.info(f"[NotificationService][QUOTA_ALERT] {title} | email_ok={email_ok} | extra={extra}")
+
+        return email_ok
+
 
 # 全局实例
 email_service = EmailService()

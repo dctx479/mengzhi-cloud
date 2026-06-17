@@ -13,6 +13,7 @@ SLA监控服务
 
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
+import asyncio
 import threading
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
@@ -601,16 +602,49 @@ SLA违约告警
 时间: {violation.violation_time}
             """.strip()
 
-            # 发送通知（这里可以集成邮件、短信、钉钉等）
+            # 发送通知（通过 alert_manager 统一入口；按 severity 映射 level）
             logger.warning(f"[SLA ALERT] {message}")
 
-            # TODO: 集成实际的通知服务
-            # self.notification_service.send_alert(
-            #     title="SLA违约告警",
-            #     message=message,
-            #     severity=violation.severity.value,
-            #     recipients=[...]
-            # )
+            SEVERITY_TO_LEVEL = {
+                "LOW": "info",
+                "MEDIUM": "warning",
+                "HIGH": "error",
+                "CRITICAL": "critical",
+            }
+            alert_level = SEVERITY_TO_LEVEL.get(
+                violation.severity.value if hasattr(violation.severity, 'value') else str(violation.severity),
+                "warning",
+            )
+
+            # Fire-and-forget：异步发送告警，不阻塞 SLA 主流程
+            try:
+                from app.core.alerts import alert_manager
+                coro = alert_manager.send_alert(
+                    level=alert_level,
+                    title=f"SLA违约: {agreement.name}",
+                    message=message,
+                    extra={
+                        "agreement_id": getattr(agreement, 'id', None),
+                        "agreement_uuid": getattr(agreement, 'agreement_uuid', None),
+                        "violation_id": getattr(violation, 'id', None),
+                        "metric_type": violation.metric_type.value if hasattr(violation.metric_type, 'value') else str(violation.metric_type),
+                        "severity": violation.severity.value if hasattr(violation.severity, 'value') else str(violation.severity),
+                        "deviation_rate": violation.deviation_rate,
+                        "enterprise_id": getattr(agreement, 'enterprise_id', None),
+                    },
+                    enterprise_id=str(getattr(agreement, 'enterprise_id', '')) if getattr(agreement, 'enterprise_id', None) else None,
+                )
+                try:
+                    loop = asyncio.get_running_loop()
+                    loop.create_task(coro)
+                except RuntimeError:
+                    # 没有运行中的事件循环（同步上下文），降级为日志
+                    logger.warning(
+                        f"[SLA ALERT FALLBACK] level={alert_level} title=SLA违约: {agreement.name} "
+                        f"deviation_rate={violation.deviation_rate}%"
+                    )
+            except Exception as alert_err:
+                logger.error(f"集成 alert_manager 失败，回退到日志告警: {alert_err}")
 
         except Exception as e:
             logger.error(f"Failed to send alert: {str(e)}")

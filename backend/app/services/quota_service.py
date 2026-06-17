@@ -1258,9 +1258,8 @@ class QuotaService:
         return default_quotas.get(resource_type, {}).get(period_type, 1000)
 
     def _send_quota_alert(self, quota: TenantQuota, alert_level: QuotaAlertLevel) -> None:
-        """发送配额预警"""
+        """发送配额预警（通过 NotificationService 真实发送）"""
         try:
-            # 构建预警消息
             percentage = quota.get_usage_percentage()
             remaining = quota.get_remaining()
 
@@ -1273,15 +1272,80 @@ class QuotaService:
             message = alert_messages.get(alert_level, "配额预警")
             detail = f"剩余配额: {remaining}/{quota.quota_limit}"
 
-            # 发送通知
+            # 通过 NotificationService 真实发送（不阻断主流程）
+            notifier = NotificationService(db=self.db)
+            extra = {
+                "alert_level": alert_level.value if hasattr(alert_level, 'value') else str(alert_level),
+                "resource_type": quota.resource_type.value if hasattr(quota.resource_type, 'value') else str(quota.resource_type),
+                "percentage": percentage,
+                "remaining": remaining,
+                "limit": quota.quota_limit,
+            }
+
             if quota.enterprise_id:
-                # 通知企业管理员
-                logger.info(f"发送企业配额预警: enterprise_id={quota.enterprise_id}, {message}")
-                # TODO: 实现企业管理员通知
+                # 通知企业管理员（查企业的 admin 用户邮箱/手机）
+                recipient = self._lookup_enterprise_admin_contact(quota.enterprise_id)
+                extra["enterprise_id"] = quota.enterprise_id
+                if recipient.get("email"):
+                    try:
+                        notifier.notify_quota_alert(
+                            recipient_email=recipient["email"],
+                            recipient_phone=recipient.get("phone"),
+                            title=f"企业配额预警 {quota.enterprise_id}",
+                            message=f"{message}\n{detail}",
+                            extra=extra,
+                        )
+                    except Exception as e:
+                        logger.error(f"发送企业配额预警失败（不影响主流程）: {e}")
+                else:
+                    logger.info(f"企业 {quota.enterprise_id} 无 admin 联系方式，跳过邮件预警")
+
             elif quota.user_id:
-                # 通知用户
-                logger.info(f"发送用户配额预警: user_id={quota.user_id}, {message}")
-                # TODO: 实现用户通知
+                # 通知用户（查 user 邮箱/手机）
+                recipient = self._lookup_user_contact(quota.user_id)
+                extra["user_id"] = quota.user_id
+                if recipient.get("email"):
+                    try:
+                        notifier.notify_quota_alert(
+                            recipient_email=recipient["email"],
+                            recipient_phone=recipient.get("phone"),
+                            title=f"用户配额预警 {quota.user_id}",
+                            message=f"{message}\n{detail}",
+                            extra=extra,
+                        )
+                    except Exception as e:
+                        logger.error(f"发送用户配额预警失败（不影响主流程）: {e}")
+                else:
+                    logger.info(f"用户 {quota.user_id} 无邮箱，跳过预警")
 
         except Exception as e:
             logger.error(f"发送配额预警失败: {e}")
+
+    def _lookup_user_contact(self, user_id: int) -> Dict[str, Optional[str]]:
+        """查询用户的联系方式（email / phone）"""
+        try:
+            user = self.db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return {"email": None, "phone": None}
+            return {"email": getattr(user, "email", None), "phone": getattr(user, "phone", None)}
+        except Exception as e:
+            logger.warning(f"查询用户联系方式失败: {e}")
+            return {"email": None, "phone": None}
+
+    def _lookup_enterprise_admin_contact(self, enterprise_id: int) -> Dict[str, Optional[str]]:
+        """查询企业 admin 用户的联系方式（email / phone）"""
+        try:
+            admin = self.db.query(User).filter(
+                User.enterprise_id == enterprise_id,
+                User.role == "admin",
+            ).first()
+            if admin:
+                return {"email": getattr(admin, "email", None), "phone": getattr(admin, "phone", None)}
+            # fallback: 企业下任意一个用户
+            any_user = self.db.query(User).filter(User.enterprise_id == enterprise_id).first()
+            if any_user:
+                return {"email": getattr(any_user, "email", None), "phone": getattr(any_user, "phone", None)}
+            return {"email": None, "phone": None}
+        except Exception as e:
+            logger.warning(f"查询企业联系方式失败: {e}")
+            return {"email": None, "phone": None}

@@ -129,6 +129,12 @@ from .cultural import (
     ElementStatus,
 )
 
+# 内容发布模型
+from .publish_record import PublishRecord, PublishMetric, PublishStatus
+
+# 效果监测模型
+from .effect import EffectEvent, EffectMetricSnapshot, EffectType
+
 # 导出所有模型
 __all__ = [
     # 基类
@@ -263,4 +269,12 @@ __all__ = [
     "KefuConversation",
     "KefuMessage",
     "KefuConversationStatus",
+    # 内容发布
+    "PublishRecord",
+    "PublishMetric",
+    "PublishStatus",
+    # 效果监测
+    "EffectEvent",
+    "EffectMetricSnapshot",
+    "EffectType",
 ]
