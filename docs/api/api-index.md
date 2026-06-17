@@ -2,8 +2,8 @@
 
 **内蒙古农畜产品品牌营销AI赋能云平台 - API文档**
 
-版本: v1.0
-更新日期: [项目完成日期]
+版本: v1.1
+更新日期: 2026-06-17
 Base URL: `http://localhost:8000/api/v1`
 
 ---
@@ -287,6 +287,45 @@ Content-Type: application/json
 | POST | `/cultural/review/element/{id}` | 审核文化元素 | 是 |
 | GET | `/cultural/review/history` | 审核历史 | 是 |
 | GET | `/cultural/statistics/overview` | 文化元素统计概览 | 否 |
+
+### 品牌故事生成 API（3个端点）
+
+详细文档：[09-brand-story.md](./09-brand-story.md)
+
+| 方法 | 端点 | 功能描述 | 认证 |
+|------|------|---------|------|
+| POST | `/brand-story/generate` | 生成品牌故事（可选文化元素 + 自动配图）| 是 |
+| GET | `/brand-story/records` | 查询生成记录（分页）| 是 |
+| GET | `/brand-story/records/{record_id}` | 查询单个记录详情 | 是 |
+
+### 批量内容生成 API（11个端点）
+
+详细文档：[10-batch-generation.md](./10-batch-generation.md)
+
+| 方法 | 端点 | 功能描述 | 认证 |
+|------|------|---------|------|
+| POST | `/content-generation/tasks` | 创建批量生成任务（异步）| 是 |
+| GET | `/content-generation/tasks` | 任务列表（分页+状态筛选）| 是 |
+| GET | `/content-generation/tasks/{task_id}` | 任务详情 | 是 |
+| POST | `/content-generation/tasks/{task_id}/cancel` | 协作式取消任务 | 是 |
+| POST | `/content-generation/tasks/{task_id}/retry` | 重试失败任务 | 是 |
+| GET | `/content-generation/tasks/{task_id}/export/{fmt}` | 单任务导出（txt/docx/pdf）| 是 |
+| POST | `/content-generation/tasks/bulk-export` | 批量任务导出（ZIP）| 是 |
+| POST | `/content-generation/generate` | 单条内容生成 | 是 |
+| GET | `/content-generation/content-types` | 内容类型列表 | 否 |
+| GET | `/content-generation/styles` | 风格列表 | 否 |
+| GET | `/content-generation/platforms` | 平台列表 | 否 |
+
+### 告警通知系统（内部模块）
+
+详细文档：[11-notification-system.md](./11-notification-system.md)
+
+模块不暴露 HTTP API；通过 `core.alerts.alert_manager.send_alert()` 在代码内调用。
+
+支持渠道:
+- Email (SMTP)
+- DingTalk (Webhook + HMAC-SHA256)
+- SMS (阿里云短信 API v3)
 
 ### 系统API
 
