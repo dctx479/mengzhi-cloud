@@ -156,4 +156,22 @@ from app.api.v1.jimeng import router as jimeng_router
 api_router.include_router(jimeng_router, tags=["即梦AI - Jimeng"])
 
 
+# ==================== 多平台内容分发模块 ====================
+from app.api.v1.publisher import router as publisher_router
+
+api_router.include_router(publisher_router, tags=["内容分发 - Publisher"])
+
+
+# ==================== 效果监测模块 ====================
+from app.api.v1.effect import router as effect_router
+
+api_router.include_router(effect_router, tags=["效果监测 - Effect Analytics"])
+
+
+# ==================== 文化图谱查询增强模块 ====================
+from app.api.v1.graph_query import router as graph_query_router
+
+api_router.include_router(graph_query_router, tags=["文化图谱 - Graph Query"])
+
+
 __all__ = ["api_router"]
