@@ -107,11 +107,18 @@ export const getProductDetail = async (id: string): Promise<ProductDetail> => {
 }
 
 export const getCategories = async (): Promise<Category[]> => {
-  const res = await http.get<{ code: number; data: { categories: Category[] }; message: string }>(
+  const res = await http.get<{ code: number; data: { categories: string[] | Category[] }; message: string }>(
     '/v1/products-categories'
   )
-  const inner = unwrap<{ categories: Category[] }>(res)
-  return inner?.categories || []
+  const inner = unwrap<{ categories: string[] | Category[] }>(res)
+  const list = inner?.categories || []
+  // 后端可能返回字符串数组或对象数组，统一映射为 Category
+  return list.map((c, idx) => {
+    if (typeof c === 'string') {
+      return { id: c, name: c, productCount: undefined }
+    }
+    return { id: c.id ?? c.name ?? String(idx), name: c.name ?? '', productCount: c.productCount }
+  })
 }
 
 export const getProductReviews = async (

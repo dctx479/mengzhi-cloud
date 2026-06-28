@@ -107,6 +107,7 @@
         <el-menu-item index="/admin/users">用户管理</el-menu-item>
         <el-menu-item index="/admin/enterprises">企业管理</el-menu-item>
         <el-menu-item index="/admin/ai-media">AI 媒体生成</el-menu-item>
+        <el-menu-item index="/admin/ai-providers">AI 服务商配置</el-menu-item>
         <el-menu-item index="/admin/jd-import">京东商品导入</el-menu-item>
         <el-menu-item index="/admin/taobao-import">淘宝联盟导入</el-menu-item>
         <el-menu-item index="/admin/templates">内容模板管理</el-menu-item>
