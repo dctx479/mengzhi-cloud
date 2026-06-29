@@ -52,7 +52,7 @@
             <el-table-column prop="status" label="状态" width="100">
               <template #default="{ row }">
                 <el-tag :type="row.status === 'approved' ? 'success' : 'warning'" size="small">
-                  {{ row.status }}
+                  {{ row.status === 'approved' ? '已审核' : row.status === 'pending' ? '待审核' : '已拒绝' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -162,9 +162,9 @@
           <el-descriptions-item label="类型">{{ detail.type }}</el-descriptions-item>
           <el-descriptions-item label="地域">{{ detail.origin_region }}</el-descriptions-item>
           <el-descriptions-item label="来源">{{ detail.source }}</el-descriptions-item>
-          <el-descriptions-item label="状态">{{ detail.status }}</el-descriptions-item>
-          <el-descriptions-item label="创建时间">{{ detail.created_at }}</el-descriptions-item>
-          <el-descriptions-item label="审核时间">{{ detail.reviewed_at || '未审核' }}</el-descriptions-item>
+          <el-descriptions-item label="状态">{{ detail.status === 'approved' ? '已审核' : detail.status === 'pending' ? '待审核' : '已拒绝' }}</el-descriptions-item>
+          <el-descriptions-item label="创建时间">{{ detail.created_at ? new Date(detail.created_at).toLocaleString('zh-CN') : '-' }}</el-descriptions-item>
+          <el-descriptions-item label="审核时间">{{ detail.reviewed_at ? new Date(detail.reviewed_at).toLocaleString('zh-CN') : '未审核' }}</el-descriptions-item>
         </el-descriptions>
         <div class="detail-section">
           <h4>关键词</h4>

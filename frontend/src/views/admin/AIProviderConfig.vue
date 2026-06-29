@@ -12,7 +12,7 @@
         </div>
       </template>
 
-      <el-table :data="providers" stripe>
+      <el-table :data="providers" stripe v-loading="loading">
         <el-table-column prop="provider" label="服务商" width="150">
           <template #default="{ row }">
             <el-tag :type="getProviderTagType(row.provider)">
@@ -153,6 +153,7 @@ interface ProviderForm {
 }
 
 const providers = ref<GlobalAIConfig[]>([])
+const loading = ref(false)
 const dialogVisible = ref(false)
 const dialogTitle = ref('添加服务商')
 const isEdit = ref(false)
@@ -181,10 +182,13 @@ onMounted(() => {
 })
 
 const loadProviders = async () => {
+  loading.value = true
   try {
     providers.value = await getGlobalAIConfigs()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '加载服务商配置失败')
+  } finally {
+    loading.value = false
   }
 }
 

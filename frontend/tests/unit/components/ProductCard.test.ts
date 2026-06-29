@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ProductCard from '@/components/ProductCard.vue'
-import { testDataGenerators, waitForComponent } from '../utils/test-utils'
+import { testDataGenerators, waitForComponent } from '../../utils/test-utils'
 import * as ProductCardModule from '@/components/ProductCard.vue'
 
 /**

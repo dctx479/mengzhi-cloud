@@ -57,7 +57,7 @@ import TemplateSelector from '@/components/TemplateSelector.vue'
 import ConfigPanel from '@/components/ConfigPanel.vue'
 import ResultsPanel from '@/components/ResultsPanel.vue'
 import BatchTaskManager from '@/components/BatchTaskManager.vue'
-    import HistoryPanel from '@/components/HistoryPanel.vue'
+import HistoryPanel from '@/components/HistoryPanel.vue'
 import StatisticsPanel from '@/components/StatisticsPanel.vue'
 
 const contentStore = useContentGenerationStore()
@@ -65,9 +65,9 @@ const productStore = useProductStore()
 
 const activeTab = ref('generation')
 
-  const onBatchCreated = () => {
-    activeTab.value = 'tasks'
-  }
+const onBatchCreated = () => {
+  activeTab.value = 'tasks'
+}
 
 onMounted(async () => {
   try {

@@ -140,7 +140,7 @@
       <el-col :xs="24" :sm="8">
         <el-card class="stat-card">
           <div class="stat-content">
-            <div class="stat-value">5</div>
+            <div class="stat-value">{{ userStore.userProfile?.totalFavorites ?? 0 }}</div>
             <div class="stat-label">收藏数</div>
           </div>
         </el-card>

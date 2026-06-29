@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
 import Header from '@/components/Header.vue'
-import { testDataGenerators } from '../utils/test-utils'
+import { testDataGenerators } from '../../utils/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import type { Router } from 'vue-router'

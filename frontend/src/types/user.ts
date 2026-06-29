@@ -23,6 +23,7 @@ export interface User {
 export interface UserProfile extends User {
   totalChats?: number
   totalProducts?: number
+  totalFavorites?: number
 }
 
 export interface LoginRequest {

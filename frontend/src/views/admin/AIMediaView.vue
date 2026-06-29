@@ -75,7 +75,11 @@
             <el-tag :type="getHealthTagType(row.health_status)">{{ getHealthLabel(row.health_status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="last_check_time" label="最后检查" min-width="170" show-overflow-tooltip />
+        <el-table-column prop="last_check_time" label="最后检查" min-width="170" show-overflow-tooltip>
+          <template #default="{ row }">
+            {{ row.last_check_time ? new Date(row.last_check_time).toLocaleString('zh-CN') : '-' }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="260" fixed="right">
           <template #default="{ row }">
             <el-button size="small" @click="openEditDialog(row)">编辑</el-button>

@@ -35,7 +35,11 @@
             <el-tag type="info">{{ planLabels[row.plan_type] || row.plan_type }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" min-width="170" show-overflow-tooltip />
+        <el-table-column prop="created_at" label="创建时间" min-width="170" show-overflow-tooltip>
+          <template #default="{ row }">
+            {{ row.created_at ? new Date(row.created_at).toLocaleString('zh-CN') : '-' }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="150">
           <template #default="{ row }">
             <el-button size="small" @click="editEnterprise(row)">编辑</el-button>

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useProductStore } from '@/stores/product'
 import * as productAPI from '@/api/products'
-import { testDataGenerators } from '../utils/test-utils'
+import { testDataGenerators } from '../../utils/test-utils'
 
 /**
  * Product Store 测试

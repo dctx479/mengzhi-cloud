@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import axios, { AxiosInstance } from 'axios'
 import * as chatAPI from '@/api/chat'
-import { testDataGenerators } from '../utils/test-utils'
+import { testDataGenerators } from '../../utils/test-utils'
 
 vi.mock('axios')
 /**

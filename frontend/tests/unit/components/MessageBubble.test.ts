@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import MessageBubble from '@/components/chat/MessageBubble.vue'
-import { testDataGenerators, waitForComponent } from '../utils/test-utils'
+import { testDataGenerators, waitForComponent } from '../../utils/test-utils'
 
 /**
  * MessageBubble 组件测试

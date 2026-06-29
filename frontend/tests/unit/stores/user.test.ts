@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import * as authAPI from '@/api/auth'
-import { testDataGenerators } from '../utils/test-utils'
+import { testDataGenerators } from '../../utils/test-utils'
 
 /**
  * User Store 测试

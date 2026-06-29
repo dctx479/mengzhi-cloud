@@ -28,7 +28,7 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" :selectable="row => row.status === 'completed'" />
+      <el-table-column type="selection" width="55" :selectable="(row: BatchTask) => row.status === 'completed'" />
       <el-table-column type="expand">
         <template #default="{ row }">
           <div style="padding: 12px">

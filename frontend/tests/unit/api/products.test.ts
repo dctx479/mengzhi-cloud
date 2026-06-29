@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import axios from 'axios'
 import * as productAPI from '@/api/products'
-import { testDataGenerators } from '../utils/test-utils'
+import { testDataGenerators } from '../../utils/test-utils'
 
 /**
  * Products API 测试

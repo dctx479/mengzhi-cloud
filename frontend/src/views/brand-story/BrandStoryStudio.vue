@@ -160,10 +160,16 @@
             <el-table-column label="成本" width="110">
               <template #default="{ row }">{{ formatCost(row.cost) }}</template>
             </el-table-column>
-            <el-table-column prop="created_at" label="创建时间" min-width="170" show-overflow-tooltip />
+            <el-table-column prop="created_at" label="创建时间" min-width="170" show-overflow-tooltip>
+              <template #default="{ row }">
+                {{ row.created_at ? new Date(row.created_at).toLocaleString('zh-CN') : '-' }}
+              </template>
+            </el-table-column>
             <el-table-column prop="status" label="状态" width="100">
               <template #default="{ row }">
-                <el-tag size="small">{{ row.status }}</el-tag>
+                <el-tag :type="row.status === 'completed' ? 'success' : 'danger'" size="small">
+                  {{ row.status === 'completed' ? '已完成' : row.status === 'failed' ? '失败' : row.status }}
+                </el-tag>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="100" fixed="right">
@@ -186,7 +192,7 @@
             <el-descriptions-item label="风格">{{ detailRecord.style }}</el-descriptions-item>
             <el-descriptions-item label="字数/Tokens">{{ detailRecord.tokens_used }}</el-descriptions-item>
             <el-descriptions-item label="成本">{{ formatCost(detailRecord.cost) }}</el-descriptions-item>
-            <el-descriptions-item label="状态">{{ detailRecord.status }}</el-descriptions-item>
+            <el-descriptions-item label="状态">{{ detailRecord.status === 'completed' ? '已完成' : detailRecord.status === 'failed' ? '失败' : detailRecord.status }}</el-descriptions-item>
           </el-descriptions>
 
           <div

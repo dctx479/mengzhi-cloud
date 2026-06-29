@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import axios, { AxiosInstance } from 'axios'
 import * as authAPI from '@/api/auth'
-import { testDataGenerators } from '../utils/test-utils'
+import { testDataGenerators } from '../../utils/test-utils'
 
 vi.mock('axios')
 

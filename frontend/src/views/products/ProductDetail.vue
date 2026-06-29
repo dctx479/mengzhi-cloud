@@ -102,7 +102,7 @@
               >
                 {{ product.inStock ? '加入购物车' : '缺货' }}
               </el-button>
-              <el-button size="large" icon="Star" @click="handleAddToFavorite">
+              <el-button size="large" :icon="Star" @click="handleAddToFavorite">
                 收藏
               </el-button>
             </div>
@@ -178,6 +178,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Star } from '@element-plus/icons-vue'
 import { useProductStore } from '@/stores/product'
 import * as productAPI from '@/api/products'
 import ProductCard from '@/components/ProductCard.vue'

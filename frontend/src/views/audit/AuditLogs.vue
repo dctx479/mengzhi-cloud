@@ -167,7 +167,11 @@
           label="操作时间"
           width="180"
           sortable="custom"
-        />
+        >
+          <template #default="{ row }">
+            {{ row.created_at ? new Date(row.created_at).toLocaleString('zh-CN') : '-' }}
+          </template>
+        </el-table-column>
 
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">

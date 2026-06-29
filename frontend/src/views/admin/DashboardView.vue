@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard" v-loading="loading">
     <el-row :gutter="20">
-      <el-col :span="6" v-for="stat in stats" :key="stat.label">
+      <el-col :xs="12" :sm="12" :md="6" v-for="stat in stats" :key="stat.label" style="margin-bottom: 16px">
         <el-card>
           <div class="stat-card">
             <div class="stat-value">{{ stat.value }}</div>

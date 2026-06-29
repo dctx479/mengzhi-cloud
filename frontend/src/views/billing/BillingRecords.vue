@@ -122,7 +122,11 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="billing_date" label="计费日期" width="120" sortable />
+        <el-table-column prop="billing_date" label="计费日期" width="120" sortable>
+          <template #default="{ row }">
+            {{ row.billing_date ? new Date(row.billing_date).toLocaleDateString('zh-CN') : '-' }}
+          </template>
+        </el-table-column>
 
         <el-table-column label="计费模式" width="120">
           <template #default="{ row }">
